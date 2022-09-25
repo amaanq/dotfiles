@@ -310,6 +310,24 @@ return require('packer').startup({
             end,
         });
 
+        use({
+            'andweeb/presence.nvim',
+            event = 'BufRead',
+            config = function()
+                require('amaanq.plugins.presence');
+            end,
+        });
+
+        use({
+            'natecraddock/sessions.nvim',
+            config = function()
+                require("sessions").setup({
+                    events = { "WinEnter" },
+                    session_filepath = ".nvim/session",
+                });
+            end,
+        })
+
     end,
     config = {
         display = {
