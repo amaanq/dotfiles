@@ -1,0 +1,1 @@
+/home/amaanq/.config/nvim/init.lua
