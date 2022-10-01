@@ -1,15 +1,13 @@
--------------------------------------------------
--- AMAANQ'S NEOVIM CONFIGURATION
--- Neovim website: https://neovim.io/
--------------------------------------------------
+local util = require("util")
 
-require("amaanq.settings");
-require("amaanq.autocmd");
-require("amaanq.plugins");
-require("amaanq.keybinds");
+-- util.debug_pcall()
 
----Pretty print lua table
-function _G.dump(...)
-    local objects = vim.tbl_map(vim.inspect, { ... })
-    print(unpack(objects))
-end
+util.require("config.options")
+
+vim.schedule(function()
+	util.packer_defered()
+	util.version()
+	util.require("config.commands")
+	util.require("config.mappings")
+	util.require("config.plugins")
+end)
