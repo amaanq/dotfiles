@@ -23,19 +23,17 @@ function M.setup(options)
 			--   -- options right now: termopen / quickfix
 			--   executor = require("rust-tools/executors").termopen,
 
-			--   runnables = {
-			--     -- whether to use telescope for selection menu or not
-			--     use_telescope = true,
+			runnables = {
+				-- whether to use telescope for selection menu or not
+				use_telescope = true,
+				-- rest of the opts are forwarded to telescope
+			},
 
-			--     -- rest of the opts are forwarded to telescope
-			--   },
-
-			--   debuggables = {
-			--     -- whether to use telescope for selection menu or not
-			--     use_telescope = true,
-
-			--     -- rest of the opts are forwarded to telescope
-			--   },
+			debuggables = {
+				-- whether to use telescope for selection menu or not
+				use_telescope = true,
+				-- rest of the opts are forwarded to telescope
+			},
 
 			--   -- These apply to the default RustSetInlayHints command
 			inlay_hints = {
@@ -72,12 +70,14 @@ function M.setup(options)
 				right_align_padding = 7,
 
 				--     -- The color of the hints
-				highlight = "LspCodeLens",
+				highlight = "Comment",
 			},
 
 			--   hover_actions = {
 			--     -- the border that is used for the hover window
 			--     -- see vim.api.nvim_open_win()
+			hover_actions = { auto_focus = true },
+
 			border = {
 				{ "╭", "FloatBorder" },
 				{ "─", "FloatBorder" },
@@ -114,45 +114,46 @@ function M.setup(options)
 		-- -- all the opts to send to nvim-lspconfig
 		-- -- these override the defaults set by rust-tools.nvim
 		-- -- see https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#rust_analyzer
-		server = {
-			flags = {
-				allow_incremental_sync = true,
-				debounce_text_changes = 200,
-			},
-
-			capabilities = capabilities(),
-
-			on_attach = function(client, bufnr)
-				navic.attach(client, bufnr)
-				-- Hover actions
-				vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
-				-- Code action groups
-				vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
-				-- Toggle inlay hints
-				vim.keymap.set("n", "<Leader>ii", ":lua rt.inlay_hints.set()", { buffer = bufnr })
-				vim.keymap.set("n", "<Leader>io", ":lua rt.inlay_hints.unset()", { buffer = bufnr })
-			end,
-
-			settings = {
-				["rust-analyzer"] = {
-					cargo = {
-						allFeatures = true,
-					},
-					checkOnSave = {
-						allFeatures = true,
-						command = "clippy",
-						extraArgs = { "--no-deps" },
-					},
-					procMacro = {
-						ignored = {
-							["async-trait"] = { "async_trait" },
-							["napi-derive"] = { "napi" },
-							["async-recursion"] = { "async_recursion" },
-						},
-					},
-				},
-			},
-		}, -- rust-analyer options
+		-- server = {
+		-- 	flags = {
+		-- 		allow_incremental_sync = true,
+		-- 		debounce_text_changes = 200,
+		-- 	},
+		--
+		capabilities = capabilities(),
+		--
+		on_attach = function(client, bufnr)
+			navic.attach(client, bufnr)
+			-- Hover actions
+			vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
+			-- Code action groups
+			vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
+			-- Toggle inlay hints
+			vim.keymap.set("n", "<C-ii>", ":lua rt.inlay_hints.set()", { buffer = bufnr })
+			vim.keymap.set("n", "<C-io>", ":lua rt.inlay_hints.unset()", { buffer = bufnr })
+		end,
+		--
+		-- 	settings = {
+		-- 		["rust-analyzer"] = {
+		-- 			cargo = {
+		-- 				allFeatures = true,
+		-- 			},
+		-- 			checkOnSave = {
+		-- 				allFeatures = true,
+		-- 				command = "clippy",
+		-- 				extraArgs = { "--no-deps" },
+		-- 			},
+		-- 			procMacro = {
+		-- 				ignored = {
+		-- 					["async-trait"] = { "async_trait" },
+		-- 					["napi-derive"] = { "napi" },
+		-- 					["async-recursion"] = { "async_recursion" },
+		-- 				},
+		-- 			},
+		-- 		},
+		-- 	},
+		--
+		server = options,
 
 		-- -- debugging stuff
 		dap = {
@@ -164,7 +165,10 @@ function M.setup(options)
 		},
 	}
 
+	require("rust-tools").inlay_hints.enable()
+	require("rust-tools").inlay_hints.set()
 	require("rust-tools").setup(opts)
+	require("rust-tools-debug").setup()
 end
 
 return M

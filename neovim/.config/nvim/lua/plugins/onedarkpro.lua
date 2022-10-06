@@ -2,16 +2,30 @@ return {
 	opt = false,
 	config = function()
 		local onedarkpro = require("onedarkpro")
-		local colors = require("onedarkpro").get_colors(vim.g.onedarkpro_theme)
+		local colors = onedarkpro.get_colors(vim.g.onedarkpro_theme)
 
 		onedarkpro.setup({
 			dark_theme = "onedark_vivid",
 
 			highlights = {
-				-- Cursor
+				Cursor = {
+					fg = "${blue}",
+					bg = "${cursorline}",
+					style = "bold",
+				},
 				CursorLineNr = {
 					fg = "${blue}",
 					bg = "${cursorline}",
+					style = "bold",
+				},
+				TermCursor = {
+					fg = "${blue}",
+					bg = "${cursorline}",
+					style = "bold",
+				},
+				TabLineSel = {
+					fg = "${fg}",
+					bg = "${bg}",
 					style = "bold",
 				},
 
@@ -52,7 +66,27 @@ return {
 				-- 	bg = "${bg}",
 				-- 	fg = "${bg}",
 				-- },
+				["@constant.builtin.rust"] = { fg = "${cyan}" },
+				["@field.rust"] = { fg = "${red}" },
+				["@function.builtin.rust"] = { fg = "${cyan}" },
+				["@function.macro.rust"] = { fg = "${orange}" },
+				["@keyword.rust"] = { fg = "${purple}" },
+				["@label.rust"] = { fg = "${white}" },
+				["@operator.rust"] = { fg = "${fg}" },
+				["@parameter.rust"] = { fg = "${red}", style = "italic" },
+				-- ["@punctuation.bracket.rust"] = { fg = "${purple}" },
+				["@variable.builtin.rust"] = { fg = "${purple}", style = "italic" },
+
+				["@property.toml"] = { fg = "${purple}" },
 			},
+			-- ft_highlights = {
+			-- 	rust = {
+			-- 		TSField = { fg = "${red}" },
+			-- 	},
+			-- 	-- lua = {
+			-- 	-- 	TSField = { fg = "${red}" },
+			-- 	-- },
+			-- },
 			options = {
 				bold = true,
 				italic = true,
@@ -63,7 +97,6 @@ return {
 				-- window_unfocused_color = true,
 			},
 		})
-		-- onedarkpro.load()
 		vim.cmd("colorscheme onedarkpro")
 	end,
 }

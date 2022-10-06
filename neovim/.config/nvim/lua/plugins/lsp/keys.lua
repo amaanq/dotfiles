@@ -1,5 +1,4 @@
 local wk = require("which-key")
-local util = require("util")
 
 local M = {}
 
@@ -18,10 +17,9 @@ function M.setup(client, bufnr)
 				i = { "<cmd>LspInfo<cr>", "Lsp Info" },
 				a = { "<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>", "Add Folder" },
 				r = { "<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>", "Remove Folder" },
-				l = {
-					"<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>",
-					"List Folders",
-				},
+				l = { "<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>", "List Folders" },
+				h = { "<cmd>lua vim.lsp.codelens.run()<CR>", "Run Code Lens" },
+				d = { "<cmd>lua vim.lsp.codelens.refresh()<CR>", "Refresh Code Lens" },
 			},
 		},
 		x = {

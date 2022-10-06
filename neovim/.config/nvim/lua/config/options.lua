@@ -23,7 +23,7 @@ end
 -- vim.opt.foldexpr = "nvim_treesitter#foldexpr()" -- TreeSitter folding
 -- vim.opt.foldlevel = 6
 -- vim.opt.foldmethod = "expr" -- TreeSitter folding
-vim.opt.guifont = "Droid Sans Mono:h10"
+vim.opt.guifont = "DejaVu Sans:h10"
 vim.opt.grepprg = "rg --vimgrep --smart-case --"
 vim.opt.grepformat = "%f:%l:%c:%m"
 vim.opt.hidden = true -- Enable modified buffers in background
