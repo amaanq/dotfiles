@@ -1,3 +1,5 @@
+---@diagnostic disable: missing-parameter
+
 local M = {
 	event = "InsertEnter",
 	module = "cmp",
@@ -53,7 +55,7 @@ function M.config()
 		-- },
 		experimental = {
 			ghost_text = {
-				hl_group = "LspCodeLens",
+				hl_group = "Comment",
 			},
 		},
 		-- sorting = {

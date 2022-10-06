@@ -5,8 +5,11 @@ local M = {
 		"nvim-treesitter/nvim-treesitter-textobjects",
 		"RRethy/nvim-treesitter-textsubjects",
 		"nvim-treesitter/nvim-treesitter-refactor",
+		"p00f/nvim-ts-rainbow",
 	},
 }
+
+-- local colors = require("onedarkpro").get_colors(vim.g.onedarkpro_theme)
 
 function M.config()
 	require("nvim-treesitter.configs").setup({
@@ -17,9 +20,13 @@ function M.config()
 			"comment",
 			"cpp",
 			"css",
+			"cuda",
+			"dockerfile",
 			"fish",
+			"gitattributes",
 			"gitignore",
 			"go",
+			"gomod",
 			"graphql",
 			"help",
 			"html",
@@ -27,9 +34,12 @@ function M.config()
 			"java",
 			"javascript",
 			"jsdoc",
+			"json",
 			"jsonc",
+			"kotlin",
 			"latex",
 			"lua",
+			"make",
 			"markdown",
 			"markdown_inline",
 			"meson",
@@ -38,8 +48,8 @@ function M.config()
 			"norg",
 			"org",
 			"php",
+			"proto",
 			"python",
-			"regex",
 			"regex",
 			"rust",
 			"scss",
@@ -48,13 +58,12 @@ function M.config()
 			"toml",
 			"tsx",
 			"typescript",
+			"vala",
 			"vim",
 			"vue",
 			"wgsl",
 			"yaml",
-			-- "wgsl",
-			-- "json",
-			-- "markdown",
+			"zig",
 		},
 		sync_install = false,
 		auto_install = true,
@@ -144,6 +153,13 @@ function M.config()
 					["gD"] = "@function.outer",
 				},
 			},
+		},
+		rainbow = {
+			enable = true,
+			-- disable = { "jsx", "cpp" }, list of languages you want to disable the plugin for
+			extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
+			max_file_lines = 5000, -- Do not enable for files with more than n lines, int
+			colors = { colors.purple, colors.cyan, colors.orange },
 		},
 	})
 end

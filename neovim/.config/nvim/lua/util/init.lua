@@ -1,4 +1,5 @@
--- selene: allow(global_usage)
+---@diagnostic disable: missing-parameter
+
 _G.dump = function(...)
 	vim.pretty_print(...)
 end
@@ -37,7 +38,8 @@ end
 local M = {}
 
 function M.packer_defered()
-	vim.api.nvim_exec_autocmds("User", { pattern = "PackerDefered" })
+	vim.cmd([[do User PackerDefered]])
+	-- vim.api.nvim_exec_autocmds("User", { pattern = "PackerDefered" })
 end
 
 function M.require(mod)
@@ -105,7 +107,8 @@ function M.toggle(option, silent)
 	end
 end
 
-function M.float_terminal(cmd)
+---@param fn fun(buf: buffer, win: window)
+function M.float(fn)
 	local buf = vim.api.nvim_create_buf(false, true)
 	local vpad = 4
 	local hpad = 10
@@ -118,14 +121,44 @@ function M.float_terminal(cmd)
 		style = "minimal",
 		border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
 	})
-	vim.fn.termopen(cmd)
-	local autocmd = {
-		"autocmd! TermClose <buffer> lua",
-		string.format("vim.api.nvim_win_close(%d, {force = true});", win),
-		string.format("vim.api.nvim_buf_delete(%d, {force = true});", buf),
-	}
-	vim.cmd(table.concat(autocmd, " "))
-	vim.cmd([[startinsert]])
+	local function close()
+		if vim.api.nvim_buf_is_valid(buf) then
+			vim.api.nvim_buf_delete(buf, { force = true })
+		end
+		if vim.api.nvim_win_is_valid(win) then
+			vim.api.nvim_win_close(win, true)
+		end
+	end
+
+	vim.keymap.set("n", "<ESC>", close, { buffer = buf, nowait = true })
+	vim.keymap.set("n", "q", close, { buffer = buf, nowait = true })
+	vim.api.nvim_create_autocmd({ "BufDelete", "BufLeave", "BufHidden" }, {
+		once = true,
+		buffer = buf,
+		callback = close,
+	})
+	fn(buf, win)
+end
+
+function M.float_cmd(cmd)
+	M.float(function(buf)
+		local output = vim.api.nvim_exec(cmd, true)
+		local lines = vim.split(output, "\n")
+		vim.api.nvim_buf_set_lines(buf, 0, -1, true, lines)
+	end)
+end
+
+function M.float_terminal(cmd)
+	M.float(function(buf, win)
+		vim.fn.termopen(cmd)
+		local autocmd = {
+			"autocmd! TermClose <buffer> lua",
+			string.format("vim.api.nvim_win_close(%d, {force = true});", win),
+			string.format("vim.api.nvim_buf_delete(%d, {force = true});", buf),
+		}
+		vim.cmd(table.concat(autocmd, " "))
+		vim.cmd([[startinsert]])
+	end)
 end
 
 function M.exists(fname)
@@ -168,6 +201,34 @@ function M.clipman()
 			else
 				vim.notify(("failed to load clipman from %s"):format(file), vim.log.levels.ERROR)
 			end
+		end
+	end
+end
+
+function M.debounce(ms, fn)
+	local timer = vim.loop.new_timer()
+	return function(...)
+		local argv = { ... }
+		timer:start(ms, 0, function()
+			timer:stop()
+			vim.schedule_wrap(fn)(unpack(argv))
+		end)
+	end
+end
+
+function M.throttle(ms, fn)
+	local timer = vim.loop.new_timer()
+	local running = false
+	return function(...)
+		if not running then
+			local argv = { ... }
+			local argc = select("#", ...)
+
+			timer:start(ms, 0, function()
+				running = false
+				pcall(vim.schedule_wrap(fn), unpack(argv, 1, argc))
+			end)
+			running = true
 		end
 	end
 end

@@ -1,4 +1,4 @@
-local M = { event = "User PackerDefered" }
+local M = { event = "User PackerDefered", requires = "folke/noice.nvim" }
 
 local function clock()
 	return " " .. os.date("%H:%M")
@@ -31,7 +31,29 @@ function M.config()
 				{ "filename", path = 1, symbols = { modified = "  ", readonly = "", unnamed = "" } },
 			},
 
-			lualine_x = { require("github-notifications").statusline_notification_count, holidays },
+			lualine_x = {
+				-- {
+				-- 	require("noice.status").message.get_hl,
+				-- 	cond = require("noice.status").message.has,
+				-- },
+				-- {
+				-- 	require("noice.status").command.get,
+				-- 	cond = require("noice.status").command.has,
+				-- 	color = { fg = "#ff9e64" },
+				-- },
+				-- {
+				-- 	require("noice.status").mode.get,
+				-- 	cond = require("noice.status").mode.has,
+				-- 	color = { fg = "#ff9e64" },
+				-- },
+				-- {
+				-- 	require("noice.status").search.get,
+				-- 	cond = require("noice.status").search.has,
+				-- 	color = { fg = "#ff9e64" },
+				-- },
+				{ require("github-notifications").statusline_notification_count },
+				{ holidays },
+			},
 			lualine_y = { "location" },
 			lualine_z = { clock },
 		},
@@ -52,7 +74,8 @@ function M.config()
 				{
 					function()
 						local navic = require("nvim-navic")
-						return navic.get_location()
+						local ret = navic.get_location()
+						return ret:len() > 2000 and "navic error" or ret
 					end,
 					cond = function()
 						local navic = require("nvim-navic")
