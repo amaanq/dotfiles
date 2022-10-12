@@ -1,14 +1,15 @@
+---@diagnostic disable: missing-parameter
+
 local M = {
 	event = "BufReadPre",
+	requires = "jose-elias-alvarez/typescript.nvim",
 }
 
 function M.config()
-	-- require("workspace").setup()
 	require("lua-dev").setup()
 	require("mason")
 	require("plugins.lsp.diagnostics").setup()
 	require("fidget").setup({ text = { spinner = "dots" } })
-	-- require("neoconf").setup()
 
 	local function on_attach(client, bufnr)
 		require("nvim-navic").attach(client, bufnr)
@@ -16,7 +17,7 @@ function M.config()
 		require("plugins.lsp.keys").setup(client, bufnr)
 	end
 
-	---@type lspconfig.options
+	---@type _.lspconfig.options
 	local servers = {
 		ansiblels = {},
 		bashls = {},
@@ -41,19 +42,55 @@ function M.config()
 		rust_analyzer = {
 			settings = {
 				["rust-analyzer"] = {
-					cargo = { allFeatures = true },
+					cargo = {
+						allFeatures = true,
+					},
 					checkOnSave = {
+						allFeatures = true,
 						command = "clippy",
 						extraArgs = { "--no-deps" },
+					},
+					procMacro = {
+						ignored = {
+							["async-trait"] = { "async_trait" },
+							["napi-derive"] = { "napi" },
+							["async-recursion"] = { "async_recursion" },
+						},
 					},
 				},
 			},
 		},
 		sumneko_lua = {
+			-- cmd = { "/home/folke/projects/lua-language-server/bin/lua-language-server" },
 			single_file_support = true,
 			settings = {
 				Lua = {
+					workspace = {
+						checkThirdParty = false,
+					},
+					completion = {
+						workspaceWord = false,
+					},
+					misc = {
+						parameters = {
+							"--log-level=trace",
+						},
+					},
 					diagnostics = {
+						groupFileStatus = {
+							["ambiguity"] = "Opened",
+							["await"] = "Opened",
+							["codestyle"] = "None",
+							["duplicate"] = "Opened",
+							["global"] = "Opened",
+							["luadoc"] = "Opened",
+							["redefined"] = "Opened",
+							["strict"] = "Opened",
+							["strong"] = "Opened",
+							["type-check"] = "Opened",
+							["unbalanced"] = "Opened",
+							["unused"] = "Opened",
+						},
 						unusedLocalExclude = { "_*" },
 					},
 					format = {
@@ -76,6 +113,7 @@ function M.config()
 		dynamicRegistration = false,
 		lineFoldingOnly = true,
 	}
+	capabilities.offsetEncoding = { "utf-16" }
 
 	---@type _.lspconfig.options
 	local options = {
@@ -88,10 +126,13 @@ function M.config()
 
 	for server, opts in pairs(servers) do
 		opts = vim.tbl_deep_extend("force", {}, options, opts or {})
-		if server == "tsserver" then
-			require("typescript").setup({ server = opts })
-		else
+
+		if server ~= "tsserver" and server ~= "rust_analyzer" then
 			require("lspconfig")[server].setup(opts)
+		elseif server == "rust_analyzer" then
+			require("plugins.rust-tools").setup(opts)
+		elseif server == "tsserver" then
+			require("typescript").setup({ server = opts })
 		end
 	end
 
