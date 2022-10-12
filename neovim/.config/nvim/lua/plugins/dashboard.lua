@@ -3,29 +3,20 @@ return {
 	config = function()
 		local db = require("dashboard")
 
-		local logo = [[
-███╗   ██╗ ███████╗ ██████╗  ██╗   ██╗ ██╗ ███╗   ███╗
-████╗  ██║ ██╔════╝██╔═══██╗ ██║   ██║ ██║ ████╗ ████║
-██╔██╗ ██║ █████╗  ██║   ██║ ██║   ██║ ██║ ██╔████╔██║
-██║╚██╗██║ ██╔══╝  ██║   ██║ ╚██╗ ██╔╝ ██║ ██║╚██╔╝██║
-██║ ╚████║ ███████╗╚██████╔╝  ╚████╔╝  ██║ ██║ ╚═╝ ██║
-╚═╝  ╚═══╝ ╚══════╝ ╚═════╝    ╚═══╝   ╚═╝ ╚═╝     ╚═╝
-]]
-
-		logo = [[
-                                                        *                  
-     *                                                          *          
-                                  *                  *        .--.         
-      \/ \/  \/  \/                                        ./   /=*        
-        \/     \/      *            *                ...  (_____)          
-         \ ^ ^/                                       \ \_((^o^))-.     *  
-         (o)(O)--)--------\.                           \   (   ) \  \._.   
-         |    |  ||================((~~~~~~~~~~~~~~~~~))|   ( )   |     \  
-          \__/             ,|        \. * * * * * * ./  (~~~~~~~~~~~)    \ 
-   *        ||^||\.____./|| |          \___________/     ~||~~~~|~'\____/ *
-            || ||     || || A            ||    ||          ||    |   jurcy 
-     *      <> <>     <> <>          (___||____||_____)   ((~~~~~|   *     
-]]
+		-- 		logo = [[
+		--                                                         *
+		--      *                                                          *
+		--                                   *                  *        .--.
+		--       \/ \/  \/  \/                                        ./   /=*
+		--         \/     \/      *            *                ...  (_____)
+		--          \ ^ ^/                                       \ \_((^o^))-.     *
+		--          (o)(O)--)--------\.                           \   (   ) \  \._.
+		--          |    |  ||================((~~~~~~~~~~~~~~~~~))|   ( )   |     \
+		--           \__/             ,|        \. * * * * * * ./  (~~~~~~~~~~~)    \
+		--    *        ||^||\.____./|| |          \___________/     ~||~~~~|~'\____/ *
+		--             || ||     || || A            ||    ||          ||    |   jurcy
+		--      *      <> <>     <> <>          (___||____||_____)   ((~~~~~|   *
+		-- ]]
 
 		logo = [[
     ███╗   ██╗ ███████╗ ██████╗  ██╗   ██╗ ██╗ ███╗   ███╗
@@ -72,41 +63,40 @@ return {
 				icon = "  ",
 				desc = "Recent sessions                         ",
 				shortcut = "SPC s l",
-				action = "SessionLoad",
+				action = [[lua require("persistence").load()]],
 			},
 			{
 				icon = "  ",
 				desc = "Find recent files                       ",
-				action = "Telescope oldfiles",
+				--action = "Telescope oldfiles",
 				shortcut = "SPC f r",
 			},
 			{
 				icon = "  ",
 				desc = "Find files                              ",
-				action = "Telescope find_files find_command=rg,--hidden,--files",
+				--action = "Telescope find_files find_command=rg,--hidden,--files",
 				shortcut = "SPC f f",
 			},
 			{
 				icon = "  ",
 				desc = "File browser                            ",
-				action = "Telescope file_browser",
+				--action = "Telescope file_browser",
 				shortcut = "SPC f b",
 			},
 			{
 				icon = "  ",
 				desc = "Find word                               ",
-				action = "Telescope live_grep",
+				--action = "Telescope live_grep",
 				shortcut = "SPC f w",
 			},
 			{
 				icon = "  ",
 				desc = "Load new theme                          ",
-				action = "Telescope colorscheme",
+				--action = "Telescope colorscheme",
 				shortcut = "SPC h t",
 			},
 		}
 		db.custom_footer = { "", "🎉 If I'm using Neovim, then I must've really lost my mind." }
-		db.session_directory = "/home/amaanq/.config/nvim/session"
 
 		vim.g.dashboard_custom_header = lines
 

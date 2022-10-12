@@ -23,7 +23,7 @@ end
 -- vim.opt.foldexpr = "nvim_treesitter#foldexpr()" -- TreeSitter folding
 -- vim.opt.foldlevel = 6
 -- vim.opt.foldmethod = "expr" -- TreeSitter folding
-vim.opt.guifont = "Droid Sans Mono:h10"
+vim.opt.guifont = "DejaVu Sans:h10"
 vim.opt.grepprg = "rg --vimgrep --smart-case --"
 vim.opt.grepformat = "%f:%l:%c:%m"
 vim.opt.hidden = true -- Enable modified buffers in background
@@ -46,7 +46,7 @@ vim.opt.smartcase = true -- Don't ignore case with capitals
 vim.opt.smartindent = true -- Insert indents automatically
 
 -- if vim.fn.has("nvim-0.8") == 1 then
---   vim.opt.spell = true -- Put new windows below current
+-- 	vim.opt.spell = true -- Put new windows below current
 -- end
 vim.opt.splitbelow = true -- Put new windows below current
 vim.opt.splitright = true -- Put new windows right of current
@@ -57,7 +57,7 @@ vim.opt.undolevels = 10000
 vim.opt.updatetime = 200 -- save swap file and trigger CursorHold
 vim.opt.wildmode = "longest:full,full" -- Command-line completion mode
 vim.opt.wrap = false -- Disable line wrap
--- vim.opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize" }
+vim.opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize" }
 vim.opt.listchars = "trail:·,nbsp:◇,tab:→ ,extends:▸,precedes:◂"
 vim.opt.fillchars = {
 	--   horiz = "━",

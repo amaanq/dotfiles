@@ -12,34 +12,66 @@ local config = {
 	},
 	opt_default = true,
 	auto_reload_compiled = false,
-	-- list of plugins that should be taken from ~/projects
-	-- this is NOT packer functionality!
 }
 
 local function plugins(use, plugin)
 	-- Packer can manage itself as an optional plugin
 	use({ "wbthomason/packer.nvim" })
 
+	use({
+		"folke/noice.nvim",
+		module = "noice",
+		event = "VimEnter",
+		config = function()
+			require("noice").setup({
+				views = {
+					cmdline_popup = {
+						position = {
+							row = 5,
+							col = "50%",
+						},
+						size = {
+							width = 60,
+							height = "auto",
+						},
+					},
+					popupmenu = {
+						relative = "editor",
+						position = {
+							row = 8,
+							col = "50%",
+						},
+						size = {
+							width = 60,
+							height = 10,
+						},
+						border = {
+							style = "rounded",
+							padding = { 0, 1 },
+						},
+						win_options = {
+							winhighlight = { Normal = "Normal", FloatBorder = "DiagnosticInfo" },
+						},
+					},
+				},
+			})
+		end,
+	})
+
 	use({ "stevearc/dressing.nvim", event = "User PackerDefered" })
 
 	use({
 		"rcarriga/nvim-notify",
+		module = "notify",
 		event = "User PackerDefered",
 		config = function()
+			require("notify").setup({ level = vim.log.levels.INFO, fps = 144 })
 			vim.notify = require("notify")
 		end,
 	})
 
 	-- LSP
 	use({ "neovim/nvim-lspconfig", plugin = "lsp" })
-
-	-- DAP
-	use({
-		"mfussenegger/nvim-dap",
-		config = function()
-			require("dap")
-		end,
-	})
 
 	use({ "b0o/SchemaStore.nvim", module = "schemastore" })
 	use({ "jose-elias-alvarez/typescript.nvim", module = "typescript" })
@@ -77,8 +109,8 @@ local function plugins(use, plugin)
 		config = function()
 			vim.g.navic_silence = true
 			require("nvim-navic").setup({
+				depth_limit = 5,
 				highlight = true,
-				separator = " ",
 				icons = {
 					File = " ",
 					Module = " ",
@@ -112,6 +144,13 @@ local function plugins(use, plugin)
 	})
 
 	plugin("simrat39/rust-tools.nvim")
+	use({
+		"saecki/crates.nvim",
+		requires = { "nvim-lua/plenary.nvim" },
+		config = function()
+			require("crates").setup()
+		end,
+	})
 
 	use({ "famiu/bufdelete.nvim", cmd = "Bdelete" })
 	plugin("petertriho/nvim-scrollbar")
@@ -141,13 +180,7 @@ local function plugins(use, plugin)
 		end,
 	})
 
-	use({
-		"numToStr/Comment.nvim",
-		keys = { "gc", "gcc", "gbc" },
-		config = function()
-			require("Comment").setup({})
-		end,
-	})
+	plugin("numToStr/Comment.nvim")
 
 	plugin("nvim-neo-tree/neo-tree.nvim")
 
@@ -166,7 +199,17 @@ local function plugins(use, plugin)
 
 	plugin("nvim-treesitter/nvim-treesitter")
 
-	use({ "nvim-treesitter/playground", cmd = "TSHighlightCapturesUnderCursor" })
+	use({ "nvim-treesitter/playground", cmd = { "TSHighlightCapturesUnderCursor", "TSPlaygroundToggle" } })
+
+	-- use({
+	-- 	"m-demare/hlargs.nvim",
+	-- 	event = "User PackerDefered",
+	-- 	config = function()
+	-- 		require("hlargs").setup({
+	-- 			color = require("onedarkpro").get_colors(vim.g.onedarkpro_theme).red,
+	-- 		})
+	-- 	end,
+	-- })
 
 	-- Theme: color schemes
 	-- plugin("folke/tokyonight.nvim")
@@ -217,7 +260,11 @@ local function plugins(use, plugin)
 	plugin("lewis6991/gitsigns.nvim")
 	plugin("TimUntersberger/neogit")
 
+	-- DAP
+	plugin("mfussenegger/nvim-dap")
+
 	use({ "rlch/github-notifications.nvim", module = "github-notifications" })
+
 	-- Statusline
 	plugin("nvim-lualine/lualine.nvim")
 
@@ -337,16 +384,6 @@ local function plugins(use, plugin)
 			vim.g.matchup_matchparen_offscreen = { method = "status_manual" }
 		end,
 	})
-
-	-- use({
-	-- 	"natecraddock/sessions.nvim",
-	-- 	config = function()
-	-- 		require("sessions").setup({
-	-- 			events = { "WinEnter" },
-	-- 			session_filepath = ".nvim/sessions",
-	-- 		})
-	-- 	end,
-	-- })
 end
 
 return packer.setup(config, plugins)

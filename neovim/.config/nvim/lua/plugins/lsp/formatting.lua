@@ -1,3 +1,5 @@
+---@diagnostic disable: missing-parameter
+
 local util = require("util")
 
 local M = {}
@@ -31,11 +33,12 @@ function M.setup(client, buf)
 	local ft = vim.api.nvim_buf_get_option(buf, "filetype")
 	local nls = require("plugins.null-ls")
 
-	local enable = false
+	local enable
 	if nls.has_formatter(ft) then
 		enable = client.name == "null-ls"
 	else
-		enable = not (client.name == "null-ls")
+		-- enable = not (client.name == "null-ls")
+		enable = client.name ~= "null-ls"
 	end
 
 	if client.name == "tsserver" then
@@ -48,10 +51,20 @@ function M.setup(client, buf)
 	-- format on save
 	if client.server_capabilities.documentFormattingProvider then
 		vim.cmd([[
-      augroup LspFormat
-        autocmd! * <buffer>
-        autocmd BufWritePre <buffer> lua require("plugins.lsp.formatting").format()
-      augroup END
+        augroup LspFormat
+            autocmd! * <buffer>
+            autocmd BufWritePre <buffer> lua require("plugins.lsp.formatting").format()
+        augroup END
+    ]])
+	end
+
+	if client.server_capabilities.codeLensProvider then
+		vim.cmd([[
+        augroup lsp_document_codelens
+            au! * <buffer>
+            autocmd BufEnter ++once         <buffer> lua require"vim.lsp.codelens".refresh()
+            autocmd BufWritePost,CursorHold <buffer> lua require"vim.lsp.codelens".refresh()
+        augroup END
     ]])
 	end
 end

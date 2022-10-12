@@ -1,160 +1,96 @@
 local M = {
 	module = "rust-tools",
 }
-local navic = require("nvim-navic")
-local rt = require("rust-tools")
-
-local function capabilities()
-	-- The nvim-cmp almost supports LSP's capabilities so you should advertise it to LSP servers..
-	return require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities())
-end
 
 function M.setup(options)
+	local rt = require("rust-tools")
+
 	local opts = {
-		tools = { -- rust-tools options
-			--   -- Automatically set inlay hints (type hints)
-			autoSetHints = true,
+		tools = {
+			-- options right now: termopen / quickfix
+			-- executor = require("rust-tools/executors").termopen,
 
-			--   -- Whether to show hover actions inside the hover window
-			--   -- This overrides the default hover handler
-			hover_with_actions = true,
+			runnables = {
+				-- whether to use telescope for selection menu or not
+				use_telescope = true,
+				-- rest of the opts are forwarded to telescope
+			},
 
-			--   -- how to execute terminal commands
-			--   -- options right now: termopen / quickfix
-			--   executor = require("rust-tools/executors").termopen,
+			debuggables = {
+				-- whether to use telescope for selection menu or not
+				use_telescope = true,
+				-- rest of the opts are forwarded to telescope
+			},
 
-			--   runnables = {
-			--     -- whether to use telescope for selection menu or not
-			--     use_telescope = true,
-
-			--     -- rest of the opts are forwarded to telescope
-			--   },
-
-			--   debuggables = {
-			--     -- whether to use telescope for selection menu or not
-			--     use_telescope = true,
-
-			--     -- rest of the opts are forwarded to telescope
-			--   },
-
-			--   -- These apply to the default RustSetInlayHints command
+			-- These apply to the default RustSetInlayHints command
 			inlay_hints = {
-
-				--     -- Only show inlay hints for the current line
-				only_current_line = false,
-
-				--     -- Event which triggers a refersh of the inlay hints.
-				--     -- You can make this "CursorMoved" or "CursorMoved,CursorMovedI" but
-				--     -- not that this may cause  higher CPU usage.
-				--     -- This option is only respected when only_current_line and
-				--     -- autoSetHints both are true.
-				--     only_current_line_autocmd = "CursorHold",
-
-				--     -- wheter to show parameter hints with the inlay hints or not
+				-- whether to show parameter hints with the inlay hints or not
 				show_parameter_hints = true,
 
-				--     -- prefix for parameter hints
-				parameter_hints_prefix = "  <-  ",
+				-- prefix for parameter hints
+				-- parameter_hints_prefix = "  <-  ",
 
-				--     -- prefix for all the other hints (type, chaining)
-				other_hints_prefix = "  =>  ",
+				-- prefix for all the other hints (type, chaining)
+				-- other_hints_prefix = "  =>  ",
 
-				--     -- whether to align to the length of the longest line in the file
-				max_len_align = true,
+				-- whether to align to the length of the longest line in the file
+				-- max_len_align = true,
 
-				--     -- padding from the left if max_len_align is true
-				max_len_align_padding = 10,
+				-- padding from the left if max_len_align is true
+				-- max_len_align_padding = 10,
 
-				--     -- whether to align to the extreme right or not
-				right_align = false,
-
-				--     -- padding from the right if right_align is true
-				right_align_padding = 7,
-
-				--     -- The color of the hints
 				highlight = "LspCodeLens",
 			},
 
-			--   hover_actions = {
-			--     -- the border that is used for the hover window
-			--     -- see vim.api.nvim_open_win()
-			border = {
-				{ "╭", "FloatBorder" },
-				{ "─", "FloatBorder" },
-				{ "╮", "FloatBorder" },
-				{ "│", "FloatBorder" },
-				{ "╯", "FloatBorder" },
-				{ "─", "FloatBorder" },
-				{ "╰", "FloatBorder" },
-				{ "│", "FloatBorder" },
-			},
-
-			--     -- whether the hover action window gets automatically focused
-			--     auto_focus = false,
-			--   },
-
-			--   -- settings for showing the crate graph based on graphviz and the dot
-			--   -- command
-			--   crate_graph = {
-			--     -- Backend used for displaying the graph
-			--     -- see: https://graphviz.org/docs/outputs/
-			--     -- default: x11
-			--     backend = "x11",
-			--     -- where to store the output, nil for no output stored (relative
-			--     -- path from pwd)
-			--     -- default: nil
-			--     output = nil,
-			--     -- true for all crates.io and external crates, false only the local
-			--     -- crates
-			--     -- default: true
-			--     full = true,
-			--   },
-		},
-
-		-- -- all the opts to send to nvim-lspconfig
-		-- -- these override the defaults set by rust-tools.nvim
-		-- -- see https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#rust_analyzer
-		server = {
-			flags = {
-				allow_incremental_sync = true,
-				debounce_text_changes = 200,
-			},
-
-			capabilities = capabilities(),
-
-			on_attach = function(client, bufnr)
-				navic.attach(client, bufnr)
-				-- Hover actions
-				vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
-				-- Code action groups
-				vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
-				-- Toggle inlay hints
-				vim.keymap.set("n", "<Leader>ii", ":lua rt.inlay_hints.set()", { buffer = bufnr })
-				vim.keymap.set("n", "<Leader>io", ":lua rt.inlay_hints.unset()", { buffer = bufnr })
-			end,
-
-			settings = {
-				["rust-analyzer"] = {
-					cargo = {
-						allFeatures = true,
-					},
-					checkOnSave = {
-						allFeatures = true,
-						command = "clippy",
-						extraArgs = { "--no-deps" },
-					},
-					procMacro = {
-						ignored = {
-							["async-trait"] = { "async_trait" },
-							["napi-derive"] = { "napi" },
-							["async-recursion"] = { "async_recursion" },
-						},
-					},
+			hover_actions = {
+				auto_focus = true,
+				border = {
+					{ "╭", "FloatBorder" },
+					{ "─", "FloatBorder" },
+					{ "╮", "FloatBorder" },
+					{ "│", "FloatBorder" },
+					{ "╯", "FloatBorder" },
+					{ "─", "FloatBorder" },
+					{ "╰", "FloatBorder" },
+					{ "│", "FloatBorder" },
 				},
 			},
-		}, -- rust-analyer options
+		},
 
-		-- -- debugging stuff
+		on_attach = function(client, bufnr)
+			require("nvim-navic").attach(client, bufnr)
+			-- Hover actions
+			vim.keymap.set("n", "<C-space>", rt.hover_actions.hover_actions, { buffer = bufnr })
+			-- -- Code action groups
+			vim.keymap.set("n", "<Leader>a", rt.code_action_group.code_action_group, { buffer = bufnr })
+			-- -- Toggle inlay hints
+			vim.keymap.set("n", "<C-ii>", ":lua rt.inlay_hints.set()", { buffer = bufnr })
+			vim.keymap.set("n", "<C-io>", ":lua rt.inlay_hints.unset()", { buffer = bufnr })
+		end,
+		--
+		-- 	settings = {
+		-- 		["rust-analyzer"] = {
+		-- 			cargo = {
+		-- 				allFeatures = true,
+		-- 			},
+		-- 			checkOnSave = {
+		-- 				allFeatures = true,
+		-- 				command = "clippy",
+		-- 				extraArgs = { "--no-deps" },
+		-- 			},
+		-- 			procMacro = {
+		-- 				ignored = {
+		-- 					["async-trait"] = { "async_trait" },
+		-- 					["napi-derive"] = { "napi" },
+		-- 					["async-recursion"] = { "async_recursion" },
+		-- 				},
+		-- 			},
+		-- 		},
+		-- 	},
+		--
+		server = options,
+
+		-- debugging stuff
 		dap = {
 			adapter = {
 				type = "executable",
@@ -163,8 +99,9 @@ function M.setup(options)
 			},
 		},
 	}
-
-	require("rust-tools").setup(opts)
+	rt.setup(opts)
+	rt.inlay_hints.enable()
+	rt.inlay_hints.set()
 end
 
 return M

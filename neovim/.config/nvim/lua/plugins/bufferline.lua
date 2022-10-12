@@ -15,16 +15,16 @@ function M.config()
 	local severities = {
 		"error",
 		"warning",
-		-- "info",
-		-- "hint",
+		"info",
+		"hint",
 	}
 
 	require("bufferline").setup({
 		options = {
-			show_close_icon = true,
+			-- show_close_icon = true,
 			diagnostics = "nvim_lsp",
 			always_show_bufferline = false,
-			separator_style = "thick",
+			separator_style = "slant",
 			diagnostics_indicator = function(_, _, diag)
 				local s = {}
 				for _, severity in ipairs(severities) do
@@ -38,9 +38,15 @@ function M.config()
 				{
 					filetype = "neo-tree",
 					text = "Neo Tree",
-					highlight = "Directory",
 					text_align = "left",
+					highlight = "Directory",
+					-- separator = true,
 				},
+			},
+			hover = {
+				enabled = true,
+				delay = 200,
+				reveal = { "close" },
 			},
 		},
 	})
