@@ -1,28 +1,42 @@
 local indent = 4
 
-vim.g.mapleader = " "
-vim.g.maplocalleader = ","
--- vim.g.node_host_prog = "/Users/folke/.pnpm-global/5/node_modules/neovim/bin/cli.js"
-vim.opt.autowrite = true -- enable auto write
-vim.opt.clipboard = "unnamedplus" -- sync with system clipboard
-vim.opt.concealcursor = "nc" -- Hide * markup for bold and italic
-vim.opt.conceallevel = 3 -- Hide * markup for bold and italic
-vim.opt.confirm = true -- confirm to save changes before exiting modified buffer
-vim.opt.cursorline = true -- Enable highlighting of the current line
-vim.opt.expandtab = true -- Use spaces instead of tabs
+vim.notify = function(...)
+	local args = { ... }
+	vim.defer_fn(function()
+		vim.notify(unpack(args))
+	end, 300)
+end
 
-if vim.fn.has("nvim-0.8") ~= 0 then
-	vim.opt.cmdheight = 1
+if vim.fn.has("nvim-0.8") == 1 then
+	--   vim.opt.spell = true -- Put new windows below current
+	vim.opt.cmdheight = 0
+
+	-- make all keymaps silent by default
 	local keymap_set = vim.keymap.set
 	vim.keymap.set = function(mode, lhs, rhs, opts)
 		opts = opts or {}
 		opts.silent = opts.silent ~= false
 		return keymap_set(mode, lhs, rhs, opts)
 	end
+elseif vim.fn.has("nvim-0.9") == 1 then
+	vim.opt.splitkeep = "screen"
 end
+
+vim.g.mapleader = " "
+vim.g.maplocalleader = ","
+
+vim.opt.autowrite = true -- enable auto write
+vim.opt.clipboard = "unnamedplus" -- sync with system clipboard
+-- vim.opt.concealcursor = "nc" -- Hide * markup for bold and italic
+vim.opt.conceallevel = 3 -- Hide * markup for bold and italic
+vim.opt.confirm = true -- confirm to save changes before exiting modified buffer
+vim.opt.cursorline = true -- Enable highlighting of the current line
+vim.opt.expandtab = true -- Use spaces instead of tabs
+
 -- vim.opt.foldexpr = "nvim_treesitter#foldexpr()" -- TreeSitter folding
 -- vim.opt.foldlevel = 6
 -- vim.opt.foldmethod = "expr" -- TreeSitter folding
+
 vim.opt.guifont = "DejaVu Sans:h10"
 vim.opt.grepprg = "rg --vimgrep --smart-case --"
 vim.opt.grepformat = "%f:%l:%c:%m"
@@ -56,6 +70,7 @@ vim.opt.undofile = true
 vim.opt.undolevels = 10000
 vim.opt.updatetime = 200 -- save swap file and trigger CursorHold
 vim.opt.wildmode = "longest:full,full" -- Command-line completion mode
+vim.opt.completeopt = "menu,menuone,noselect"
 vim.opt.wrap = false -- Disable line wrap
 vim.opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize" }
 vim.opt.listchars = "trail:·,nbsp:◇,tab:→ ,extends:▸,precedes:◂"

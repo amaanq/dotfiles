@@ -6,8 +6,9 @@ function M.config()
 	local indent = require("indent_blankline")
 
 	--- PERF: debounce indent-blankline refresh
-	local refresh = indent.refresh
-	indent.refresh = require("util").debounce(100, refresh)
+	-- Disable, throttle, since it was caused by comment TS
+	-- local refresh = indent.refresh
+	-- indent.refresh = require("util").debounce(100, refresh)
 
 	indent.setup({
 		buftype_exclude = { "terminal", "nofile" },
@@ -22,7 +23,7 @@ function M.config()
 			"Trouble",
 		},
 		char = "│",
-		use_treesitter_scope = true,
+		use_treesitter_scope = false,
 		show_trailing_blankline_indent = false,
 		show_current_context = true,
 		context_patterns = {

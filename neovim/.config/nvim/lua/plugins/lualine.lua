@@ -10,6 +10,7 @@ local function holidays()
 end
 
 function M.config()
+	local colors = require("onedarkpro").get_colors(vim.g.onedarkpro_theme)
 	require("lualine").setup({
 		options = {
 			theme = "auto",
@@ -32,25 +33,25 @@ function M.config()
 			},
 
 			lualine_x = {
-				-- {
-				-- 	require("noice.status").message.get_hl,
-				-- 	cond = require("noice.status").message.has,
-				-- },
-				-- {
-				-- 	require("noice.status").command.get,
-				-- 	cond = require("noice.status").command.has,
-				-- 	color = { fg = "#ff9e64" },
-				-- },
-				-- {
-				-- 	require("noice.status").mode.get,
-				-- 	cond = require("noice.status").mode.has,
-				-- 	color = { fg = "#ff9e64" },
-				-- },
-				-- {
-				-- 	require("noice.status").search.get,
-				-- 	cond = require("noice.status").search.has,
-				-- 	color = { fg = "#ff9e64" },
-				-- },
+				{
+					require("noice").api.statusline.message.get_hl,
+					cond = require("noice").api.statusline.message.has,
+				},
+				{
+					require("noice").api.statusline.command.get,
+					cond = require("noice").api.statusline.command.has,
+					color = { fg = colors.blue },
+				},
+				{
+					require("noice").api.statusline.mode.get,
+					cond = require("noice").api.statusline.mode.has,
+					color = { fg = colors.blue },
+				},
+				{
+					require("noice").api.statusline.search.get,
+					cond = require("noice").api.statusline.search.has,
+					color = { fg = colors.blue },
+				},
 				{ require("github-notifications").statusline_notification_count },
 				{ holidays },
 			},
@@ -67,10 +68,12 @@ function M.config()
 			lualine_z = {},
 		},
 		winbar = {
+			lualine_a = {},
+			lualine_b = {},
 			lualine_c = {
-				-- { "diagnostics", sources = { "nvim_diagnostic" } },
-				-- { "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
-				-- { "filename", path = 1, symbols = { modified = "  ", readonly = "", unnamed = "" } },
+				{ "diagnostics", sources = { "nvim_diagnostic" } },
+				{ "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
+				{ "filename", path = 1, symbols = { modified = "  ", readonly = "", unnamed = "" } },
 				{
 					function()
 						local navic = require("nvim-navic")
@@ -83,6 +86,9 @@ function M.config()
 					end,
 				},
 			},
+			lualine_x = {},
+			lualine_y = {},
+			lualine_z = {},
 		},
 		inactive_winbar = {
 			lualine_a = {},

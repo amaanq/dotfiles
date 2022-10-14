@@ -1,15 +1,24 @@
 local M = {
 	run = ":TSUpdate",
 	event = "User PackerDefered",
+	module = "nvim-treesitter",
 	requires = {
 		"nvim-treesitter/nvim-treesitter-textobjects",
 		"RRethy/nvim-treesitter-textsubjects",
 		"nvim-treesitter/nvim-treesitter-refactor",
+		{ "mfussenegger/nvim-treehopper", module = "tsht" },
 		"p00f/nvim-ts-rainbow",
 	},
 }
 
 local colors = require("onedarkpro").get_colors(vim.g.onedarkpro_theme)
+
+function M.init()
+	vim.cmd([[
+    omap     <silent> m :<C-U>lua require('tsht').nodes()<CR>
+    xnoremap <silent> m :lua require('tsht').nodes()<CR>
+  ]])
+end
 
 function M.config()
 	require("nvim-treesitter.configs").setup({
@@ -17,7 +26,7 @@ function M.config()
 			"bash",
 			"c",
 			"cmake",
-			"comment",
+			-- "comment",
 			"cpp",
 			"css",
 			"cuda",
@@ -71,7 +80,7 @@ function M.config()
 		indent = { enable = false },
 		context_commentstring = { enable = true, enable_autocmd = false },
 		incremental_selection = {
-			enable = true,
+			enable = false,
 			keymaps = {
 				init_selection = "<C-n>",
 				node_incremental = "<C-n>",
