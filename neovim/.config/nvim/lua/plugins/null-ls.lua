@@ -12,8 +12,10 @@ function M.setup(options)
 		save_after_format = false,
 		sources = {
 			-- Formatting
-			fmt.black,
-			fmt.eslint_d,
+			fmt.black.with({
+				extra_args = { "--line-length=120" },
+			}),
+			-- fmt.eslint_d,
 			fmt.fish_indent,
 			fmt.gofmt,
 			fmt.prettierd,
@@ -27,17 +29,17 @@ function M.setup(options)
 			-- }),
 
 			-- Diagnostics
-			dgn.eslint_d,
+			-- dgn.eslint_d,
 			dgn.flake8,
-			dgn.luacheck.with({
-				extra_args = { "--globals", "vim", "--std", "luajit" },
-			}),
+			-- dgn.luacheck.with({
+			-- 	extra_args = { "--globals", "vim", "--std", "luajit" },
+			-- }),
 			dgn.markdownlint,
 			dgn.shellcheck,
 			-- dgn.selene,
 
 			-- Code Actions
-			cda.eslint_d,
+			-- cda.eslint_d,
 			cda.gitsigns,
 			cda.shellcheck,
 		},

@@ -36,9 +36,31 @@ vim.keymap.set("i", "<A-k>", "<Esc>:m .-2<CR>==gi")
 vim.keymap.set("n", "<C-Left>", "<cmd>bprevious<cr>")
 vim.keymap.set("n", "<C-Right>", "<cmd>bnext<cr>")
 
+vim.keymap.set("v", "<leader>ct", function()
+	util.format_table()
+end, { desc = "Format Table" })
+
+local function search(backward)
+	vim.cmd([[echo "1> "]])
+	local first = vim.fn.getcharstr()
+	vim.fn.search(first, "s" .. (backward and "b" or ""))
+	vim.schedule(function()
+		vim.cmd([[echo "2> "]])
+		local second = vim.fn.getcharstr()
+		vim.fn.search(first .. second, "c" .. (backward and "b" or ""))
+
+		vim.fn.setreg("/", first .. second)
+	end)
+end
+
+vim.keymap.set("n", "s", search)
+vim.keymap.set("n", "S", function()
+	search(true)
+end)
+
 -- Easier pasting
-vim.keymap.set("n", "[p", ":pu!<CR>")
-vim.keymap.set("n", "]p", ":pu<CR>")
+-- vim.keymap.set("n", "[p", ":pu!<CR>")
+-- vim.keymap.set("n", "]p", ":pu<CR>")
 
 -- Clear search with <esc>
 vim.keymap.set("", "<esc>", ":noh<esc>")
@@ -127,7 +149,7 @@ local leader = {
 		name = "+git",
 		l = {
 			function()
-				require("util").float_terminal("lazygit")
+				require("util").float_terminal("lazygit", { border = "none" })
 			end,
 			"LazyGit",
 		},
@@ -240,10 +262,6 @@ local leader = {
 		function()
 			util.clipman()
 		end,
-		"Paste from Clipman",
-	},
-	["P"] = {
-		":Telescope neoclip plus<CR>",
 		"Paste from Clipman",
 	},
 	q = {

@@ -18,55 +18,28 @@ local function plugins(use, plugin)
 	-- Packer can manage itself as an optional plugin
 	use({ "wbthomason/packer.nvim" })
 
-	use({
-		"folke/noice.nvim",
-		module = "noice",
-		event = "VimEnter",
-		config = function()
-			require("noice").setup({
-				views = {
-					cmdline_popup = {
-						position = {
-							row = 5,
-							col = "50%",
-						},
-						size = {
-							width = 60,
-							height = "auto",
-						},
-					},
-					popupmenu = {
-						relative = "editor",
-						position = {
-							row = 8,
-							col = "50%",
-						},
-						size = {
-							width = 60,
-							height = 10,
-						},
-						border = {
-							style = "rounded",
-							padding = { 0, 1 },
-						},
-						win_options = {
-							winhighlight = { Normal = "Normal", FloatBorder = "DiagnosticInfo" },
-						},
-					},
-				},
-			})
-		end,
-	})
+	plugin("folke/noice.nvim")
+
+	plugin("gbprod/yanky.nvim")
 
 	use({ "stevearc/dressing.nvim", event = "User PackerDefered" })
 
+	-- use({
+	-- 	"rcarriga/nvim-notify",
+	-- 	event = "User PackerDefered",
+	-- 	module = "notify",
+	-- 	config = function()
+	-- 		require("notify").setup({ level = vim.log.levels.INFO, fps = 144 })
+	-- 		vim.notify = require("notify")
+	-- 	end,
+	-- })
+	plugin("rcarriga/nvim-notify")
+
 	use({
-		"rcarriga/nvim-notify",
-		module = "notify",
-		event = "User PackerDefered",
+		"vigoux/notifier.nvim",
+		module = "notifier",
 		config = function()
-			require("notify").setup({ level = vim.log.levels.INFO, fps = 144 })
-			vim.notify = require("notify")
+			require("notifier").setup({ components = {} })
 		end,
 	})
 
@@ -74,11 +47,12 @@ local function plugins(use, plugin)
 	use({ "neovim/nvim-lspconfig", plugin = "lsp" })
 
 	use({ "b0o/SchemaStore.nvim", module = "schemastore" })
-	use({ "jose-elias-alvarez/typescript.nvim", module = "typescript" })
 
+	use({ "jose-elias-alvarez/typescript.nvim", module = "typescript" })
 	plugin("jose-elias-alvarez/null-ls.nvim")
 
 	use({ "folke/lua-dev.nvim", module = "lua-dev" })
+
 	use({
 		"j-hui/fidget.nvim",
 		module = "fidget",
@@ -98,6 +72,7 @@ local function plugins(use, plugin)
 	plugin("monaqa/dial.nvim")
 
 	plugin("williamboman/mason.nvim")
+
 	use({
 		"williamboman/mason-lspconfig.nvim",
 		module = "mason-lspconfig",
@@ -143,7 +118,22 @@ local function plugins(use, plugin)
 		end,
 	})
 
+	use({
+		"ThePrimeagen/refactoring.nvim",
+		module = "refactoring",
+		config = function()
+			require("refactoring").setup({})
+		end,
+		setup = function()
+			-- prompt for a refactor to apply when the remap is triggered
+			vim.keymap.set("v", "<leader>cr", function()
+				require("refactoring").select_refactor()
+			end, { noremap = true, silent = true, expr = false })
+		end,
+	})
+
 	plugin("simrat39/rust-tools.nvim")
+
 	use({
 		"saecki/crates.nvim",
 		requires = { "nvim-lua/plenary.nvim" },
@@ -153,6 +143,7 @@ local function plugins(use, plugin)
 	})
 
 	use({ "famiu/bufdelete.nvim", cmd = "Bdelete" })
+
 	plugin("petertriho/nvim-scrollbar")
 
 	plugin("hrsh7th/nvim-cmp")
@@ -201,15 +192,21 @@ local function plugins(use, plugin)
 
 	use({ "nvim-treesitter/playground", cmd = { "TSHighlightCapturesUnderCursor", "TSPlaygroundToggle" } })
 
-	-- use({
-	-- 	"m-demare/hlargs.nvim",
-	-- 	event = "User PackerDefered",
-	-- 	config = function()
-	-- 		require("hlargs").setup({
-	-- 			color = require("onedarkpro").get_colors(vim.g.onedarkpro_theme).red,
-	-- 		})
-	-- 	end,
-	-- })
+	use({
+		"m-demare/hlargs.nvim",
+		event = "User PackerDefered",
+		config = function()
+			require("hlargs").setup({
+				-- color = require("onedarkpro").get_colors(vim.g.onedarkpro_theme).red,
+				color = require("tokyonight.colors").setup().yellow,
+				excluded_argnames = {
+					usages = {
+						lua = { "self", "use" },
+					},
+				},
+			})
+		end,
+	})
 
 	-- Theme: color schemes
 	-- plugin("folke/tokyonight.nvim")
@@ -234,6 +231,7 @@ local function plugins(use, plugin)
 			require("terminal").setup()
 		end,
 	})
+
 	use({ "nvim-lua/plenary.nvim", module = "plenary" })
 
 	use({
@@ -245,6 +243,7 @@ local function plugins(use, plugin)
 	plugin("nvim-telescope/telescope.nvim")
 
 	plugin("lukas-reineke/indent-blankline.nvim")
+
 	plugin("akinsho/nvim-bufferline.lua")
 
 	-- Terminal
@@ -255,9 +254,8 @@ local function plugins(use, plugin)
 
 	plugin("edluffy/specs.nvim")
 
-	plugin("michaelb/sniprun")
-
 	plugin("lewis6991/gitsigns.nvim")
+
 	plugin("TimUntersberger/neogit")
 
 	-- DAP
@@ -297,15 +295,6 @@ local function plugins(use, plugin)
 	})
 
 	use({
-		"folke/persistence.nvim",
-		event = "BufReadPre",
-		module = "persistence",
-		config = function()
-			require("persistence").setup()
-		end,
-	})
-
-	use({
 		"dstein64/vim-startuptime",
 		cmd = "StartupTime",
 		config = function()
@@ -313,6 +302,14 @@ local function plugins(use, plugin)
 		end,
 	})
 
+	use({
+		"folke/persistence.nvim",
+		event = "BufReadPre",
+		module = "persistence",
+		config = function()
+			require("persistence").setup()
+		end,
+	})
 	use({ "folke/twilight.nvim", module = "twilight" })
 	use({
 		"folke/zen-mode.nvim",
@@ -323,21 +320,13 @@ local function plugins(use, plugin)
 			})
 		end,
 	})
-
 	plugin("folke/todo-comments.nvim")
-
 	use({
-		"AckslD/nvim-neoclip.lua",
-		event = "TextYankPost",
-		module = "telescope._extensions.neoclip",
-		requires = { { "kkharji/sqlite.lua", module = "sqlite" } },
-		config = function()
-			require("neoclip").setup({
-				enable_persistent_history = true,
-				continuous_sync = true,
-			})
-		end,
+		"folke/which-key.nvim",
+		module = "which-key",
 	})
+
+	plugin("pwntester/octo.nvim")
 
 	use({
 		"andweeb/presence.nvim",
@@ -364,11 +353,6 @@ local function plugins(use, plugin)
 				line_number_text = "Line %s out of %s",
 			})
 		end,
-	})
-
-	use({
-		"folke/which-key.nvim",
-		module = "which-key",
 	})
 
 	plugin("sindrets/diffview.nvim")

@@ -6,12 +6,12 @@ end
 
 _G.dumpp = function(...)
 	local msg = vim.inspect(...)
-	vim.notify("```lua\n" .. msg .. "\n```", vim.log.levels.INFO, {
+	vim.notify(msg, vim.log.levels.INFO, {
 		title = "Debug",
 		on_open = function(win)
 			vim.api.nvim_win_set_option(win, "conceallevel", 3)
 			local buf = vim.api.nvim_win_get_buf(win)
-			vim.api.nvim_buf_set_option(buf, "filetype", "markdown")
+			vim.api.nvim_buf_set_option(buf, "filetype", "lua")
 			vim.api.nvim_win_set_option(win, "spell", false)
 		end,
 	})
@@ -44,6 +44,38 @@ end
 
 function M.require(mod)
 	return M.try(require, mod)
+end
+
+function M.format_table()
+	local from = vim.fn.getpos("'<")[2]
+	local to = vim.fn.getpos("'>")[2]
+	dumpp({ from = from, to = to })
+
+	---@type string[]
+	local lines = vim.api.nvim_buf_get_lines(0, from - 1, to, false)
+
+	---@type number[]
+	local widths = {}
+
+	for _, line in ipairs(lines) do
+		local parts = vim.split(line, "|")
+		for p, part in ipairs(parts) do
+			widths[p] = math.max(widths[p] or 0, vim.fn.strwidth(part))
+		end
+	end
+
+	for l, line in ipairs(lines) do
+		local parts = vim.split(line, "|")
+		for p, part in ipairs(parts) do
+			if part:find("^%s*%-+%s*$") then
+				part = " " .. string.rep("-", widths[p] - 2)
+			end
+			parts[p] = part .. string.rep(" ", widths[p] - vim.fn.strwidth(part))
+		end
+		lines[l] = table.concat(parts, "|")
+	end
+
+	vim.api.nvim_buf_set_lines(0, from - 1, to, true, lines)
 end
 
 function M.try(fn, ...)
@@ -108,19 +140,22 @@ function M.toggle(option, silent)
 end
 
 ---@param fn fun(buf: buffer, win: window)
-function M.float(fn)
+function M.float(fn, opts)
 	local buf = vim.api.nvim_create_buf(false, true)
 	local vpad = 4
 	local hpad = 10
-	local win = vim.api.nvim_open_win(buf, true, {
+
+	opts = vim.tbl_deep_extend("force", {
 		relative = "editor",
 		width = vim.o.columns - hpad * 2,
 		height = vim.o.lines - vpad * 2,
 		row = vpad,
 		col = hpad,
 		style = "minimal",
-		border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
-	})
+		border = "rounded",
+	}, opts or {})
+	local win = vim.api.nvim_open_win(buf, true, opts)
+
 	local function close()
 		if vim.api.nvim_buf_is_valid(buf) then
 			vim.api.nvim_buf_delete(buf, { force = true })
@@ -140,15 +175,15 @@ function M.float(fn)
 	fn(buf, win)
 end
 
-function M.float_cmd(cmd)
+function M.float_cmd(cmd, opts)
 	M.float(function(buf)
 		local output = vim.api.nvim_exec(cmd, true)
 		local lines = vim.split(output, "\n")
 		vim.api.nvim_buf_set_lines(buf, 0, -1, true, lines)
-	end)
+	end, opts)
 end
 
-function M.float_terminal(cmd)
+function M.float_terminal(cmd, opts)
 	M.float(function(buf, win)
 		vim.fn.termopen(cmd)
 		local autocmd = {
@@ -158,7 +193,7 @@ function M.float_terminal(cmd)
 		}
 		vim.cmd(table.concat(autocmd, " "))
 		vim.cmd([[startinsert]])
-	end)
+	end, opts)
 end
 
 function M.exists(fname)

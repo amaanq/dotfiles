@@ -5,10 +5,24 @@ vim.cmd([[autocmd FileType markdown setlocal spell]])
 vim.cmd("au FocusGained * :checktime")
 
 -- show cursor line only in active window
-vim.cmd([[
-  autocmd InsertLeave,WinEnter * set cursorline
-  autocmd InsertEnter,WinLeave * set nocursorline
-]])
+vim.api.nvim_create_autocmd({ "InsertLeave", "WinEnter" }, {
+	callback = function()
+		local ok, cl = pcall(vim.api.nvim_win_get_var, 0, "auto-cursorline")
+		if ok and cl then
+			vim.wo.cursorline = true
+			vim.api.nvim_win_del_var(0, "auto-cursorline")
+		end
+	end,
+})
+vim.api.nvim_create_autocmd({ "InsertEnter", "WinLeave" }, {
+	callback = function()
+		local cl = vim.wo.cursorline
+		if cl then
+			vim.api.nvim_win_set_var(0, "auto-cursorline", cl)
+			vim.wo.cursorline = false
+		end
+	end,
+})
 
 -- create directories when needed, when saving a file
 vim.api.nvim_create_autocmd("BufWritePre", {
@@ -16,9 +30,9 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 	command = [[call mkdir(expand('<afile>:p:h'), 'p')]],
 })
 
--- Fix conceallevel for json files
+-- Fix conceallevel for json & help files
 vim.api.nvim_create_autocmd({ "FileType" }, {
-	pattern = { "json", "jsonc" },
+	pattern = { "json", "jsonc", "help" },
 	callback = function()
 		vim.wo.spell = false
 		vim.wo.conceallevel = 0
@@ -38,6 +52,22 @@ vim.api.nvim_create_autocmd("BufReadPre", {
 				)
 			end,
 		})
+	end,
+})
+
+vim.api.nvim_create_autocmd("BufWritePost", {
+	pattern = "*.lua",
+	callback = function(event)
+		---@type string
+		local file = event.match
+		local mod = file:match("/lua/(.*)%.lua")
+		if mod then
+			mod = mod:gsub("/", ".")
+		end
+		if mod then
+			package.loaded[mod] = nil
+			vim.notify("Reloaded " .. mod, vim.log.levels.INFO, { title = "nvim" })
+		end
 	end,
 })
 

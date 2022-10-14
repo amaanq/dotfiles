@@ -60,6 +60,7 @@ function M.config()
 				},
 			},
 		},
+		yamlls = {},
 		sumneko_lua = {
 			-- cmd = { "/home/folke/projects/lua-language-server/bin/lua-language-server" },
 			single_file_support = true,
@@ -69,7 +70,7 @@ function M.config()
 						checkThirdParty = false,
 					},
 					completion = {
-						workspaceWord = false,
+						workspaceWord = true,
 					},
 					misc = {
 						parameters = {
@@ -77,6 +78,7 @@ function M.config()
 						},
 					},
 					diagnostics = {
+						-- enable = false,
 						groupFileStatus = {
 							["ambiguity"] = "Opened",
 							["await"] = "Opened",
@@ -104,11 +106,13 @@ function M.config()
 				},
 			},
 		},
+		teal_ls = {},
 		vimls = {},
 		-- tailwindcss = {},
 	}
 
-	local capabilities = require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities())
+	local capabilities = vim.lsp.protocol.make_client_capabilities()
+	capabilities = require("cmp_nvim_lsp").update_capabilities(capabilities)
 	capabilities.textDocument.foldingRange = {
 		dynamicRegistration = false,
 		lineFoldingOnly = true,
