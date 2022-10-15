@@ -1,7 +1,7 @@
 local M = { event = "User PackerDefered", requires = "folke/noice.nvim" }
 
 local function clock()
-	return " " .. os.date("%H:%M")
+	return " " .. os.date("%I:%M %p")
 end
 
 local function holidays()

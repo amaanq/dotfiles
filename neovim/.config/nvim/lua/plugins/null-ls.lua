@@ -18,7 +18,7 @@ function M.setup(options)
 			-- fmt.eslint_d,
 			fmt.fish_indent,
 			fmt.gofmt,
-			fmt.prettierd,
+			-- fmt.prettierd,
 			fmt.rustfmt,
 			fmt.shfmt,
 			fmt.stylua,
