@@ -43,7 +43,6 @@ function M.config()
 			"java",
 			"javascript",
 			"jsdoc",
-			"json",
 			"jsonc",
 			"kotlin",
 			"latex",
@@ -73,6 +72,7 @@ function M.config()
 			"wgsl",
 			"yaml",
 			"zig",
+			-- "json",
 		},
 		sync_install = false,
 		auto_install = true,
@@ -165,7 +165,7 @@ function M.config()
 		},
 		rainbow = {
 			enable = true,
-			disable = { "json", "jsonc" }, -- list of languages you want to disable the plugin for
+			-- disable = { "json", "jsonc" }, -- list of languages you want to disable the plugin for
 			extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
 			max_file_lines = 1000, -- Do not enable for files with more than n lines, int
 			colors = { colors.purple, colors.cyan, colors.orange },

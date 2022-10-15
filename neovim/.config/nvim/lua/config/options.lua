@@ -31,7 +31,7 @@ vim.opt.clipboard = "unnamedplus" -- sync with system clipboard
 vim.opt.conceallevel = 3 -- Hide * markup for bold and italic
 vim.opt.confirm = true -- confirm to save changes before exiting modified buffer
 vim.opt.cursorline = true -- Enable highlighting of the current line
-vim.opt.expandtab = true -- Use spaces instead of tabs
+-- vim.opt.expandtab = true -- Use spaces instead of tabs
 
 -- vim.opt.foldexpr = "nvim_treesitter#foldexpr()" -- TreeSitter folding
 -- vim.opt.foldlevel = 6
@@ -49,7 +49,7 @@ vim.opt.mouse = "a" -- enable mouse mode
 vim.opt.number = true -- Print line number
 vim.opt.pumblend = 10 -- Popup blend
 vim.opt.pumheight = 10 -- Maximum number of entries in a popup
--- vim.opt.relativenumber = true -- Relative line numbers
+vim.opt.relativenumber = true -- Relative line numbers
 vim.opt.scrolloff = 4 -- Lines of context
 vim.opt.shiftround = true -- Round indent
 vim.opt.shiftwidth = indent -- Size of an indent
