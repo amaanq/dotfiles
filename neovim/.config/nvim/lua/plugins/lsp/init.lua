@@ -6,7 +6,7 @@ local M = {
 }
 
 function M.config()
-	require("lua-dev").setup()
+	require("neodev").setup()
 	require("mason")
 	require("plugins.lsp.diagnostics").setup()
 	require("fidget").setup({ text = { spinner = "dots" } })
@@ -111,8 +111,9 @@ function M.config()
 		-- tailwindcss = {},
 	}
 
-	local capabilities = vim.lsp.protocol.make_client_capabilities()
-	capabilities = require("cmp_nvim_lsp").update_capabilities(capabilities)
+	-- local capabilities = vim.lsp.protocol.make_client_capabilities()
+	-- capabilities = require("cmp_nvim_lsp").update_capabilities(capabilities)
+	local capabilities = require("cmp_nvim_lsp").default_capabilities()
 	capabilities.textDocument.foldingRange = {
 		dynamicRegistration = false,
 		lineFoldingOnly = true,

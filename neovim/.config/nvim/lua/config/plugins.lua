@@ -51,7 +51,7 @@ local function plugins(use, plugin)
 	use({ "jose-elias-alvarez/typescript.nvim", module = "typescript" })
 	plugin("jose-elias-alvarez/null-ls.nvim")
 
-	use({ "folke/lua-dev.nvim", module = "lua-dev" })
+	use({ "folke/neodev.nvim", module = "neodev" })
 
 	use({
 		"j-hui/fidget.nvim",

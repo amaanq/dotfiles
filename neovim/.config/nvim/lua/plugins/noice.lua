@@ -5,7 +5,7 @@ local M = {
 
 function M.config()
 	require("noice").setup({
-		debug = true,
+		-- debug = true,
 		views = {
 			cmdline_popup = {
 				position = {
