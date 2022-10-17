@@ -24,15 +24,6 @@ local function plugins(use, plugin)
 
 	use({ "stevearc/dressing.nvim", event = "User PackerDefered" })
 
-	-- use({
-	-- 	"rcarriga/nvim-notify",
-	-- 	event = "User PackerDefered",
-	-- 	module = "notify",
-	-- 	config = function()
-	-- 		require("notify").setup({ level = vim.log.levels.INFO, fps = 144 })
-	-- 		vim.notify = require("notify")
-	-- 	end,
-	-- })
 	plugin("rcarriga/nvim-notify")
 
 	use({
@@ -209,8 +200,8 @@ local function plugins(use, plugin)
 	})
 
 	-- Theme: color schemes
-	-- plugin("folke/tokyonight.nvim")
-	plugin("olimorris/onedarkpro.nvim")
+	plugin("folke/tokyonight.nvim")
+	-- plugin("olimorris/onedarkpro.nvim")
 
 	-- Theme: icons
 	use({

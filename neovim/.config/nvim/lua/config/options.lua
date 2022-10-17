@@ -37,7 +37,7 @@ vim.opt.cursorline = true -- Enable highlighting of the current line
 -- vim.opt.foldlevel = 6
 -- vim.opt.foldmethod = "expr" -- TreeSitter folding
 
-vim.opt.guifont = "DejaVu Sans:h10"
+vim.opt.guifont = "Meslo:h10"
 vim.opt.grepprg = "rg --vimgrep --smart-case --"
 vim.opt.grepformat = "%f:%l:%c:%m"
 vim.opt.hidden = true -- Enable modified buffers in background
