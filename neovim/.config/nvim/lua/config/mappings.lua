@@ -5,6 +5,8 @@ local util = require("util")
 
 vim.o.timeoutlen = 300
 
+-- vim.api.nvim_set_keymap("n", "gf", [[ <Cmd>lua M.HandleURL()<CR> ]], {})
+
 wk.setup({
 	show_help = false,
 	triggers = "auto",
@@ -98,6 +100,18 @@ vim.keymap.set("n", "<space>cu", function()
 end, {
 	expr = true,
 	desc = "GUID",
+})
+
+vim.keymap.set("n", "gx", function()
+	local url = string.match(vim.fn.getline("."), "[a-z]*://[^ >,;]*")
+	if url ~= "" then
+		vim.cmd("exec \"!open '" .. url .. "'\"")
+	else
+		vim.cmd('echo "No URI found in line."')
+	end
+end, {
+	expr = true,
+	desc = "Open URL",
 })
 
 -- makes * and # work on visual mode too.
