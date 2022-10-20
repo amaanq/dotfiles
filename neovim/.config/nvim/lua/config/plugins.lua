@@ -355,7 +355,7 @@ local function plugins(use, plugin)
 						auto_trigger = true,
 						debounce = 75,
 						keymap = {
-							accept = "<Tab>",
+							accept = "<M-l>",
 							next = "<M-]>",
 							prev = "<M-[>",
 							dismiss = "<C-]>",
