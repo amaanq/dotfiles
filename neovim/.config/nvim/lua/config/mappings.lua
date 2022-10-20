@@ -282,10 +282,17 @@ local leader = {
 	},
 	z = { [[<cmd>ZenMode<cr>]], "Zen Mode" },
 	T = { [[<Plug>PlenaryTestFile]], "Plenary Test" },
+
+	["1"] = { "<CMD>1ToggleTerm<CR>", "ToggleTerm 1" },
+	["2"] = { "<CMD>2ToggleTerm<CR>", "ToggleTerm 2" },
+	["3"] = { "<CMD>3ToggleTerm<CR>", "ToggleTerm 3" },
+	["4"] = { "<CMD>4ToggleTerm<CR>", "ToggleTerm 4" },
+	["5"] = { "<CMD>5ToggleTerm<CR>", "ToggleTerm 5" },
 }
 
-for i = 0, 10 do
-	leader[tostring(i)] = "which_key_ignore"
+-- ignore 0, 6-10
+for _, v in ipairs({ "0", "6", "7", "8", "9", "10" }) do
+	leader[v] = "which_key_ignore"
 end
 
 wk.register(leader, { prefix = "<leader>" })
