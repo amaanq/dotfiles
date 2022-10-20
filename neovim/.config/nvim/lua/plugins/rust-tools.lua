@@ -13,10 +13,10 @@ function M.setup(options)
 				show_parameter_hints = true,
 
 				-- prefix for parameter hints
-				parameter_hints_prefix = "  <-  ",
+				-- parameter_hints_prefix = "  <-  ",
 
 				-- prefix for all the other hints (type, chaining)
-				other_hints_prefix = "  =>  ",
+				-- other_hints_prefix = "  =>  ",
 
 				-- The color of the hints
 				highlight = "LspCodeLens",
