@@ -5,7 +5,8 @@ return {
 		local tokyonight = require("tokyonight")
 		tokyonight.setup({
 			style = "moon",
-			hide_inactive_statusline = false,
+			-- transparent = true,
+			-- hide_inactive_statusline = false,
 			sidebars = {
 				"qf",
 				"vista_kind",
@@ -15,11 +16,12 @@ return {
 				"NeogitStatus",
 				"help",
 				"startuptime",
+				"Outline",
 			},
 			on_colors = function(c) end,
 			on_highlights = function(hl, c)
 				-- make the current line cursor orange
-				-- hl.CursorLineNr = { fg = c.orange, bold = true }
+				hl.CursorLineNr = { fg = c.orange, bold = true }
 
 				-- borderless telescope
 				local prompt = "#2d3149"

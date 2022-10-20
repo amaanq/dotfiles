@@ -15,6 +15,7 @@ function M.config()
 			return math.floor(vim.o.columns * 0.75)
 		end,
 	})
+	-- vim.notify = require("notify")
 end
 
 return M

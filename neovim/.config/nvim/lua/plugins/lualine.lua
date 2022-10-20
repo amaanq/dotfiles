@@ -1,4 +1,4 @@
-local M = { event = "User PackerDefered", requires = "folke/noice.nvim" }
+local M = { event = "User PackerDefered" }
 
 local function clock()
 	return " " .. os.date("%I:%M %p")
@@ -17,10 +17,7 @@ function M.config()
 			component_separators = { left = "", right = "" },
 			icons_enabled = true,
 			globalstatus = true,
-			disabled_filetypes = {
-				statusline = { "dashboard" },
-				winbar = { "dashboard", "neo-tree", "neo-tree-popup" },
-			},
+			disabled_filetypes = { statusline = { "dashboard" } },
 		},
 		sections = {
 			lualine_a = { "mode" },
@@ -30,7 +27,6 @@ function M.config()
 				{ "filetype", icon_only = true, separator = "", padding = { left = 1, right = 0 } },
 				{ "filename", path = 1, symbols = { modified = "  ", readonly = "", unnamed = "" } },
 			},
-
 			lualine_x = {
 				{
 					require("noice").api.statusline.message.get_hl,
@@ -51,6 +47,9 @@ function M.config()
 					cond = require("noice").api.statusline.search.has,
 					color = { fg = "#ff9e64" },
 				},
+				-- function()
+				--   return require("messages.view").status
+				-- end,
 				{ require("github-notifications").statusline_notification_count },
 				{ holidays },
 			},
@@ -61,7 +60,6 @@ function M.config()
 			lualine_a = {},
 			lualine_b = {},
 			lualine_c = {},
-
 			lualine_x = {},
 			lualine_y = {},
 			lualine_z = {},

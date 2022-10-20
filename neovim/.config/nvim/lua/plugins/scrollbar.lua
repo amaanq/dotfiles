@@ -5,18 +5,18 @@ local M = {
 function M.config()
 	local scrollbar = require("scrollbar")
 
-	--- PERF: throttle scrollbar refresh
+	-- PERF: throttle scrollbar refresh
 	-- Disable, throttle, since it was caused by comment TS
 	-- local render = scrollbar.render
 	-- scrollbar.render = require("util").throttle(300, render)
 
-	local colors = require("tokyonight.colors").setup()	
+	local colors = require("tokyonight.colors").setup()
 	scrollbar.setup({
-		-- handle = {
-		-- 	color = colors.bg_highlight,
-		-- },
+		handle = {
+			color = colors.bg_highlight,
+		},
 		marks = {
-			Search = { color = colors.blue },
+			Search = { color = colors.orange },
 			Error = { color = colors.error },
 			Warn = { color = colors.warning },
 			Info = { color = colors.info },

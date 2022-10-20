@@ -5,8 +5,6 @@ local util = require("util")
 
 vim.o.timeoutlen = 300
 
--- vim.api.nvim_set_keymap("n", "gf", [[ <Cmd>lua M.HandleURL()<CR> ]], {})
-
 wk.setup({
 	show_help = false,
 	triggers = "auto",
@@ -21,10 +19,10 @@ vim.keymap.set("n", "<up>", "<C-w>k")
 vim.keymap.set("n", "<right>", "<C-w>l")
 
 -- Resize window using <ctrl> arrow keys
-vim.keymap.set("n", "<S-Up>", "<CMD>resize +2<CR>")
-vim.keymap.set("n", "<S-Down>", "<CMD>resize -2<CR>")
-vim.keymap.set("n", "<S-Left>", "<CMD>vertical resize -2<CR>")
-vim.keymap.set("n", "<S-Right>", "<CMD>vertical resize +2<CR>")
+vim.keymap.set("n", "<S-Up>", "<cmd>resize +2<CR>")
+vim.keymap.set("n", "<S-Down>", "<cmd>resize -2<CR>")
+vim.keymap.set("n", "<S-Left>", "<cmd>vertical resize -2<CR>")
+vim.keymap.set("n", "<S-Right>", "<cmd>vertical resize +2<CR>")
 
 -- Move Lines
 vim.keymap.set("n", "<A-j>", ":m .+1<CR>==")
@@ -61,8 +59,8 @@ vim.keymap.set("n", "S", function()
 end)
 
 -- Easier pasting
--- vim.keymap.set("n", "[p", ":pu!<CR>")
--- vim.keymap.set("n", "]p", ":pu<CR>")
+-- vim.keymap.set("n", "[p", ":pu!<cr>")
+-- vim.keymap.set("n", "]p", ":pu<cr>")
 
 -- Clear search with <esc>
 vim.keymap.set("", "<esc>", ":noh<esc>")
@@ -102,18 +100,6 @@ end, {
 	desc = "GUID",
 })
 
-vim.keymap.set("n", "gx", function()
-	local url = string.match(vim.fn.getline("."), "[a-z]*://[^ >,;]*")
-	if url ~= "" then
-		vim.cmd("exec \"!open '" .. url .. "'\"")
-	else
-		vim.cmd('echo "No URI found in line."')
-	end
-end, {
-	expr = true,
-	desc = "Open URL",
-})
-
 -- makes * and # work on visual mode too.
 vim.cmd([[
   function! g:VSetSearch(cmdtype)
@@ -122,6 +108,7 @@ vim.cmd([[
     let @/ = '\V' . substitute(escape(@s, a:cmdtype.'\'), '\n', '\\n', 'g')
     let @s = temp
   endfunction
+
   xnoremap * :<C-u>call g:VSetSearch('/')<CR>/<C-R>=@/<CR><CR>
   xnoremap # :<C-u>call g:VSetSearch('?')<CR>?<C-R>=@/<CR><CR>
 ]])
@@ -156,7 +143,6 @@ local leader = {
 		["["] = { "<cmd>:BufferLineCyclePrev<CR>", "Previous Buffer" },
 		["n"] = { "<cmd>:BufferLineCycleNext<CR>", "Next Buffer" },
 		["]"] = { "<cmd>:BufferLineCycleNext<CR>", "Next Buffer" },
-		["d"] = { "<cmd>:Bdelete<CR>", "Delete Buffer" },
 		["D"] = { "<cmd>:bd<CR>", "Delete Buffer & Window" },
 	},
 	g = {
@@ -296,18 +282,12 @@ local leader = {
 	},
 	z = { [[<cmd>ZenMode<cr>]], "Zen Mode" },
 	T = { [[<Plug>PlenaryTestFile]], "Plenary Test" },
-
-	["1"] = { "<CMD>1ToggleTerm<CR>", "ToggleTerm 1" },
-	["2"] = { "<CMD>2ToggleTerm<CR>", "ToggleTerm 2" },
-	["3"] = { "<CMD>3ToggleTerm<CR>", "ToggleTerm 3" },
-	["4"] = { "<CMD>4ToggleTerm<CR>", "ToggleTerm 4" },
-	["5"] = { "<CMD>5ToggleTerm<CR>", "ToggleTerm 5" },
 }
 
--- ignore 0, 6-10
-for _, v in ipairs({ "0", "6", "7", "8", "9", "10" }) do
-	leader[v] = "which_key_ignore"
+for i = 0, 10 do
+	leader[tostring(i)] = "which_key_ignore"
 end
 
 wk.register(leader, { prefix = "<leader>" })
+
 wk.register({ g = { name = "+goto" } })

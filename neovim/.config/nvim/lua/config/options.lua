@@ -31,11 +31,13 @@ vim.opt.clipboard = "unnamedplus" -- sync with system clipboard
 vim.opt.conceallevel = 3 -- Hide * markup for bold and italic
 vim.opt.confirm = true -- confirm to save changes before exiting modified buffer
 vim.opt.cursorline = true -- Enable highlighting of the current line
--- vim.opt.expandtab = true -- Use spaces instead of tabs
+vim.opt.expandtab = true -- Use spaces instead of tabs
 
 -- vim.opt.foldexpr = "nvim_treesitter#foldexpr()" -- TreeSitter folding
 -- vim.opt.foldlevel = 6
 -- vim.opt.foldmethod = "expr" -- TreeSitter folding
+-- vim.opt.foldmethod = "indent"
+-- vim.opt.foldlevel = 0
 
 vim.opt.guifont = "Meslo:h10"
 vim.opt.grepprg = "rg --vimgrep --smart-case --"
@@ -60,7 +62,6 @@ vim.opt.smartcase = true -- Don't ignore case with capitals
 vim.opt.smartindent = true -- Insert indents automatically
 
 -- if vim.fn.has("nvim-0.8") == 1 then
--- 	vim.opt.spell = true -- Put new windows below current
 -- end
 vim.opt.splitbelow = true -- Put new windows below current
 vim.opt.splitright = true -- Put new windows right of current

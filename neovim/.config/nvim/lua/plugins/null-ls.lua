@@ -2,7 +2,6 @@ local M = { module = "null-ls" }
 
 function M.setup(options)
 	local nls = require("null-ls")
-
 	local fmt = nls.builtins.formatting
 	local dgn = nls.builtins.diagnostics
 	local cda = nls.builtins.code_actions
@@ -15,18 +14,12 @@ function M.setup(options)
 			fmt.black.with({
 				extra_args = { "--line-length=120" },
 			}),
-			-- fmt.eslint_d,
-			fmt.fish_indent,
 			fmt.gofmt,
 			-- fmt.prettierd,
 			fmt.rustfmt,
 			fmt.shfmt,
 			fmt.stylua,
 			fmt.zigfmt,
-			-- fmt.fixjson.with({ filetypes = { "jsonc" } }),
-			-- fmt.deno_fmt.with({
-			--   filetypes = { "markdown" }, -- only runs `deno fmt` for markdown
-			-- }),
 
 			-- Diagnostics
 			-- dgn.eslint_d,
