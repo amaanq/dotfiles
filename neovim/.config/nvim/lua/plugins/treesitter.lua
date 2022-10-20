@@ -11,8 +11,6 @@ local M = {
 	},
 }
 
-local colors = require("onedarkpro").get_colors(vim.g.onedarkpro_theme)
-
 function M.init()
 	vim.cmd([[
     omap     <silent> m :<C-U>lua require('tsht').nodes()<CR>
@@ -168,7 +166,7 @@ function M.config()
 			-- disable = { "json", "jsonc" }, -- list of languages you want to disable the plugin for
 			extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
 			max_file_lines = 1000, -- Do not enable for files with more than n lines, int
-			colors = { colors.purple, colors.cyan, colors.orange },
+			-- colors = { colors.purple, colors.cyan, colors.orange },
 		},
 	})
 end

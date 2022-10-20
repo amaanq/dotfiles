@@ -58,7 +58,7 @@ local function plugins(use, plugin)
 		end,
 	})
 
-	plugin("anuvyklack/windows.nvim")
+	-- plugin("anuvyklack/windows.nvim")
 
 	plugin("monaqa/dial.nvim")
 
@@ -280,7 +280,7 @@ local function plugins(use, plugin)
 		config = function()
 			require("trouble").setup({
 				auto_open = false,
-				use_diagnostic_signs = true, -- en
+				use_diagnostic_signs = true,
 			})
 		end,
 	})
@@ -307,7 +307,7 @@ local function plugins(use, plugin)
 		cmd = "ZenMode",
 		config = function()
 			require("zen-mode").setup({
-				plugins = { gitsigns = true, tmux = true, kitty = { enabled = false, font = "+2" } },
+				plugins = { gitsigns = true, tmux = true, kitty = { enabled = true, font = "+2" } },
 			})
 		end,
 	})
@@ -319,32 +319,7 @@ local function plugins(use, plugin)
 
 	plugin("pwntester/octo.nvim")
 
-	use({
-		"andweeb/presence.nvim",
-		event = "BufRead",
-		config = function()
-			-- require("amaanq.plugins.presence")
-			require("presence"):setup({
-				auto_update = true,
-				main_image = "file",
-				log_level = nil,
-				debounce_timeout = 10,
-				blacklist = { "toggleterm", "zsh" },
-				enable_line_number = true,
-				buttons = true,
-				show_time = true,
-
-				-- Rich Presence text options
-				editing_text = "Editing %s",
-				file_explorer_text = "Browsing %s",
-				git_commit_text = "Committing changes",
-				plugin_manager_text = "Managing plugins",
-				reading_text = "Reading %s",
-				workspace_text = "Working on %s",
-				line_number_text = "Line %s out of %s",
-			})
-		end,
-	})
+	plugin("andweeb/presence.nvim")
 
 	plugin("sindrets/diffview.nvim")
 
