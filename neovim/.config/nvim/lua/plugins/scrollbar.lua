@@ -3,7 +3,6 @@ local M = {
 }
 
 function M.config()
-	-- local colors = require("tokyonight.colors").setup()
 	local scrollbar = require("scrollbar")
 
 	--- PERF: throttle scrollbar refresh
@@ -11,7 +10,7 @@ function M.config()
 	-- local render = scrollbar.render
 	-- scrollbar.render = require("util").throttle(300, render)
 
-	local colors = require("onedarkpro").get_colors(vim.g.onedarkpro_theme)
+	local colors = require("tokyonight.colors").setup()	
 	scrollbar.setup({
 		-- handle = {
 		-- 	color = colors.bg_highlight,

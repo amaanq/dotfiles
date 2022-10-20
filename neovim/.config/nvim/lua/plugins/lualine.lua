@@ -10,7 +10,6 @@ local function holidays()
 end
 
 function M.config()
-	local colors = require("onedarkpro").get_colors(vim.g.onedarkpro_theme)
 	require("lualine").setup({
 		options = {
 			theme = "auto",
@@ -40,17 +39,17 @@ function M.config()
 				{
 					require("noice").api.statusline.command.get,
 					cond = require("noice").api.statusline.command.has,
-					color = { fg = colors.blue },
+					color = { fg = "#ff9e64" },
 				},
 				{
 					require("noice").api.statusline.mode.get,
 					cond = require("noice").api.statusline.mode.has,
-					color = { fg = colors.blue },
+					color = { fg = "#ff9e64" },
 				},
 				{
 					require("noice").api.statusline.search.get,
 					cond = require("noice").api.statusline.search.has,
-					color = { fg = colors.blue },
+					color = { fg = "#ff9e64" },
 				},
 				{ require("github-notifications").statusline_notification_count },
 				{ holidays },

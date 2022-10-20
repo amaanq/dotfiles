@@ -6,10 +6,10 @@ local M = {
 }
 
 function M.config()
-	require("neodev").setup()
+	-- require("neodev").setup()
 	require("mason")
 	require("plugins.lsp.diagnostics").setup()
-	require("fidget").setup({ text = { spinner = "dots" } })
+	-- require("fidget").setup({ text = { spinner = "dots" } })
 
 	local function on_attach(client, bufnr)
 		require("nvim-navic").attach(client, bufnr)
@@ -33,7 +33,7 @@ function M.config()
 					format = {
 						enable = true,
 					},
-					schemas = require("schemastore").json.schemas(),
+					-- schemas = require("schemastore").json.schemas(),
 					validate = { enable = true },
 				},
 			},
