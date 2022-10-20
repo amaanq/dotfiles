@@ -15,13 +15,13 @@ function M.config()
 	local severities = {
 		"error",
 		"warning",
-		"info",
-		"hint",
+		-- "info",
+		-- "hint",
 	}
 
 	require("bufferline").setup({
 		options = {
-			-- show_close_icon = true,
+			show_close_icon = true,
 			diagnostics = "nvim_lsp",
 			always_show_bufferline = false,
 			separator_style = "slant",
@@ -38,9 +38,8 @@ function M.config()
 				{
 					filetype = "neo-tree",
 					text = "Neo Tree",
-					text_align = "left",
 					highlight = "Directory",
-					-- separator = true,
+					text_align = "left",
 				},
 			},
 			hover = {

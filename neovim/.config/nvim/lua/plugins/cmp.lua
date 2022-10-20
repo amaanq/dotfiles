@@ -1,5 +1,3 @@
----@diagnostic disable: missing-parameter
-
 local M = {
 	event = "InsertEnter",
 	module = "cmp",
@@ -55,7 +53,7 @@ function M.config()
 		-- },
 		experimental = {
 			ghost_text = {
-				hl_group = "Comment",
+				hl_group = "LspCodeLens",
 			},
 		},
 		-- sorting = {
@@ -81,8 +79,8 @@ function M.config()
 	--   }),
 	-- })
 
-	-- local cmp_autopairs = require("nvim-autopairs.completion.cmp")
-	-- cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done({ map_char = { tex = "" } }))
+	local cmp_autopairs = require("nvim-autopairs.completion.cmp")
+	cmp.event:on("confirm_done", cmp_autopairs.on_confirm_done({ map_char = { tex = "" } }))
 end
 
 return M

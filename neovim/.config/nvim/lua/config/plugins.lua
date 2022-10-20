@@ -17,9 +17,9 @@ local config = {
 local function plugins(use, plugin)
 	-- Packer can manage itself as an optional plugin
 	use({ "wbthomason/packer.nvim" })
-
 	plugin("folke/noice.nvim")
 
+	plugin("b0o/incline.nvim")
 	plugin("gbprod/yanky.nvim")
 
 	use({ "stevearc/dressing.nvim", event = "User PackerDefered" })
@@ -38,8 +38,8 @@ local function plugins(use, plugin)
 	use({ "neovim/nvim-lspconfig", plugin = "lsp" })
 
 	use({ "b0o/SchemaStore.nvim", module = "schemastore" })
-
 	use({ "jose-elias-alvarez/typescript.nvim", module = "typescript" })
+
 	plugin("jose-elias-alvarez/null-ls.nvim")
 
 	use({ "folke/neodev.nvim", module = "neodev" })
@@ -58,12 +58,11 @@ local function plugins(use, plugin)
 		end,
 	})
 
-	-- plugin("anuvyklack/windows.nvim")
+	plugin("anuvyklack/windows.nvim")
 
 	plugin("monaqa/dial.nvim")
 
 	plugin("williamboman/mason.nvim")
-
 	use({
 		"williamboman/mason-lspconfig.nvim",
 		module = "mason-lspconfig",
@@ -188,7 +187,6 @@ local function plugins(use, plugin)
 		event = "User PackerDefered",
 		config = function()
 			require("hlargs").setup({
-				-- color = require("onedarkpro").get_colors(vim.g.onedarkpro_theme).red,
 				color = require("tokyonight.colors").setup().yellow,
 				excluded_argnames = {
 					usages = {
@@ -201,7 +199,6 @@ local function plugins(use, plugin)
 
 	-- Theme: color schemes
 	plugin("folke/tokyonight.nvim")
-	-- plugin("olimorris/onedarkpro.nvim")
 
 	-- Theme: icons
 	use({
@@ -222,7 +219,6 @@ local function plugins(use, plugin)
 			require("terminal").setup()
 		end,
 	})
-
 	use({ "nvim-lua/plenary.nvim", module = "plenary" })
 
 	use({
@@ -234,7 +230,6 @@ local function plugins(use, plugin)
 	plugin("nvim-telescope/telescope.nvim")
 
 	plugin("lukas-reineke/indent-blankline.nvim")
-
 	plugin("akinsho/nvim-bufferline.lua")
 
 	-- Terminal
@@ -245,11 +240,11 @@ local function plugins(use, plugin)
 
 	plugin("edluffy/specs.nvim")
 
-	plugin("lewis6991/gitsigns.nvim")
+	plugin("echasnovski/mini.nvim")
 
+	plugin("lewis6991/gitsigns.nvim")
 	plugin("TimUntersberger/neogit")
 
-	-- DAP
 	plugin("mfussenegger/nvim-dap")
 
 	use({ "rlch/github-notifications.nvim", module = "github-notifications" })
@@ -280,16 +275,8 @@ local function plugins(use, plugin)
 		config = function()
 			require("trouble").setup({
 				auto_open = false,
-				use_diagnostic_signs = true,
+				use_diagnostic_signs = true, -- en
 			})
-		end,
-	})
-
-	use({
-		"dstein64/vim-startuptime",
-		cmd = "StartupTime",
-		config = function()
-			vim.g.startuptime_tries = 10
 		end,
 	})
 
@@ -301,25 +288,36 @@ local function plugins(use, plugin)
 			require("persistence").setup()
 		end,
 	})
+
+	use({
+		"dstein64/vim-startuptime",
+		cmd = "StartupTime",
+		config = function()
+			vim.g.startuptime_tries = 10
+		end,
+	})
+
 	use({ "folke/twilight.nvim", module = "twilight" })
 	use({
 		"folke/zen-mode.nvim",
 		cmd = "ZenMode",
 		config = function()
 			require("zen-mode").setup({
-				plugins = { gitsigns = true, tmux = true, kitty = { enabled = true, font = "+2" } },
+				plugins = { gitsigns = true, tmux = true, kitty = { enabled = false, font = "+2" } },
 			})
 		end,
-	})
-	plugin("folke/todo-comments.nvim")
-	use({
-		"folke/which-key.nvim",
-		module = "which-key",
 	})
 
 	plugin("pwntester/octo.nvim")
 
 	plugin("andweeb/presence.nvim")
+
+	plugin("folke/todo-comments.nvim")
+
+	use({
+		"folke/which-key.nvim",
+		module = "which-key",
+	})
 
 	plugin("sindrets/diffview.nvim")
 
@@ -332,6 +330,61 @@ local function plugins(use, plugin)
 		event = "BufReadPost",
 		config = function()
 			vim.g.matchup_matchparen_offscreen = { method = "status_manual" }
+		end,
+	})
+
+	use({
+		"zbirenbaum/copilot.lua",
+		event = "VimEnter",
+		config = function()
+			vim.defer_fn(function()
+				require("copilot").setup({
+					panel = {
+						enabled = true,
+						auto_refresh = true,
+						keymap = {
+							jump_prev = "[[",
+							jump_next = "]]",
+							accept = "<CR>",
+							refresh = "gr",
+							open = "<M-CR>",
+						},
+					},
+					suggestion = {
+						enabled = true,
+						auto_trigger = true,
+						debounce = 75,
+						keymap = {
+							accept = "<Tab>",
+							next = "<M-]>",
+							prev = "<M-[>",
+							dismiss = "<C-]>",
+						},
+					},
+					filetypes = {
+						yaml = false,
+						markdown = false,
+						help = false,
+						gitcommit = false,
+						gitrebase = false,
+						hgcommit = false,
+						svn = false,
+						cvs = false,
+						["."] = false,
+					},
+					copilot_node_command = "node", -- Node version must be < 18
+					plugin_manager_path = vim.fn.stdpath("data") .. "/site/pack/packer",
+					server_opts_overrides = {},
+				})
+			end, 100)
+		end,
+	})
+
+	use({
+		"zbirenbaum/copilot-cmp",
+		after = { "copilot.lua" },
+		config = function()
+			require("copilot_cmp").setup()
 		end,
 	})
 end

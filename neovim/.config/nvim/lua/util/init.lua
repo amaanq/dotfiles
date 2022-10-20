@@ -1,5 +1,4 @@
----@diagnostic disable: missing-parameter
-
+-- selene: allow(global_usage)
 _G.dump = function(...)
 	vim.pretty_print(...)
 end

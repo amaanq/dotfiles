@@ -6,44 +6,28 @@ function M.setup(options)
 	local rt = require("rust-tools")
 
 	local opts = {
-		tools = {
-			-- options right now: termopen / quickfix
-			-- executor = require("rust-tools/executors").termopen,
-
-			runnables = {
-				-- whether to use telescope for selection menu or not
-				use_telescope = true,
-				-- rest of the opts are forwarded to telescope
-			},
-
-			debuggables = {
-				-- whether to use telescope for selection menu or not
-				use_telescope = true,
-				-- rest of the opts are forwarded to telescope
-			},
-
-			-- These apply to the default RustSetInlayHints command
+		tools = { -- rust-tools options
+			--   -- These apply to the default RustSetInlayHints command
 			inlay_hints = {
 				-- whether to show parameter hints with the inlay hints or not
 				show_parameter_hints = true,
 
 				-- prefix for parameter hints
-				-- parameter_hints_prefix = "  <-  ",
+				parameter_hints_prefix = "  <-  ",
 
 				-- prefix for all the other hints (type, chaining)
-				-- other_hints_prefix = "  =>  ",
+				other_hints_prefix = "  =>  ",
 
-				-- whether to align to the length of the longest line in the file
-				-- max_len_align = true,
-
-				-- padding from the left if max_len_align is true
-				-- max_len_align_padding = 10,
-
+				-- The color of the hints
 				highlight = "LspCodeLens",
 			},
 
 			hover_actions = {
+				-- whether the hover action window gets automatically focused
 				auto_focus = true,
+
+				-- the border that is used for the hover window
+				-- see vim.api.nvim_open_win()
 				border = {
 					{ "╭", "FloatBorder" },
 					{ "─", "FloatBorder" },
@@ -67,28 +51,11 @@ function M.setup(options)
 			vim.keymap.set("n", "<C-ii>", ":lua rt.inlay_hints.set()", { buffer = bufnr })
 			vim.keymap.set("n", "<C-io>", ":lua rt.inlay_hints.unset()", { buffer = bufnr })
 		end,
-		--
-		-- 	settings = {
-		-- 		["rust-analyzer"] = {
-		-- 			cargo = {
-		-- 				allFeatures = true,
-		-- 			},
-		-- 			checkOnSave = {
-		-- 				allFeatures = true,
-		-- 				command = "clippy",
-		-- 				extraArgs = { "--no-deps" },
-		-- 			},
-		-- 			procMacro = {
-		-- 				ignored = {
-		-- 					["async-trait"] = { "async_trait" },
-		-- 					["napi-derive"] = { "napi" },
-		-- 					["async-recursion"] = { "async_recursion" },
-		-- 				},
-		-- 			},
-		-- 		},
-		-- 	},
-		--
-		server = options,
+
+		-- all the opts to send to nvim-lspconfig
+		-- these override the defaults set by rust-tools.nvim
+		-- see https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#rust_analyzer
+		server = options, -- rust-analyer options
 
 		-- debugging stuff
 		dap = {
@@ -99,6 +66,7 @@ function M.setup(options)
 			},
 		},
 	}
+
 	rt.setup(opts)
 	rt.inlay_hints.enable()
 	rt.inlay_hints.set()

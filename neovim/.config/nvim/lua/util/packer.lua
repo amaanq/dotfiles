@@ -1,5 +1,3 @@
----@diagnostic disable: missing-parameter
-
 local util = require("util")
 
 local M = {}
@@ -120,6 +118,7 @@ end
 
 function M.setup(config, fn)
 	-- HACK: see https://github.com/wbthomason/packer.nvim/issues/180
+	-- Use this if you're on a Mac
 	-- vim.fn.setenv("MACOSX_DEPLOYMENT_TARGET", "10.15")
 
 	local bootstrapped = M.bootstrap()

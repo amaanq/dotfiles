@@ -5,7 +5,7 @@ M.event = "BufReadPre"
 function M.config()
 	local indent = require("indent_blankline")
 
-	--- PERF: debounce indent-blankline refresh
+	-- PERF: debounce indent-blankline refresh
 	-- Disable, throttle, since it was caused by comment TS
 	-- local refresh = indent.refresh
 	-- indent.refresh = require("util").debounce(100, refresh)
