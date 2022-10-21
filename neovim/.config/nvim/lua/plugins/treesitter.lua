@@ -8,6 +8,7 @@ local M = {
 		"nvim-treesitter/nvim-treesitter-refactor",
 		{ "mfussenegger/nvim-treehopper", module = "tsht" },
 		"p00f/nvim-ts-rainbow",
+		"windwp/nvim-ts-autotag",
 	},
 }
 
@@ -35,6 +36,7 @@ function M.config()
 			"go",
 			"gomod",
 			"graphql",
+			"haskell",
 			"help",
 			"html",
 			"http",

@@ -17,7 +17,10 @@ function M.config()
 			component_separators = { left = "", right = "" },
 			icons_enabled = true,
 			globalstatus = true,
-			disabled_filetypes = { statusline = { "dashboard" } },
+			disabled_filetypes = {
+				statusline = { "dashboard" },
+				winbar = { "dashboard", "neo-tree", "neo-tree-popup" },
+			},
 		},
 		sections = {
 			lualine_a = { "mode" },

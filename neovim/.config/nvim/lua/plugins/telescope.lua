@@ -28,6 +28,7 @@ function M.config()
 	local trouble = require("trouble.providers.telescope")
 
 	local telescope = require("telescope")
+
 	local borderless = true
 	telescope.setup({
 		extensions = {

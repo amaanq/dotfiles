@@ -10,12 +10,15 @@ function M.config()
 		},
 		library = {
 			-- runtime = "~/projects/neovim/runtime/",
+			plugins = { "neotest" },
+			types = true,
 		},
 	})
 	require("mason")
 	require("plugins.lsp.diagnostics").setup()
 	require("fidget").setup({ text = { spinner = "dots" } })
 	local function on_attach(client, bufnr)
+		-- require("lsp-inlayhints").on_attach(client, bufnr)
 		require("nvim-navic").attach(client, bufnr)
 		require("plugins.lsp.formatting").setup(client, bufnr)
 		require("plugins.lsp.keys").setup(client, bufnr)
@@ -24,12 +27,16 @@ function M.config()
 	---@type lspconfig.options
 	local servers = {
 		ansiblels = {},
+		-- asm_lsp = {},
 		bashls = {},
 		clangd = {},
+		cmake = {},
 		cssls = {},
 		dockerls = {},
 		tsserver = {},
 		eslint = {},
+		golangci_lint_ls = {},
+		gopls = {},
 		html = {},
 		jsonls = {
 			settings = {
@@ -64,7 +71,6 @@ function M.config()
 				},
 			},
 		},
-		yamlls = {},
 		sumneko_lua = {
 			single_file_support = true,
 			settings = {
@@ -111,7 +117,11 @@ function M.config()
 			},
 		},
 		teal_ls = {},
+		texlab = {},
+		-- vala_ls = {},
 		vimls = {},
+		yamlls = {},
+		zls = {},
 		-- tailwindcss = {},
 	}
 

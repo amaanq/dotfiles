@@ -8,6 +8,9 @@ local M = {
 				require("dapui").setup()
 			end,
 		},
+		{ "theHamsta/nvim-dap-virtual-text", module = "dap_virtual_text" },
+		{ "mfussenegger/nvim-dap-python", module = "dap_python" },
+		{ "Pocco81/dap-buddy.nvim", module = "dap_buddy" },
 		{ "jbyuki/one-small-step-for-vimkind", module = "osv" },
 	},
 }

@@ -4,7 +4,7 @@ local M = {
 }
 
 function M.config()
-	require("noice").setup({ debug = true })
+	require("noice").setup()
 end
 
 return M

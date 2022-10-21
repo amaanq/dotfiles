@@ -1,5 +1,6 @@
 return {
 	keys = "<C-`>",
+	event = "BufReadPre",
 	config = function()
 		require("toggleterm").setup({
 			size = 20,

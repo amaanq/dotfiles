@@ -9,6 +9,8 @@ function M.setup(options)
 		tools = { -- rust-tools options
 			--   -- These apply to the default RustSetInlayHints command
 			inlay_hints = {
+				-- auto = false,
+
 				-- whether to show parameter hints with the inlay hints or not
 				show_parameter_hints = true,
 
