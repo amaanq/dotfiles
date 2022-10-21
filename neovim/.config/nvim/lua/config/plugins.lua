@@ -224,32 +224,7 @@ local function plugins(use, plugin)
 		end,
 	})
 
-	use({
-		"nvim-neotest/neotest",
-		event = "VimEnter",
-		requires = {
-			"nvim-neotest/neotest-go",
-			"mrcjkb/neotest-haskell",
-			"haydenmeade/neotest-jest",
-			"nvim-neotest/neotest-plenary",
-			"nvim-neotest/neotest-python",
-			"rouge8/neotest-rust",
-		},
-		config = function()
-			require("neotest").setup({
-				adapters = {
-					require("neotest-go"),
-					require("neotest-haskell"),
-					require("neotest-jest"),
-					require("neotest-plenary"),
-					require("neotest-python")({
-						dap = { justMyCode = false },
-					}),
-					require("neotest-rust"),
-				},
-			})
-		end,
-	})
+	plugin("nvim-neotest/neotest")
 
 	-- Theme: color schemes (uncomment the one to use :))
 	-- plugin("olimorris/onedarkpro.nvim")
@@ -451,7 +426,7 @@ local function plugins(use, plugin)
 		end,
 	})
 
-	use({ "simnalamburt/vim-mundo", event = "BufReadPre" })
+	use({ "simnalamburt/vim-mundo", event = "BufReadPre", cmd = "MundoToggle" })
 
 	use({
 		"zbirenbaum/copilot.lua",
