@@ -28,6 +28,7 @@ local function plugins(use, plugin)
 
 	use({
 		"vigoux/notifier.nvim",
+		event = "User PackerDefered",
 		module = "notifier",
 		config = function()
 			require("notifier").setup({ components = {} })
@@ -36,6 +37,22 @@ local function plugins(use, plugin)
 
 	-- LSP
 	use({ "neovim/nvim-lspconfig", plugin = "lsp" })
+	use({ "ray-x/lsp_signature.nvim", event = "BufEnter" })
+	-- use({
+	-- 	"lvimuser/lsp-inlayhints.nvim",
+	-- 	branch = "anticonceal",
+	-- 	event = "BufEnter",
+	-- 	config = function()
+	-- 		require("lsp-inlayhints").setup({
+	-- 			inlay_hints = {
+	-- 				highlight = "Comment",
+	-- 				type_hints = {
+	-- 					-- prefix = " =>",
+	-- 				},
+	-- 			},
+	-- 		})
+	-- 	end,
+	-- })
 
 	use({ "b0o/SchemaStore.nvim", module = "schemastore" })
 	use({ "jose-elias-alvarez/typescript.nvim", module = "typescript" })
@@ -57,6 +74,15 @@ local function plugins(use, plugin)
 			vim.api.nvim_create_autocmd("VimLeavePre", { command = [[silent! FidgetClose]] })
 		end,
 	})
+
+	-- use({
+	-- 	"lewis6991/satellite.nvim",
+	-- 	-- event = "BufEnter",
+	-- 	event = "User PackerDefered",
+	-- 	config = function()
+	-- 		require("satellite").setup()
+	-- 	end,
+	-- })
 
 	plugin("anuvyklack/windows.nvim")
 
@@ -126,6 +152,7 @@ local function plugins(use, plugin)
 
 	use({
 		"saecki/crates.nvim",
+		event = { "BufRead Cargo.toml" },
 		requires = { "nvim-lua/plenary.nvim" },
 		config = function()
 			require("crates").setup()
@@ -197,8 +224,39 @@ local function plugins(use, plugin)
 		end,
 	})
 
-	-- Theme: color schemes
+	use({
+		"nvim-neotest/neotest",
+		event = "VimEnter",
+		requires = {
+			"nvim-neotest/neotest-go",
+			"mrcjkb/neotest-haskell",
+			"haydenmeade/neotest-jest",
+			"nvim-neotest/neotest-plenary",
+			"nvim-neotest/neotest-python",
+			"rouge8/neotest-rust",
+		},
+		config = function()
+			require("neotest").setup({
+				adapters = {
+					require("neotest-go"),
+					require("neotest-haskell"),
+					require("neotest-jest"),
+					require("neotest-plenary"),
+					require("neotest-python")({
+						dap = { justMyCode = false },
+					}),
+					require("neotest-rust"),
+				},
+			})
+		end,
+	})
+
+	-- Theme: color schemes (uncomment the one to use :))
+	-- plugin("olimorris/onedarkpro.nvim")
 	plugin("folke/tokyonight.nvim")
+	-- plugin("rebelot/kanagawa.nvim")
+	-- plugin("projekt0n/github-nvim-theme")
+	-- plugin("marko-cerovac/material.nvim")
 
 	-- Theme: icons
 	use({
@@ -244,6 +302,16 @@ local function plugins(use, plugin)
 
 	plugin("lewis6991/gitsigns.nvim")
 	plugin("TimUntersberger/neogit")
+	use({ "rhysd/git-messenger.vim", event = "BufRead" })
+	use({ "rhysd/committia.vim", event = "BufRead" })
+	use({
+		"ruifm/gitlinker.nvim",
+		event = "BufRead",
+		requires = "nvim-lua/plenary.nvim",
+		config = function()
+			require("gitlinker").setup()
+		end,
+	})
 
 	plugin("mfussenegger/nvim-dap")
 
@@ -265,7 +333,29 @@ local function plugins(use, plugin)
 		cmd = { "MarkdownPreview" },
 	})
 
+	use({
+		"ellisonleao/glow.nvim",
+		run = "GlowInstall",
+		ft = "markdown",
+		event = "BufReadPre",
+		config = function()
+			vim.cmd("autocmd FileType markdown setlocal wrap")
+
+			require("glow").setup({
+				style = "dark",
+				width = 120,
+			})
+		end,
+	})
+
 	plugin("phaazon/hop.nvim")
+	use({
+		"ggandor/leap.nvim",
+		event = "User PackerDefered",
+		config = function()
+			require("leap").add_default_mappings()
+		end,
+	})
 
 	use({
 		"folke/trouble.nvim",
@@ -296,6 +386,7 @@ local function plugins(use, plugin)
 			vim.g.startuptime_tries = 10
 		end,
 	})
+	use({ "wakatime/vim-wakatime", event = "User PackerDefered" })
 
 	use({ "folke/twilight.nvim", module = "twilight" })
 	use({
@@ -304,6 +395,33 @@ local function plugins(use, plugin)
 		config = function()
 			require("zen-mode").setup({
 				plugins = { gitsigns = true, tmux = true, kitty = { enabled = false, font = "+2" } },
+			})
+		end,
+	})
+
+	-- use({
+	-- 	"levouh/tint.nvim",
+	-- 	config = function()
+	-- 		require("tint").setup()
+	-- 	end,
+	-- })
+
+	use({
+		"zbirenbaum/neodim",
+		event = "LspAttach",
+		config = function()
+			require("neodim").setup({
+				alpha = 0.50,
+				blend_color = "#10171f",
+				update_in_insert = {
+					enable = true,
+					delay = 100,
+				},
+				hide = {
+					virtual_text = true,
+					signs = true,
+					underline = true,
+				},
 			})
 		end,
 	})
@@ -332,6 +450,8 @@ local function plugins(use, plugin)
 			vim.g.matchup_matchparen_offscreen = { method = "status_manual" }
 		end,
 	})
+
+	use({ "simnalamburt/vim-mundo", event = "BufReadPre" })
 
 	use({
 		"zbirenbaum/copilot.lua",

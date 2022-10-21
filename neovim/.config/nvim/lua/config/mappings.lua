@@ -40,23 +40,23 @@ vim.keymap.set("v", "<leader>ct", function()
 	util.format_table()
 end, { desc = "Format Table" })
 
-local function search(backward)
-	vim.cmd([[echo "1> "]])
-	local first = vim.fn.getcharstr()
-	vim.fn.search(first, "s" .. (backward and "b" or ""))
-	vim.schedule(function()
-		vim.cmd([[echo "2> "]])
-		local second = vim.fn.getcharstr()
-		vim.fn.search(first .. second, "c" .. (backward and "b" or ""))
-
-		vim.fn.setreg("/", first .. second)
-	end)
-end
-
-vim.keymap.set("n", "s", search)
-vim.keymap.set("n", "S", function()
-	search(true)
-end)
+-- local function search(backward)
+-- 	vim.cmd([[echo "1> "]])
+-- 	local first = vim.fn.getcharstr()
+-- 	vim.fn.search(first, "s" .. (backward and "b" or ""))
+-- 	vim.schedule(function()
+-- 		vim.cmd([[echo "2> "]])
+-- 		local second = vim.fn.getcharstr()
+-- 		vim.fn.search(first .. second, "c" .. (backward and "b" or ""))
+--
+-- 		vim.fn.setreg("/", first .. second)
+-- 	end)
+-- end
+--
+-- vim.keymap.set("n", "s", search)
+-- vim.keymap.set("n", "S", function()
+-- 	search(true)
+-- end)
 
 -- Easier pasting
 -- vim.keymap.set("n", "[p", ":pu!<cr>")
@@ -178,6 +178,12 @@ local leader = {
 			i = { "<cmd>PackerInstall<cr>", "Install" },
 			c = { "<cmd>PackerCompile<cr>", "Compile" },
 		},
+	},
+	n = {
+		name = "+test",
+		r = { "<cmd>lua require('neotest').run.run()<cr>", "Run Nearest Test" },
+		o = { "<cmd>lua require('neotest').output.open()<cr>", "Open Output" },
+		s = { "<cmd>lua require('neotest').summary.toggle()<cr>", "Toggle Summary" },
 	},
 	s = {
 		name = "+search",
