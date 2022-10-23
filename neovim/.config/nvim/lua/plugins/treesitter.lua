@@ -63,6 +63,7 @@ function M.config()
 			"scss",
 			"sql",
 			"svelte",
+			"teal",
 			"toml",
 			"tsx",
 			"typescript",
@@ -171,6 +172,8 @@ function M.config()
 			-- colors = { colors.purple, colors.cyan, colors.orange },
 		},
 	})
+	local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+	parser_config.markdown.filetype_to_parsername = "octo"
 end
 
 return M

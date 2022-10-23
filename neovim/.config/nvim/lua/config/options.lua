@@ -1,11 +1,25 @@
 local indent = 4
 
-vim.notify = function(...)
+local notify = {
+	old = vim.notify,
+	lazy = nil,
+}
+
+notify.lazy = function(...)
 	local args = { ... }
 	vim.defer_fn(function()
-		vim.notify(unpack(args))
+		if vim.notify == notify.lazy then
+			-- if vim.notify still hasn't been replaces yet, then something went wrong,
+			-- so use the old vim.notify instead
+			notify.old(unpack(args))
+		else
+			-- use the new notify
+			vim.notify(unpack(args))
+		end
 	end, 300)
 end
+
+vim.notify = notify.lazy
 
 if vim.fn.has("nvim-0.8") == 1 then
 	--   vim.opt.spell = true -- Put new windows below current
@@ -18,7 +32,9 @@ if vim.fn.has("nvim-0.8") == 1 then
 		opts.silent = opts.silent ~= false
 		return keymap_set(mode, lhs, rhs, opts)
 	end
-elseif vim.fn.has("nvim-0.9") == 1 then
+end
+
+if vim.fn.has("nvim-0.9") == 1 then
 	vim.opt.splitkeep = "screen"
 end
 
@@ -38,13 +54,14 @@ vim.opt.cursorline = true -- Enable highlighting of the current line
 -- vim.opt.foldmethod = "expr" -- TreeSitter folding
 -- vim.opt.foldmethod = "indent"
 -- vim.opt.foldlevel = 0
+vim.o.formatoptions = "jcroqlnt" -- tcqj
 
 vim.opt.guifont = "Meslo:h10"
 vim.opt.grepprg = "rg --vimgrep --smart-case --"
 vim.opt.grepformat = "%f:%l:%c:%m"
 vim.opt.hidden = true -- Enable modified buffers in background
 vim.opt.ignorecase = true -- Ignore case
-vim.opt.inccommand = "split" -- preview incremental substitute
+vim.opt.inccommand = "nosplit" -- preview incremental substitute
 vim.opt.joinspaces = false -- No double spaces with join after a dot
 vim.opt.list = true -- Show some invisible characters (tabs...
 vim.opt.mouse = "a" -- enable mouse mode

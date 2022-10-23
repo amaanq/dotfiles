@@ -45,38 +45,6 @@ function M.require(mod)
 	return M.try(require, mod)
 end
 
-function M.format_table()
-	local from = vim.fn.getpos("'<")[2]
-	local to = vim.fn.getpos("'>")[2]
-	dumpp({ from = from, to = to })
-
-	---@type string[]
-	local lines = vim.api.nvim_buf_get_lines(0, from - 1, to, false)
-
-	---@type number[]
-	local widths = {}
-
-	for _, line in ipairs(lines) do
-		local parts = vim.split(line, "|")
-		for p, part in ipairs(parts) do
-			widths[p] = math.max(widths[p] or 0, vim.fn.strwidth(part))
-		end
-	end
-
-	for l, line in ipairs(lines) do
-		local parts = vim.split(line, "|")
-		for p, part in ipairs(parts) do
-			if part:find("^%s*%-+%s*$") then
-				part = " " .. string.rep("-", widths[p] - 2)
-			end
-			parts[p] = part .. string.rep(" ", widths[p] - vim.fn.strwidth(part))
-		end
-		lines[l] = table.concat(parts, "|")
-	end
-
-	vim.api.nvim_buf_set_lines(0, from - 1, to, true, lines)
-end
-
 function M.try(fn, ...)
 	local args = { ... }
 
@@ -162,6 +130,7 @@ function M.float(fn, opts)
 		if vim.api.nvim_win_is_valid(win) then
 			vim.api.nvim_win_close(win, true)
 		end
+		vim.cmd([[checktime]])
 	end
 
 	vim.keymap.set("n", "<ESC>", close, { buffer = buf, nowait = true })
@@ -186,7 +155,7 @@ function M.float_terminal(cmd, opts)
 	M.float(function(buf, win)
 		vim.fn.termopen(cmd)
 		local autocmd = {
-			"autocmd! TermClose <buffer> lua",
+			"autocmd! TermClose <buffer> lua vim.cmd[[checktime]];",
 			string.format("vim.api.nvim_win_close(%d, {force = true});", win),
 			string.format("vim.api.nvim_buf_delete(%d, {force = true});", buf),
 		}
@@ -269,7 +238,7 @@ end
 
 function M.version()
 	local v = vim.version()
-	if not v.prerelease then
+	if v and not v.prerelease then
 		vim.notify(
 			("Neovim v%d.%d.%d"):format(v.major, v.minor, v.patch),
 			vim.log.levels.WARN,

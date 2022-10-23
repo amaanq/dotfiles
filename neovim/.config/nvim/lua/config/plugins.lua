@@ -19,6 +19,15 @@ local function plugins(use, plugin)
 	use({ "wbthomason/packer.nvim" })
 	plugin("folke/noice.nvim")
 
+	use({
+		"smjonas/inc-rename.nvim",
+		cmd = "IncRename",
+		module = "inc_rename",
+		config = function()
+			require("inc_rename").setup()
+		end,
+	})
+
 	plugin("b0o/incline.nvim")
 	plugin("gbprod/yanky.nvim")
 
@@ -26,18 +35,19 @@ local function plugins(use, plugin)
 
 	plugin("rcarriga/nvim-notify")
 
-	use({
-		"vigoux/notifier.nvim",
-		event = "User PackerDefered",
-		module = "notifier",
-		config = function()
-			require("notifier").setup({ components = {} })
-		end,
-	})
+	-- use({
+	-- 	"vigoux/notifier.nvim",
+	-- 	event = "User PackerDefered",
+	-- 	module = "notifier",
+	-- 	config = function()
+	-- 		require("notifier").setup({ components = {} })
+	-- 	end,
+	-- })
 
 	-- LSP
 	use({ "neovim/nvim-lspconfig", plugin = "lsp" })
 	use({ "ray-x/lsp_signature.nvim", event = "BufEnter" })
+
 	-- use({
 	-- 	"lvimuser/lsp-inlayhints.nvim",
 	-- 	branch = "anticonceal",
@@ -61,19 +71,19 @@ local function plugins(use, plugin)
 
 	use({ "folke/neodev.nvim", module = "neodev" })
 
-	use({
-		"j-hui/fidget.nvim",
-		module = "fidget",
-		config = function()
-			require("fidget").setup({
-				window = {
-					relative = "editor",
-				},
-			})
-			-- HACK: prevent error when exiting Neovim
-			vim.api.nvim_create_autocmd("VimLeavePre", { command = [[silent! FidgetClose]] })
-		end,
-	})
+	-- use({
+	-- 	"j-hui/fidget.nvim",
+	-- 	module = "fidget",
+	-- 	config = function()
+	-- 		require("fidget").setup({
+	-- 			window = {
+	-- 				relative = "editor",
+	-- 			},
+	-- 		})
+	-- 		-- HACK: prevent error when exiting Neovim
+	-- 		vim.api.nvim_create_autocmd("VimLeavePre", { command = [[silent! FidgetClose]] })
+	-- 	end,
+	-- })
 
 	-- use({
 	-- 	"lewis6991/satellite.nvim",
@@ -232,6 +242,7 @@ local function plugins(use, plugin)
 	-- plugin("rebelot/kanagawa.nvim")
 	-- plugin("projekt0n/github-nvim-theme")
 	-- plugin("marko-cerovac/material.nvim")
+	-- plugin("numToStr/Sakura.nvim")
 
 	-- Theme: icons
 	use({
@@ -299,14 +310,7 @@ local function plugins(use, plugin)
 
 	-- plugin("kevinhwang91/nvim-ufo")
 
-	use({
-		"iamcco/markdown-preview.nvim",
-		run = function()
-			vim.fn["mkdp#util#install"]()
-		end,
-		ft = "markdown",
-		cmd = { "MarkdownPreview" },
-	})
+	plugin("toppair/peek.nvim")
 
 	use({
 		"ellisonleao/glow.nvim",

@@ -36,10 +36,6 @@ vim.keymap.set("i", "<A-k>", "<Esc>:m .-2<CR>==gi")
 vim.keymap.set("n", "<C-Left>", "<cmd>bprevious<cr>")
 vim.keymap.set("n", "<C-Right>", "<cmd>bnext<cr>")
 
-vim.keymap.set("v", "<leader>ct", function()
-	util.format_table()
-end, { desc = "Format Table" })
-
 -- local function search(backward)
 -- 	vim.cmd([[echo "1> "]])
 -- 	local first = vim.fn.getcharstr()
@@ -192,7 +188,17 @@ local leader = {
 		s = {
 			function()
 				require("telescope.builtin").lsp_document_symbols({
-					symbols = { "Class", "Function", "Method", "Constructor", "Interface", "Module", "Struct", "Trait" },
+					symbols = {
+						"Class",
+						"Function",
+						"Method",
+						"Constructor",
+						"Interface",
+						"Module",
+						"Struct",
+						"Trait",
+						"String",
+					},
 				})
 			end,
 			"Goto Symbol",
@@ -212,7 +218,7 @@ local leader = {
 	},
 	o = {
 		name = "+open",
-		p = { "<cmd>MarkdownPreview<cr>", "Markdown Preview" },
+		p = { "<cmd>Peek<cr>", "Peek (Markdown Preview)" },
 		g = { "<cmd>Glow<cr>", "Markdown Glow" },
 		n = { "<cmd>lua require('github-notifications.menu').notifications()<cr>", "GitHub Notifications" },
 	},
@@ -282,6 +288,7 @@ local leader = {
 		name = "+errors",
 		x = { "<cmd>TroubleToggle workspace_diagnostics<cr>", "Trouble" },
 		t = { "<cmd>TodoTrouble<cr>", "Todo Trouble" },
+		tt = { "<cmd>TodoTrouble keywords=TODO,FIX,FIXME<cr>", "Todo Trouble" },
 		T = { "<cmd>TodoTelescope<cr>", "Todo Telescope" },
 		l = { "<cmd>lopen<cr>", "Open Location List" },
 		q = { "<cmd>copen<cr>", "Open Quickfix List" },

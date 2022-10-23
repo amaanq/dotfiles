@@ -3,13 +3,23 @@ local wk = require("which-key")
 local M = {}
 
 function M.setup(client, bufnr)
+	local cap = client.server_capabilities
+
 	-- Mappings.
 	local opts = { noremap = true, silent = true, buffer = bufnr }
 
 	local keymap = {
 		c = {
 			name = "+code",
-			r = { vim.lsp.buf.rename, "Rename" },
+			r = {
+				function()
+					require("inc_rename")
+					return ":IncRename " .. vim.fn.expand("<cword>")
+				end,
+				"Rename",
+				cond = cap.renameProvider,
+				expr = true,
+			},
 			a = { "<cmd>lua vim.lsp.buf.code_action()<CR>", "Code Action" },
 			d = { "<cmd>lua vim.diagnostic.open_float()<CR>", "Line Diagnostics" },
 			l = {

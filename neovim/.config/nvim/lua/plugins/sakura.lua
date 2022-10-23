@@ -1,7 +1,6 @@
-local M = {}
-
-M.config = function()
-	require("Sakura").load()
-end
-
-return M
+return {
+	opt = false,
+	config = function()
+		require("Sakura").load()
+	end,
+}

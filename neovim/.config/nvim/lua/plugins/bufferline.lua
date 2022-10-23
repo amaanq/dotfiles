@@ -15,8 +15,8 @@ function M.config()
 	local severities = {
 		"error",
 		"warning",
-		-- "info",
-		-- "hint",
+		"info",
+		"hint",
 	}
 
 	require("bufferline").setup({
