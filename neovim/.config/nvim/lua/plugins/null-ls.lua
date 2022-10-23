@@ -15,7 +15,9 @@ function M.setup(options)
 				extra_args = { "--line-length=120" },
 			}),
 			fmt.gofmt,
-			-- fmt.prettierd,
+			fmt.prettierd.with({
+				filetypes = { "markdown" },
+			}),
 			fmt.rustfmt,
 			fmt.shfmt,
 			fmt.stylua,
@@ -24,20 +26,20 @@ function M.setup(options)
 			-- Diagnostics
 			-- dgn.eslint_d,
 			dgn.flake8,
-			-- dgn.luacheck.with({
-			-- 	extra_args = { "--globals", "vim", "--std", "luajit" },
-			-- }),
+			dgn.luacheck.with({
+				extra_args = { "--globals", "vim", "--std", "luajit" },
+			}),
 			dgn.markdownlint,
 			dgn.shellcheck,
 			-- dgn.selene,
 
 			-- Code Actions
-			-- cda.eslint_d,
+			cda.eslint_d,
 			cda.gitsigns,
 			cda.shellcheck,
 		},
 		on_attach = options.on_attach,
-		root_dir = require("null-ls.utils").root_pattern(".null-ls-root", ".nvim.settings.json", ".git"),
+		root_dir = require("null-ls.utils").root_pattern(".null-ls-root", ".neoconf.json", ".git"),
 	})
 end
 

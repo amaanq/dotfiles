@@ -16,7 +16,7 @@ function M.config()
 	})
 	require("mason")
 	require("plugins.lsp.diagnostics").setup()
-	require("fidget").setup({ text = { spinner = "dots" } })
+	require("plugins.lsp.handlers").setup()
 	local function on_attach(client, bufnr)
 		-- require("lsp-inlayhints").on_attach(client, bufnr)
 		require("nvim-navic").attach(client, bufnr)
@@ -49,6 +49,7 @@ function M.config()
 				},
 			},
 		},
+		marksman = {},
 		pyright = {},
 		rust_analyzer = {
 			settings = {
@@ -88,20 +89,20 @@ function M.config()
 					},
 					diagnostics = {
 						-- enable = false,
-						groupFileStatus = {
-							["ambiguity"] = "Opened",
-							["await"] = "Opened",
-							["codestyle"] = "None",
-							["duplicate"] = "Opened",
-							["global"] = "Opened",
-							["luadoc"] = "Opened",
-							["redefined"] = "Opened",
-							["strict"] = "Opened",
-							["strong"] = "Opened",
-							["type-check"] = "Opened",
-							["unbalanced"] = "Opened",
-							["unused"] = "Opened",
-						},
+						-- groupFileStatus = {
+						-- 	["ambiguity"] = "Opened",
+						-- 	["await"] = "Opened",
+						-- 	["codestyle"] = "None",
+						-- 	["duplicate"] = "Opened",
+						-- 	["global"] = "Opened",
+						-- 	["luadoc"] = "Opened",
+						-- 	["redefined"] = "Opened",
+						-- 	["strict"] = "Opened",
+						-- 	["strong"] = "Opened",
+						-- 	["type-check"] = "Opened",
+						-- 	["unbalanced"] = "Opened",
+						-- 	["unused"] = "Opened",
+						-- },
 						unusedLocalExclude = { "_*" },
 					},
 					format = {
@@ -125,7 +126,8 @@ function M.config()
 		-- tailwindcss = {},
 	}
 
-	local capabilities = require("cmp_nvim_lsp").default_capabilities()
+	local capabilities = vim.lsp.protocol.make_client_capabilities()
+	capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
 	capabilities.textDocument.foldingRange = {
 		dynamicRegistration = false,
 		lineFoldingOnly = true,
