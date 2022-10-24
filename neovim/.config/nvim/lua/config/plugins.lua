@@ -35,15 +35,6 @@ local function plugins(use, plugin)
 
 	plugin("rcarriga/nvim-notify")
 
-	-- use({
-	-- 	"vigoux/notifier.nvim",
-	-- 	event = "User PackerDefered",
-	-- 	module = "notifier",
-	-- 	config = function()
-	-- 		require("notifier").setup({ components = {} })
-	-- 	end,
-	-- })
-
 	-- LSP
 	use({ "neovim/nvim-lspconfig", plugin = "lsp" })
 	use({ "ray-x/lsp_signature.nvim", event = "BufEnter" })
@@ -70,29 +61,6 @@ local function plugins(use, plugin)
 	plugin("jose-elias-alvarez/null-ls.nvim")
 
 	use({ "folke/neodev.nvim", module = "neodev" })
-
-	-- use({
-	-- 	"j-hui/fidget.nvim",
-	-- 	module = "fidget",
-	-- 	config = function()
-	-- 		require("fidget").setup({
-	-- 			window = {
-	-- 				relative = "editor",
-	-- 			},
-	-- 		})
-	-- 		-- HACK: prevent error when exiting Neovim
-	-- 		vim.api.nvim_create_autocmd("VimLeavePre", { command = [[silent! FidgetClose]] })
-	-- 	end,
-	-- })
-
-	-- use({
-	-- 	"lewis6991/satellite.nvim",
-	-- 	-- event = "BufEnter",
-	-- 	event = "User PackerDefered",
-	-- 	config = function()
-	-- 		require("satellite").setup()
-	-- 	end,
-	-- })
 
 	plugin("anuvyklack/windows.nvim")
 
@@ -238,11 +206,22 @@ local function plugins(use, plugin)
 
 	-- Theme: color schemes (uncomment the one to use :))
 	-- plugin("olimorris/onedarkpro.nvim")
-	plugin("folke/tokyonight.nvim")
+	-- plugin("folke/tokyonight.nvim")
 	-- plugin("rebelot/kanagawa.nvim")
 	-- plugin("projekt0n/github-nvim-theme")
 	-- plugin("marko-cerovac/material.nvim")
 	-- plugin("numToStr/Sakura.nvim")
+	use({
+		"catppuccin/nvim",
+		opt = false,
+		as = "catppuccin",
+		config = function()
+			require("catppuccin").setup({
+				flavour = "mocha", -- mocha, macchiato, frappe, latte
+			})
+			vim.api.nvim_command("colorscheme catppuccin")
+		end,
+	})
 
 	-- Theme: icons
 	use({
