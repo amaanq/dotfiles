@@ -28,6 +28,45 @@ local function plugins(use, plugin)
 		end,
 	})
 
+	use({
+		"folke/styler.nvim",
+		opt = false,
+		event = "User PackerDefered",
+		config = function()
+			require("styler").setup({
+				themes = {
+					markdown = { colorscheme = "tokyonight-storm" },
+					help = { colorscheme = "catppuccin-mocha", background = "dark" },
+					-- noice = { colorscheme = "gruvbox", background = "dark" },
+				},
+			})
+		end,
+	})
+
+	use({
+		"folke/drop.nvim",
+		event = "VimEnter",
+		config = function()
+			math.randomseed(os.time())
+			local theme = ({ "stars", "snow" })[math.random(1, 2)]
+			require("drop").setup({ theme = theme })
+		end,
+	})
+
+	use({
+		opt = false,
+		"ellisonleao/gruvbox.nvim",
+	})
+
+	use({
+		"folke/paint.nvim",
+		event = "BufReadPre",
+		config = function()
+			require("paint").setup()
+		end,
+	})
+	plugin("toppair/peek.nvim")
+
 	plugin("b0o/incline.nvim")
 	plugin("gbprod/yanky.nvim")
 
@@ -61,6 +100,11 @@ local function plugins(use, plugin)
 	plugin("jose-elias-alvarez/null-ls.nvim")
 
 	use({ "folke/neodev.nvim", module = "neodev" })
+	use({
+		"folke/neoconf.nvim",
+		module = "neoconf",
+		cmd = "Neoconf",
+	})
 
 	plugin("anuvyklack/windows.nvim")
 
@@ -120,13 +164,19 @@ local function plugins(use, plugin)
 		end,
 		setup = function()
 			-- prompt for a refactor to apply when the remap is triggered
-			vim.keymap.set("v", "<leader>cr", function()
+			vim.keymap.set("v", "<leader>r", function()
 				require("refactoring").select_refactor()
 			end, { noremap = true, silent = true, expr = false })
 		end,
 	})
-
-	plugin("simrat39/rust-tools.nvim")
+	use({
+		"ThePrimeagen/vim-be-good",
+		module = "vim-be-good",
+		opt = false,
+		config = function()
+			require("vim-be-good")
+		end,
+	})
 
 	use({
 		"saecki/crates.nvim",
@@ -139,21 +189,13 @@ local function plugins(use, plugin)
 
 	use({ "famiu/bufdelete.nvim", cmd = "Bdelete" })
 
+	plugin("simrat39/rust-tools.nvim")
+
 	plugin("petertriho/nvim-scrollbar")
 
 	plugin("hrsh7th/nvim-cmp")
 
-	plugin("windwp/nvim-autopairs")
-
 	plugin("L3MON4D3/LuaSnip")
-
-	use({
-		"kylechui/nvim-surround",
-		event = "BufReadPre",
-		config = function()
-			require("nvim-surround").setup({})
-		end,
-	})
 
 	use({
 		"simrat39/symbols-outline.nvim",
@@ -165,8 +207,6 @@ local function plugins(use, plugin)
 			vim.keymap.set("n", "<leader>cs", "<cmd>SymbolsOutline<cr>", { desc = "Symbols Outline" })
 		end,
 	})
-
-	plugin("numToStr/Comment.nvim")
 
 	plugin("nvim-neo-tree/neo-tree.nvim")
 
@@ -192,7 +232,6 @@ local function plugins(use, plugin)
 		event = "User PackerDefered",
 		config = function()
 			require("hlargs").setup({
-				color = require("tokyonight.colors").setup().yellow,
 				excluded_argnames = {
 					usages = {
 						lua = { "self", "use" },
@@ -206,7 +245,7 @@ local function plugins(use, plugin)
 
 	-- Theme: color schemes (uncomment the one to use :))
 	-- plugin("olimorris/onedarkpro.nvim")
-	-- plugin("folke/tokyonight.nvim")
+	plugin("folke/tokyonight.nvim")
 	-- plugin("rebelot/kanagawa.nvim")
 	-- plugin("projekt0n/github-nvim-theme")
 	-- plugin("marko-cerovac/material.nvim")
@@ -219,7 +258,7 @@ local function plugins(use, plugin)
 			require("catppuccin").setup({
 				flavour = "mocha", -- mocha, macchiato, frappe, latte
 			})
-			vim.api.nvim_command("colorscheme catppuccin")
+			-- vim.api.nvim_command("colorscheme catppuccin")
 		end,
 	})
 
@@ -231,9 +270,6 @@ local function plugins(use, plugin)
 			require("nvim-web-devicons").setup({ default = true })
 		end,
 	})
-
-	-- Dashboard
-	plugin("glepnir/dashboard-nvim")
 
 	use({
 		"norcalli/nvim-terminal.lua",
@@ -280,16 +316,14 @@ local function plugins(use, plugin)
 
 	plugin("mfussenegger/nvim-dap")
 
-	use({ "rlch/github-notifications.nvim", module = "github-notifications" })
+	use({ "rlch/github-notifications.nvim", module = "github-notifications", branch = "hooks" })
 
 	-- Statusline
 	plugin("nvim-lualine/lualine.nvim")
 
 	plugin("NvChad/nvim-colorizer.lua")
 
-	-- plugin("kevinhwang91/nvim-ufo")
-
-	plugin("toppair/peek.nvim")
+	plugin("kevinhwang91/nvim-ufo")
 
 	use({
 		"ellisonleao/glow.nvim",
@@ -307,13 +341,8 @@ local function plugins(use, plugin)
 	})
 
 	plugin("phaazon/hop.nvim")
-	use({
-		"ggandor/leap.nvim",
-		event = "User PackerDefered",
-		config = function()
-			require("leap").add_default_mappings()
-		end,
-	})
+
+	plugin("ggandor/leap.nvim")
 
 	use({
 		"folke/trouble.nvim",
@@ -333,7 +362,9 @@ local function plugins(use, plugin)
 		event = "BufReadPre",
 		module = "persistence",
 		config = function()
-			require("persistence").setup()
+			require("persistence").setup({
+				options = { "buffers", "curdir", "tabpages", "winsize", "help" },
+			})
 		end,
 	})
 
@@ -346,6 +377,14 @@ local function plugins(use, plugin)
 	})
 	use({ "wakatime/vim-wakatime", event = "User PackerDefered" })
 
+	use({
+		"nvim-treesitter/nvim-treesitter-context",
+		event = "BufReadPre",
+		config = function()
+			require("treesitter-context").setup()
+		end,
+	})
+
 	use({ "folke/twilight.nvim", module = "twilight" })
 	use({
 		"folke/zen-mode.nvim",
@@ -353,33 +392,6 @@ local function plugins(use, plugin)
 		config = function()
 			require("zen-mode").setup({
 				plugins = { gitsigns = true, tmux = true, kitty = { enabled = false, font = "+2" } },
-			})
-		end,
-	})
-
-	-- use({
-	-- 	"levouh/tint.nvim",
-	-- 	config = function()
-	-- 		require("tint").setup()
-	-- 	end,
-	-- })
-
-	use({
-		"zbirenbaum/neodim",
-		event = "LspAttach",
-		config = function()
-			require("neodim").setup({
-				alpha = 0.50,
-				blend_color = "#10171f",
-				update_in_insert = {
-					enable = true,
-					delay = 100,
-				},
-				hide = {
-					virtual_text = true,
-					signs = true,
-					underline = true,
-				},
 			})
 		end,
 	})
@@ -411,52 +423,7 @@ local function plugins(use, plugin)
 
 	use({ "simnalamburt/vim-mundo", event = "BufReadPre", cmd = "MundoToggle" })
 
-	use({
-		"zbirenbaum/copilot.lua",
-		event = "VimEnter",
-		config = function()
-			vim.defer_fn(function()
-				require("copilot").setup({
-					panel = {
-						enabled = true,
-						auto_refresh = true,
-						keymap = {
-							jump_prev = "[[",
-							jump_next = "]]",
-							accept = "<CR>",
-							refresh = "gr",
-							open = "<M-CR>",
-						},
-					},
-					suggestion = {
-						enabled = true,
-						auto_trigger = true,
-						debounce = 75,
-						keymap = {
-							accept = "<M-l>",
-							next = "<M-]>",
-							prev = "<M-[>",
-							dismiss = "<C-]>",
-						},
-					},
-					filetypes = {
-						yaml = false,
-						markdown = false,
-						help = false,
-						gitcommit = false,
-						gitrebase = false,
-						hgcommit = false,
-						svn = false,
-						cvs = false,
-						["."] = false,
-					},
-					copilot_node_command = "node", -- Node version must be < 18
-					plugin_manager_path = vim.fn.stdpath("data") .. "/site/pack/packer",
-					server_opts_overrides = {},
-				})
-			end, 100)
-		end,
-	})
+	plugin("zbirenbaum/copilot.lua")
 
 	use({
 		"zbirenbaum/copilot-cmp",

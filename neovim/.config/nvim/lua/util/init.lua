@@ -1,17 +1,23 @@
 -- selene: allow(global_usage)
-_G.dump = function(...)
-	vim.pretty_print(...)
-end
 
-_G.dumpp = function(...)
-	local msg = vim.inspect(...)
-	vim.notify(msg, vim.log.levels.INFO, {
-		title = "Debug",
+_G.d = function(...)
+	local info = debug.getinfo(2, "S")
+	local source = info.source:sub(2)
+	source = vim.loop.fs_realpath(source) or source
+	source = vim.fn.fnamemodify(source, ":~:.") .. ":" .. info.linedefined
+	local what = { ... }
+	if vim.tbl_islist(what) and vim.tbl_count(what) <= 1 then
+		what = what[1]
+	end
+	local msg = vim.inspect(vim.deepcopy(what))
+	require("notify").notify(msg, vim.log.levels.INFO, {
+		title = "Debug: " .. source,
 		on_open = function(win)
-			vim.api.nvim_win_set_option(win, "conceallevel", 3)
+			vim.wo[win].conceallevel = 3
+			vim.wo[win].concealcursor = ""
+			vim.wo[win].spell = false
 			local buf = vim.api.nvim_win_get_buf(win)
-			vim.api.nvim_buf_set_option(buf, "filetype", "lua")
-			vim.api.nvim_win_set_option(win, "spell", false)
+			vim.treesitter.start(buf, "lua")
 		end,
 	})
 end
@@ -58,6 +64,20 @@ function M.try(fn, ...)
 		M.error(table.concat(lines, "\n"))
 		return err
 	end)
+end
+
+function M.markdown(msg, opts)
+	opts = vim.tbl_deep_extend("force", {
+		title = "Debug",
+		on_open = function(win)
+			vim.wo[win].conceallevel = 3
+			vim.wo[win].concealcursor = ""
+			vim.wo[win].spell = false
+			local buf = vim.api.nvim_win_get_buf(win)
+			vim.treesitter.start(buf, "markdown")
+		end,
+	}, opts or {})
+	require("notify").notify(msg, vim.log.levels.INFO, opts)
 end
 
 function M.debug_pcall()
@@ -120,8 +140,11 @@ function M.float(fn, opts)
 		col = hpad,
 		style = "minimal",
 		border = "rounded",
+		noautocmd = true,
 	}, opts or {})
-	local win = vim.api.nvim_open_win(buf, true, opts)
+
+	local enter = opts.enter == nil and true or opts.enter
+	local win = vim.api.nvim_open_win(buf, enter, opts)
 
 	local function close()
 		if vim.api.nvim_buf_is_valid(buf) then
@@ -141,6 +164,44 @@ function M.float(fn, opts)
 		callback = close,
 	})
 	fn(buf, win)
+end
+
+function M.hl()
+	---@type string[]
+	local lines = {}
+
+	local treesitter = {}
+	for _, capture in pairs(vim.treesitter.get_captures_at_cursor(0)) do
+		table.insert(treesitter, "- **@" .. capture .. "**")
+	end
+	if #treesitter > 0 then
+		table.insert(lines, "# Treesitter")
+		vim.list_extend(lines, treesitter)
+	end
+
+	local syntax = {}
+	for _, i1 in ipairs(vim.fn.synstack(vim.fn.line("."), vim.fn.col("."))) do
+		local i2 = vim.fn.synIDtrans(i1)
+		local n1 = vim.fn.synIDattr(i1, "name")
+		local n2 = vim.fn.synIDattr(i2, "name")
+		table.insert(syntax, "- " .. n1 .. " -> **" .. n2 .. "**")
+	end
+	if #syntax > 0 then
+		table.insert(lines, "# Syntax")
+		vim.list_extend(lines, syntax)
+	end
+
+	local max_width = 10
+	for _, line in ipairs(lines) do
+		max_width = math.max(max_width, vim.fn.strwidth(line))
+	end
+
+	if vim.tbl_isempty(lines) then
+		lines = { "No highlights under the cursor" }
+		max_width = vim.fn.strwidth(lines[1])
+	end
+
+	M.markdown(table.concat(lines, "\n"), { title = "Highlights" })
 end
 
 function M.float_cmd(cmd, opts)
@@ -198,7 +259,6 @@ function M.clipman()
 				}, function(choice)
 					if choice then
 						vim.api.nvim_paste(choice, true, 1)
-						-- vim.fn.setreg("+", choice)
 					end
 				end)
 			else
@@ -234,6 +294,12 @@ function M.throttle(ms, fn)
 			running = true
 		end
 	end
+end
+
+function M.test(is_file)
+	local file = is_file and vim.fn.expand("%:p") or "./tests"
+	local init = vim.fn.glob("tests/*init*")
+	require("plenary.test_harness").test_directory(file, { minimal_init = init })
 end
 
 function M.version()
