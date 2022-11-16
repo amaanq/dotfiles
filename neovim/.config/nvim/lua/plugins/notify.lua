@@ -5,7 +5,6 @@ local M = {
 
 function M.config()
 	require("notify").setup({
-		-- render = "minimal",
 		level = vim.log.levels.INFO,
 		fps = 144,
 		max_height = function()

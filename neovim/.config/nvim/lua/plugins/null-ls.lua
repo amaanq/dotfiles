@@ -15,12 +15,14 @@ function M.setup(options)
 				extra_args = { "--line-length=120" },
 			}),
 			fmt.gofmt,
+			fmt.isort,
 			fmt.prettierd.with({
 				filetypes = { "markdown" },
 			}),
 			fmt.rustfmt,
 			fmt.shfmt,
 			fmt.stylua,
+			-- fmt.uncrustify,
 			fmt.zigfmt,
 
 			-- Diagnostics

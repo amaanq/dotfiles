@@ -8,15 +8,16 @@ function M.config()
 		experimental = {
 			pathStrict = true,
 		},
-		library = {
-			-- runtime = "~/projects/neovim/runtime/",
-			plugins = { "neotest" },
-			types = true,
-		},
+		-- library = {
+		-- 	-- runtime = "~/projects/neovim/runtime/",
+		-- 	-- plugins = { "neotest" },
+		-- 	-- types = true,
+		-- },
 	})
 	require("mason")
 	require("plugins.lsp.diagnostics").setup()
-	require("plugins.lsp.handlers").setup()
+	require("neoconf").setup()
+
 	local function on_attach(client, bufnr)
 		-- require("lsp-inlayhints").on_attach(client, bufnr)
 		require("nvim-navic").attach(client, bufnr)
@@ -34,6 +35,7 @@ function M.config()
 		cssls = {},
 		dockerls = {},
 		tsserver = {},
+		svelte = {},
 		eslint = {},
 		golangci_lint_ls = {},
 		gopls = {},
@@ -50,6 +52,7 @@ function M.config()
 			},
 		},
 		marksman = {},
+		omnisharp = {},
 		pyright = {},
 		rust_analyzer = {
 			settings = {
@@ -81,6 +84,7 @@ function M.config()
 					},
 					completion = {
 						workspaceWord = true,
+						callSnippet = "Replace",
 					},
 					misc = {
 						parameters = {
@@ -89,20 +93,24 @@ function M.config()
 					},
 					diagnostics = {
 						-- enable = false,
-						-- groupFileStatus = {
-						-- 	["ambiguity"] = "Opened",
-						-- 	["await"] = "Opened",
-						-- 	["codestyle"] = "None",
-						-- 	["duplicate"] = "Opened",
-						-- 	["global"] = "Opened",
-						-- 	["luadoc"] = "Opened",
-						-- 	["redefined"] = "Opened",
-						-- 	["strict"] = "Opened",
-						-- 	["strong"] = "Opened",
-						-- 	["type-check"] = "Opened",
-						-- 	["unbalanced"] = "Opened",
-						-- 	["unused"] = "Opened",
-						-- },
+						groupSeverity = {
+							strong = "Warning",
+							strict = "Warning",
+						},
+						groupFileStatus = {
+							--   ["ambiguity"] = "Opened",
+							--   ["await"] = "Opened",
+							--   ["codestyle"] = "None",
+							--   ["duplicate"] = "Opened",
+							--   ["global"] = "Opened",
+							--   ["luadoc"] = "Opened",
+							--   ["redefined"] = "Opened",
+							["strict"] = "Opened",
+							["strong"] = "Opened",
+							--   ["type-check"] = "Opened",
+							--   ["unbalanced"] = "Opened",
+							--   ["unused"] = "Opened",
+						},
 						unusedLocalExclude = { "_*" },
 					},
 					format = {

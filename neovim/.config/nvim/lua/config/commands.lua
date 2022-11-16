@@ -55,6 +55,7 @@ vim.api.nvim_create_autocmd("BufReadPre", {
 	end,
 })
 
+local reloaded_id = nil
 vim.api.nvim_create_autocmd("BufWritePost", {
 	pattern = "*.lua",
 	callback = function(event)
@@ -66,7 +67,7 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 		end
 		if mod then
 			package.loaded[mod] = nil
-			vim.notify("Reloaded " .. mod, vim.log.levels.INFO, { title = "nvim" })
+			reloaded_id = vim.notify("Reloaded " .. mod, vim.log.levels.INFO, { title = "nvim", replace = reloaded_id })
 		end
 	end,
 })
@@ -75,8 +76,23 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 vim.cmd("au TextYankPost * lua vim.highlight.on_yank {}")
 
 -- windows to close with "q"
-vim.cmd([[autocmd FileType help,startuptime,qf,lspinfo nnoremap <buffer><silent> q :close<CR>]])
-vim.cmd([[autocmd FileType man nnoremap <buffer><silent> q :quit<CR>]])
+vim.api.nvim_create_autocmd({ "FileType" }, {
+	pattern = {
+		"qf",
+		"help",
+		"man",
+		"lspinfo",
+		"spectre_panel",
+		"startuptime",
+		"tsplayground",
+	},
+	callback = function()
+		vim.cmd([[
+    nnoremap <silent> <buffer> q :close<CR>
+    set nobuflisted
+    ]])
+	end,
+})
 
 -- InlayHints
 -- vim.api.nvim_create_augroup("LspAttach_inlayhints", {})
