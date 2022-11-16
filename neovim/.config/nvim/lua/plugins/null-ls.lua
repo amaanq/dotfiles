@@ -22,7 +22,7 @@ function M.setup(options)
 			fmt.rustfmt,
 			fmt.shfmt,
 			fmt.stylua,
-			-- fmt.uncrustify,
+			fmt.uncrustify,
 			fmt.zigfmt,
 
 			-- Diagnostics
