@@ -106,7 +106,7 @@ return {
 			},
 			options = {
 				bold = true,
-				italic = true,
+				-- italic = true,
 				underline = true,
 				cursorline = true,
 				terminal_colors = true,

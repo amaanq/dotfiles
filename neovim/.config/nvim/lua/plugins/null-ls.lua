@@ -14,6 +14,7 @@ function M.setup(options)
 			fmt.black.with({
 				extra_args = { "--line-length=120" },
 			}),
+			fmt.eslint_d,
 			fmt.gofmt,
 			fmt.isort,
 			fmt.prettierd.with({
