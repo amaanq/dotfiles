@@ -49,7 +49,7 @@ local function plugins(use, plugin)
 		config = function()
 			math.randomseed(os.time())
 			local theme = ({ "stars", "snow" })[math.random(1, 2)]
-			require("drop").setup({ theme = theme })
+			require("drop").setup({ theme = theme, max = 60, interval = 50 })
 		end,
 	})
 
