@@ -28,7 +28,10 @@ function M.setup(options)
 
 			-- Diagnostics
 			-- dgn.eslint_d,
-			dgn.flake8,
+			dgn.flake8.with({
+				-- set config to  ~/.config/flake8
+				extra_args = { "--config", "~/.config/flake8", "--max-line-length=88" },
+			}),
 			dgn.luacheck.with({
 				extra_args = { "--globals", "vim", "--std", "luajit" },
 			}),
