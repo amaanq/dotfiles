@@ -1,5 +1,5 @@
 local M = {
-	-- run = ":TSUpdate",
+	run = ":TSUpdate",
 	event = "User PackerDefered",
 	module = "nvim-treesitter",
 	requires = {
@@ -62,7 +62,7 @@ function M.config()
 			"python",
 			"query",
 			"regex",
-			-- "rust",
+			"rust",
 			"scss",
 			"sql",
 			"svelte",
@@ -71,7 +71,7 @@ function M.config()
 			"tsx",
 			"typescript",
 			"vala",
-			"vim",
+			-- "vim",
 			"vue",
 			"wgsl",
 			"yaml",
