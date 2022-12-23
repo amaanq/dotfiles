@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+function have {
+	command -v "$1" &>/dev/null
+}
+
+# install ansible
+have ansible || sudo dnf install ansible -y
+
+# install ansible community plugins
+[ -d ~/.ansible/collections/ansible_collections/community ] ||
+	ansible-galaxy collection install community.general
+
+# Run Ansible
+ansible-playbook -i ./hosts ./linux.yml --ask-become-pass
