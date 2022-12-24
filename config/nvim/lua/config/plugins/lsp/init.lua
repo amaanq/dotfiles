@@ -40,6 +40,7 @@ function M.config()
 		golangci_lint_ls = {},
 		gopls = {},
 		html = {},
+		jdtls = {},
 		jsonls = {
 			settings = {
 				json = {
