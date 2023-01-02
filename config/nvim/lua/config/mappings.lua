@@ -149,7 +149,7 @@ local leader = {
 		name = "+git",
 		l = {
 			function()
-				require("util").float_terminal("lazygit", { border = "none" })
+				require("util").float_terminal({ "lazygit" })
 			end,
 			"LazyGit",
 		},
@@ -218,7 +218,6 @@ local leader = {
 	},
 	f = {
 		name = "+file",
-		t = { "<cmd>Neotree toggle<cr>", "NeoTree" },
 		f = { "<cmd>Telescope find_files<cr>", "Find File" },
 		r = { "<cmd>Telescope oldfiles<cr>", "Open Recent File" },
 		n = { "<cmd>enew<cr>", "New File" },
@@ -239,9 +238,7 @@ local leader = {
 	},
 	o = {
 		name = "+open",
-		p = { "<cmd>Peek<cr>", "Peek (Markdown Preview)" },
 		g = { "<cmd>Glow<cr>", "Markdown Glow" },
-		n = { "<cmd>lua require('github-notifications.menu').notifications()<cr>", "GitHub Notifications" },
 	},
 	p = {
 		name = "+project",
@@ -287,7 +284,6 @@ local leader = {
 	},
 	["`"] = { "<cmd>:e #<cr>", "Switch to Other Buffer" },
 	[" "] = "Find File",
-	["."] = { ":Telescope file_browser<cr>", "Browse Files" },
 	[","] = { "<cmd>Telescope buffers show_all_buffers=true<cr>", "Switch Buffer" },
 	["/"] = { "<cmd>Telescope live_grep<cr>", "Search" },
 	[":"] = { "<cmd>Telescope command_history<cr>", "Command History" },
