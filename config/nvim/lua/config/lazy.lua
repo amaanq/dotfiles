@@ -18,7 +18,14 @@ require("lazy").setup("config.plugins", {
 	dev = { patterns = jit.os:find("Windows") and {} or { "amaanq" } },
 	install = { colorscheme = { "tokyonight", "habamax" } },
 	checker = { enabled = true },
+	diff = {
+		cmd = "terminal_git",
+	},
 	performance = {
+		cache = {
+			enabled = true,
+			-- disable_events = {},
+		},
 		rtp = {
 			disabled_plugins = {
 				"gzip",
@@ -29,7 +36,16 @@ require("lazy").setup("config.plugins", {
 				"tohtml",
 				"tutor",
 				"zipPlugin",
+				"nvim-treesitter-textobjects",
 			},
+		},
+	},
+	ui = {
+		custom_keys = {
+
+			["<localleader>d"] = function(plugin)
+				dd(plugin)
+			end,
 		},
 	},
 	debug = true,

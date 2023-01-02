@@ -1,6 +1,7 @@
 local M = {
 	"folke/tokyonight.nvim",
 	lazy = false,
+	priority = 999,
 }
 
 function M.config()
@@ -61,6 +62,7 @@ function M.config()
 			end
 		end,
 	})
+
 	tokyonight.load()
 end
 
