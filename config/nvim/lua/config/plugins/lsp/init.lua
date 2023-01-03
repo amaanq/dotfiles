@@ -1,20 +1,25 @@
 local M = {
 	"neovim/nvim-lspconfig",
-	name = "lsp",
 	event = "BufReadPre",
-	dependencies = { "hrsh7th/cmp-nvim-lsp" },
+	dependencies = {
+		{ "folke/neoconf.nvim", cmd = "Neoconf", config = true },
+		{
+			"folke/neodev.nvim",
+			config = {
+				debug = true,
+				experimental = {
+					pathStrict = true,
+				},
+			},
+		},
+		"hrsh7th/cmp-nvim-lsp",
+	},
+	pin = true,
 }
 
 function M.config()
-	require("neodev").setup({
-		debug = true,
-		experimental = {
-			pathStrict = true,
-		},
-	})
 	require("mason")
 	require("config.plugins.lsp.diagnostics").setup()
-	require("neoconf").setup()
 
 	local function on_attach(client, bufnr)
 		if client.name ~= "rust_analyzer" then
@@ -30,24 +35,26 @@ function M.config()
 		ansiblels = {},
 		-- asm_lsp = {},
 		bashls = {},
-		clangd = {},
 		cmake = {},
 		cssls = {},
 		dockerls = {},
 		tsserver = {},
-		svelte = {},
+		-- svelte = {},
 		eslint = {},
 		golangci_lint_ls = {},
 		gopls = {},
 		html = {},
 		jdtls = {},
 		jsonls = {
+			on_new_config = function(new_config)
+				new_config.settings.json.schemas = new_config.settings.json.schemas or {}
+				vim.list_extend(new_config.settings.json.schemas, require("schemastore").json.schemas())
+			end,
 			settings = {
 				json = {
 					format = {
 						enable = true,
 					},
-					schemas = require("schemastore").json.schemas(),
 					validate = { enable = true },
 				},
 			},
@@ -66,6 +73,7 @@ function M.config()
 						command = "clippy",
 						extraArgs = { "--no-deps" },
 					},
+					inlayHints = { locationLinks = false },
 					procMacro = {
 						ignored = {
 							["async-trait"] = { "async_trait" },
@@ -126,7 +134,7 @@ function M.config()
 				},
 			},
 		},
-		tailwindcss = {},
+		-- tailwindcss = {},
 		teal_ls = {},
 		texlab = {},
 		-- vala_ls = {},
