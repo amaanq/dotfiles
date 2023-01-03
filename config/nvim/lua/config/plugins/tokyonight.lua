@@ -24,7 +24,7 @@ function M.config()
 		},
 		transparent = false,
 		styles = {},
-		on_colors = function(c) end,
+		on_colors = function(_c) end,
 		on_highlights = function(hl, c)
 			-- make the current line cursor orange
 			hl.CursorLineNr = { fg = c.orange, bold = true }
