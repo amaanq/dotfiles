@@ -20,8 +20,8 @@ function M.config()
 			icons_enabled = true,
 			globalstatus = true,
 			disabled_filetypes = {
-				statusline = { "dashboard", "lazy" },
-				winbar = { "dashboard", "neo-tree", "neo-tree-popup" },
+				statusline = { "alpha", "dashboard", "lazy" },
+				winbar = { "alpha", "dashboard", "neo-tree", "neo-tree-popup" },
 			},
 		},
 		sections = {

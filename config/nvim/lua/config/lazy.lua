@@ -9,8 +9,7 @@ vim.opt.rtp:prepend(lazypath)
 -- load lazy
 require("lazy").setup({
 	spec = {
-		{ "amaanq/LazyVim", dev = true, lazy = false, priority = 10000 },
-		{ import = "lazyvim.plugins" },
+		{ "amaanq/LazyVim", import = "lazyvim.plugins" },
 		{ import = "plugins" },
 	},
 	defaults = { lazy = true },
@@ -35,7 +34,6 @@ require("lazy").setup({
 				"tohtml",
 				"tutor",
 				"zipPlugin",
-				"nvim-treesitter-textobjects",
 			},
 		},
 	},
@@ -48,4 +46,3 @@ require("lazy").setup({
 	},
 	debug = true,
 })
-vim.keymap.set("n", "<leader>l", "<cmd>:Lazy<cr>")

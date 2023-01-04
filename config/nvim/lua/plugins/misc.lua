@@ -2,80 +2,16 @@ return {
 	"folke/twilight.nvim",
 	"jose-elias-alvarez/typescript.nvim",
 
-	{
-		"smjonas/inc-rename.nvim",
-		cmd = "IncRename",
-		config = true,
-	},
-
-	{
-		"ThePrimeagen/refactoring.nvim",
-		keys = {
-			{
-				"<leader>r",
-				function()
-					require("refactoring").select_refactor()
-				end,
-				mode = "v",
-				noremap = true,
-				silent = true,
-				expr = false,
-			},
-		},
-		config = {},
-	},
-	{
-		"ThePrimeagen/vim-be-good",
-		lazy = false,
-		config = function()
-			require("vim-be-good")
-		end,
-	},
-
 	{ "famiu/bufdelete.nvim", cmd = "Bdelete" },
-
-	{
-		"simrat39/symbols-outline.nvim",
-		keys = { { "<leader>cs", "<cmd>SymbolsOutline<cr>", desc = "Symbols Outline" } },
-		config = true,
-	},
-
-	{
-		"danymat/neogen",
-		keys = {
-			{
-				"<leader>cc",
-				function()
-					require("neogen").generate({})
-				end,
-				desc = "Neogen Comment",
-			},
-		},
-		config = { snippet_engine = "luasnip" },
-	},
-
-	{
-		"folke/trouble.nvim",
-		cmd = { "TroubleToggle", "Trouble" },
-		config = {
-			auto_open = false,
-			use_diagnostic_signs = true, -- en
-		},
-	},
-
-	{
-		"folke/persistence.nvim",
-		event = "BufReadPre",
-		config = { options = { "buffers", "curdir", "tabpages", "winsize", "help" } },
-	},
 
 	{
 		"Wansmer/treesj",
 		keys = {
 			{ "J", "<cmd>TSJToggle<cr>" },
 		},
-		config = { use_default_keymaps = false },
+		config = { use_default_keymaps = false, max_join_length = 150 },
 	},
+
 	{
 		"cshuaimin/ssr.nvim",
 		keys = {
@@ -102,6 +38,7 @@ return {
 				kitty = { enabled = false, font = "+2" },
 			},
 		},
+		keys = { { "<leader>z", "<cmd>ZenMode<cr>", desc = "Zen Mode" } },
 	},
 
 	{
