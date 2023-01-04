@@ -1,19 +1,18 @@
 -- bootstrap from github
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-	vim.fn.system({
-		"git",
-		"clone",
-		"--filter=blob:none",
-		"--single-branch",
-		"git@github.com:folke/lazy.nvim.git",
-		lazypath,
-	})
+	vim.fn.system({ "git", "clone", "--filter=blob:none", "https://github.com/folke/lazy.nvim.git", lazypath })
+	vim.fn.system({ "git", "-C", lazypath, "checkout", "tags/stable" }) -- last stable release
 end
-vim.opt.runtimepath:prepend(lazypath)
+vim.opt.rtp:prepend(lazypath)
 
 -- load lazy
-require("lazy").setup("config.plugins", {
+require("lazy").setup({
+	spec = {
+		{ "amaanq/LazyVim", dev = true, lazy = false, priority = 10000 },
+		{ import = "lazyvim.plugins" },
+		{ import = "plugins" },
+	},
 	defaults = { lazy = true },
 	dev = { patterns = jit.os:find("Windows") and {} or { "amaanq" } },
 	install = { colorscheme = { "tokyonight", "habamax" } },
@@ -42,7 +41,6 @@ require("lazy").setup("config.plugins", {
 	},
 	ui = {
 		custom_keys = {
-
 			["<localleader>d"] = function(plugin)
 				dd(plugin)
 			end,
