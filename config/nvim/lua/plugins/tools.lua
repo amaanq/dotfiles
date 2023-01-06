@@ -108,4 +108,7 @@ return {
 		end,
 	},
 
+	"wellle/targets.vim",
+
+	{ "rafcamlet/nvim-luapad", cmd = "Luapad" },
 }
