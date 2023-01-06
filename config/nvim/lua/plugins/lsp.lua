@@ -350,7 +350,11 @@ return {
 				save_after_format = false,
 				sources = {
 					-- Formatting
-					fmt.asmfmt,
+					fmt.asmfmt.with({
+						condition = function()
+							return util.executable("asmfmt")
+						end,
+					}),
 					fmt.black.with({
 						extra_args = { "--line-length=120" },
 					}),
@@ -362,10 +366,22 @@ return {
 					fmt.clang_format,
 					fmt.eslint_d,
 					fmt.gofmt,
-					fmt.goimports_reviser,
+					fmt.goimports_reviser.with({
+						condition = function()
+							return util.executable("goimports-reviser")
+						end,
+					}),
 					fmt.isort,
-					fmt.nginx_beautifier,
-					fmt.pg_format,
+					fmt.nginx_beautifier.with({
+						condition = function()
+							return util.executable("nginxbeautifier")
+						end,
+					}),
+					fmt.pg_format.with({
+						condition = function()
+							return util.executable("pg_format")
+						end,
+					}),
 					fmt.prettierd.with({
 						filetypes = { "graphql", "html", "json", "markdown", "yaml" },
 						condition = function()
@@ -387,26 +403,46 @@ return {
 					fmt.zigfmt,
 
 					-- Diagnostics
-					dgn.ansiblelint,
-					dgn.buf,
+					dgn.ansiblelint.with({
+						condition = function()
+							return util.executable("ansible-lint")
+						end,
+					}),
+					dgn.buf.with({
+						condition = function()
+							return util.executable("buf")
+						end,
+					}),
 					-- dgn.eslint_d,
 					dgn.flake8.with({
 						-- set config to  ~/.config/flake8
 						extra_args = { "--config", "~/.config/flake8", "--max-line-length=88" },
 					}),
-					dgn.golangci_lint,
+					dgn.golangci_lint.with({
+						condition = function()
+							return util.executable("golangci-lint")
+						end,
+					}),
 					-- dgn.luacheck.with({
 					-- 	extra_args = { "--globals", "vim", "--std", "luajit" },
 					-- }),
 					dgn.markdownlint,
-					dgn.protolint,
+					dgn.protolint.with({
+						condition = function()
+							return util.executable("protolint")
+						end,
+					}),
 					dgn.shellcheck,
 					dgn.selene.with({
 						condition = function(utils)
 							return utils.root_has_file({ "selene.toml" })
 						end,
 					}),
-					dgn.write_good,
+					dgn.write_good.with({
+						condition = function()
+							return util.executable("write-good")
+						end,
+					}),
 					dgn.zsh,
 
 					-- Code Actions
