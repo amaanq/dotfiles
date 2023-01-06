@@ -237,4 +237,39 @@ return {
 		keys = { { "<leader>cs", "<cmd>SymbolsOutline<cr>", desc = "Symbols Outline" } },
 		config = true,
 	},
+
+	{
+		"gorbit99/codewindow.nvim",
+		enabled = false,
+		event = "BufReadPre",
+		config = function()
+			-- require("as.highlights").plugin("codewindow", {
+			-- 	{ CodewindowBorder = { link = "WinSeparator" } },
+			-- 	{ CodewindowWarn = { bg = "NONE", fg = { from = "DiagnosticSignWarn", attr = "bg" } } },
+			-- 	{ CodewindowError = { bg = "NONE", fg = { from = "DiagnosticSignError", attr = "bg" } } },
+			-- })
+			local util = require("util")
+			local codewindow = require("codewindow")
+			util.command("CodewindowToggle", codewindow.toggle_minimap)
+			codewindow.setup({
+				z_index = 25,
+				auto_enable = true,
+				exclude_filetypes = {
+					"qf",
+					"git",
+					"help",
+					"alpha",
+					"gitcommit",
+					"NeogitStatus",
+					"neo-tree",
+					"neo-tree-popup",
+					"neotest-summary",
+					"NeogitCommitMessage",
+					"",
+				},
+			})
+		end,
+	},
+
+	{
 }
