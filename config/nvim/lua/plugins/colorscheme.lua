@@ -124,6 +124,7 @@ return {
 		end,
 	},
 	{ "shaunsingh/oxocarbon.nvim" },
+	{ "LunarVim/horizon.nvim", lazy = false, priority = 1000 },
 	{
 		"folke/tokyonight.nvim",
 		lazy = false,
