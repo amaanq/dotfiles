@@ -354,6 +354,7 @@ return {
 	{
 		"jose-elias-alvarez/null-ls.nvim",
 		config = function()
+			local util = require("util")
 			local nls = require("null-ls")
 			local fmt = nls.builtins.formatting
 			local dgn = nls.builtins.diagnostics
@@ -364,38 +365,64 @@ return {
 				save_after_format = false,
 				sources = {
 					-- Formatting
+					fmt.asmfmt,
 					fmt.black.with({
 						extra_args = { "--line-length=120" },
+					}),
+					fmt.cbfmt:with({
+						condition = function()
+							return util.executable("cbfmt")
+						end,
 					}),
 					fmt.clang_format,
 					fmt.eslint_d,
 					fmt.gofmt,
+					fmt.goimports_reviser,
 					fmt.isort,
+					fmt.nginx_beautifier,
+					fmt.pg_format,
 					fmt.prettierd.with({
-						filetypes = { "markdown" },
+						filetypes = { "graphql", "html", "json", "markdown", "yaml" },
+						condition = function()
+							return util.executable("prettier")
+						end,
 					}),
 					fmt.rustfmt,
 					fmt.shfmt,
-					fmt.stylua,
+					fmt.stylua.with({
+						condition = function()
+							return util.executable("stylua")
+								and not vim.tbl_isempty(vim.fs.find({ ".stylua.toml", "stylua.toml" }, {
+									path = vim.fn.expand("%:p"),
+									upward = true,
+								}))
+						end,
+					}),
 					fmt.uncrustify,
 					fmt.zigfmt,
 
 					-- Diagnostics
+					dgn.ansiblelint,
+					dgn.buf,
 					-- dgn.eslint_d,
 					dgn.flake8.with({
 						-- set config to  ~/.config/flake8
 						extra_args = { "--config", "~/.config/flake8", "--max-line-length=88" },
 					}),
+					dgn.golangci_lint,
 					-- dgn.luacheck.with({
 					-- 	extra_args = { "--globals", "vim", "--std", "luajit" },
 					-- }),
 					dgn.markdownlint,
+					dgn.protolint,
 					dgn.shellcheck,
 					dgn.selene.with({
 						condition = function(utils)
 							return utils.root_has_file({ "selene.toml" })
 						end,
 					}),
+					dgn.write_good,
+					dgn.zsh,
 
 					-- Code Actions
 					cda.eslint_d,
