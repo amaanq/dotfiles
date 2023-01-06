@@ -213,4 +213,33 @@ return {
 		end,
 	},
 	{ "pwntester/octo.nvim", cmd = "Octo", config = true },
+
+	{
+		"lukas-reineke/virt-column.nvim",
+		event = "VeryLazy",
+		config = function()
+			require("virt-column").setup({ char = "▕" })
+		end,
+	},
+
+	{
+		"itchyny/vim-highlighturl",
+		event = "VeryLazy",
+	},
+
+	{
+		"lukas-reineke/headlines.nvim",
+		ft = { "org", "norg", "markdown", "yaml" },
+		config = function()
+			require("headlines").setup({
+				markdown = {
+					headline_highlights = { "Headline1", "Headline2", "Headline3" },
+				},
+				org = {
+					headline_highlights = false,
+				},
+				norg = { codeblock_highlight = false },
+			})
+		end,
+	},
 }
