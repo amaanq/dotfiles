@@ -64,6 +64,20 @@ return {
 		},
 	},
 
+	{
+		"jayp0521/mason-null-ls.nvim",
+		dependencies = {
+			"williamboman/mason.nvim",
+			"jose-elias-alvarez/null-ls.nvim",
+		},
+		after = "mason.nvim",
+		config = function()
+			require("mason-null-ls").setup({
+				automatic_installation = true,
+			})
+		end,
+	},
+
 	-- json schemas
 	"b0o/SchemaStore.nvim",
 
