@@ -81,4 +81,15 @@ return {
 		},
 	},
 
+	-- Use <Tab> to escape from pairs such as ""|''|() etc.
+	{
+		"abecodes/tabout.nvim",
+		event = "VeryLazy",
+		wants = { "nvim-treesitter" },
+		after = { "nvim-cmp" },
+		config = function()
+			require("tabout").setup({ ignore_beginning = false, completion = false })
+		end,
+	},
+
 }
