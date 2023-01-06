@@ -20,7 +20,11 @@ return {
 
 	{
 		"nvim-treesitter/nvim-treesitter",
+		dependencies = { "p00f/nvim-ts-rainbow" },
 		config = function()
+			local parsers = require("nvim-treesitter.parsers")
+			local rainbow_enabled = { "c_sharp", "c", "cpp", "dart", "go", "rust" }
+
 			require("nvim-treesitter.configs").setup({
 				ensure_installed = {
 					"bash",
@@ -36,6 +40,7 @@ return {
 					"fish",
 					"gitattributes",
 					"gitignore",
+					"git_rebase",
 					"go",
 					"gomod",
 					"graphql",
@@ -82,6 +87,7 @@ return {
 				},
 				sync_install = false,
 				auto_install = false,
+				autopairs = { enable = true },
 				highlight = { enable = true },
 				indent = { enable = false },
 				context_commentstring = { enable = true, enable_autocmd = false },
@@ -117,12 +123,31 @@ return {
 					use_virtual_text = true,
 					lint_events = { "BufWrite", "CursorHold" },
 				},
+				-- rainbow = {
+				-- 	enable = true,
+				-- 	-- disable = { "json", "jsonc" }, -- list of languages you want to disable the plugin for
+				-- 	extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
+				-- 	max_file_lines = 1000, -- Do not enable for files with more than n lines, int
+				-- 	-- colors = { colors.purple, colors.cyan, colors.orange },
+				-- },
 				rainbow = {
 					enable = true,
-					-- disable = { "json", "jsonc" }, -- list of languages you want to disable the plugin for
-					extended_mode = true, -- Also highlight non-bracket delimiters like html tags, boolean or table: lang -> boolean
-					max_file_lines = 1000, -- Do not enable for files with more than n lines, int
-					-- colors = { colors.purple, colors.cyan, colors.orange },
+					disable = vim.tbl_filter(function(p)
+						local disable = true
+						for _, lang in pairs(rainbow_enabled) do
+							if p == lang then
+								disable = false
+							end
+						end
+						return disable
+					end, parsers.available_parsers()),
+					colors = {
+						"royalblue3",
+						"darkorange3",
+						"seagreen3",
+						"firebrick",
+						"darkorchid3",
+					},
 				},
 				refactor = {
 					smart_rename = {
