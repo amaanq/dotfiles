@@ -281,4 +281,12 @@ return {
 		end,
 	},
 
+	{
+		"aarondiel/spread.nvim",
+		after = "nvim-treesitter",
+		keys = {
+			{ "gS", "<cmd>lua require('spread').out()<cr>", desc = "Expand (Spread)" },
+			{ "gJ", "<cmd>lua require('spread').combine()<cr>", desc = "Combine (Spread)" },
+		},
+	},
 }
