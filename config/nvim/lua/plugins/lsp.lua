@@ -86,6 +86,21 @@ return {
 		end,
 	},
 
+	{
+		"kosayoda/nvim-lightbulb",
+		event = "BufReadPre",
+		config = function()
+			local icon = ""
+			require("nvim-lightbulb").setup({
+				ignore = { "null-ls", "rust_analyzer" }, -- rust_analyzer has so many code actions to inline/rewrite stuff, it's annoying with this plugin sadly
+				autocmd = { enabled = true },
+				sign = { enabled = false },
+				virtual_text = { enabled = true, text = icon, hl_mode = "blend" },
+				float = { text = icon, enabled = false, win_opts = { border = "none" } }, -- 
+			})
+		end,
+	},
+
 	-- json schemas
 	"b0o/SchemaStore.nvim",
 
