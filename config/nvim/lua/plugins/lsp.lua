@@ -78,6 +78,14 @@ return {
 		end,
 	},
 
+	{
+		"DNLHC/glance.nvim",
+		event = "BufReadPre",
+		config = function()
+			require("glance").setup()
+		end,
+	},
+
 	-- json schemas
 	"b0o/SchemaStore.nvim",
 
