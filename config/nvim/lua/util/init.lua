@@ -15,6 +15,25 @@ end
 
 local M = {}
 
+---@param cmd string
+function M.executable(cmd)
+	return vim.fn.executable(cmd) > 0
+end
+
+--- @class CommandArgs
+--- @field args string
+--- @field fargs table
+--- @field bang boolean,
+
+---Create an nvim command
+---@param name any
+---@param rhs string|fun(args: CommandArgs)
+---@param opts table?
+function M.command(name, rhs, opts)
+	opts = opts or {}
+	vim.api.nvim_create_user_command(name, rhs, opts)
+end
+
 function M.require(mod)
 	local ok, ret = M.try(require, mod)
 	return ok and ret
