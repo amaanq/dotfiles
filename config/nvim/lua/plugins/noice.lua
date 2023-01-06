@@ -48,6 +48,7 @@ function M.config()
 			long_message_to_split = true,
 			inc_rename = true,
 			cmdline_output_to_split = false,
+			lsp_doc_border = true,
 		},
 		commands = {
 			all = {
