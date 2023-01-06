@@ -105,4 +105,6 @@ return {
 			})
 		end,
 	},
+
+	"melvio/medical-spell-files",
 }
