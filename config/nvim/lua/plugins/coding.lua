@@ -45,7 +45,6 @@ return {
 					.. (start and "start" or "end")
 					.. " of "
 					.. capture:gsub("%..*", "")
-				dd(lhs, desc)
 				vim.keymap.set("n", lhs, rhs, { desc = desc })
 			end
 
