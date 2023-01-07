@@ -2,24 +2,25 @@ local M = {}
 M.default = "xmas"
 M.ns = vim.api.nvim_create_namespace("dashboard")
 
+---@param name string?
 function M.get_theme(name)
-    name = name or M.default
-    local ret = {
-        name = name,
-        header = M.headers[name],
-        statusline = M.statusline[name],
-    }
-    return ret
+	name = name or M.default
+	local ret = {
+		name = name,
+		header = M.headers[name],
+		statusline = M.statusline[name],
+	}
+	return ret
 end
 
 M.statusline = {
-    halloween = "🧛👻👺🧟🎃",
-    summer = "🌴🌊",
-    xmas = "🎅🎄🌟🎁",
+	halloween = "🧛👻👺🧟🎃",
+	summer = "🌴🌊",
+	xmas = "🎅🎄🌟🎁",
 }
 
 M.headers = {
-    xmas = [[
+	xmas = [[
                                                         *                  
      *                                                          *          
                                   *                  *        .--.         
@@ -32,8 +33,8 @@ M.headers = {
    *        ||^||\.____./|| |          \___________/     ~||~~~~|~'\____/ *
             || ||     || || A            ||    ||          ||    |   jurcy 
      *      <> <>     <> <>          (___||____||_____)   ((~~~~~|   *     
-]]   ,
-    summer = [[
+]],
+	summer = [[
                                _                         
                            ,--.\`-. __                   
                          _,.`. \:/,"  `-._               
@@ -57,8 +58,8 @@ M.headers = {
         ~~~~    ~~  ~~~~       ~~~~~~  ~ ~~   ~~ ~~~  ~  
      ~~   ~   ~~~     ~~~ ~         ~~       ~~   SSt    
               ~        ~~       ~~~       ~              
-]]   ,
-    halloween = [[
+]],
+	halloween = [[
                                               ,           ^'^  _     
                                               )               (_) ^'^
          _/\_                    .---------. ((        ^'^           
@@ -76,7 +77,7 @@ M.headers = {
      _  ^^^ _      | |__| |("| |  ||  |  ||  |,-, ,-,|   /  /        
    ,' ',  ,' ',    |           |  ||  |  ||  ||_| |_||   ^^^         
 .,,|RIP|,.|RIP|,.,,'==========='==''=='==''=='=======',,....,,,,.,ldb
-]]   ,
+]],
 }
 
 return M
