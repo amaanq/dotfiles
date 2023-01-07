@@ -33,7 +33,7 @@ return {
 		},
 		keys = { { "<leader>Z", "<cmd>WindowsMaximize<cr>", desc = "Zoom" } },
 		config = function()
-			vim.o.winwidth = 5
+			vim.o.winminwidth = 5
 			vim.o.winminwidth = 5
 			vim.o.equalalways = false
 			require("windows").setup({
@@ -146,8 +146,6 @@ return {
 			end
 
 			local animate = require("mini.animate")
-			vim.go.winwidth = 20
-			vim.go.winminwidth = 5
 
 			animate.setup({
 				resize = {
@@ -166,6 +164,20 @@ return {
 					}),
 				},
 			})
+		end,
+	},
+
+	-- lualine
+	{
+		"nvim-lualine/lualine.nvim",
+		event = "VeryLazy",
+		override = function(config)
+			table.insert(config.sections.lualine_x, {
+				function()
+					return require("util.dashboard").status()
+				end,
+			})
+			return config
 		end,
 	},
 

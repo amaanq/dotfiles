@@ -2,8 +2,6 @@ return {
 	"folke/twilight.nvim",
 	"jose-elias-alvarez/typescript.nvim",
 
-	{ "famiu/bufdelete.nvim", cmd = "Bdelete" },
-
 	{
 		"Wansmer/treesj",
 		keys = {
