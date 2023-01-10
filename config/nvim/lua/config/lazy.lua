@@ -10,6 +10,10 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
 	spec = {
 		{ "amaanq/LazyVim", import = "lazyvim.plugins" },
+		{ import = "lazyvim.plugins.extras.lang.clangd" },
+		{ import = "lazyvim.plugins.extras.lang.json" },
+		{ import = "lazyvim.plugins.extras.lang.rust" },
+		{ import = "lazyvim.plugins.extras.lang.typescript" },
 		{ import = "plugins" },
 	},
 	defaults = { lazy = true },
