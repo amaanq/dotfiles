@@ -111,7 +111,7 @@ return {
 	{
 		"folke/styler.nvim",
 		event = "VeryLazy",
-		config = {
+		opts = {
 			themes = {
 				markdown = { colorscheme = "tokyonight-storm" },
 				help = { colorscheme = "oxocarbon", background = "dark" },
@@ -171,13 +171,12 @@ return {
 	{
 		"nvim-lualine/lualine.nvim",
 		event = "VeryLazy",
-		override = function(config)
-			table.insert(config.sections.lualine_x, {
+		opts = function(_, opts)
+			table.insert(opts.sections.lualine_x, {
 				function()
 					return require("util.dashboard").status()
 				end,
 			})
-			return config
 		end,
 	},
 
