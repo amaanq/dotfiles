@@ -15,7 +15,7 @@ return {
 	{
 		"nvim-neorg/neorg",
 		ft = "norg",
-		config = {
+		opts = {
 			load = {
 				["core.defaults"] = {},
 				["core.norg.concealer"] = {},
@@ -45,7 +45,7 @@ return {
 				desc = "Peek (Markdown Preview)",
 			},
 		},
-		config = { theme = "dark" }, -- 'dark' or 'light'
+		opts = { theme = "dark" }, -- 'dark' or 'light'
 	},
 
 	-- better diffing
@@ -60,7 +60,7 @@ return {
 	{
 		"NvChad/nvim-colorizer.lua",
 		event = "BufReadPre",
-		config = {
+		opts = {
 			filetypes = { "*", "!lazy" },
 			buftype = { "*", "!prompt", "!nofile" },
 			user_default_options = {
@@ -85,8 +85,7 @@ return {
 	{
 		"abecodes/tabout.nvim",
 		event = "VeryLazy",
-		wants = { "nvim-treesitter" },
-		after = { "nvim-cmp" },
+		dependencies = { "nvim-treesitter", "nvim-cmp" },
 		config = function()
 			require("tabout").setup({ ignore_beginning = false, completion = false })
 		end,
