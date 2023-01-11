@@ -9,7 +9,11 @@ vim.opt.rtp:prepend(lazypath)
 -- load lazy
 require("lazy").setup({
 	spec = {
-		{ "amaanq/LazyVim", import = "lazyvim.plugins" },
+		{
+			"amaanq/LazyVim",
+			import = "lazyvim.plugins",
+			opts = {},
+		},
 		{ import = "lazyvim.plugins.extras.lang.clangd" },
 		{ import = "lazyvim.plugins.extras.lang.json" },
 		{ import = "lazyvim.plugins.extras.lang.rust" },
@@ -17,7 +21,7 @@ require("lazy").setup({
 		{ import = "plugins" },
 	},
 	defaults = { lazy = true },
-	dev = { patterns = jit.os:find("Windows") and {} or { "amaanq" } },
+	dev = { patterns = jit.os:find("Windows") and {} or { "amaanq", "LazyVim" } },
 	install = { colorscheme = { "tokyonight", "habamax" } },
 	checker = { enabled = true },
 	diff = {
