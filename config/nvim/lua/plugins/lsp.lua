@@ -101,6 +101,7 @@ return {
 				bashls = {},
 				clangd = {},
 				cmake = {},
+				csharp_ls = {},
 				cssls = {},
 				dockerls = {},
 				eslint = {},
@@ -123,7 +124,6 @@ return {
 					},
 				},
 				marksman = {},
-				omnisharp = {},
 				pyright = {},
 				rust_analyzer = {
 					settings = {
