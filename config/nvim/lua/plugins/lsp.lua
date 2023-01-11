@@ -51,17 +51,18 @@ return {
 		"williamboman/mason.nvim",
 		opts = {
 			ensure_installed = {
-				"prettierd",
-				"stylua",
-				"selene",
-				"luacheck",
-				"eslint_d",
-				"shellcheck",
-				"deno",
-				"shfmt",
 				"black",
-				"isort",
+				"csharp-language-server",
+				"deno",
+				"eslint_d",
 				"flake8",
+				"isort",
+				"luacheck",
+				"prettierd",
+				"selene",
+				"shellcheck",
+				"shfmt",
+				"stylua",
 			},
 		},
 	},
@@ -207,18 +208,6 @@ return {
 				zls = {},
 			},
 		},
-		-- -- you can do any additional lsp server setup here
-		-- -- return true if you don't want this server to be setup with lspconfig
-		-- ---@param server string lsp server name
-		-- ---@param opts _.lspconfig.options any options set for the server
-		-- setup_server = function(server, opts)
-		-- 	if server == "rust_analyzer" then
-		-- 		opts.server = vim.tbl_deep_extend("force", {}, opts, opts.server or {})
-		-- 		require("lazyvim.plugins.rust-tools").setup(opts)
-		-- 		return true
-		-- 	end
-		-- 	return false
-		-- end,
 	},
 
 	-- Rust Deps 🚀
