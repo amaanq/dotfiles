@@ -22,8 +22,6 @@ return {
 		"nvim-treesitter/nvim-treesitter",
 		dependencies = { "p00f/nvim-ts-rainbow" },
 		opts = {
-			-- local parsers = require("nvim-treesitter.parsers")
-			-- local rainbow_enabled = { "c_sharp", "c", "cpp", "dart", "go", "rust" }
 			ensure_installed = {
 				"bash",
 				"c",
@@ -37,6 +35,7 @@ return {
 				"dockerfile",
 				"fish",
 				"gitattributes",
+				"gitcommit",
 				"gitignore",
 				"git_rebase",
 				"go",

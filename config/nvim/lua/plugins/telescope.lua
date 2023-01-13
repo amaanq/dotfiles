@@ -22,6 +22,21 @@ return {
 			sorting_strategy = "ascending",
 			winblend = 0,
 		},
+		extensions = {
+			project = {
+				base_dirs = {
+					"~/projects",
+				},
+			},
+			undo = {
+				use_delta = true,
+				side_by_side = true,
+				layout_strategy = "vertical",
+				layout_config = {
+					preview_height = 0.4,
+				},
+			},
+		},
 	},
 	config = function(_, opts)
 		local telescope = require("telescope")
