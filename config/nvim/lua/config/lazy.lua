@@ -19,6 +19,7 @@ require("lazy").setup({
 		{ import = "lazyvim.plugins.extras.lang.copilot" },
 		{ import = "lazyvim.plugins.extras.lang.java" },
 		{ import = "lazyvim.plugins.extras.lang.json" },
+		{ import = "lazyvim.plugins.extras.lang.nodejs" },
 		{ import = "lazyvim.plugins.extras.lang.rust" },
 		{ import = "lazyvim.plugins.extras.lang.typescript" },
 		{ import = "plugins" },
