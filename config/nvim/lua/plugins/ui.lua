@@ -216,6 +216,18 @@ return {
 		end,
 	},
 
+	-- git blame
+	{
+		"f-person/git-blame.nvim",
+		event = "BufReadPre",
+	},
+
+	-- git conflict
+	{
+		"akinsho/git-conflict.nvim",
+		event = "BufReadPre",
+		config = true,
+	},
 	{ "rhysd/git-messenger.vim", event = "BufRead" },
 	{ "rhysd/committia.vim", event = "BufRead" },
 	{
