@@ -40,9 +40,6 @@ return {
 			experimental = {
 				pathStrict = true,
 			},
-			library = {
-				runtime = "~/projects/neovim/runtime/",
-			},
 		},
 	},
 
@@ -97,7 +94,6 @@ return {
 				ansiblels = {},
 				asm_lsp = {},
 				bashls = {},
-				clangd = {},
 				cmake = {},
 				csharp_ls = {},
 				cssls = {},
@@ -106,30 +102,8 @@ return {
 				golangci_lint_ls = {},
 				gopls = {},
 				html = {},
-				jdtls = {},
 				marksman = {},
 				pyright = {},
-				rust_analyzer = {
-					settings = {
-						["rust-analyzer"] = {
-							cargo = {
-								allFeatures = true,
-							},
-							checkOnSave = {
-								allFeatures = true,
-								command = "clippy",
-								extraArgs = { "--no-deps" },
-							},
-							procMacro = {
-								ignored = {
-									["async-trait"] = { "async_trait" },
-									["napi-derive"] = { "napi" },
-									["async-recursion"] = { "async_recursion" },
-								},
-							},
-						},
-					},
-				},
 				sumneko_lua = {
 					-- cmd = { "/home/folke/projects/lua-language-server/bin/lua-language-server" },
 					single_file_support = true,
@@ -198,7 +172,6 @@ return {
 		"saecki/crates.nvim",
 		event = { "BufRead Cargo.toml" },
 		dependencies = { "nvim-lua/plenary.nvim" },
-
 		config = function()
 			require("crates").setup()
 		end,
@@ -226,21 +199,40 @@ return {
 					}),
 					fmt.black.with({
 						extra_args = { "--line-length=120" },
+						condition = function()
+							return util.executable("black")
+						end,
 					}),
 					fmt.cbfmt:with({
 						condition = function()
 							return util.executable("cbfmt")
 						end,
 					}),
-					fmt.clang_format,
-					fmt.eslint_d,
-					fmt.gofmt,
+					fmt.clang_format.with({
+						condition = function()
+							return util.executable("clang-format")
+						end,
+					}),
+					fmt.eslint_d.with({
+						condition = function()
+							return util.executable("eslint_d")
+						end,
+					}),
+					fmt.gofmt.with({
+						condition = function()
+							return util.executable("gofmt")
+						end,
+					}),
 					fmt.goimports_reviser.with({
 						condition = function()
 							return util.executable("goimports-reviser")
 						end,
 					}),
-					fmt.isort,
+					fmt.isort.with({
+						condition = function()
+							return util.executable("isort")
+						end,
+					}),
 					fmt.nginx_beautifier.with({
 						condition = function()
 							return util.executable("nginxbeautifier")
@@ -257,8 +249,16 @@ return {
 							return util.executable("prettier")
 						end,
 					}),
-					fmt.rustfmt,
-					fmt.shfmt,
+					fmt.rustfmt.with({
+						condition = function()
+							return util.executable("rustfmt")
+						end,
+					}),
+					fmt.shfmt.with({
+						condition = function()
+							return util.executable("shfmt")
+						end,
+					}),
 					fmt.stylua.with({
 						condition = function()
 							return util.executable("stylua")
@@ -268,8 +268,16 @@ return {
 								}))
 						end,
 					}),
-					fmt.uncrustify,
-					fmt.zigfmt,
+					fmt.uncrustify.with({
+						condition = function()
+							return util.executable("uncrustify")
+						end,
+					}),
+					fmt.zigfmt.with({
+						condition = function()
+							return util.executable("zig")
+						end,
+					}),
 
 					-- Diagnostics
 					dgn.ansiblelint.with({
@@ -286,6 +294,9 @@ return {
 					dgn.flake8.with({
 						-- set config to  ~/.config/flake8
 						extra_args = { "--config", "~/.config/flake8", "--max-line-length=88" },
+						condition = function()
+							return util.executable("flake8")
+						end,
 					}),
 					dgn.golangci_lint.with({
 						condition = function()
@@ -295,16 +306,24 @@ return {
 					-- dgn.luacheck.with({
 					-- 	extra_args = { "--globals", "vim", "--std", "luajit" },
 					-- }),
-					dgn.markdownlint,
+					dgn.markdownlint.with({
+						condition = function()
+							return util.executable("markdownlint")
+						end,
+					}),
 					dgn.protolint.with({
 						condition = function()
 							return util.executable("protolint")
 						end,
 					}),
-					dgn.shellcheck,
+					dgn.shellcheck.with({
+						condition = function()
+							return util.executable("shellcheck")
+						end,
+					}),
 					dgn.selene.with({
 						condition = function(utils)
-							return utils.root_has_file({ "selene.toml" })
+							return utils.root_has_file({ "selene.toml" }) and util.executable("selene")
 						end,
 					}),
 					dgn.write_good.with({
@@ -315,9 +334,17 @@ return {
 					dgn.zsh,
 
 					-- Code Actions
-					cda.eslint_d,
+					cda.eslint_d.with({
+						condition = function()
+							return util.executable("eslint_d")
+						end,
+					}),
 					cda.gitsigns,
-					cda.shellcheck,
+					cda.shellcheck.with({
+						condition = function()
+							return util.executable("shellcheck")
+						end,
+					}),
 				},
 				root_dir = require("null-ls.utils").root_pattern(".null-ls-root", ".neoconf.json", ".git"),
 			})
