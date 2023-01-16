@@ -126,7 +126,7 @@ return {
 	{ "shaunsingh/oxocarbon.nvim" },
 	{ "LunarVim/horizon.nvim", lazy = false, priority = 1000 },
 	{
-		"folke/tokyonight.nvim",
+		"tokyonight.nvim",
 		lazy = false,
 		priority = 1000,
 		opts = function()

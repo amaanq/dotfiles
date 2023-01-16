@@ -43,6 +43,7 @@ require("lazy").setup({
 				"matchit",
 				"matchparen",
 				"netrwPlugin",
+				"rplugin",
 				"tarPlugin",
 				"tohtml",
 				"tutor",
@@ -57,5 +58,5 @@ require("lazy").setup({
 			end,
 		},
 	},
-	debug = true,
+	debug = false,
 })

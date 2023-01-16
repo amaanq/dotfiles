@@ -82,21 +82,9 @@ return {
 				"zig",
 				"json",
 			},
-			sync_install = false,
-			auto_install = false,
 			autopairs = { enable = true },
 			highlight = { enable = true },
-			indent = { enable = false },
-			context_commentstring = { enable = true, enable_autocmd = false },
-			incremental_selection = {
-				enable = true,
-				keymaps = {
-					init_selection = "<C-space>",
-					node_incremental = "<C-space>",
-					scope_incremental = "<C-s>",
-					node_decremental = "<C-bs>",
-				},
-			},
+			-- indent = { enable = false },
 			playground = {
 				enable = true,
 				disable = {},
@@ -158,17 +146,6 @@ return {
 					},
 				},
 			},
-			-- textobjects = {
-			-- 	select = {
-			-- 		enable = false,
-			-- 	},
-			-- 	move = {
-			-- 		enable = false,
-			-- 	},
-			-- 	lsp_interop = {
-			-- 		enable = false,
-			-- 	},
-			-- },
 			textobjects = {
 				select = {
 					enable = true,

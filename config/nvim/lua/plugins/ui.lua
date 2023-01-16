@@ -126,7 +126,7 @@ return {
 		enabled = true,
 		config = function()
 			math.randomseed(os.time())
-			local theme = ({ "stars", "snow", "xmas" })[math.random(1, 3)]
+			local theme = ({ "stars", "snow" })[math.random(1, 3)]
 			require("drop").setup({ theme = theme, max = 60, interval = 50 })
 		end,
 	},
@@ -179,9 +179,6 @@ return {
 			})
 		end,
 	},
-
-	-- { "echasnovski/mini.starter", enabled = true },
-	-- { "goolord/alpha-nvim", enabled = false },
 
 	{
 		"norcalli/nvim-terminal.lua",

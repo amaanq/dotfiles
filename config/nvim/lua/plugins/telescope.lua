@@ -1,5 +1,5 @@
 return {
-	"nvim-telescope/telescope.nvim",
+	"telescope.nvim",
 
 	dependencies = {
 		{ "nvim-telescope/telescope-dap.nvim" },
@@ -8,6 +8,7 @@ return {
 		{ "debugloop/telescope-undo.nvim" },
 	},
 	keys = {
+		-- { "<leader>/", vim.NIL },
 		{
 			"<leader>fp",
 			function()
