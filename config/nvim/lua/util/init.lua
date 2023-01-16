@@ -16,18 +16,15 @@ end
 local M = {}
 
 ---@param cmd string command to execute
----@param warn? string if vim.fn.executable <= 0 then warn with warn
+---@param warn? string|boolean if vim.fn.executable <= 0 then warn with warn
 function M.executable(cmd, warn)
 	-- return vim.fn.executable(cmd) > 0
 	if vim.fn.executable(cmd) > 0 then
 		return true
 	end
 	if warn then
-		vim.notify(
-			("Command `%s` was not executable"):format(warn),
-			vim.log.levels.WARN,
-			{ title = "Executable not found" }
-		)
+		local message = type(warn) == "string" and warn or ("Command `%s` was not executable"):format(cmd)
+		vim.notify(message, vim.log.levels.WARN, { title = "Executable not found" })
 	end
 	return false
 end

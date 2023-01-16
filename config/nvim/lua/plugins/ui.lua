@@ -9,8 +9,8 @@ return {
 			require("incline").setup({
 				highlight = {
 					groups = {
-						InclineNormal = { guibg = "#FC56B1", guifg = colors.black },
-						InclineNormalNC = { guifg = "#FC56B1", guibg = colors.black },
+						InclineNormal = { guibg = "#3e68d7", guifg = colors.black },
+						InclineNormalNC = { guifg = "#3e68d7", guibg = colors.black },
 					},
 				},
 				window = { margin = { vertical = 0, horizontal = 1 } },
@@ -220,7 +220,6 @@ return {
 	{
 		"f-person/git-blame.nvim",
 		event = "BufReadPre",
-		dev = true,
 		init = function()
 			vim.g.gitblame_display_virtual_text = 0
 		end,

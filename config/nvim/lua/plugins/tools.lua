@@ -85,6 +85,7 @@ return {
 	{
 		"abecodes/tabout.nvim",
 		event = "VeryLazy",
+		enabled = false,
 		dependencies = { "nvim-treesitter", "nvim-cmp" },
 		config = function()
 			require("tabout").setup({ ignore_beginning = false, completion = false })
