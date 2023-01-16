@@ -222,12 +222,22 @@ return {
 	{
 		"nvim-cmp",
 		dependencies = {
+			"hrsh7th/cmp-calc",
 			"hrsh7th/cmp-emoji",
+			"jc-doyle/cmp-pandoc-references",
+			-- "kdheepak/cmp-latex-symbols",
+			"zbirenbaum/copilot-cmp",
 		},
 		---@param opts cmp.ConfigSchema
 		opts = function(_, opts)
 			local cmp = require("cmp")
-			opts.sources = cmp.config.sources(vim.list_extend(opts.sources, { { name = "emoji" } }))
+			opts.sources = cmp.config.sources(vim.list_extend(opts.sources, {
+				{ name = "copilot", priority = 1001 },
+				{ name = "emoji", priority = 700 },
+				{ name = "pandoc_references", priority = 725 },
+				-- { name = "latex_symbols", priority = 700 },
+				{ name = "calc", priority = 650 },
+			}))
 		end,
 	},
 
