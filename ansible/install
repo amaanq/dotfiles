@@ -7,7 +7,7 @@ function have {
 }
 
 # install ansible
-have ansible || sudo dnf install ansible -y
+have ansible || paru ansible
 
 # install ansible community plugins
 [ -d ~/.ansible/collections/ansible_collections/community ] ||
