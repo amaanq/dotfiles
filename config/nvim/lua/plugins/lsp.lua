@@ -168,12 +168,10 @@ return {
 
 	-- Rust Deps 🚀
 	{
-		"saecki/crates.nvim",
+		"Saecki/crates.nvim",
 		event = { "BufRead Cargo.toml" },
 		dependencies = { "nvim-lua/plenary.nvim" },
-		config = function()
-			require("crates").setup()
-		end,
+		config = true,
 	},
 
 	-- null-ls

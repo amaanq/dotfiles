@@ -232,7 +232,6 @@ return {
 		opts = function(_, opts)
 			local cmp = require("cmp")
 			opts.sources = cmp.config.sources(vim.list_extend(opts.sources, {
-				{ name = "copilot", priority = 1001 },
 				{ name = "emoji", priority = 700 },
 				{ name = "pandoc_references", priority = 725 },
 				-- { name = "latex_symbols", priority = 700 },

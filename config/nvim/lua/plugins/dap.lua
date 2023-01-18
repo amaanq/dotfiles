@@ -61,7 +61,12 @@ return {
 		{ "<leader>dbs", "<CMD>Telescope dap list_breakpoints<CR>", desc = "Show All Breakpoints" },
 		{ "<leader>dbt", '<CMD>lua require("dap").toggle_breakpoint()<CR>', desc = "Toggle Breakpoint" },
 		{ "<leader>dc", '<CMD>lua require("dap").continue()<CR>', desc = "Continue" },
-		{ "<leader>dw", '<CMD>lua require("dap.ui.widgets").hover()<CR>', desc = "Widgets", mode = { "n", "v" } },
+		{
+			"<leader>dw",
+			'<CMD>lua require("dap.ui.widgets").hover(nil, { border = "none" })<CR>',
+			desc = "Widgets",
+			mode = { "n", "v" },
+		},
 		{ "<leader>dp", '<CMD>lua require("dap").pause()<CR>', desc = "Pause" },
 		{ "<leader>dr", "<CMD>Telescope dap configurations<CR>", desc = "Run" },
 		{ "<leader>dsb", '<CMD>lua require("dap").step_back()<CR>', desc = "Step Back" },
@@ -72,17 +77,17 @@ return {
 		{ "<leader>dx", '<CMD>lua require("dap").terminate()<CR>', desc = "Terminate" },
 		{
 			"<leader>dvf",
-			'<CMD>lua require("dap.ui.widgets").centered_float(require("dap.ui.widgets").frames)<CR>',
+			'<CMD>lua require("dap.ui.widgets").centered_float(require("dap.ui.widgets").frames, { border = "none" })<CR>',
 			desc = "Show Frames",
 		},
 		{
 			"<leader>dvs",
-			'<CMD>lua require("dap.ui.widgets").centered_float(require("dap.ui.widgets").scopes)<CR>',
+			'<CMD>lua require("dap.ui.widgets").centered_float(require("dap.ui.widgets").scopes, { border = "none" })<CR>',
 			desc = "Show Scopes",
 		},
 		{
 			"<leader>dvt",
-			'<CMD>lua require("dap.ui.widgets").centered_float(require("dap.ui.widgets").threads)<CR>',
+			'<CMD>lua require("dap.ui.widgets").centered_float(require("dap.ui.widgets").threads, { border = "none" })<CR>',
 			desc = "Show Threads",
 		},
 
