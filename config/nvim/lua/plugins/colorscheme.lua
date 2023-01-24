@@ -9,25 +9,21 @@ return {
 			})
 		end,
 	},
-	{ "ellisonleao/gruvbox.nvim" },
+	{ "ellisonleao/gruvbox.nvim", lazy = false },
 	{
 		"marko-cerovac/material.nvim",
 		lazy = false,
-		config = function()
-			-- vim.o.background = "dark"
-			local material = require("material")
-			material.setup()
+		init = function()
 			vim.g.material_style = "deep ocean"
 		end,
+		config = true,
 	},
 	{ "numToStr/Sakura.nvim", lazy = false },
 	{
 		"olimorris/onedarkpro.nvim",
 		lazy = false,
 		config = function()
-			local onedarkpro = require("onedarkpro")
-
-			onedarkpro.setup({
+			require("onedarkpro").setup({
 				highlights = {
 					Cursor = {
 						fg = "${blue}",
@@ -49,9 +45,6 @@ return {
 						bg = "${bg}",
 						style = "bold",
 					},
-
-					-- Dashboard
-					dashboardCenter = { fg = "${blue}", style = "bold" },
 
 					-- NeoTree
 					NeoTreeDirectoryIcon = { fg = "${yellow}" },
@@ -81,20 +74,6 @@ return {
 					DiagnosticUnderlineWarn = { sp = "${yellow}", style = "undercurl" },
 					DiagnosticUnderlineInfo = { sp = "${blue}", style = "undercurl" },
 					DiagnosticUnderlineHint = { sp = "${cyan}", style = "undercurl" },
-
-					-- DiagnosticVirtualTextError = { bg = darken("${red}", 0.1), fg = "${red}" },
-
-					["@constant.builtin.rust"] = { fg = "${cyan}" },
-					["@field.rust"] = { fg = "${red}" },
-					["@function.builtin.rust"] = { fg = "${cyan}" },
-					["@function.macro.rust"] = { fg = "${orange}" },
-					["@keyword.rust"] = { fg = "${purple}" },
-					["@label.rust"] = { fg = "${white}" },
-					["@operator.rust"] = { fg = "${fg}" },
-					["@parameter.rust"] = { fg = "${red}", style = "italic" },
-					["@punctuation.bracket.rust"] = { fg = "${purple}" },
-					-- ["@variable.builtin.rust"] = { fg = "${purple}", style = "italic" },
-					["@property.toml"] = { fg = "${purple}" },
 				},
 				options = {
 					bold = true,
@@ -123,8 +102,9 @@ return {
 			require("ayu").setup({})
 		end,
 	},
-	{ "shaunsingh/oxocarbon.nvim" },
-	{ "LunarVim/horizon.nvim", lazy = false, priority = 1000 },
+	{ "shaunsingh/oxocarbon.nvim", lazy = false },
+	{ "LunarVim/horizon.nvim", lazy = false },
+	{ "rose-pine/neovim", name = "rose-pine", lazy = false },
 	{
 		"tokyonight.nvim",
 		lazy = false,
@@ -132,6 +112,11 @@ return {
 		opts = function()
 			return {
 				style = "moon",
+				-- transparent = true,
+				-- styles = {
+				--   sidebars = "transparent",
+				--   floats = "transparent",
+				-- },
 				sidebars = {
 					"qf",
 					"vista_kind",
