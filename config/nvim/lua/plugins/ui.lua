@@ -241,6 +241,7 @@ return {
 			"nvim-tree/nvim-web-devicons", -- optional dependency
 		},
 		config = true,
+		dev = true,
 	},
 
 	{

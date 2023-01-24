@@ -95,13 +95,7 @@ return {
 			kanagawa.setup()
 		end,
 	},
-	{
-		"Shatur/neovim-ayu",
-		lazy = false,
-		config = function()
-			require("ayu").setup({})
-		end,
-	},
+	{ "Shatur/neovim-ayu", lazy = false },
 	{ "shaunsingh/oxocarbon.nvim", lazy = false },
 	{ "LunarVim/horizon.nvim", lazy = false },
 	{ "rose-pine/neovim", name = "rose-pine", lazy = false },

@@ -1,5 +1,5 @@
 local M = {}
-M.default = "xmas"
+M.default = "winter"
 M.ns = vim.api.nvim_create_namespace("dashboard")
 
 ---@param name string?
@@ -16,6 +16,7 @@ end
 M.statusline = {
 	halloween = "🧛👻👺🧟🎃",
 	summer = "🌴🌊",
+	winter = "🏂❄️ ⛷️",
 	xmas = "🎅🎄🌟🎁",
 }
 

@@ -12,6 +12,7 @@ return
 							lineFoldingOnly = true,
 						},
 					},
+					offsetEncoding = { "utf-16" },
 				},
 			},
 		},

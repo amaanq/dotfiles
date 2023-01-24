@@ -79,9 +79,11 @@ return {
 	{
 		"DNLHC/glance.nvim",
 		event = "BufReadPre",
-		config = function()
-			require("glance").setup()
-		end,
+		config = true,
+		keys = {
+			{ "gM", "<cmd>Glance implementations<cr>", desc = "Goto Implementations (Glance)" },
+			{ "gY", "<cmd>Glance type_definitions<cr>", desc = "Goto Type Definition (Glance)" },
+		},
 	},
 
 	-- lsp servers
@@ -94,7 +96,9 @@ return {
 				asm_lsp = {},
 				bashls = {},
 				cmake = {},
+				clangd = {},
 				cssls = {},
+				denols = false,
 				dockerls = {},
 				eslint = {},
 				golangci_lint_ls = {},
@@ -104,8 +108,8 @@ return {
 				omnisharp = {},
 				pyright = {},
 				sumneko_lua = {
-					-- cmd = { "/home/folke/projects/lua-language-server/bin/lua-language-server" },
 					single_file_support = true,
+					---@type lspconfig.settings.sumneko_lua
 					settings = {
 						Lua = {
 							workspace = {
