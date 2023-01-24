@@ -40,12 +40,6 @@ vim.api.nvim_create_autocmd({ "FileType" }, {
 	end,
 })
 
-vim.filetype.add({
-	extension = {
-		smali = "smali",
-	},
-})
-
 -- InlayHints
 vim.api.nvim_create_augroup("LspAttach_inlayhints", {})
 vim.api.nvim_create_autocmd("LspAttach", {
