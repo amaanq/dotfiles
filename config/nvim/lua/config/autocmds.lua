@@ -49,6 +49,11 @@ vim.api.nvim_create_autocmd("LspAttach", {
 			return
 		end
 
+		-- dont attach if rust
+		if vim.lsp.get_client_by_id(args.data.client_id).name == "rust_analyzer" then
+			return
+		end
+
 		require("lsp-inlayhints").on_attach(vim.lsp.get_client_by_id(args.data.client_id), args.buf, false)
 	end,
 })
