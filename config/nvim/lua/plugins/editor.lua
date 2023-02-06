@@ -12,7 +12,6 @@ return
 							lineFoldingOnly = true,
 						},
 					},
-					offsetEncoding = { "utf-16" },
 				},
 			},
 		},
@@ -20,9 +19,21 @@ return
 		-- add nvim-ufo
 		{
 			"kevinhwang91/nvim-ufo",
-			dependencies = "kevinhwang91/promise-async",
+			dependencies = {
+				"kevinhwang91/promise-async",
+				-- {
+				-- 	"luukvbaal/statuscol.nvim",
+				-- 	config = function()
+				-- 		require("statuscol").setup({
+				-- 			foldfunc = "builtin",
+				-- 			setopt = true,
+				-- 		})
+				-- 	end,
+				-- },
+			},
 			event = "BufReadPost",
 			opts = {},
+			enabled = false,
 
 			init = function()
 				-- Using ufo provider need remap `zR` and `zM`. If Neovim is 0.6.1, remap yourself

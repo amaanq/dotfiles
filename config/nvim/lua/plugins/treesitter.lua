@@ -21,29 +21,58 @@ return {
 	{
 		"nvim-treesitter/nvim-treesitter",
 		dependencies = { "p00f/nvim-ts-rainbow" },
-		-- init = function()
-		-- 	local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-		-- 	parser_config.thrift = {
-		-- 		install_info = {
-		-- 			url = "~/projects/treesitter/tree-sitter-thrift", -- local path or git repo
-		-- 			files = { "src/parser.c" },
-		-- 			-- optional entries:
-		-- 			branch = "main", -- default branch in case of git repo if different from master
-		-- 			generate_requires_npm = false, -- if stand-alone parser without npm dependencies
-		-- 			requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
-		-- 		},
-		-- 	}
-		-- 	parser_config.capnp = {
-		-- 		install_info = {
-		-- 			url = "~/projects/treesitter/tree-sitter-capnp", -- local path or git repo
-		-- 			files = { "src/parser.c" },
-		-- 			-- optional entries:
-		-- 			branch = "master", -- default branch in case of git repo if different from master
-		-- 			generate_requires_npm = false, -- if stand-alone parser without npm dependencies
-		-- 			requires_generate_from_grammar = false, -- if folder contains pre-generated src/parser.c
-		-- 		},
-		-- 	}
-		-- end,
+		init = function()
+			local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+			parser_config.thrift = {
+				install_info = {
+					url = "~/projects/treesitter/tree-sitter-thrift", -- local path or git repo
+					files = { "src/parser.c" },
+					branch = "main",
+				},
+			}
+			parser_config.capnp = {
+				install_info = {
+					url = "~/projects/treesitter/tree-sitter-capnp", -- local path or git repo
+					files = { "src/parser.c" },
+				},
+			}
+			parser_config.smali = {
+				install_info = {
+					url = "~/projects/treesitter/tree-sitter-smali", -- local path or git repo
+					files = { "src/parser.c" },
+				},
+			}
+			parser_config.kdl = {
+				install_info = {
+					url = "~/projects/treesitter/tree-sitter-kdl", -- local path or git repo
+					files = { "src/parser.c", "src/scanner.c" },
+				},
+			}
+			parser_config.smithy = {
+				install_info = {
+					url = "~/projects/treesitter/tree-sitter-smithy", -- local path or git repo
+					files = { "src/parser.c" },
+				},
+			}
+			parser_config.func = {
+				install_info = {
+					url = "~/projects/treesitter/tree-sitter-func", -- local path or git repo
+					files = { "src/parser.c" },
+				},
+			}
+			parser_config.gosum = {
+				install_info = {
+					url = "~/projects/treesitter/tree-sitter-go-sum", -- local path or git repo
+					files = { "src/parser.c" },
+				},
+			}
+			parser_config.ron = {
+				install_info = {
+					url = "~/projects/treesitter/tree-sitter-ron", -- local path or git repo
+					files = { "src/parser.c", "src/scanner.c" },
+				},
+			}
+		end,
 		opts = {
 			ensure_installed = {
 				"bash",

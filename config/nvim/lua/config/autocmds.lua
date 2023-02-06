@@ -53,6 +53,14 @@ vim.api.nvim_create_autocmd("LspAttach", {
 	end,
 })
 
+vim.filetype.add({
+	extension = {
+		fc = "func",
+		move = "move",
+		ron = "ron",
+	},
+})
+
 -- Disable diagnostics in a .env file
 vim.cmd([[
   augroup _env
