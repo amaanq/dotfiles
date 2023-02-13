@@ -51,7 +51,6 @@ return {
 				"black",
 				"deno",
 				"eslint_d",
-				"flake8",
 				"isort",
 				"luacheck",
 				"prettierd",
@@ -96,7 +95,6 @@ return {
 				asm_lsp = {},
 				bashls = {},
 				cmake = {},
-				clangd = {},
 				cssls = {},
 				denols = false,
 				dockerls = {},
@@ -104,12 +102,9 @@ return {
 				golangci_lint_ls = {},
 				gopls = {},
 				html = {},
-				marksman = {},
-				omnisharp = {},
-				pyright = {},
-				sumneko_lua = {
+				lua_ls = {
 					single_file_support = true,
-					---@type lspconfig.settings.sumneko_lua
+					---@type lspconfig.settings.lua_ls
 					settings = {
 						Lua = {
 							workspace = {
@@ -157,6 +152,10 @@ return {
 						},
 					},
 				},
+				marksman = {},
+				omnisharp = {},
+				pyright = {},
+				ruff_lsp = {},
 				svelte = {},
 				-- tailwindcss = {},
 				teal_ls = {},
@@ -192,7 +191,9 @@ return {
 				debounce = 150,
 				save_after_format = false,
 				sources = {
-					-- Formatting
+					--  ╭────────────╮
+					--  │ Formatting │
+					--  ╰────────────╯
 					fmt.asmfmt.with({
 						condition = function()
 							return util.executable("asmfmt", true)
@@ -280,7 +281,9 @@ return {
 						end,
 					}),
 
-					-- Diagnostics
+					--  ╭─────────────╮
+					--  │ Diagnostics │
+					--  ╰─────────────╯
 					dgn.ansiblelint.with({
 						condition = function()
 							return util.executable("ansible-lint", true)
@@ -291,14 +294,11 @@ return {
 							return util.executable("buf", true)
 						end,
 					}),
-					-- dgn.eslint_d,
-					dgn.flake8.with({
-						-- set config to  ~/.config/flake8
-						extra_args = { "--config", "~/.config/flake8", "--max-line-length=88" },
-						condition = function()
-							return util.executable("flake8", true)
-						end,
-					}),
+					-- dgn.flake8.with({
+					-- 	condition = function()
+					-- 		return util.executable("flake8", true)
+					-- 	end,
+					-- }),
 					dgn.golangci_lint.with({
 						condition = function()
 							return util.executable("golangci-lint", true)
@@ -312,6 +312,11 @@ return {
 							return util.executable("markdownlint", true)
 						end,
 					}),
+					-- dgn.mypy.with({
+					-- 	condition = function()
+					-- 		return util.executable("mypy", true)
+					-- 	end,
+					-- }),
 					dgn.protolint.with({
 						condition = function()
 							return util.executable("protolint", true)
@@ -334,7 +339,9 @@ return {
 					}),
 					dgn.zsh,
 
-					-- Code Actions
+					--  ╭──────────────╮
+					--  │ Code Actions │
+					--  ╰──────────────╯
 					cda.eslint_d.with({
 						condition = function()
 							return util.executable("eslint_d", true)
