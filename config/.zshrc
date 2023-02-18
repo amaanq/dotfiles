@@ -1,67 +1,64 @@
 eval `keychain --eval --agents ssh id_ed25519`
 if [ $? -ne 0 ]; then
-	echo "Make an ed25519 key ASAP!"
+	echo "Make an ed25519 key ASAP! (keychain failed)"
 fi
 
 eval "$(starship init zsh --print-full-init)"
 
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="$HOME/go/bin:$PATH"
-export PATH="$PATH:/usr/local/go/bin"
-export PATH="$HOME/.cargo/bin:$PATH"
 export DENO_INSTALL="$HOME/.deno"
-export PATH="$DENO_INSTALL/bin:$PATH"
-export PATH="$HOME/.surrealdb:$PATH"
+
+export EDITOR="nvim"
 
 export RUST_SRC_PATH="$(rustc --print sysroot)/lib/rustlib/src/rust/src"
 
 export ANDROID_HOME="/opt/android-sdk"
 export NDK_HOME="/opt/android-ndk"
 
-export EDITOR="nvim"
+# Path to your oh-my-zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
 
-alias vi="nvim"
-alias nv="nvim"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/go/bin:$PATH"
+export PATH="$PATH:/usr/local/go/bin"
+export PATH="$DENO_INSTALL/bin:$PATH"
+export PATH="$HOME/.surrealdb:$PATH"
 
 if [ ! -f "$HOME/go/bin/gofumpt" ]; then
-    go install mvdan.cc/gofumpt@latest
+	go install mvdan.cc/gofumpt@latest
 fi
 if [ ! -f "$HOME/go/bin/revive" ]; then
-    go install github.com/mgechev/revive@latest
+	go install github.com/mgechev/revive@latest
 fi
 
 source $HOME/.cargo/env
 if [ ! -f "$HOME/.config/rustlang/autocomplete/rustup" ]; then
-  mkdir -p ~/.config/rustlang/autocomplete
-  rustup completions zsh rustup >> ~/.config/rustlang/autocomplete/rustup
+	mkdir -p ~/.config/rustlang/autocomplete
+	rustup completions zsh rustup >> ~/.config/rustlang/autocomplete/rustup
 fi
 # source "$HOME/.config/rustlang/autocomplete/rustup"
 
 if ! cargo audit --version &> /dev/null; then
-  cargo install cargo-audit --features=fix
+	cargo install cargo-audit --features=fix
 fi
 
 if ! cargo nextest --version &> /dev/null; then
-  cargo install cargo-nextest
+	cargo install cargo-nextest
 fi
 
 if ! cargo fmt --version &> /dev/null; then
-  rustup component add rustfmt
+	rustup component add rustfmt
 fi
 
 if ! cargo clippy --version &> /dev/null; then
-  rustup component add clippy
+	rustup component add clippy
 fi
 
 if ! ls ~/.cargo/bin | grep 'cargo-upgrade' &> /dev/null; then
-  cargo install cargo-edit
+	cargo install cargo-edit
 fi
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
-
-# Path to your oh-my-zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -131,11 +128,11 @@ export ZSH="$HOME/.oh-my-zsh"
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(
-    colored-man-pages
-    git
-    jsontools
-    zsh-autosuggestions
-    zsh-syntax-highlighting
+	colored-man-pages
+	git
+	jsontools
+	zsh-autosuggestions
+	zsh-syntax-highlighting
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -167,9 +164,38 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 batdiff() {
-    git diff --name-only --relative --diff-filter=d | xargs bat --diff
+	git diff --name-only --relative --diff-filter=d | xargs bat --diff
 }
 
-# run bat with bat but with --theme="Catppuccin-mocha"
+dclear() {
+	docker ps -a -q | xargs docker kill -f
+	docker ps -a -q | xargs docker rm -f
+	docker images | awk '{print $3}' | xargs docker rmi -f
+	docker volume prune -f
+}
 
-alias bat="bat --theme='Catppuccin-mocha'"
+note() {
+	echo "date: $(date)" >> $HOME/drafts.txt
+	echo "$@" >> $HOME/drafts.txt
+	echo "" >> $HOME/drafts.txt
+}
+
+take() {
+	mkdir -p $1
+	cd $1
+}
+
+if [[ $(ps --no-header -p $PPID -o comm | grep -Ev '^(yakuake|konsole)$' ) ]]; then
+		for wid in $(xdotool search --pid $PPID); do
+			xprop -f _KDE_NET_WM_BLUR_BEHIND_REGION 32c -set _KDE_NET_WM_BLUR_BEHIND_REGION 0 -id $wid; done
+fi
+
+alias c="clear"
+alias nv="nvim"
+alias vi="nvim"
+alias lg="lazygit"
+alias l="exa -lah"
+alias ls=exa
+alias sl=exa
+alias ts="tree-sitter"
+alias trim="awk '{\$1=\$1;print}'"
