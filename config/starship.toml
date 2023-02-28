@@ -26,12 +26,13 @@ symbol = " "
 
 [c]
 symbol = " "
+format = "[$symbol$version]($style) "
 
 [character]
 error_symbol = "[✖](bold red)"
 
 [cmd_duration]
-min_time = 10_000  # Show command duration over 10,000 milliseconds (=10 sec)
+min_time = 10_000                    # Show command duration over 10,000 milliseconds (=10 sec)
 format = " took [$duration]($style)"
 
 [conda]
@@ -49,6 +50,10 @@ format = "[$path]($style)[$lock_symbol]($lock_style) "
 
 [docker_context]
 symbol = " "
+
+[dotnet]
+symbol = " "
+format = "[$symbol$version]($style) "
 
 [elixir]
 symbol = " "
@@ -72,26 +77,27 @@ conflicted = "⚔️ ${count} "
 ahead = "⇡${count} "
 behind = "⇣${count} "
 diverged = "⇕ ⇡${ahead_count} ⇣${behind_count} "
-untracked = "?${count }"
-stashed = "$ "
+untracked = "?${count} "
+stashed = "\\$${count} "
 modified = "!${count} "
 staged = "+${count} "
 renamed = "»${count} "
 deleted = "✘${count} "
-style = "bright-white"
-format = "$all_status$ahead_behind"
+format = '([$all_status$ahead_behind]($style))'
 
 [golang]
 symbol = " "
+format = "[$symbol$version]($style) "
+
+[gradle]
+symbol = " "
+format = "[$symbol$version]($style) "
 
 [haskell]
 symbol = " "
+format = "[$symbol$version]($style) "
 
 [hostname]
-ssh_only = false
-format = "<[$hostname]($style)>"
-trim_at = "-"
-style = "bold dimmed white"
 disabled = true
 
 [hg_branch]
@@ -99,21 +105,25 @@ symbol = " "
 
 [java]
 symbol = " "
+format = "[$symbol$version]($style) "
 
 [julia]
 symbol = " "
 format = "[$symbol$version]($style) "
-style = "bold green"
+
+[kotlin]
+symbol = "󱈙 "
+format = "[$symbol$version]($style) "
 
 [lua]
 symbol = " "
+format = "[$symbol$version]($style) "
 
 [memory_usage]
+disabled = false
 symbol = " "
 format = "$symbol[${ram}( | ${swap})]($style) "
 threshold = 70
-style = "bold dimmed white"
-disabled = false
 
 [nim]
 symbol = " "
@@ -123,14 +133,15 @@ symbol = " "
 
 [nodejs]
 symbol = " "
+format = "[$symbol$version]($style) "
 
-[package]
-disabled = true
+[php]
+symbol = " "
+format = "[$symbol$version]($style) "
 
 [python]
 symbol = " "
 format = "[$symbol$version]($style) "
-style = "bold blue"
 
 [rlang]
 symbol = "ﳒ "
@@ -145,16 +156,19 @@ format = "[$symbol$version]($style) "
 [spack]
 symbol = "🅢 "
 
+[swift]
+symbol = "󰛥 "
+format = "[$symbol$version]($style) "
+
 [time]
-time_format = "%l:%M:%S %p"
+disabled = false
+# time_format = "%l:%M:%S %p"
 use_12hr = true
 style = "bold bright-black"
 format = "$time($style) "
-disabled = false
 
 [username]
 style_user = "bold dimmed blue"
-show_always = false
 
 [fill]
 symbol = " "
