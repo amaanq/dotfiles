@@ -12,16 +12,37 @@ export EDITOR="nvim"
 export RUST_SRC_PATH="$(rustc --print sysroot)/lib/rustlib/src/rust/src"
 
 export ANDROID_HOME="/opt/android-sdk"
-export NDK_HOME="/opt/android-ndk"
+export NDK_HOME="/home/amaanq/Android/Sdk/ndk"
+export NDK_PATH="$NDK_HOME/25.2.9519653"
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="$HOME/go/bin:$PATH"
+export PATH="$PATH:$HOME/.local/bin"
 export PATH="$PATH:/usr/local/go/bin"
-export PATH="$DENO_INSTALL/bin:$PATH"
-export PATH="$HOME/.surrealdb:$PATH"
+export PATH="$PATH:$HOME/go/bin"
+export PATH="$PATH:$HOME/projects/zig"
+export PATH="$PATH:$HOME/projects/zig-dev"
+export PATH="$PATH:$DENO_INSTALL/bin"
+export PATH="$PATH:$HOME/.surrealdb"
+export PATH="$PATH:$NDK_PATH"
+if [[ ":$LD_LIBRARY_PATH:" != *":/usr/lib:"* ]]; then
+	# check if its empty to append (it can exist but be empty)
+	if [ -z "$LD_LIBRARY_PATH" ]; then
+		export LD_LIBRARY_PATH="/usr/lib"
+	else
+		export LD_LIBRARY_PATH="/usr/lib:$LD_LIBRARY_PATH"
+	fi
+fi
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
+if [[ ":$PKG_CONFIG_PATH:" != *":/usr/lib:"* ]]; then
+	if [ -z "$PKG_CONFIG_PATH" ]; then
+		export PKG_CONFIG_PATH="/usr/lib"
+	else
+		export PKG_CONFIG_PATH="/usr/lib:$PKG_CONFIG_PATH"
+	fi
+fi
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig"
 
 if [ ! -f "$HOME/go/bin/gofumpt" ]; then
 	go install mvdan.cc/gofumpt@latest
@@ -185,7 +206,7 @@ take() {
 	cd $1
 }
 
-if [[ $(ps --no-header -p $PPID -o comm | grep -Ev '^(yakuake|konsole)$' ) ]]; then
+if [[ $(ps --no-header -p $PPID -o comm | grep -Ev '^(yakuake|konsole|kitty)$' ) ]]; then
 		for wid in $(xdotool search --pid $PPID); do
 			xprop -f _KDE_NET_WM_BLUR_BEHIND_REGION 32c -set _KDE_NET_WM_BLUR_BEHIND_REGION 0 -id $wid; done
 fi

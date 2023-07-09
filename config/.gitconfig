@@ -5,7 +5,7 @@
 	required = true
 
 [user]
-	name = Amaan Q
+	name = Amaan Qureshi
 	email = amaanq12@gmail.com
 	signingkey = FCC13F47A6900D64239FF13BE67890ADC4227273
 
@@ -21,15 +21,13 @@
 	l = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --decorate --date=short
 
 [core]
-	; editor = nvim
 	pager = delta
 
 [interactive]
 	diffFilter = delta --color-only
 
-[safe]
-	directory = /usr/src/linux-stable
-	directory = /home/amaanq/build/linux/archlinux-linux
+[include]
+	path = ~/projects/tokyonight.nvim/extras/delta/tokyonight_moon.gitconfig
 
 [delta]
 	navigate = true    # use n and N to move between diff sections
@@ -45,7 +43,7 @@
 	colorMoved = default 
 
 [pull]
-	ff = only
+	rebase = true
 
 [github]
 	user = amaanq
@@ -55,3 +53,15 @@
 
 [credential]
 	helper = cache
+
+[rebase]
+	autoStash = true
+    preserveMerges = true
+
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential

@@ -222,9 +222,8 @@ keybinding:
     update: u
     bulkMenu: b
 os:
-  editCommand: "nvim"
-  openCommand: open {{filename}}
-  openLinkCommand: open {{link}}
+  editPreset: "nvim"
+  openLink: open {{link}}
 disableStartupPopups: false
 customCommands:
   - key: "b"

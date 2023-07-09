@@ -27,6 +27,7 @@ symbol = " "
 [c]
 symbol = " "
 format = "[$symbol$version]($style) "
+commands = [['clang', '--version']]
 
 [character]
 error_symbol = "[✖](bold red)"
