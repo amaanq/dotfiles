@@ -18,7 +18,7 @@
   become_user: aur_builder
   aur:
     use: paru
-    extra_args: --noprovides
+    extra_args: --noprovides --noconfirm --overwrite "*"
     name:
       - curl
       - file
@@ -76,10 +76,10 @@
       # - languagetool
       - lazydocker
       - lazygit
+      - markdownlint-cli
       - mdcat
       - neofetch
       - neovim-git
-      - nodejs-markdownlint-cli
       - nnn
       - nodejs
       - ncdu

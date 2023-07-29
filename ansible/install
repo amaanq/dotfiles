@@ -7,7 +7,7 @@ function have {
 }
 
 # install ansible
-have ansible || paru ansible
+have ansible || paru ansible --noconfirm
 
 # install ansible community plugins
 [ -d ~/.ansible/collections/ansible_collections/community ] ||
