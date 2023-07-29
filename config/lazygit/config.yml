@@ -4,7 +4,7 @@ gui:
   scrollHeight: 2
   scrollPastBottom: true
   mouseEvents: true
-  skipUnstageLineWarning: false
+  skipDiscardChangeWarning: false
   skipStashWarning: false
   sidePanelWidth: 0.3333
   expandFocusedSidePanel: false
@@ -39,6 +39,7 @@ gui:
   showCommandLog: true
   showBottomLine: true
   showIcons: true
+  nerdFontsVersion: "3"
   commandLogSize: 8
   splitDiff: auto
 git:
@@ -54,13 +55,9 @@ git:
   skipHookPrefix: WIP
   autoFetch: true
   autoRefresh: true
-  branchLogCmd:
-    git log --graph --color=always --abbrev-commit --decorate --date=relative
-    --pretty=medium {{branchName}} --
-  allBranchesLogCmd:
-    git log --graph --all --color=always --abbrev-commit --decorate
-    --date=relative  --pretty=medium
-  overrideGpg: false
+  branchLogCmd: git log --graph --color=always --abbrev-commit --decorate --date=relative --pretty=medium {{branchName}} --
+  allBranchesLogCmd: git log --graph --all --color=always --abbrev-commit --decorate --date=relative  --pretty=medium
+  overrideGpg: true
   disableForcePushing: false
   commitPrefixes: {}
   parseEmoji: false
