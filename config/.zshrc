@@ -1,3 +1,11 @@
+if ! pgrep -u "$USER" gpg-agent > /dev/null; then
+    gpg-agent --daemon
+fi
+
+# Set GPG TTY to ensure pinentry is displayed properly in all terminals
+GPG_TTY=$(tty)
+export GPG_TTY
+
 eval `keychain --eval --agents ssh id_ed25519`
 if [ $? -ne 0 ]; then
 	echo "Make an ed25519 key ASAP! (keychain failed)"
@@ -19,6 +27,7 @@ export NDK_PATH="$NDK_HOME/25.2.9519653"
 export ZSH="$HOME/.oh-my-zsh"
 
 export PATH="$PATH:$HOME/.local/bin"
+export PATH="$PATH:$HOME/.local/bin/pnpm"
 export PATH="$PATH:/usr/local/go/bin"
 export PATH="$PATH:$HOME/go/bin"
 export PATH="$PATH:$HOME/projects/zig"
@@ -215,8 +224,33 @@ alias c="clear"
 alias nv="nvim"
 alias vi="nvim"
 alias lg="lazygit"
-alias l="exa -lah"
-alias ls=exa
-alias sl=exa
+alias l="eza -lah"
+alias ls=eza
+alias sl=eza
 alias ts="tree-sitter"
+alias tsa="tree-sitter-alpha"
+alias tsg="tree-sitter-og g"
+alias tsgr="tree-sitter-og g --report-states-for-rule"
+alias tsgra="tree-sitter-og g --report-states-for-rule -"
 alias trim="awk '{\$1=\$1;print}'"
+
+source ~/.iommu
+
+# opam configuration
+[[ ! -r /home/amaanq/.opam/opam-init/init.zsh ]] || source /home/amaanq/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
+
+# pnpm
+export PNPM_HOME="/home/amaanq/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+export QSYS_ROOTDIR="/home/amaanq/.cache/paru/clone/quartus-free/pkg/quartus-free-quartus/opt/intelFPGA/21.1/quartus/sopc_builder/bin"
+
+# bun completions
+[ -s "/home/amaanq/.bun/_bun" ] && source "/home/amaanq/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"

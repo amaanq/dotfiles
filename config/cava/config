@@ -62,7 +62,7 @@
 ; method = pulse
 ; source = auto
 
-; method = alsa
+method = pipewire
 ; source = hw:Loopback,1
 
 ; method = fifo
