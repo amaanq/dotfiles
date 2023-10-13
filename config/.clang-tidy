@@ -1,0 +1,2 @@
+Checks: "*,clang-analyzer-optin-performance.Padding,-modernize-use-trailing-return-type,-altera-*,-google-readability-todo,-cppcoreguidelines-avoid-magic-numbers,-llvmlibc-*,-readability-magic-numbers,-hicpp-signed-bitwise,-readability-function-cognitive-complexity,-google-objc-*,-hicpp-avoid-c-arrays,-hicpp-no-array-decay,-fuchsia-*,-cppcoreguidelines-owning-memory,-google-build-using-namespace,-modernize-avoid-c-arrays,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-cppcoreguidelines-avoid-c-arrays"
+HeaderFilterRegex: ""

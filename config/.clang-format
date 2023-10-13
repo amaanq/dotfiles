@@ -1,0 +1,14 @@
+AlignArrayOfStructures: Left
+BasedOnStyle: LLVM
+IndentCaseLabels: true
+IndentGotoLabels: true
+IndentPPDirectives: AfterHash
+IndentWidth: 4
+# InsertNewlineAtEOF: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+SeparateDefinitionBlocks: Always
+SortIncludes: CaseInsensitive
+# SortUsingDeclarations: None
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceBeforeCaseColon: false

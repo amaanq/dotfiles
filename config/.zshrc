@@ -35,6 +35,7 @@ export PATH="$PATH:$HOME/projects/zig-dev"
 export PATH="$PATH:$DENO_INSTALL/bin"
 export PATH="$PATH:$HOME/.surrealdb"
 export PATH="$PATH:$NDK_PATH"
+export PATH="$HOME/.local/share/bob/nvim-bin:$PATH"
 if [[ ":$LD_LIBRARY_PATH:" != *":/usr/lib:"* ]]; then
 	# check if its empty to append (it can exist but be empty)
 	if [ -z "$LD_LIBRARY_PATH" ]; then
