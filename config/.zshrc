@@ -255,3 +255,17 @@ export QSYS_ROOTDIR="/home/amaanq/.cache/paru/clone/quartus-free/pkg/quartus-fre
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+stm32env() {
+    if [[ $PWD == *STM32CubeIDE* ]]; then
+		export PATH="/opt/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.11.3.rel1.linux64_1.1.1.202309131626/tools/bin/:$PATH"
+        echo "STM32 Environment activated!"
+    else
+        echo "Not inside STM32CubeIDE directory!"
+    fi
+}
+
+function stm32deactivate() {
+    export PATH=$(echo $PATH | sed -e 's@:/opt/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.11.3.rel1.linux64_1.1.1.202309131626/tools/bin@@')
+    echo "STM32 Environment deactivated!"
+}
