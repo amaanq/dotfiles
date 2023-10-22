@@ -68,3 +68,5 @@
 
 [log]
 	showSignature = true
+[protocol "file"]
+	allow = always
