@@ -4,11 +4,14 @@ IndentCaseLabels: true
 IndentGotoLabels: true
 IndentPPDirectives: AfterHash
 IndentWidth: 4
-# InsertNewlineAtEOF: true
+InsertNewlineAtEOF: true
 KeepEmptyLinesAtTheStartOfBlocks: false
 SeparateDefinitionBlocks: Always
 SortIncludes: CaseInsensitive
-# SortUsingDeclarations: None
+SortUsingDeclarations: true
 SpaceAfterCStyleCast: false
 SpaceAfterLogicalNot: false
 SpaceBeforeCaseColon: false
+BinPackParameters: true
+BinPackArguments: true
+ColumnLimit: 120
