@@ -18,17 +18,17 @@ export DENO_INSTALL="$HOME/.deno"
 export EDITOR="nvim"
 
 export RUST_SRC_PATH="$(rustc --print sysroot)/lib/rustlib/src/rust/src"
+export GOPATH="$HOME/.go"
 
 export ANDROID_HOME="/opt/android-sdk"
 export NDK_HOME="/home/amaanq/Android/Sdk/ndk"
-export NDK_PATH="$NDK_HOME/25.2.9519653"
+export NDK_PATH="$NDK_HOME/26.1.10909125"
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
 export PATH="$PATH:$HOME/.local/bin"
 export PATH="$PATH:$HOME/.local/bin/pnpm"
-export PATH="$PATH:/usr/local/go/bin"
 export PATH="$PATH:$HOME/go/bin"
 export PATH="$PATH:$HOME/projects/zig"
 export PATH="$PATH:$HOME/projects/zig-dev"
@@ -37,6 +37,7 @@ export PATH="$PATH:$HOME/.surrealdb"
 export PATH="$PATH:$NDK_PATH"
 export PATH="$PATH:$HOME/.local/share/bob/nvim-bin"
 export PATH="/opt/android-sdk/platform-tools:$PATH"
+
 if [[ ":$LD_LIBRARY_PATH:" != *":/usr/lib:"* ]]; then
 	# check if its empty to append (it can exist but be empty)
 	if [ -z "$LD_LIBRARY_PATH" ]; then
@@ -45,6 +46,7 @@ if [[ ":$LD_LIBRARY_PATH:" != *":/usr/lib:"* ]]; then
 		export LD_LIBRARY_PATH="/usr/lib:$LD_LIBRARY_PATH"
 	fi
 fi
+
 export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib"
 if [[ ":$PKG_CONFIG_PATH:" != *":/usr/lib:"* ]]; then
 	if [ -z "$PKG_CONFIG_PATH" ]; then
@@ -53,41 +55,88 @@ if [[ ":$PKG_CONFIG_PATH:" != *":/usr/lib:"* ]]; then
 		export PKG_CONFIG_PATH="/usr/lib:$PKG_CONFIG_PATH"
 	fi
 fi
-export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig"
 
-if [ ! -f "$HOME/go/bin/gofumpt" ]; then
-	go install mvdan.cc/gofumpt@latest
-fi
-if [ ! -f "$HOME/go/bin/revive" ]; then
-	go install github.com/mgechev/revive@latest
-fi
+export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig"
 
 source $HOME/.cargo/env
 if [ ! -f "$HOME/.config/rustlang/autocomplete/rustup" ]; then
 	mkdir -p ~/.config/rustlang/autocomplete
 	rustup completions zsh rustup >> ~/.config/rustlang/autocomplete/rustup
 fi
-# source "$HOME/.config/rustlang/autocomplete/rustup"
 
-if ! cargo audit --version &> /dev/null; then
-	cargo install cargo-audit --features=fix
-fi
+function check_go_commands() {
+	if [ ! -f "$GOPATH/bin/gofumpt" ]; then
+		go install mvdan.cc/gofumpt@latest
+	fi
 
-if ! cargo nextest --version &> /dev/null; then
-	cargo install cargo-nextest
-fi
+	if [ ! -f "$GOPATH/bin/revive" ]; then
+		go install github.com/mgechev/revive@latest
+	fi
+}
 
-if ! cargo fmt --version &> /dev/null; then
-	rustup component add rustfmt
-fi
+function check_cargo_commands() {
+	if ! cargo audit --version &> /dev/null; then
+		cargo install cargo-audit --features=fix
+	fi
 
-if ! cargo clippy --version &> /dev/null; then
-	rustup component add clippy
-fi
+	if ! cargo nextest --version &> /dev/null; then
+		cargo install cargo-nextest
+	fi
 
-if ! ls ~/.cargo/bin | grep 'cargo-upgrade' &> /dev/null; then
-	cargo install cargo-edit
-fi
+	if ! cargo fmt --version &> /dev/null; then
+		rustup component add rustfmt
+	fi
+
+	if ! cargo clippy --version &> /dev/null; then
+		rustup component add clippy
+	fi
+
+	if ! ls ~/.cargo/bin | grep 'cargo-upgrade' &> /dev/null; then
+		cargo install cargo-edit
+	fi
+}
+
+# fnm
+
+function load-fnm() {
+	eval "$(fnm env --use-on-cd)"
+}
+
+fnm() {
+	unset -f fnm
+	load-fnm
+	fnm $@
+}
+
+node() {
+	unset -f node
+	load-fnm
+	node $@
+}
+
+npm() {
+	unset -f npm
+	load-fnm
+	npm $@
+}
+
+pnpm() {
+	unset -f npx
+	load-fnm
+	npx $@
+}
+
+# fnm end
+
+# zoxide
+
+function z () {
+  __zoxide_z $@
+}
+
+eval "$(zoxide init zsh --no-cmd)"
+
+# zoxide end
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
@@ -217,26 +266,31 @@ take() {
 	cd $1
 }
 
-if [[ $(ps --no-header -p $PPID -o comm | grep -Ev '^(yakuake|konsole|kitty)$' ) ]]; then
-		for wid in $(xdotool search --pid $PPID); do
-			xprop -f _KDE_NET_WM_BLUR_BEHIND_REGION 32c -set _KDE_NET_WM_BLUR_BEHIND_REGION 0 -id $wid; done
-fi
+# if [[ $(ps --no-header -p $PPID -o comm | grep -Ev '^(yakuake|konsole|kitty)$' ) ]]; then
+# 		for wid in $(xdotool search --pid $PPID); do
+# 			xprop -f _KDE_NET_WM_BLUR_BEHIND_REGION 32c -set _KDE_NET_WM_BLUR_BEHIND_REGION 0 -id $wid; done
+# fi
 
 alias c="clear"
+alias q="exit"
 alias nv="nvim"
 alias vi="nvim"
 alias lg="lazygit"
+alias py="python"
 alias l="eza -lah"
 alias ls=eza
 alias sl=eza
 alias ts="tree-sitter"
 alias tsa="tree-sitter-alpha"
+alias tss="tree-sitter-stable"
+alias tsog="tree-sitter-og"
 alias tsg="tree-sitter-og g"
 alias tsgr="tree-sitter-og g --report-states-for-rule"
 alias tsgra="tree-sitter-og g --report-states-for-rule -"
 alias trim="awk '{\$1=\$1;print}'"
+alias cd="z"
 
-source ~/.iommu
+# source ~/.iommu
 
 # opam configuration
 [[ ! -r /home/amaanq/.opam/opam-init/init.zsh ]] || source /home/amaanq/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
@@ -257,9 +311,12 @@ export QSYS_ROOTDIR="/home/amaanq/.cache/paru/clone/quartus-free/pkg/quartus-fre
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
+export PATH="$PATH:/home/amaanq/.dotnet/tools"
+
+
 stm32env() {
     if [[ $PWD == *Microprocessor* ]]; then
-		export PATH="/opt/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.11.3.rel1.linux64_1.1.1.202309131626/tools/bin/:$PATH"
+		export PATH="/opt/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.11.3.rel1.linux64_1.1.1.202309131626/tools/bin:$PATH"
         echo "STM32 Environment activated!"
     else
         echo "Not inside STM32CubeIDE directory!"
