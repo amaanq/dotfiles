@@ -2,7 +2,7 @@ AlignArrayOfStructures: Left
 BasedOnStyle: LLVM
 IndentCaseLabels: true
 IndentGotoLabels: true
-IndentPPDirectives: AfterHash
+IndentPPDirectives: None
 IndentWidth: 4
 InsertNewlineAtEOF: true
 KeepEmptyLinesAtTheStartOfBlocks: false
