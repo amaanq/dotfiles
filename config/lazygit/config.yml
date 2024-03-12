@@ -65,7 +65,6 @@ git:
     order: topo-order
     showGraph: when-maximised
     showWholeGraph: false
-  diffContextSize: 3
 update:
   method: prompt
   days: 14
@@ -196,7 +195,7 @@ keybinding:
     revertCommit: t
     cherryPickCopy: c
     cherryPickCopyRange: C
-    pasteCommits: v
+    pasteCommits: x
     tagCommit: T
     checkoutCommit: <space>
     resetCherryPick: <c-R>
