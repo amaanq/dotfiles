@@ -4,32 +4,15 @@ gui:
   scrollHeight: 2
   scrollPastBottom: true
   mouseEvents: true
+  nerdFontsVersion: "3"
   skipDiscardChangeWarning: false
   skipStashWarning: false
   sidePanelWidth: 0.3333
   expandFocusedSidePanel: false
   mainPanelSplitMode: flexible
   language: auto
-  timeFormat: 02 Jan 06 15:04 MST
-  theme:
-    lightTheme: false
-    activeBorderColor:
-      - green
-      - bold
-    inactiveBorderColor:
-      - white
-    optionsTextColor:
-      - blue
-    selectedLineBgColor:
-      - reverse
-    selectedRangeBgColor:
-      - blue
-    cherryPickedCommitBgColor:
-      - cyan
-    cherryPickedCommitFgColor:
-      - blue
-    unstagedChangesColor:
-      - red
+  timeFormat: Mon, Jan 02, 2006 @ 03:04 PM MST
+  shortTimeFormat: 03:04 PM MST
   commitLength:
     show: true
   skipNoStagedFilesWarning: false
@@ -38,8 +21,6 @@ gui:
   showRandomTip: true
   showCommandLog: true
   showBottomLine: true
-  showIcons: true
-  nerdFontsVersion: "3"
   commandLogSize: 8
   splitDiff: auto
 git:
@@ -63,7 +44,7 @@ git:
   parseEmoji: false
   log:
     order: topo-order
-    showGraph: when-maximised
+    showGraph: always
     showWholeGraph: false
 update:
   method: prompt
@@ -71,8 +52,6 @@ update:
 refresher:
   refreshInterval: 10
   fetchInterval: 60
-reporting: undetermined
-splashUpdatesIndex: 0
 confirmOnQuit: false
 quitOnTopLevelReturn: false
 keybinding:
@@ -112,7 +91,6 @@ keybinding:
     select: <space>
     goInto: <enter>
     confirm: <enter>
-    confirm-alt1: "y"
     remove: d
     new: "n"
     edit: e
@@ -141,7 +119,6 @@ keybinding:
     copyToClipboard: <c-o>
     openRecentRepos: <c-r>
     submitEditorText: <enter>
-    appendNewline: <a-enter>
     extrasMenu: "@"
     toggleWhitespaceInDiffView: <c-w>
     increaseContextInDiffView: "}"
@@ -155,7 +132,6 @@ keybinding:
     commitChangesWithoutHook: w
     amendLastCommit: A
     commitChangesWithEditor: C
-    IgnoreOrExcludeFile: i
     refreshFiles: r
     stashAllChanges: s
     viewStashOptions: S
@@ -194,8 +170,7 @@ keybinding:
     pickCommit: p
     revertCommit: t
     cherryPickCopy: c
-    cherryPickCopyRange: C
-    pasteCommits: x
+    pasteCommits: V
     tagCommit: T
     checkoutCommit: <space>
     resetCherryPick: <c-R>
@@ -208,8 +183,6 @@ keybinding:
   commitFiles:
     checkoutCommitFile: c
   main:
-    toggleDragSelect: v
-    toggleDragSelect-alt: V
     toggleSelectHunk: a
     pickBothHunks: b
     editSelectHunk: E
@@ -218,8 +191,7 @@ keybinding:
     update: u
     bulkMenu: b
 os:
-  editPreset: "nvim"
-  openLink: open {{link}}
+  editPreset: "nvim-remote"
 disableStartupPopups: false
 customCommands:
   - key: "b"
