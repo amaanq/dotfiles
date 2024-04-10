@@ -29,13 +29,12 @@ export ZSH="$HOME/.oh-my-zsh"
 
 export PATH="$PATH:$HOME/.local/bin"
 export PATH="$PATH:$HOME/.local/bin/pnpm"
-export PATH="$PATH:$HOME/go/bin"
+export PATH="$GOPATH/bin:$PATH"
 export PATH="$PATH:$HOME/projects/zig"
 export PATH="$PATH:$HOME/projects/zig-dev"
 export PATH="$PATH:$DENO_INSTALL/bin"
 export PATH="$PATH:$HOME/.surrealdb"
 export PATH="$PATH:$NDK_PATH"
-export PATH="$PATH:$HOME/.local/share/bob/nvim-bin"
 export PATH="/opt/android-sdk/platform-tools:$PATH"
 
 if [[ ":$LD_LIBRARY_PATH:" != *":/usr/lib:"* ]]; then
@@ -121,9 +120,9 @@ npm() {
 }
 
 pnpm() {
-	unset -f npx
+	unset -f pnpm
 	load-fnm
-	npx $@
+	pnpm $@
 }
 
 # fnm end
@@ -289,6 +288,9 @@ alias tsgr="tree-sitter-og g --report-states-for-rule"
 alias tsgra="tree-sitter-og g --report-states-for-rule -"
 alias trim="awk '{\$1=\$1;print}'"
 alias cd="z"
+alias lazygit "TERM=xterm-256color command lazygit"
+
+export LG_CONFIG_FILE="/home/amaanq/.config/lazygit/config.yml,/home/amaanq/.cache/nvim/lazygit-theme.yml"
 
 # source ~/.iommu
 
