@@ -37,6 +37,19 @@ export PATH="$PATH:$HOME/.surrealdb"
 export PATH="$PATH:$NDK_PATH"
 export PATH="/opt/android-sdk/platform-tools:$PATH"
 
+export FZF_DEFAULT_OPTS="
+$FZF_DEFAULT_OPTS
+  --cycle
+  --layout=reverse
+  --height 60%
+  --ansi
+  --preview-window=right:90%
+  --bind=ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-x:jump
+  --bind=ctrl-f:preview-page-down,ctrl-b:preview-page-up
+  --bind=ctrl-a:beginning-of-line,ctrl-e:end-of-line
+  --bind=ctrl-j:down,ctrl-k:up
+"
+
 if [[ ":$LD_LIBRARY_PATH:" != *":/usr/lib:"* ]]; then
 	# check if its empty to append (it can exist but be empty)
 	if [ -z "$LD_LIBRARY_PATH" ]; then
@@ -127,15 +140,10 @@ pnpm() {
 
 # fnm end
 
-# zoxide
+# function z () {
+#   __zoxide_z $@
+# }
 
-function z () {
-  __zoxide_z $@
-}
-
-eval "$(zoxide init zsh --no-cmd)"
-
-# zoxide end
 
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
@@ -211,11 +219,13 @@ plugins=(
 	colored-man-pages
 	git
 	jsontools
+	# zsh-autocomplete
 	zsh-autosuggestions
 	zsh-syntax-highlighting
 )
 
 source $ZSH/oh-my-zsh.sh
+# source $ZSH/custom/plugins/zsh-autocomplete/zsh-autocomplete.plugin.zsh
 
 # User configuration
 
@@ -292,10 +302,6 @@ alias lazygit "TERM=xterm-256color command lazygit"
 
 export LG_CONFIG_FILE="/home/amaanq/.config/lazygit/config.yml,/home/amaanq/.cache/nvim/lazygit-theme.yml"
 
-# source ~/.iommu
-
-# opam configuration
-[[ ! -r /home/amaanq/.opam/opam-init/init.zsh ]] || source /home/amaanq/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
 
 # pnpm
 export PNPM_HOME="/home/amaanq/.local/share/pnpm"
@@ -329,3 +335,9 @@ function stm32deactivate() {
     export PATH=$(echo $PATH | sed -e 's@:/opt/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.11.3.rel1.linux64_1.1.1.202309131626/tools/bin@@')
     echo "STM32 Environment deactivated!"
 }
+
+# zoxide
+
+eval "$(zoxide init zsh)"
+
+# zoxide end
