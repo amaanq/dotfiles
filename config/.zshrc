@@ -37,6 +37,19 @@ export PATH="$PATH:$HOME/.surrealdb"
 export PATH="$PATH:$NDK_PATH"
 export PATH="/opt/android-sdk/platform-tools:$PATH"
 
+export FZF_DEFAULT_OPTS="
+$FZF_DEFAULT_OPTS
+  --cycle
+  --layout=reverse
+  --height 60%
+  --ansi
+  --preview-window=right:90%
+  --bind=ctrl-u:half-page-up,ctrl-d:half-page-down,ctrl-x:jump
+  --bind=ctrl-f:preview-page-down,ctrl-b:preview-page-up
+  --bind=ctrl-a:beginning-of-line,ctrl-e:end-of-line
+  --bind=ctrl-j:down,ctrl-k:up
+"
+
 if [[ ":$LD_LIBRARY_PATH:" != *":/usr/lib:"* ]]; then
 	# check if its empty to append (it can exist but be empty)
 	if [ -z "$LD_LIBRARY_PATH" ]; then
@@ -292,10 +305,6 @@ alias lazygit "TERM=xterm-256color command lazygit"
 
 export LG_CONFIG_FILE="/home/amaanq/.config/lazygit/config.yml,/home/amaanq/.cache/nvim/lazygit-theme.yml"
 
-# source ~/.iommu
-
-# opam configuration
-[[ ! -r /home/amaanq/.opam/opam-init/init.zsh ]] || source /home/amaanq/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
 
 # pnpm
 export PNPM_HOME="/home/amaanq/.local/share/pnpm"
