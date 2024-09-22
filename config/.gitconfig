@@ -22,6 +22,8 @@
 
 [core]
 	pager = delta
+	preloadindex = true
+	untrackedcache = true
 
 [interactive]
 	diffFilter = delta --color-only
@@ -71,3 +73,5 @@
 	showSignature = true
 [protocol "file"]
 	allow = always
+[fetch]
+	prune = true
