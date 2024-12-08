@@ -1,6 +1,6 @@
 # Nushell Environment Config File
 #
-# version = "0.99.0"
+# version = "0.100.0"
 
 # def create_left_prompt [] {
 #     let dir = match (do --ignore-shell-errors { $env.PWD | path relative-to $nu.home-path }) {
@@ -91,7 +91,7 @@ $env.ENV_CONVERSIONS = {
 # The default for this is $nu.default-config-dir/scripts
 $env.NU_LIB_DIRS = [
     ($nu.default-config-dir | path join 'scripts') # add <nushell-config-dir>/scripts
-    ($nu.data-dir | path join 'completions') # default home for nushell completions
+    ($nu.data-dir | path join 'completions')
 ]
 
 # Directories to search for plugin binaries when calling register
@@ -118,23 +118,24 @@ $env.NU_PLUGIN_DIRS = [
 
 $env.EDITOR = "nvim"
 
-$env.RUST_SRC_PATH = (echo [(rustc --print sysroot) "/lib/rustlib/src/rust/src"] | str join)
+$env.RUST_SRC_PATH = $"(^rustc --print sysroot)/lib/rustlib/src/rust/src"
 
-$env.GOPATH = "~/.go"
+$env.GOPATH = $"($nu.home-path)/.go"
 
 $env.ANDROID_HOME = "/opt/android-sdk"
-$env.NDK_HOME = "~/Android/Sdk/ndk"
+$env.NDK_HOME = $"($nu.home-path)/Android/Sdk/ndk"
 $env.NDK_PATH = $"($env.NDK_HOME)/26.1.10909125"
 
-$env.LG_CONFIG_FILE = "/home/amaanq/.config/lazygit/config.yml,/home/amaanq/.cache/nvim/lazygit-theme.yml"
+$env.LG_CONFIG_FILE = $"($nu.home-path)/.config/lazygit/config.yml,($nu.home-path)/.cache/nvim/lazygit-theme.yml"
 
 $env.PATH = ($env.PATH | split row (char esep) | append [
-    "~/.local/bin"
-    "~/.local/bin/pnpm"
-    "~/.cargo/bin"
+    $"($nu.home-path)/.local/bin"
+    $"($nu.home-path)/.local/bin/pnpm"
+    $"($nu.home-path)/.cargo/bin"
+    $"($nu.home-path)/.bun/bin"
+    $"($nu.home-path)/projects/zig"
+    $"($nu.home-path)/projects/zig-dev"
     $"($env.GOPATH)/bin"
-    "~/projects/zig"
-    "~/projects/zig-dev"
     $env.NDK_PATH
     "/opt/android-sdk/platform-tools"
 ])
@@ -153,127 +154,3 @@ $env.FZF_DEFAULT_OPTS = [
 
 $env.STARSHIP_SHELL = "nu"
 
-### Sources
-
-source ~/.zoxide.nu
-
-### Aliases
-
-alias c = clear
-alias q = exit
-alias nv = nvim
-alias vi = nvim
-alias lg = ^TERM=xterm-256color lazygit
-alias py = python
-alias l = eza -lah
-alias ts = tree-sitter
-alias trim = ^awk '{\$1=\$1;print}'
-alias cd = z
-
-### Functions
-
-# Initialize keychain for SSH key management
-def --env setup-keychain [] {
-    let output = (keychain --eval --agents ssh id_ed25519 | lines)
-    for line in $output {
-        let parts = ($line | split row '=' | each { str trim })
-        if ($parts | length) >= 2 {
-            let key = $parts.0
-            let value = ($parts | skip 1 | str join '=')
-            load-env { $key: $value }
-        }
-    }
-}
-
-# Initialize GPG agent
-def setup-gpg [] {
-    if not (ps | where name =~ 'gpg-agent' | is-empty) {
-        gpg-agent --daemon
-    }
-    $env.GPG_TTY = (tty)
-}
-
-# Add a note to a file
-def --env note [...args] {
-    let note_text = ($args | str join " ")
-    let date = (date now | format date "%Y-%m-%d %H:%M:%S")
-    echo $"date: ($date)\n($note_text)\n" | save --append ~/drafts.txt
-}
-
-# Make a directory and cd into it
-def take [dirname: string] {
-    mkdir $dirname
-    cd $dirname
-}
-
-# Diff with bat
-def batdiff [] {
-    git diff --name-only --relative --diff-filter=d
-    | lines
-    | each { |it| bat --diff $it }
-}
-
-# Clear all docker containers and images
-def dclear [] {
-    docker ps -a -q | each { |id| docker kill -f $id }
-    docker ps -a -q | each { |id| docker rm -f $id }
-    docker images | from ssv | each { |img| docker rmi -f $img.ID }
-    docker volume prune -f
-}
-
-# Check if a Go command exists, and install it if it doesn't
-def check_go_commands [] {
-    if not ("gofumpt" | path exists) {
-        go install mvdan.cc/gofumpt@latest
-    }
-    if not ("revive" | path exists) {
-        go install github.com/mgechev/revive@latest
-    }
-}
-
-# Check if a Rust command exists, and install it if it doesn't
-def check_cargo_commands [] {
-    if (do { cargo audit --version } | complete).exit_code != 0 {
-        cargo install cargo-audit --features=fix
-    }
-    if (do { cargo nextest --version } | complete).exit_code != 0 {
-        cargo install cargo-nextest
-    }
-    if (do { cargo fmt --version } | complete).exit_code != 0 {
-        rustup component add rustfmt
-    }
-    if (do { cargo clippy --version } | complete).exit_code != 0 {
-        rustup component add clippy
-    }
-    if not (ls ~/.cargo/bin | find cargo-upgrade | is-empty) {
-        cargo install cargo-edit
-    }
-}
-
-# Setup env for STM32 development
-def stm32env [] {
-    if ($env.PWD | str contains "Microprocessor") {
-        $env.PATH = ($env.PATH | split row (char esep) | append [
-            "/opt/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.11.3.rel1.linux64_1.1.1.202309131626/tools/bin"
-        ])
-        echo "STM32 Environment activated!"
-    } else {
-        echo "Not inside STM32CubeIDE directory!"
-    }
-}
-
-# Deactivate STM32 environment
-def stm32deactivate [] {
-    $env.PATH = ($env.PATH | split row (char esep) 
-        | where { |it| not ($it | str contains "stm32cubeide") } 
-        | str join (char esep))
-    echo "STM32 Environment deactivated!"
-}
-
-def create_startup [] {
-    setup-gpg
-    setup-keychain
-}
-
-# Run startup on shell initialization
-create_startup

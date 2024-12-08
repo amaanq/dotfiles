@@ -2,6 +2,24 @@
 #
 # version = "0.100.0"
 
+use completions/bat/bat-completions.nu
+use completions/cargo/cargo-completions.nu
+use completions/curl/curl-completions.nu
+use completions/docker/docker-completions.nu
+use completions/gh/gh-completions.nu
+use completions/git/git-completions.nu
+use completions/just/just-completions.nu
+use completions/less/less-completions.nu
+use completions/make/make-completions.nu
+use completions/man/man-completions.nu
+use completions/npm/npm-completions.nu
+use completions/rg/rg-completions.nu
+use completions/rustup/rustup-completions.nu
+use completions/ssh/ssh-completions.nu
+use completions/tar/tar-completions.nu
+use completions/virsh/virsh-completions.nu
+use completions/yarn/yarn-v4-completions.nu
+
 # For more information on defining custom themes, see
 # https://www.nushell.sh/book/coloring_and_theming.html
 # And here is the theme collection
@@ -141,9 +159,171 @@ let light_theme = {
 }
 
 # External completer example
-# let carapace_completer = {|spans|
-#     carapace $spans.0 nushell ...$spans | from json
-# }
+let carapace_completer = {|spans|
+    carapace $spans.0 nushell ...$spans | from json
+}
+
+let external_completer = {|spans|
+    let expanded_alias = scope aliases
+    | where name == $spans.0
+    | get -i 0.expansion
+
+    let spans = if $expanded_alias != null {
+        $spans
+        | skip 1
+        | prepend ($expanded_alias | split row ' ' | take 1)
+    } else {
+        $spans
+    }
+
+    match $spans.0 {
+		nu => null,
+        _ => $carapace_completer
+    } | do $in $spans
+}
+
+### Sources
+
+source $"($nu.home-path)/.zoxide.nu"
+
+### Aliases
+
+alias c = clear
+alias q = exit
+alias nv = nvim
+alias vi = nvim
+alias lg = with-env { TERM: "xterm-256color" } { lazygit }
+alias py = python
+alias l = eza -lah
+alias ts = tree-sitter
+alias trim = ^awk '{\$1=\$1;print}'
+alias cd = z
+
+### Functions
+
+# Initialize keychain for SSH key management
+# https://www.nushell.sh/cookbook/ssh_agent.html#keychain
+def --env setup-keychain [] {
+    if (which keychain | is-empty) {
+        print "Keychain not found, it's over."
+        return 1
+    }
+
+	keychain --eval --agents ssh id_ed25519
+		| lines
+		| where not ($it | is-empty)
+		| parse "{k}={v}; export {k2};"
+		| select k v
+		| transpose --header-row
+		| into record
+		| load-env
+}
+
+# Initialize GPG agent
+def --env setup-gpg [] {
+    if (ps | where name like 'gpg-agent' | is-empty) {
+        gpg-agent --daemon
+    }
+    $env.GPG_TTY = (tty)
+}
+
+# Add a note to a file
+def note [...args] {
+    let note_text = ($args | str join " ")
+    let date = (date now | format date "%Y-%m-%d %H:%M:%S")
+    print $"date: ($date)\n($note_text)\n" | save --append $"($nu.home-path)/drafts.txt"
+}
+
+# Make a directory if it doesn't exist and cd into it
+def mkcd [dirname: string] {
+    if ($dirname | path exists) {
+        print $"Directory ($dirname) already exists!"
+        cd $dirname
+    } else {
+        mkdir $dirname
+        cd $dirname
+    }
+}
+
+# Diff with bat
+def batdiff [] {
+    git diff --name-only --relative --diff-filter=d
+    | lines
+    | each { |it| bat --diff $it }
+}
+
+# Clear all docker containers and images
+def dclear [] {
+    docker ps -a -q | each { |id| docker kill -f $id }
+    docker ps -a -q | each { |id| docker rm -f $id }
+    docker images | from ssv | each { |img| docker rmi -f $img.ID }
+    docker volume prune -f
+}
+
+# Check if a Rust command exists, and install it if it doesn't
+def check_cargo_commands [] {
+    if (which cargo | is-empty) {
+        print "Cargo not found! Please install Rust first with `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`"
+        return 1
+    }
+
+    let commands = [
+        { name: "fmt",     install: ["rustup", "component", "add", "rustfmt"]                },
+        { name: "clippy",  install: ["rustup", "component", "add", "clippy"]                 },
+        { name: "audit",   install: ["cargo",  "install",   "cargo-audit", "--features=fix"] },
+        { name: "nextest", install: ["cargo",  "install",   "cargo-nextest"]                 },
+        { name: "upgrade", install: ["cargo",  "install",   "cargo-edit"]                    },
+    ]
+
+    for cmd in $commands {
+        if (do { ^cargo $cmd.name --version } | complete).exit_code != 0 {
+            print $"Installing cargo-($cmd.name)..."
+            run-external $cmd.install
+        }
+    }
+}
+
+# Check if a Go command exists, and install it if it doesn't
+def check_go_commands [] {
+    let commands = [
+        { name: "revive", path: "github.com/mgechev/revive@latest" }
+    ]
+    for cmd in $commands {
+        if (do { ^$cmd.name --version } | complete).exit_code != 0 {
+            print $"Installing ($cmd.name)..."
+            run-external "go" "install" $cmd.path
+        }
+    }
+}
+
+# Setup environment for STM32 development
+def stm32activate [] {
+    if ($env.PWD | str contains "Microprocessor") {
+        $env.PATH = ($env.PATH | split row (char esep) | append [
+            "/opt/stm32cubeide/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.11.3.rel1.linux64_1.1.1.202309131626/tools/bin"
+        ])
+        print "STM32 Environment activated!"
+    } else {
+        print "Not inside STM32CubeIDE directory!"
+    }
+}
+
+# Deactivate STM32 environment
+def stm32deactivate [] {
+    $env.PATH = ($env.PATH | split row (char esep)
+        | where { |it| not ($it | str contains "stm32cubeide") }
+        | str join (char esep))
+    print "STM32 Environment deactivated!"
+}
+
+def --env startup [] {
+    setup-gpg
+    setup-keychain
+}
+
+startup
+
+### Config
 
 # The default config record. This is where much of your global configuration is setup.
 $env.config = {
@@ -219,7 +399,7 @@ $env.config = {
         external: {
             enable: true # set to false to prevent nushell looking into $env.PATH to find more suggestions, `false` recommended for WSL users as this look up may be very slow
             max_results: 100 # setting it lower can improve completion performance at the cost of omitting some options
-            completer: null # check 'carapace_completer' above as an example
+            completer: $external_completer # check 'carapace_completer' above as an example
         }
         use_ls_colors: true # set this to true to enable file/path/directory completions using LS_COLORS
     }
