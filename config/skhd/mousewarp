@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+# Get the focused window's ID
+window_id=$(yabai -m query --windows --window | jq -r ".id")
+
+# Get the window's frame
+frame=$(yabai -m query --windows --window "$window_id" | jq -r ".frame")
+
+# Extract the x, y, width, and height of the window
+x=$(echo "$frame" | jq -r ".x")
+y=$(echo "$frame" | jq -r ".y")
+w=$(echo "$frame" | jq -r ".w")
+h=$(echo "$frame" | jq -r ".h")
+
+# Calculate the center of the window using bc for floating-point arithmetic
+center_x=$(echo "scale=0; ($x + $w / 2)/1" | bc)
+center_y=$(echo "scale=0; ($y + $h / 2)/1" | bc)
+
+# Move the mouse to the center of the window (using yabai's mouse command)
+cliclick m:$center_x,$center_y
