@@ -38,13 +38,8 @@ def create_left_prompt [] {
     starship prompt --cmd-duration $env.CMD_DURATION_MS $'--status=($env.LAST_EXIT_CODE)'
 }
 
-# def create_right_prompt [] {
-#     starship prompt --right --cmd-duration $env.CMD_DURATION_MS $'--status=($env.LAST_EXIT_CODE)'
-# }
-
 # Use nushell functions to define your right and left prompt
 $env.PROMPT_COMMAND = {|| create_left_prompt }
-# FIXME: This default is not implemented in rust code as of 2023-09-08.
 # $env.PROMPT_COMMAND_RIGHT = {|| create_right_prompt }
 $env.PROMPT_COMMAND_RIGHT = ""
 
@@ -133,6 +128,7 @@ $env.PATH = ($env.PATH | split row (char esep) | append [
     $"($nu.home-path)/.local/bin/pnpm"
     $"($nu.home-path)/.cargo/bin"
     $"($nu.home-path)/.bun/bin"
+    $"($nu.home-path)/.radicle/bin"
     $"($nu.home-path)/projects/zig"
     $"($nu.home-path)/projects/zig-dev"
     $"($env.GOPATH)/bin"
@@ -154,3 +150,4 @@ $env.FZF_DEFAULT_OPTS = [
 
 $env.STARSHIP_SHELL = "nu"
 
+zoxide init nushell --cmd=cd | save -f ~/.zoxide.nu
