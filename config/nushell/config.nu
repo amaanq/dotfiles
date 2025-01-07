@@ -932,6 +932,9 @@ alias ts = tree-sitter
 alias tsa = tree-sitter-alpha
 alias tss = tree-sitter-stable
 alias trim = ^awk '{\$1=\$1;print}'
+alias cb = cargo build
+alias ci = cargo install
+alias ct = cargo test
 
 ### Functions
 
@@ -988,9 +991,9 @@ def batdiff [] {
 
 # Clear all docker containers and images
 def dclear [] {
-    docker ps -a -q | each { |id| docker kill -f $id }
+    docker ps -q | each { |id| docker kill $id }
     docker ps -a -q | each { |id| docker rm -f $id }
-    docker images | from ssv | each { |img| docker rmi -f $img.ID }
+    docker images | from ssv | each { |img| docker rmi -f $img."IMAGE ID" }
     docker volume prune -f
 }
 
@@ -1060,3 +1063,4 @@ startup
 ### Sources
 
 source ~/.zoxide.nu
+source ~/.local/share/atuin/init.nu

@@ -124,10 +124,11 @@ $env.NDK_PATH = $"($env.NDK_HOME)/26.1.10909125"
 $env.LG_CONFIG_FILE = $"($nu.home-path)/.config/lazygit/config.yml,($nu.home-path)/.cache/nvim/lazygit-theme.yml"
 
 $env.PATH = ($env.PATH | split row (char esep) | append [
+    $"($nu.home-path)/.atuin/bin"
+    $"($nu.home-path)/.bun/bin"
+    $"($nu.home-path)/.cargo/bin"
     $"($nu.home-path)/.local/bin"
     $"($nu.home-path)/.local/bin/pnpm"
-    $"($nu.home-path)/.cargo/bin"
-    $"($nu.home-path)/.bun/bin"
     $"($nu.home-path)/.radicle/bin"
     $"($nu.home-path)/projects/zig"
     $"($nu.home-path)/projects/zig-dev"
@@ -150,4 +151,5 @@ $env.FZF_DEFAULT_OPTS = [
 
 $env.STARSHIP_SHELL = "nu"
 
-zoxide init nushell --cmd=cd | save -f ~/.zoxide.nu
+atuin  init nu      --disable-up-arrow | save -f ~/.local/share/atuin/init.nu
+zoxide init nushell --cmd=cd           | save -f ~/.zoxide.nu
