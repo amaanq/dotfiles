@@ -1058,6 +1058,40 @@ def --env startup [] {
     setup-keychain
 }
 
+# Show information about a nix package.
+def gist [
+  # Any attribute of `pkgs`
+  pkg_path: string
+
+  # Show all the metadata
+  --long (-l)
+
+  # Open the homepage
+  --open (-o)
+] {
+  let pkg = nix eval --offline --json $"nixpkgs#($pkg_path).meta" | from json
+
+  # Probably because the package doesn't exist. Nix would've printed an error.
+  if $pkg == null {
+    return
+  }
+
+  if $long {
+    return $pkg
+  }
+
+  if $open {
+    start $pkg.homepage
+    return $pkg.homepage
+  }
+
+  $pkg
+    | select name? description? homepage?
+    | transpose key value
+    | where value != null
+    | reduce --fold {} { |row, acc| $acc | merge { $row.key: $row.value } }
+}
+
 startup
 
 ### Sources
