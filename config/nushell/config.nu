@@ -935,6 +935,7 @@ alias trim = ^awk '{\$1=\$1;print}'
 alias cb = cargo build
 alias ci = cargo install
 alias ct = cargo test
+alias gt = go test './...'
 
 ### Functions
 
@@ -958,7 +959,7 @@ def --env setup-keychain [] {
 
 # Initialize GPG agent
 def --env setup-gpg [] {
-    if (ps | where name like 'gpg-agent' | is-empty) {
+    if (do { ^pgrep gpg-agent } | complete | get exit_code) != 0 {
         gpg-agent --daemon
     }
     $env.GPG_TTY = (tty)

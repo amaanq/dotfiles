@@ -134,6 +134,7 @@ $env.PATH = ($env.PATH | split row (char esep) | append [
     $"($nu.home-path)/projects/zig-dev"
     $"($env.GOPATH)/bin"
     $env.NDK_PATH
+    "/usr/local/bin"
     "/opt/android-sdk/platform-tools"
 ])
 
