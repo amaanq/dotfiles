@@ -1,150 +1,114 @@
 {
-  description = "Example nix-darwin system flake";
-
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    nix-darwin.url = "github:LnL7/nix-darwin";
-    nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
-    home-manager.url = "github:nix-community/home-manager";
+  description = "Amaan's Nix Configuration";
+  nixConfig = {
+    extra-substituters = [
+      "https://cache.garnix.io/"
+      "https://cache.privatevoid.net"
+      "https://hyprland.cachix.org/"
+      "https://nix-community.cachix.org/"
+      "https://cache.nixos.org/"
+    ];
+    extra-trusted-public-keys = [
+      "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
+      "cache.privatevoid.net:SErQ8bvNWANeAvtsOESUwVYr2VJynfuc9JRwlzTTkVg="
+      "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+    ];
+    extra-experimental-features = [
+      "cgroups"
+      "flakes"
+      "nix-command"
+      "pipe-operators"
+    ];
+    accept-flake-config = true;
+    builders-use-substitutes = true;
+    flake-registry = "";
+    http-connections = 50;
+    # lazy-trees = true;
+    show-trace = true;
+    trusted-users = [
+      "root"
+      "@build"
+      "@wheel"
+      "@admin"
+    ];
+    use-cgroups = true;
+    warn-dirty = false;
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager }:
-    let username = "amaan.qureshi"; in
-    let configuration = { pkgs, ... }: {
-      imports = [
-        home-manager.darwinModules.home-manager
-      ];
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-      nix.gc.automatic = true;
-
-      nix.optimise.automatic = true;
-
-      users = {
-        knownUsers = [ username ];
-        users.${username} = {
-          home = "/Users/${username}";
-          shell = "${pkgs.nushell}/bin/nu";
-          uid = 502;
-        };
-      };
-
-      home-manager = {
-        useGlobalPkgs = true;
-        useUserPackages = true;
-        users.${username} = {
-          home.stateVersion = "24.11";
-          home.packages = [
-            pkgs.alt-tab-macos
-            pkgs.aria2
-            pkgs.awscli
-            pkgs.aws-vault
-            pkgs.bat
-            pkgs.bazelisk
-            pkgs.bear
-            pkgs.binutils
-            pkgs.bottom
-            pkgs.cmake
-            pkgs.codeql
-            pkgs.coreutils
-            pkgs.cpufetch
-            pkgs.cpuinfo
-            pkgs.curl
-            pkgs.delta
-            pkgs.difftastic
-            pkgs.docker
-            pkgs.fastfetch
-            pkgs.fd
-            pkgs.flock
-            pkgs.fzf
-            pkgs.gh
-            pkgs.ghc
-            pkgs.git
-            pkgs.gitui
-            pkgs.gnumake
-            pkgs.gnupg
-            pkgs.go
-            pkgs.google-cloud-sdk
-            pkgs.gperftools
-            pkgs.graphviz
-            pkgs.grpcurl
-            pkgs.hidden-bar
-            pkgs.htop
-            pkgs.hub
-            pkgs.iina
-            pkgs.jankyborders
-            pkgs.jdk
-            pkgs.jujutsu
-            pkgs.just
-            pkgs.jq
-            pkgs.keychain
-            pkgs.kubectx
-            # pkgs.kubernetes
-            pkgs.kubernetes-helm
-            pkgs.lazydocker
-            pkgs.maccy
-            pkgs.maven
-            pkgs.mutagen
-            pkgs.ncdu
-            pkgs.nodejs
-            pkgs.nushell
-            pkgs.onefetch
-            pkgs.pcre2
-            # pkgs.pinentry
-            pkgs.pkgconf
-            pkgs.pnpm
-            pkgs.podman
-            pkgs.procs
-            pkgs.pyenv
-            pkgs.radare2
-            pkgs.rbenv
-            pkgs.ripgrep
-            pkgs.skhd
-            pkgs.spotifyd
-            pkgs.starship
-            pkgs.time
-            pkgs.tokei
-            pkgs.topgrade
-            pkgs.unzip
-            pkgs.upx
-            pkgs.vault
-            pkgs.viu
-            pkgs.volta
-            pkgs.wasmtime
-            pkgs.watchman
-            pkgs.wget
-            pkgs.yabai
-            pkgs.yq
-            pkgs.zig
-            pkgs.zoxide
-          ];
-        };
-      };
-
-      # Necessary for using flakes on this system.
-      nix.settings.experimental-features = "nix-command flakes";
-
-      # Enable alternative shell support in nix-darwin.
-      # programs.fish.enable = true;
-
-      # Set Git commit hash for darwin-version.
-      system.configurationRevision = self.rev or self.dirtyRev or null;
-
-      # Used for backwards compatibility, please read the changelog before changing.
-      # $ darwin-rebuild changelog
-      system.stateVersion = 5;
-
-      # The platform the configuration will be used on.
-      nixpkgs = {
-        config.allowUnfree = true;
-        hostPlatform = "aarch64-darwin";
-      };
+    nix-darwin = {
+      url = "github:LnL7/nix-darwin";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    agenix = {
+      url = "github:ryantm/agenix";
+
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.darwin.follows = "nix-darwin";
+      inputs.home-manager.follows = "home-manager";
+    };
+
+    fenix.url = "github:nix-community/fenix";
+
+    nil.url = "github:oxalica/nil/577d160da311cc7f5042038456a0713e9863d09e";
+
+    thorium.url = "github:Rishabh5321/thorium_flake";
+
+    hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
+
+    themes.url = "github:RGBCube/ThemeNix";
+  };
+
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      nix-darwin,
+      ...
+    }:
+    let
+      inherit (builtins) readDir;
+      inherit (nixpkgs.lib)
+        attrsToList
+        const
+        groupBy
+        listToAttrs
+        mapAttrs
+        nameValuePair
+        ;
+      lib' = nixpkgs.lib.extend (_: _: nix-darwin.lib);
+      lib = lib'.extend <| import ./lib inputs;
+
+      # RGBCube's exact pattern
+      hostsByType =
+        readDir ./hosts
+        |> mapAttrs (name: const <| import ./hosts/${name} lib)
+        |> attrsToList
+        |> groupBy (
+          { name, value }:
+          if value ? class && value.class == "nixos" then "nixosConfigurations" else "darwinConfigurations"
+        )
+        |> mapAttrs (const listToAttrs);
+
+      hostConfigs =
+        hostsByType.darwinConfigurations or { } // hostsByType.nixosConfigurations or { }
+        |> attrsToList
+        |> map ({ name, value }: nameValuePair name value.config)
+        |> listToAttrs;
     in
-    {
-      # Build darwin flake using:
-      # $ darwin-rebuild build --flake .#simple
-      darwinConfigurations."amaan-ddog" = nix-darwin.lib.darwinSystem {
-        modules = [ configuration ];
-      };
+    hostsByType
+    // hostConfigs
+    // {
+      inherit lib;
     };
 }
