@@ -160,10 +160,35 @@ let light_theme = {
 }
 
 # External completer example
-let carapace_completer = {|spans|
-    carapace $spans.0 nushell ...$spans | from json
+let carapace_completer = {|spans: list<string>|
+    carapace $spans.0 nushell ...$spans
+    | from json
+    | if ($in | default [] | where value =~ '^-.*ERR$' | is-empty) { $in } else { null }
 }
 
+let zoxide_completer = {|spans|
+    $spans | skip 1 | zoxide query -l ...$in | lines | where {|x| $x != $env.PWD}
+}
+
+# This completer will use carapace by default
+let external_completer = {|spans|
+    let expanded_alias = scope aliases
+    | where name == $spans.0
+    | get -i 0.expansion
+
+    let spans = if $expanded_alias != null {
+        $spans
+        | skip 1
+        | prepend ($expanded_alias | split row ' ' | take 1)
+    } else {
+        $spans
+    }
+
+    match $spans.0 {
+        __zoxide_z | __zoxide_zi => $zoxide_completer
+        _ => $carapace_completer
+    } | do $in $spans
+}
 ### Config
 
 # The default config record. This is where much of your global configuration is setup.
@@ -246,8 +271,7 @@ $env.config = {
     }
 
     filesize: {
-        metric: false # true => KB, MB, GB (ISO standard), false => KiB, MiB, GiB (Windows standard)
-        format: "auto" # b, kb, kib, mb, mib, gb, gib, tb, tib, pb, pib, eb, eib, auto
+        # unit: binary # b, kb, kib, mb, mib, gb, gib, tb, tib, pb, pib, eb, eib, auto
     }
 
     cursor_shape: {
@@ -919,23 +943,31 @@ $env.config = {
     ]
 }
 
+def colored-man [...args] {
+  ^man ...$args | ^col -bx | ^bat --language=man --style=plain
+}
+
 ### Aliases
 
-alias c = clear
-alias q = exit
-alias nv = nvim
-alias vi = nvim
-alias lg = with-env { TERM: "xterm-256color" } { lazygit }
-alias py = python
-alias l = eza -lah
-alias ts = tree-sitter
-alias tsa = tree-sitter-alpha
-alias tss = tree-sitter-stable
+alias c    = clear
+alias q    = exit
+alias nv   = nvim
+alias vi   = nvim
+alias lg   = with-env { TERM: "xterm-256color" } { lazygit }
+alias py   = python
+alias l    = eza -lah
+alias ts   = tree-sitter
+alias tsa  = tree-sitter-alpha
+alias tss  = tree-sitter-stable
 alias trim = ^awk '{\$1=\$1;print}'
-alias cb = cargo build
-alias ci = cargo install
-alias ct = cargo test
-alias gt = go test './...'
+alias cb   = cargo build
+alias cbr  = cargo build --release
+alias cbrd = cargo build --profile release-dev
+alias ci   = cargo install
+alias ct   = cargo test
+alias cx   = cargo xtask
+# alias docker = podman
+alias man = colored-man
 
 ### Functions
 
@@ -947,7 +979,7 @@ def --env setup-keychain [] {
         return 1
     }
 
-	keychain --eval --agents ssh id_ed25519
+	keychain --eval id_ed25519
 		| lines
 		| where not ($it | is-empty)
 		| parse "{k}={v}; export {k2};"
@@ -959,7 +991,7 @@ def --env setup-keychain [] {
 
 # Initialize GPG agent
 def --env setup-gpg [] {
-    if (do { ^pgrep gpg-agent } | complete | get exit_code) != 0 {
+    if (pgrep gpg-agent | complete | get exit_code) != 0 {
         gpg-agent --daemon
     }
     $env.GPG_TTY = (tty)
@@ -1091,6 +1123,10 @@ def gist [
     | transpose key value
     | where value != null
     | reduce --fold {} { |row, acc| $acc | merge { $row.key: $row.value } }
+}
+
+def hex [num: int] {
+	$num | format number | get lowerhex
 }
 
 startup
