@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (lib) merge mkIf;
+  inherit (lib) merge mkIf optionals;
 in
 merge
 <| mkIf config.isDesktop {
@@ -39,10 +39,9 @@ merge
             )
           );
     in
-    [
-      # Krisp patcher for Discord
-      krisp-patcher
-
+    # Krisp patcher for Discord
+    [ krisp-patcher ]
+    ++ optionals config.isLinux [
       # Discord with Vencord and Wayland support
       (
         (pkgs.discord.override {

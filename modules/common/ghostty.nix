@@ -1,13 +1,13 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 let
-  inherit (lib) mkIf enabled merge;
+  inherit (lib) mkIf enabled;
 in
-merge
-<| mkIf config.isDarwin {
+{
   environment.variables = {
     TERM_PROGRAM = "ghostty";
   };
@@ -15,15 +15,17 @@ merge
   home-manager.sharedModules = [
     {
       programs.ghostty = enabled {
+        # Don't actually install Ghostty if we are on Darwin.
+        # For some reason it is marked as broken.
+        package = mkIf config.isDarwin <| pkgs.writeScriptBin "not-ghostty" "";
 
-        installBatSyntax = true;
-        clearDefaultKeybinds = true;
+        installBatSyntax = !config.isDarwin;
 
         settings = {
           # Font configuration
           font-family = "Berkeley Mono";
           font-style = "bold";
-          font-size = 11;
+          font-size = 12;
           font-thicken = true;
 
           # Window settings
