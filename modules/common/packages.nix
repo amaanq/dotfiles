@@ -27,6 +27,7 @@ in
           fastfetch
           fd
           file
+          gitui
           hyperfine
           keychain
           moreutils
