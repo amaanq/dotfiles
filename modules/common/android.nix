@@ -7,15 +7,12 @@
 let
   inherit (lib)
     attrValues
-    enabled
     merge
     mkIf
     ;
 in
 merge
 <| mkIf config.isDesktop {
-  programs.adb = enabled;
-
   environment.systemPackages = attrValues {
     inherit (pkgs) android-tools;
 

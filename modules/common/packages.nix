@@ -52,17 +52,17 @@ in
       }
       // optionalAttrs config.isLinux {
         inherit (pkgs)
+          obs-studio
+          pavucontrol
+          strace
           traceroute
           usbutils
-          strace
           ;
       }
       // optionalAttrs config.isDesktop {
         inherit (pkgs)
           element-desktop
           files-to-prompt
-          obs-studio
-          pavucontrol
           sequoia-sq
           spotify
           telegram-desktop

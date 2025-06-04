@@ -25,7 +25,7 @@
     builders-use-substitutes = true;
     flake-registry = "";
     http-connections = 50;
-    # lazy-trees = true;
+    lazy-trees = true;
     show-trace = true;
     trusted-users = [
       "root"
@@ -60,9 +60,11 @@
 
     fenix.url = "github:nix-community/fenix";
 
+    nix.url = "github:DeterminateSystems/nix-src";
+
     nil.url = "github:oxalica/nil/577d160da311cc7f5042038456a0713e9863d09e";
 
-    thorium.url = "github:Rishabh5321/thorium_flake";
+    thorium.url = "github:amaanq/thorium-flake";
 
     hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
 
@@ -89,7 +91,6 @@
       lib' = nixpkgs.lib.extend (_: _: nix-darwin.lib);
       lib = lib'.extend <| import ./lib inputs;
 
-      # RGBCube's exact pattern
       hostsByType =
         readDir ./hosts
         |> mapAttrs (name: const <| import ./hosts/${name} lib)

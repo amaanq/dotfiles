@@ -58,7 +58,7 @@ in
 
   nix.gc =
     merge {
-      automatic = true;
+      automatic = !config.isDarwin;
       options = "--delete-older-than 3d";
     }
     <| optionalAttrs config.isLinux {
@@ -78,7 +78,7 @@ in
     (import (self + /flake.nix)).nixConfig
     |> flip removeAttrs (optionals (config.isDarwin or false) [ "use-cgroups" ]);
 
-  nix.optimise.automatic = true;
+  nix.optimise.automatic = !config.isDarwin;
 
   environment.systemPackages = attrValues {
     inherit (pkgs)

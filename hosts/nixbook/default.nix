@@ -1,5 +1,5 @@
 lib:
-lib.nixosSystem' (
+lib.darwinSystem' (
   {
     config,
     lib,
@@ -14,23 +14,23 @@ lib.nixosSystem' (
 
     type = "desktop";
 
-    networking.hostName = "nixmain";
+    networking.hostName = "nixbook";
     nixpkgs.config.allowUnfree = true;
+    nix.enable = false;
 
     users.users.amaanq = {
-      isNormalUser = true;
-      extraGroups = [
-        "adbusers"
-        "networkmanager"
-        "wheel"
-      ];
+      name = "amaanq";
+      home = "/Users/amaanq";
     };
 
     home-manager.users.amaanq = {
       home.stateVersion = "25.05";
     };
 
-    system.stateVersion = "25.05";
+    system = {
+      primaryUser = "amaanq";
+      stateVersion = 5;
+    };
 
     time.timeZone = "America/New_York";
   }
