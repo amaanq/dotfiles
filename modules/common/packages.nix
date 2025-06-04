@@ -20,13 +20,15 @@ in
           claude-code
           cowsay
           curlHTTP3
-          dust
           doggo
+          dust
+          dwt1-shell-color-scripts
           eza
           fastfetch
           fd
           file
           hyperfine
+          keychain
           moreutils
           nixfmt-rfc-style
           openssl
@@ -43,29 +45,36 @@ in
           ;
 
         nil = inputs.nil.packages.${pkgs.system}.default;
-
-        # Shell and terminal
-        inherit (pkgs)
-          keychain
-          dwt1-shell-color-scripts
-          ;
       }
       // optionalAttrs config.isLinux {
         inherit (pkgs)
-          obs-studio
-          pavucontrol
           strace
           traceroute
           usbutils
+          ;
+      }
+      // optionalAttrs config.isDarwin {
+        inherit (pkgs)
+          iina
+          maccy
+          raycast
           ;
       }
       // optionalAttrs config.isDesktop {
         inherit (pkgs)
           element-desktop
           files-to-prompt
+          megasync
+          qbittorrent
           sequoia-sq
           spotify
           telegram-desktop
+          ;
+      }
+      // optionalAttrs (config.isLinux && config.isDesktop) {
+        inherit (pkgs)
+          obs-studio
+          pavucontrol
           ;
       };
 }
