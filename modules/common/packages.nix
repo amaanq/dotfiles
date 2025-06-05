@@ -65,7 +65,6 @@ in
         inherit (pkgs)
           element-desktop
           files-to-prompt
-          megasync
           qbittorrent
           sequoia-sq
           spotify
@@ -75,6 +74,7 @@ in
       // optionalAttrs (config.isLinux && config.isDesktop) {
         inherit (pkgs)
           obs-studio
+          megasync
           pavucontrol
           ;
       };
