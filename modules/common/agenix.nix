@@ -18,8 +18,10 @@ in
 
   age.identityPaths = [
     (
-      if config.isLinux then
+      if config.isServer then
         "/root/.ssh/id"
+      else if config.isLinux then
+        "/home/${head <| attrNames <| config.users.users}/.ssh/id"
       else
         "/Users/${head <| attrNames <| config.users.users}/.ssh/id"
     )
