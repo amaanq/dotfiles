@@ -23,9 +23,9 @@ in
 
         settings = {
           # Font configuration
-          font-family = "Berkeley Mono";
+          font-family = "TX-02 Book";
           font-style = "bold";
-          font-size = 12;
+          font-size = 13;
           font-thicken = true;
 
           # Window settings
