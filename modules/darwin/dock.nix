@@ -16,7 +16,7 @@
     persistent-apps = [
       { app = "/Applications/Ghostty.app"; }
       { app = "/Applications/Nix Apps/Thorium.app"; }
-      { app = "/Applications/Discord.app"; }
+      { app = "/Applications/Nix Apps/Discord.app"; }
       { app = "/Applications/Nix Apps/Spotify.app"; }
       { app = "/Applications/Nix Apps/Element.app"; }
       { app = "/Applications/Nix Apps/Telegram.app"; }

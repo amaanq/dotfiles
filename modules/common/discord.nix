@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (lib) merge mkIf optionals;
+  inherit (lib) merge mkIf;
 in
 merge
 <| mkIf config.isDesktop {
@@ -17,6 +17,8 @@ merge
 
   environment.systemPackages =
     let
+      inherit (lib) attrValues optionalAttrs;
+
       krisp-patcher =
         pkgs.writers.writePython3Bin "krisp-patcher"
           {
@@ -38,25 +40,28 @@ merge
               }
             )
           );
-    in
-    # Krisp patcher for Discord
-    [ krisp-patcher ]
-    ++ optionals config.isLinux [
-      # Discord with Vencord and Wayland support
-      (
-        (pkgs.discord.override {
-          withOpenASAR = true;
-          withVencord = true;
-        }).overrideAttrs
-        (old: {
-          nativeBuildInputs = old.nativeBuildInputs ++ [ pkgs.makeWrapper ];
 
+      baseDiscord = pkgs.discord.override {
+        withOpenASAR = true;
+        withVencord = true;
+      };
+    in
+    [
+      krisp-patcher
+    ]
+    ++ attrValues (
+      optionalAttrs config.isLinux {
+        discord = baseDiscord.overrideAttrs (old: {
+          nativeBuildInputs = old.nativeBuildInputs ++ [ pkgs.makeWrapper ];
           postFixup = ''
             wrapProgram $out/opt/Discord/Discord \
               --set ELECTRON_OZONE_PLATFORM_HINT "auto" \
               --add-flags "--enable-features=UseOzonePlatform --ozone-platform=wayland"
           '';
-        })
-      )
-    ];
+        });
+      }
+      // optionalAttrs config.isDarwin {
+        discord = baseDiscord;
+      }
+    );
 }
