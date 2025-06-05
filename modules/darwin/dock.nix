@@ -14,8 +14,8 @@
     expose-animation-duration = 0.1;
 
     persistent-apps = [
-      { app = "/Applications/Thorium.app"; }
       { app = "/Applications/Ghostty.app"; }
+      { app = "/Applications/Nix Apps/Thorium.app"; }
       { app = "/Applications/Discord.app"; }
       { app = "/Applications/Nix Apps/Spotify.app"; }
       { app = "/Applications/Nix Apps/Element.app"; }
