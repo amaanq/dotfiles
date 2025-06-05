@@ -82,8 +82,7 @@ in
       };
 
       home.file.".hammerspoon/init.lua".text =
-        # lua
-        mkAfter ''
+        mkAfter /* lua */ ''
           ---@type table
           _G.hs = _G.hs
 
@@ -141,9 +140,9 @@ in
           end
 
           do -- HOTKEYS
-            local super = { "cmd", "ctrl" }
-            local super_alt = { "cmd", "ctrl", "alt" }
-            local super_shift = { "cmd", "ctrl", "shift" }
+            local super = { "alt" }
+            local super_alt = { "alt", "cmd" }
+            local super_shift = { "alt", "shift" }
 
             hs.hotkey.bind(super, "left", PaperWM.actions.focus_left)
             hs.hotkey.bind(super, "down", PaperWM.actions.focus_down)
