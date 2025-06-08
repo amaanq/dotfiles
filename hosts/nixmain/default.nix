@@ -2,6 +2,7 @@ lib:
 lib.nixosSystem' (
   {
     config,
+    keys,
     lib,
     pkgs,
     ...
@@ -17,14 +18,25 @@ lib.nixosSystem' (
     networking.hostName = "nixmain";
     nixpkgs.config.allowUnfree = true;
 
-    users.users.amaanq = {
-      description = "Amaan Qureshi";
-      extraGroups = [ "wheel" ];
-      isNormalUser = true;
-      shell = pkgs.nushell;
+    secrets.password.file = ./password.age;
+    users.users = {
+      root = {
+        openssh.authorizedKeys.keys = keys.admins;
+        hashedPasswordFile = config.secrets.password.path;
+      };
+
+      amaanq = {
+        description = "Amaan Qureshi";
+        extraGroups = [ "wheel" ];
+        isNormalUser = true;
+        hashedPasswordFile = config.secrets.password.path;
+        openssh.authorizedKeys.keys = keys.admins;
+        shell = pkgs.nushell;
+      };
     };
 
     home-manager.users = {
+      root = { };
       amaanq = { };
     };
 

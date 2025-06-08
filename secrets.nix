@@ -6,6 +6,10 @@ in
   "hosts/nixbox/id.age".publicKeys = [ nixbox ] ++ admins;
   "hosts/nixbox/password.age".publicKeys = [ nixbox ] ++ admins;
 
+  # nixmain desktop
+  "hosts/nixmain/id.age".publicKeys = admins;
+  "hosts/nixmain/password.age".publicKeys = admins;
+
   # shared
   "modules/common/ssh/config.age".publicKeys = all;
 }
