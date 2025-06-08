@@ -17,6 +17,7 @@ in
       gnumake
       meson
       ninja
+      lldb
       llvm
       pkg-config
       ;
