@@ -434,31 +434,6 @@ $env.config.keybindings = [
   }
 ]
 
-# Initialize keychain for SSH key management
-# https://www.nushell.sh/cookbook/ssh_agent.html#keychain
-def --env setup-keychain [] {
-    if (which keychain | is-empty) {
-        print "Keychain not found, it's over."
-        return 1
-    }
-
-	keychain --eval id
-		| lines
-		| where not ($it | is-empty)
-		| parse "{k}={v}; export {k2};"
-		| select k v
-		| transpose --header-row
-		| into record
-		| load-env
-}
-
-
-def --env startup [] {
-    setup-keychain
-}
-
-startup
-
 $env.LS_COLORS = (open ~/.config/nushell/ls_colors.txt)
 
 source ~/.config/nushell/atuin.nu

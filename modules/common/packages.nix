@@ -29,7 +29,6 @@ in
           file
           gitui
           hyperfine
-          keychain
           moreutils
           nixfmt-rfc-style
           openssl
