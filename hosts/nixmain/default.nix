@@ -19,8 +19,9 @@ lib.nixosSystem' (
 
     users.users.amaanq = {
       description = "Amaan Qureshi";
-      isNormalUser = true;
       extraGroups = [ "wheel" ];
+      isNormalUser = true;
+      shell = pkgs.nushell;
     };
 
     home-manager.users = {

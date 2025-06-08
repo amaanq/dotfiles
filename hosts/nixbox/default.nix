@@ -38,10 +38,11 @@ lib.nixosSystem' (
 
       amaanq = {
         description = "Amaan Qureshi";
-        openssh.authorizedKeys.keys = keys.admins;
-        hashedPasswordFile = config.secrets.password.path;
-        isNormalUser = true;
         extraGroups = [ "wheel" ];
+        isNormalUser = true;
+        hashedPasswordFile = config.secrets.password.path;
+        openssh.authorizedKeys.keys = keys.admins;
+        shell = pkgs.nushell;
       };
     };
 
