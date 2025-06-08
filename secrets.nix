@@ -9,6 +9,7 @@ in
   # nixmain desktop
   "hosts/nixmain/id.age".publicKeys = admins;
   "hosts/nixmain/password.age".publicKeys = admins;
+  "hosts/nixmain/yubikey/u2f.age".publicKeys = admins;
 
   # shared
   "modules/common/atuin/key.age".publicKeys = admins;
