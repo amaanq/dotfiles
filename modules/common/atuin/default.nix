@@ -1,11 +1,14 @@
-{
-  lib,
-  ...
-}:
+{ config, lib, ... }:
 let
-  inherit (lib) enabled;
+  inherit (lib) attrNames head enabled;
+  user = head (attrNames config.users.users);
 in
 {
+  age.secrets.atuin-key = {
+    file = ./key.age;
+    owner = user;
+  };
+
   home-manager.sharedModules = [
     {
       programs.atuin = enabled {
@@ -25,6 +28,7 @@ in
           search_mode = "prefix";
           show_preview = false;
           sync.records = true;
+          key_path = config.age.secrets.atuin-key.path;
         };
       };
     }

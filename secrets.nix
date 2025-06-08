@@ -11,5 +11,6 @@ in
   "hosts/nixmain/password.age".publicKeys = admins;
 
   # shared
+  "modules/common/atuin/key.age".publicKeys = admins;
   "modules/common/ssh/config.age".publicKeys = all;
 }
