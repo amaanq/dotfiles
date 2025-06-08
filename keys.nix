@@ -1,7 +1,7 @@
 let
   keys = {
     nixmain = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID+36H8eD4p4waEpgPejhPCNGymi+OSN9fZ5LRUBcOnP amaanq12@gmail.com";
-    agenix = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG18Qy3Jsw1+A7Utz9y3oK3aB9+/RwSSsNey7QicQPAk agenix@nixmain";
+    nixbox = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIB6yxUX+iFXkz0+mKgiQd6IxvVQL/F84hY6lcLR7es6x amaanq12@gmail.com";
   };
 in
 keys

@@ -1,6 +1,9 @@
 { lib, ... }:
 let
-  inherit (lib) mkOption types;
+  inherit (lib)
+    mkOption
+    types
+    ;
 in
 {
   options = {

@@ -18,19 +18,21 @@ lib.nixosSystem' (
     nixpkgs.config.allowUnfree = true;
 
     users.users.amaanq = {
+      description = "Amaan Qureshi";
       isNormalUser = true;
-      extraGroups = [
-        "adbusers"
-        "networkmanager"
-        "wheel"
-      ];
+      extraGroups = [ "wheel" ];
     };
 
-    home-manager.users.amaanq = {
-      home.stateVersion = "25.05";
+    home-manager.users = {
+      amaanq = { };
     };
 
     system.stateVersion = "25.05";
+    home-manager.sharedModules = [
+      {
+        home.stateVersion = "25.05";
+      }
+    ];
 
     time.timeZone = "America/New_York";
   }

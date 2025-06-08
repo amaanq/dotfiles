@@ -1,12 +1,14 @@
 {
+  config,
   lib,
   pkgs,
   ...
 }:
 let
-  inherit (lib) enabled;
+  inherit (lib) enabled merge mkIf;
 in
-{
+merge
+<| mkIf config.isDesktop {
   # Display manager
   services.greetd = enabled {
     settings = {

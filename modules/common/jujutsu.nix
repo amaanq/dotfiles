@@ -64,7 +64,7 @@ in
 
           ui.default-command = "log";
           ui.diff-editor = ":builtin";
-          ui.diff.tool = [
+          ui.diff-formatter = [
             "${getExe pkgs.difftastic}"
             "--color"
             "always"

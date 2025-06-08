@@ -6,9 +6,15 @@
   ...
 }:
 let
-  inherit (lib) attrValues optionalAttrs;
+  inherit (lib)
+    attrValues
+    merge
+    mkIf
+    optionalAttrs
+    ;
 in
-{
+merge
+<| mkIf config.isDesktop {
   environment.variables = {
     BROWSER = "thorium";
   };

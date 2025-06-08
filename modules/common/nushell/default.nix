@@ -17,7 +17,7 @@ in
 {
   environment =
     optionalAttrs config.isLinux {
-      sessionVariables.SHELLS = getExe pkgs.nushell;
+      sessionVariables.SHELL = getExe pkgs.nushell;
     }
     // {
       shells = mkIf config.isDarwin [ pkgs.nushell ];

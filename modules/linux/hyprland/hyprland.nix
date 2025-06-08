@@ -112,8 +112,8 @@ merge
         settings = {
           # Monitor configuration
           monitor = [
-            "DP-1, 3840x2160@160, 2560x0, 1.25"
-            "DP-2, 2560x1440@144, 0x0, 1"
+            "DP-1, 3840x2160@240, 3072x0, 1.25"
+            "DP-2, 3840x2160@160, 0x0, 1.25"
           ];
 
           # Environment variables
@@ -136,7 +136,6 @@ merge
           # XWayland configuration
           xwayland = {
             force_zero_scaling = true;
-
           };
 
           # Variables

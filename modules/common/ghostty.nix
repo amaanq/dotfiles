@@ -5,9 +5,10 @@
   ...
 }:
 let
-  inherit (lib) mkIf enabled;
+  inherit (lib) merge mkIf enabled;
 in
-{
+merge
+<| mkIf config.isDesktop {
   environment.variables = {
     TERM_PROGRAM = "ghostty";
   };

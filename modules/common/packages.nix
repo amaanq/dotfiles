@@ -40,6 +40,7 @@ in
           tokei
           unzip
           uutils-coreutils-noprefix
+          watchman
           xxd
           yazi
           yt-dlp

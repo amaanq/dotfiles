@@ -6,9 +6,12 @@ let
     enabled
     filterAttrs
     getAttr
+    merge
+    mkIf
     ;
 in
-{
+merge
+<| mkIf config.isDesktop {
   networking.networkmanager = enabled;
 
   users.extraGroups.networkmanager.members =

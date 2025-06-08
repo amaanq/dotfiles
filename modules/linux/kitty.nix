@@ -1,12 +1,14 @@
 {
+  config,
   lib,
   pkgs,
   ...
 }:
 let
-  inherit (lib) enabled;
+  inherit (lib) enabled merge mkIf;
 in
-{
+merge
+<| mkIf config.isDesktop {
   home-manager.sharedModules = [
     {
       programs.kitty = enabled {

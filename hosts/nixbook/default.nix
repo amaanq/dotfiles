@@ -23,14 +23,19 @@ lib.darwinSystem' (
       home = "/Users/amaanq";
     };
 
-    home-manager.users.amaanq = {
-      home.stateVersion = "25.05";
+    home-manager.users = {
+      amaanq = { };
     };
 
     system = {
       primaryUser = "amaanq";
       stateVersion = 5;
     };
+    home-manager.sharedModules = [
+      {
+        home.stateVersion = "25.05";
+      }
+    ];
 
     time.timeZone = "America/New_York";
   }
