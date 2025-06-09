@@ -1,0 +1,57 @@
+{
+  self,
+  config,
+  lib,
+  ...
+}:
+let
+  inherit (config.networking) domain;
+  inherit (lib) enabled merge;
+
+  fqdn = "spotify.${domain}";
+in
+{
+  imports = [
+    (self + /modules/nginx.nix)
+  ];
+
+  secrets.yourspotifySecret = {
+    file = ./secret.age;
+    owner = "your_spotify";
+  };
+
+  services.your_spotify = enabled {
+    enableLocalDB = true;
+
+    spotifySecretFile = config.secrets.yourspotifySecret.path;
+
+    settings = {
+      API_ENDPOINT = "https://${fqdn}/api";
+      CLIENT_ENDPOINT = "https://${fqdn}";
+      SPOTIFY_PUBLIC = "a4afb0b1ee7e44af91be1844f0965678";
+      TIMEZONE = "America/New_York";
+      LOG_LEVEL = "debug";
+      PORT = 8080;
+    };
+
+  };
+
+  # Configure nginx to serve both client and API
+  services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
+    locations = {
+      "/api/" = {
+        proxyPass = "http://[::1]:${toString config.services.your_spotify.settings.PORT}/";
+        extraConfig = ''
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        '';
+      };
+      "/" = {
+        root = "${config.services.your_spotify.clientPackage}";
+        tryFiles = "$uri $uri/ /index.html";
+      };
+    };
+  };
+}
