@@ -5,6 +5,8 @@ in
   # nixbox server
   "hosts/nixbox/id.age".publicKeys = [ nixbox ] ++ admins;
   "hosts/nixbox/password.age".publicKeys = [ nixbox ] ++ admins;
+  "hosts/nixbox/vaultwarden/env.age".publicKeys = [ nixbox ] ++ admins;
+  "hosts/nixbox/yourspotify/secret.age".publicKeys = [ nixbox ] ++ admins;
 
   # nixmain desktop
   "hosts/nixmain/id.age".publicKeys = admins;
@@ -12,6 +14,7 @@ in
   "hosts/nixmain/yubikey/u2f.age".publicKeys = admins;
 
   # shared
-  "modules/common/atuin/key.age".publicKeys = admins;
+  "modules/common/atuin/key.age".publicKeys = all;
   "modules/common/ssh/config.age".publicKeys = all;
+  "modules/acme/environment.age".publicKeys = all;
 }

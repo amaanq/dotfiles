@@ -20,4 +20,14 @@ in
 
   enabled = merge { enable = true; };
   disabled = merge { enable = false; };
+
+  stringToPort =
+    str:
+    let
+      inherit (self) strings lists;
+      chars = map strings.charToInt (strings.stringToCharacters str);
+      hash = (lists.foldl builtins.bitXor 0 chars) * 257;
+      port = hash - (hash / 64000) * 64000;
+    in
+    port + 1024;
 }
