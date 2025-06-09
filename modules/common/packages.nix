@@ -20,6 +20,7 @@ in
           claude-code
           cowsay
           curlHTTP3
+          dig
           doggo
           dust
           dwt1-shell-color-scripts
