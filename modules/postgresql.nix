@@ -26,7 +26,7 @@ in
     enableJIT = true;
     enableTCPIP = true; # We override it, but might as well.
 
-    settings.listen_addresses = mkForce "::";
+    settings.listen_addresses = mkForce "*";
     authentication =
       mkOverride 10 # ini
         ''
