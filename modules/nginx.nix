@@ -22,15 +22,19 @@ in
     mkConst
       # nginx
       ''
-        add_header Access-Control-Allow-Origin $allow_origin always;
+        proxy_hide_header Access-Control-Allow-Methods;
         add_header Access-Control-Allow-Methods $allow_methods always;
 
+        proxy_hide_header Strict-Transport-Security;
         add_header Strict-Transport-Security $hsts_header always;
 
-        add_header Content-Security-Policy "script-src 'self' 'unsafe-inline' 'unsafe-eval'; object-src 'self'; base-uri 'self';" always;
+        proxy_hide_header Content-Security-Policy;
+        add_header Content-Security-Policy "script-src 'self' 'unsafe-inline' 'unsafe-eval' ${domain} *.${domain}; object-src 'self' ${domain} *.${domain}; base-uri 'self';" always;
 
+        proxy_hide_header Referrer-Policy;
         add_header Referrer-Policy no-referrer always;
 
+        proxy_hide_header X-Content-Type-Options;
         add_header X-Frame-Options DENY always;
       '';
 

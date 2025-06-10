@@ -108,6 +108,8 @@ in
   };
 
   services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
+    extraConfig = config.services.plausible.extraNginxConfigFor fqdn;
+
     locations."/".proxyPass = "http://[::1]:${toString port}";
   };
 }

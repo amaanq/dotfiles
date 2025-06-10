@@ -88,6 +88,8 @@ in
   };
 
   services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
-    extraConfig = config.services.nginx.headers;
+    extraConfig = ''
+      ${config.services.nginx.headers}
+    '';
   };
 }

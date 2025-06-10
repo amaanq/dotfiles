@@ -38,6 +38,8 @@ in
 
   # Configure nginx to serve both client and API
   services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
+    extraConfig = config.services.plausible.extraNginxConfigFor fqdn;
+
     locations = {
       "/api/" = {
         proxyPass = "http://[::1]:${toString config.services.your_spotify.settings.PORT}/";
