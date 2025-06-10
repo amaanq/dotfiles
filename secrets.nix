@@ -5,6 +5,7 @@ in
   # nixbox server
   "hosts/nixbox/id.age".publicKeys = [ nixbox ] ++ admins;
   "hosts/nixbox/password.age".publicKeys = [ nixbox ] ++ admins;
+  "hosts/nixbox/nextcloud/password.age".publicKeys = [ nixbox ] ++ admins;
   "hosts/nixbox/vaultwarden/env.age".publicKeys = [ nixbox ] ++ admins;
   "hosts/nixbox/yourspotify/secret.age".publicKeys = [ nixbox ] ++ admins;
 
