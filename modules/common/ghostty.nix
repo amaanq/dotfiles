@@ -26,7 +26,7 @@ merge
           # Font configuration
           font-family = "TX-02 Book";
           font-style = "bold";
-          font-size = 13;
+          font-size = if config.isDarwin then 13 else 12;
           font-thicken = true;
 
           # Window settings
