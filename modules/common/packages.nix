@@ -41,6 +41,7 @@ in
           unzip
           uutils-coreutils-noprefix
           watchman
+          xh
           xxd
           yazi
           yt-dlp
