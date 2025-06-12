@@ -3,12 +3,6 @@ let
   inherit (lib) attrValues;
 in
 {
-  environment.variables = {
-    # LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
-    # LD_LIBRARY_PATH = "${pkgs.openssl.out}/lib:${pkgs.stdenv.cc.cc.lib}/lib";
-    # PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig:${pkgs.pkg-config}/lib/pkgconfig";
-  };
-
   environment.systemPackages = attrValues {
     inherit (pkgs)
       clang
