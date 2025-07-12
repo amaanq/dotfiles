@@ -2,6 +2,7 @@
   config,
   lib,
   inputs,
+  pkgs,
   ...
 }:
 let
@@ -9,14 +10,12 @@ let
 in
 merge
 <| mkIf config.isDesktop {
+  nixpkgs.overlays = [ inputs.hyprpanel.overlay ];
+
   home-manager.sharedModules = [
     {
-      imports = [ inputs.hyprpanel.homeManagerModules.hyprpanel ];
-
       programs.hyprpanel = enabled {
         systemd.enable = true;
-        hyprland.enable = true;
-        overwrite.enable = true;
 
         settings = {
           scalingPriority = "hyprland";

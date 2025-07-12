@@ -71,7 +71,10 @@
 
     thorium.url = "github:amaanq/thorium-flake";
 
-    hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
+    hyprpanel = {
+      url = "github:Jas-SinghFSU/HyprPanel";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     themes.url = "github:RGBCube/ThemeNix";
   };
