@@ -30,6 +30,8 @@ merge
         noto-fonts-lgc-plus
         noto-fonts-emoji
         ;
+
+      inherit (pkgs.nerd-fonts) symbols-only;
     };
   })
 
