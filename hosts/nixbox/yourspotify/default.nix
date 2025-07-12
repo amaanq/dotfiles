@@ -29,8 +29,6 @@ in
       API_ENDPOINT = "https://${fqdn}/api";
       CLIENT_ENDPOINT = "https://${fqdn}";
       SPOTIFY_PUBLIC = "a4afb0b1ee7e44af91be1844f0965678";
-      TIMEZONE = "America/New_York";
-      LOG_LEVEL = "debug";
       PORT = 8080;
     };
 
