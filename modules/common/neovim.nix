@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 let
   inherit (lib) enabled;
 in
@@ -11,6 +11,10 @@ in
     nv = "nvim";
     vi = "nvim";
   };
+
+  environment.systemPackages = [
+    pkgs.go
+  ];
 
   home-manager.sharedModules = [
     {
