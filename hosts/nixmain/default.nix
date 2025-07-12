@@ -16,7 +16,6 @@ lib.nixosSystem' (
     type = "desktop";
 
     networking.hostName = "nixmain";
-    nixpkgs.config.allowUnfree = true;
 
     secrets.password.file = ./password.age;
     users.users = {

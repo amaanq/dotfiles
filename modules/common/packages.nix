@@ -9,6 +9,12 @@ let
   inherit (lib) attrValues optionalAttrs;
 in
 {
+  unfree.allowedNames = [
+    "claude-code"
+    "megasync"
+    "spotify"
+  ];
+
   environment.systemPackages =
     attrValues
     <|

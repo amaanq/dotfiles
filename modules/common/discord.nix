@@ -15,6 +15,10 @@ merge
     }
   ];
 
+  unfree.allowedNames = [
+    "discord"
+  ];
+
   environment.systemPackages =
     let
       inherit (lib) attrValues optionalAttrs;
