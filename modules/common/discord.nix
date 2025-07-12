@@ -67,5 +67,8 @@ merge
       // optionalAttrs config.isDarwin {
         discord = baseDiscord;
       }
-    );
+    )
+    ++ [
+      pkgs.legcord
+    ];
 }
