@@ -2,11 +2,17 @@
   config,
   lib,
   modulesPath,
+  pkgs,
+  inputs,
   ...
 }:
 {
-  imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
+  imports = [
+    (modulesPath + "/profiles/qemu-guest.nix")
+    inputs.lanzaboote.nixosModules.lanzaboote
+  ];
 
+  boot.extraModulePackages = [ ];
   boot.initrd.availableKernelModules = [
     "nvme"
     "xhci_pci"
@@ -18,7 +24,11 @@
   ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-amd" ];
-  boot.extraModulePackages = [ ];
+  boot.loader.systemd-boot.enable = lib.mkForce false;
+  boot.lanzaboote = {
+    enable = true;
+    pkiBundle = "/var/lib/sbctl";
+  };
 
   fileSystems."/" = {
     device = "/dev/disk/by-label/nixos";
@@ -46,4 +56,8 @@
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.enableRedistributableFirmware = true;
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+
+  environment.systemPackages = [
+    pkgs.sbctl
+  ];
 }

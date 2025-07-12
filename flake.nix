@@ -58,6 +58,11 @@
       inputs.home-manager.follows = "home-manager";
     };
 
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote/v0.4.2";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     fenix.url = "github:nix-community/fenix";
 
     nix.url = "github:DeterminateSystems/nix-src";
