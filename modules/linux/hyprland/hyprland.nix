@@ -142,7 +142,7 @@ merge
           "$terminal" = "kitty";
           "$fileManager" = "dolphin";
           "$menu" = "rofi -show drun";
-          "$ida" = "ida64";
+          "$ida" = "ida";
 
           # Startup applications
           exec-once = [
