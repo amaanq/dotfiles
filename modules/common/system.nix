@@ -20,4 +20,3 @@ in
     isServer = mkConst <| config.type == "server";
   };
 }
-

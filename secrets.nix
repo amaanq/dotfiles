@@ -5,9 +5,16 @@ in
   # nixbox server
   "hosts/nixbox/id.age".publicKeys = [ nixbox ] ++ admins;
   "hosts/nixbox/password.age".publicKeys = [ nixbox ] ++ admins;
+
+  "hosts/nixbox/matrix/key.age".publicKeys = [ nixbox ] ++ admins;
+  "hosts/nixbox/matrix/secret.age".publicKeys = [ nixbox ] ++ admins;
+
   "hosts/nixbox/nextcloud/password.age".publicKeys = [ nixbox ] ++ admins;
+
   "hosts/nixbox/plausible/key.age".publicKeys = [ nixbox ] ++ admins;
+
   "hosts/nixbox/vaultwarden/env.age".publicKeys = [ nixbox ] ++ admins;
+
   "hosts/nixbox/yourspotify/secret.age".publicKeys = [ nixbox ] ++ admins;
 
   # nixmain desktop
