@@ -63,18 +63,23 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nixos-mailserver = {
+      url = "gitlab:simple-nixos-mailserver/nixos-mailserver/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     fenix.url = "github:nix-community/fenix";
+
+    ida-pro-overlay = {
+      url = "github:msanft/ida-pro-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     nix.url = "github:DeterminateSystems/nix-src";
 
     nil.url = "github:oxalica/nil/577d160da311cc7f5042038456a0713e9863d09e";
 
     thorium.url = "github:amaanq/thorium-flake";
-
-    hyprpanel = {
-      url = "github:Jas-SinghFSU/HyprPanel";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     themes.url = "github:RGBCube/ThemeNix";
   };

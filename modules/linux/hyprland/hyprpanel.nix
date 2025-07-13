@@ -10,8 +10,6 @@ let
 in
 merge
 <| mkIf config.isDesktop {
-  nixpkgs.overlays = [ inputs.hyprpanel.overlay ];
-
   home-manager.sharedModules = [
     {
       programs.hyprpanel = enabled {
