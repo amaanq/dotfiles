@@ -24,6 +24,8 @@ in
 
   # shared
   "modules/common/atuin/key.age".publicKeys = all;
+  "modules/common/nushell/anthropic-key.age".publicKeys = all;
+  "modules/common/nushell/openai-key.age".publicKeys = all;
   "modules/common/ssh/config.age".publicKeys = all;
   "modules/acme/environment.age".publicKeys = all;
 }

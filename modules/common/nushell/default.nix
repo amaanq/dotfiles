@@ -51,6 +51,16 @@ in
 
     };
 
+  secrets.openai_api_key = {
+    file = ./openai-key.age;
+    owner = "amaanq";
+  };
+
+  secrets.anthropic_api_key = {
+    file = ./anthropic-key.age;
+    owner = "amaanq";
+  };
+
   home-manager.sharedModules = [
     (
       homeArgs:
@@ -123,6 +133,9 @@ in
               $env.NU_LIB_DIRS = (
                 $env.NU_LIB_DIRS | append "${nuScriptsPath}"
               )
+
+              $env.OPENAI_API_KEY = (open ${config.secrets.openai_api_key.path} | str trim)
+              $env.ANTHROPIC_API_KEY = (open ${config.secrets.anthropic_api_key.path} | str trim)
             '';
 
           environmentVariables =
