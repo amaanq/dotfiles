@@ -1,22 +1,21 @@
-{ lib, pkgs, ... }:
+{ pkgs, ... }:
 let
-  inherit (lib) attrValues;
+  package = pkgs.python314;
 in
 {
-  environment.systemPackages = attrValues {
-    inherit (pkgs)
-      python314
-      uv
-      ruff
-      ;
+  environment.variables = {
+    PIP_REQUIRE_VIRTUALENV = "1";
+    PYTHONUNBUFFERED = "1";
+    UV_PYTHON_PREFERENCE = "system";
+    UV_PYTHON = "${package}";
   };
 
   environment.shellAliases = {
     py = "python";
   };
 
-  environment.variables = {
-    PIP_REQUIRE_VIRTUALENV = "1";
-    PYTHONUNBUFFERED = "1";
-  };
+  environment.systemPackages = [
+    package
+    pkgs.uv
+  ];
 }
