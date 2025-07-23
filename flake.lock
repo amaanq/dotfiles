@@ -79,6 +79,27 @@
         "type": "github"
       }
     },
+    "crash": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "systems": "systems_3"
+      },
+      "locked": {
+        "lastModified": 1749314438,
+        "narHash": "sha256-AY93kpqXEWUETx5/doPj4jsf7hCmmyzbJMoudXzoTfA=",
+        "owner": "RGBCube",
+        "repo": "crash",
+        "rev": "db0cf4a08907a97095849143e8b659f777838b1b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "RGBCube",
+        "repo": "crash",
+        "type": "github"
+      }
+    },
     "fenix": {
       "inputs": {
         "nixpkgs": "nixpkgs",
@@ -588,6 +609,7 @@
       "inputs": {
         "agenix": "agenix",
         "claude-desktop": "claude-desktop",
+        "crash": "crash",
         "fenix": "fenix",
         "home-manager": "home-manager",
         "ida-pro-overlay": "ida-pro-overlay",
@@ -654,6 +676,21 @@
       }
     },
     "systems_2": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_3": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",

@@ -77,6 +77,12 @@
 
     nix.url = "github:DeterminateSystems/nix-src";
 
+    crash = {
+      url = "github:RGBCube/crash";
+
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     thorium.url = "github:amaanq/thorium-flake";
 
     themes.url = "github:RGBCube/ThemeNix";
