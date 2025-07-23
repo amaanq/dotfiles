@@ -1,13 +1,11 @@
 { lib, pkgs, ... }:
 let
-  inherit (lib) attrValues enabled;
+  inherit (lib) enabled;
 in
 {
   programs.nix-ld = enabled {
-    libraries = attrValues {
-      inherit (pkgs.stdenv.cc.cc)
-        lib
-        ;
-    };
+    libraries = [
+      pkgs.stdenv.cc.cc.lib
+    ];
   };
 }

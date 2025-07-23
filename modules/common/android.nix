@@ -6,7 +6,6 @@
 }:
 let
   inherit (lib)
-    attrValues
     merge
     mkIf
     ;
@@ -30,14 +29,11 @@ merge
     "android-sdk-tools"
   ];
 
-  environment.systemPackages = attrValues {
-    inherit (pkgs) android-tools;
-
-    inherit (pkgs.androidenv.androidPkgs)
-      emulator
-      ndk-bundle
-      platform-tools
-      tools
-      ;
-  };
+  environment.systemPackages = [
+    pkgs.android-tools
+    pkgs.androidenv.androidPkgs.emulator
+    pkgs.androidenv.androidPkgs.ndk-bundle
+    pkgs.androidenv.androidPkgs.platform-tools
+    pkgs.androidenv.androidPkgs.tools
+  ];
 }

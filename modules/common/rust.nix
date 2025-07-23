@@ -5,20 +5,13 @@
   ...
 }:
 let
-  inherit (lib) attrValues makeLibraryPath mkIf;
+  inherit (lib) makeLibraryPath mkIf;
 in
 {
   environment.variables = {
     CARGO_NET_GIT_FETCH_WITH_CLI = "true";
 
-    LIBRARY_PATH =
-      mkIf config.isDarwin
-      <| makeLibraryPath
-      <| attrValues {
-        inherit (pkgs)
-          libiconv
-          ;
-      };
+    LIBRARY_PATH = mkIf config.isDarwin <| makeLibraryPath <| [ pkgs.libiconv ];
   };
 
   environment.shellAliases = {
@@ -30,26 +23,24 @@ in
     cx = "cargo xtask";
   };
 
-  environment.systemPackages = attrValues {
-    inherit (pkgs)
-      rust-analyzer-nightly
+  environment.systemPackages = [
+    pkgs.rust-analyzer-nightly
 
-      cargo-deny
-      cargo-expand
-      cargo-nextest
-      cargo-watch
+    pkgs.cargo-deny
+    pkgs.cargo-expand
+    pkgs.cargo-nextest
+    pkgs.cargo-watch
 
-      evcxr
+    pkgs.evcxr
 
-      taplo
-      ;
+    pkgs.taplo
 
-    fenix = pkgs.fenix.complete.withComponents [
+    (pkgs.fenix.complete.withComponents [
       "cargo"
       "clippy"
       "rust-src"
       "rustc"
       "rustfmt"
-    ];
-  };
+    ])
+  ];
 }

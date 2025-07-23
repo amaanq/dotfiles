@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (lib) attrValues optionalAttrs;
+  inherit (lib) optionals;
 in
 {
   unfree.allowedNames = [
@@ -15,75 +15,60 @@ in
     "spotify"
   ];
 
-  environment.systemPackages =
-    attrValues
-    <|
-      {
-        # Core utilities
-        inherit (pkgs)
-          aider-chat
-          asciinema
-          claude-code
-          cowsay
-          curlHTTP3
-          dig
-          doggo
-          dust
-          dwt1-shell-color-scripts
-          eza
-          fastfetch
-          fd
-          file
-          gitui
-          hyperfine
-          moreutils
-          nixfmt-rfc-style
-          openssl
-          p7zip
-          pstree
-          rsync
-          timg
-          tokei
-          unzip
-          uutils-coreutils-noprefix
-          watchman
-          xh
-          xxd
-          yazi
-          yt-dlp
-          ;
-
-        nil = inputs.nil.packages.${pkgs.system}.default;
-      }
-      // optionalAttrs config.isLinux {
-        inherit (pkgs)
-          strace
-          traceroute
-          usbutils
-          ;
-      }
-      // optionalAttrs config.isDarwin {
-        inherit (pkgs)
-          iina
-          maccy
-          raycast
-          ;
-      }
-      // optionalAttrs config.isDesktop {
-        inherit (pkgs)
-          element-desktop
-          files-to-prompt
-          qbittorrent
-          sequoia-sq
-          spotify
-          telegram-desktop
-          ;
-      }
-      // optionalAttrs (config.isLinux && config.isDesktop) {
-        inherit (pkgs)
-          obs-studio
-          megasync
-          pavucontrol
-          ;
-      };
+  environment.systemPackages = [
+    pkgs.asciinema
+    pkgs.claude-code
+    pkgs.cowsay
+    pkgs.curlHTTP3
+    pkgs.dig
+    pkgs.doggo
+    pkgs.dust
+    pkgs.dwt1-shell-color-scripts
+    pkgs.eza
+    pkgs.fastfetch
+    pkgs.fd
+    pkgs.file
+    pkgs.gitui
+    pkgs.hyperfine
+    pkgs.moreutils
+    pkgs.nixfmt-rfc-style
+    pkgs.openssl
+    pkgs.p7zip
+    pkgs.pstree
+    pkgs.rsync
+    pkgs.sd
+    pkgs.timg
+    pkgs.tokei
+    pkgs.unzip
+    pkgs.uutils-coreutils-noprefix
+    pkgs.watchman
+    pkgs.xh
+    pkgs.xxd
+    pkgs.yazi
+    pkgs.yt-dlp
+  ]
+  ++ optionals config.isLinux [
+    pkgs.strace
+    pkgs.traceroute
+    pkgs.usbutils
+  ]
+  ++ optionals config.isDarwin [
+    pkgs.iina
+    pkgs.maccy
+    pkgs.raycast
+  ]
+  ++ optionals config.isDesktop [
+    pkgs.element-desktop
+    pkgs.files-to-prompt
+    pkgs.qbittorrent
+    pkgs.sequoia-sq
+    pkgs.spotify
+    pkgs.telegram-desktop
+  ]
+  ++ optionals (config.isLinux && config.isDesktop) [
+    pkgs.obs-studio
+    pkgs.megasync
+    pkgs.pavucontrol
+    inputs.claude-desktop.packages.${pkgs.system}.claude-desktop
+  ];
 }

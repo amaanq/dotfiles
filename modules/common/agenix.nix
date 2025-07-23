@@ -7,7 +7,6 @@
 let
   inherit (lib)
     attrNames
-    attrValues
     head
     mkAliasOptionModule
     mkIf
@@ -29,8 +28,8 @@ in
 
   environment = mkIf config.isDesktop {
     shellAliases.agenix = "agenix --identity ~/.ssh/id";
-    systemPackages = attrValues {
-      inherit (pkgs) agenix;
-    };
+    systemPackages = [
+      pkgs.agenix
+    ];
   };
 }

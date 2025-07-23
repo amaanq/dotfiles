@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (lib) merge mkIf;
+  inherit (lib) merge mkIf optional;
 in
 merge
 <| mkIf config.isDesktop {
@@ -14,15 +14,11 @@ merge
       xdg.configFile."Vencord/settings/quickCss.css".text = config.theme.discordCss;
     }
   ];
-
   unfree.allowedNames = [
     "discord"
   ];
-
   environment.systemPackages =
     let
-      inherit (lib) attrValues optionalAttrs;
-
       krisp-patcher =
         pkgs.writers.writePython3Bin "krisp-patcher"
           {
@@ -44,30 +40,30 @@ merge
               }
             )
           );
-
       baseDiscord = pkgs.discord.override {
         withOpenASAR = true;
         withVencord = true;
       };
+
+      discordPackage =
+        if config.isLinux then
+          baseDiscord.overrideAttrs (old: {
+            nativeBuildInputs = old.nativeBuildInputs ++ [ pkgs.makeWrapper ];
+            postFixup = ''
+              wrapProgram $out/opt/Discord/Discord \
+                --set ELECTRON_OZONE_PLATFORM_HINT "auto" \
+                --add-flags "--enable-features=UseOzonePlatform --ozone-platform=wayland"
+            '';
+          })
+        else if config.isDarwin then
+          baseDiscord
+        else
+          null;
     in
     [
       krisp-patcher
     ]
-    ++ attrValues (
-      optionalAttrs config.isLinux {
-        discord = baseDiscord.overrideAttrs (old: {
-          nativeBuildInputs = old.nativeBuildInputs ++ [ pkgs.makeWrapper ];
-          postFixup = ''
-            wrapProgram $out/opt/Discord/Discord \
-              --set ELECTRON_OZONE_PLATFORM_HINT "auto" \
-              --add-flags "--enable-features=UseOzonePlatform --ozone-platform=wayland"
-          '';
-        });
-      }
-      // optionalAttrs config.isDarwin {
-        discord = baseDiscord;
-      }
-    )
+    ++ optional (discordPackage != null) discordPackage
     ++ [
       pkgs.legcord
     ];

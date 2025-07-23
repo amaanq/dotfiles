@@ -77,11 +77,14 @@
 
     nix.url = "github:DeterminateSystems/nix-src";
 
-    nil.url = "github:oxalica/nil/577d160da311cc7f5042038456a0713e9863d09e";
-
     thorium.url = "github:amaanq/thorium-flake";
 
     themes.url = "github:RGBCube/ThemeNix";
+
+    claude-desktop = {
+      url = "github:k3d3/claude-desktop-linux-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =

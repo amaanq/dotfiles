@@ -1,7 +1,4 @@
-{ lib, pkgs, ... }:
-let
-  inherit (lib) attrValues;
-in
+{ pkgs, ... }:
 {
   environment.shellAliases = {
     ts = "tree-sitter";
@@ -9,7 +6,7 @@ in
     tss = "tree-sitter-stable";
   };
 
-  environment.systemPackages = attrValues {
-    inherit (pkgs) tree-sitter;
-  };
+  environment.systemPackages = [
+    pkgs.tree-sitter
+  ];
 }

@@ -6,7 +6,6 @@
 }:
 let
   inherit (lib)
-    attrValues
     enabled
     merge
     mkIf
@@ -52,39 +51,37 @@ merge
     ];
   };
 
-  programs.xwayland = enabled;
-
-  environment.systemPackages = attrValues {
-    inherit (pkgs)
-      aquamarine
-      brightnessctl
-      copyq
-      gifski
-      grim
-      hypridle
-      hyprlock
-      hyprpicker
-      hyprpolkitagent
-      hyprsunset
-      hyprsysteminfo
-      hyprland-qt-support
-      pavucontrol
-      playerctl
-      rofi-wayland
-      rofi-emoji
-      slurp
-      swappy
-      wf-recorder
-      wl-clipboard
-      wtype
-      xdg-utils
-      ;
-    inherit (pkgs.kdePackages) xwaylandvideobridge;
-  };
-
   programs.hyprland = enabled {
     xwayland.enable = true;
   };
+
+  programs.xwayland = enabled;
+
+  environment.systemPackages = [
+    pkgs.aquamarine
+    pkgs.brightnessctl
+    pkgs.copyq
+    pkgs.gifski
+    pkgs.grim
+    pkgs.hypridle
+    pkgs.hyprlock
+    pkgs.hyprpicker
+    pkgs.hyprpolkitagent
+    pkgs.hyprsunset
+    pkgs.hyprsysteminfo
+    pkgs.hyprland-qt-support
+    pkgs.pavucontrol
+    pkgs.playerctl
+    pkgs.rofi-wayland
+    pkgs.rofi-emoji
+    pkgs.slurp
+    pkgs.swappy
+    pkgs.wf-recorder
+    pkgs.wl-clipboard
+    pkgs.wtype
+    pkgs.xdg-utils
+    pkgs.kdePackages.xwaylandvideobridge
+  ];
 
   home-manager.sharedModules = [
     {
@@ -152,7 +149,7 @@ merge
             "hypridle"
             "hyprpaper"
             "xwaylandvideobridge"
-            "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
+            "dbus-update-activation-environment --systemd --all"
             "thorium"
             "kitty"
             "spotify"

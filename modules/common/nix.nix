@@ -8,7 +8,6 @@
 }:
 let
   inherit (lib)
-    attrValues
     attrsToList
     concatStringsSep
     const
@@ -80,13 +79,11 @@ in
 
   nix.optimise.automatic = !config.isDarwin;
 
-  environment.systemPackages = attrValues {
-    inherit (pkgs)
-      nh
-      nix-index
-      nix-output-monitor
-      ;
-  };
+  environment.systemPackages = [
+    pkgs.nh
+    pkgs.nix-index
+    pkgs.nix-output-monitor
+  ];
 
   # Add nushell helpers
   home-manager.sharedModules = [

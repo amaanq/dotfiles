@@ -1,22 +1,19 @@
-{ lib, pkgs, ... }:
+{ pkgs, ... }:
 let
-  inherit (lib) attrValues;
 in
 {
-  environment.systemPackages = attrValues {
-    inherit (pkgs)
-      clang
-      clang-tools
-      cmake
-      gnumake
-      meson
-      ninja
-      lldb
-      llvm
-      pkg-config
-      ;
-    inherit (pkgs.stdenv.cc.cc) lib;
-  };
+  environment.systemPackages = [
+    pkgs.clang
+    pkgs.clang-tools
+    pkgs.cmake
+    pkgs.gnumake
+    pkgs.meson
+    pkgs.ninja
+    pkgs.lldb
+    pkgs.llvm
+    pkgs.pkg-config
+    pkgs.stdenv.cc.cc.lib
+  ];
 
   # "Root" clang-format and clang-tidy configuration files
   home-manager.sharedModules = [

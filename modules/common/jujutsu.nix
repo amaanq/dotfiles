@@ -6,19 +6,16 @@
 }:
 let
   inherit (lib)
-    attrValues
     enabled
     getExe
     mkIf
     ;
 in
 {
-  environment.systemPackages = attrValues {
-    inherit (pkgs)
-      jujutsu
-      difftastic
-      ;
-  };
+  environment.systemPackages = [
+    pkgs.jujutsu
+    pkgs.difftastic
+  ];
 
   home-manager.sharedModules = [
     {

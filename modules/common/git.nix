@@ -6,24 +6,18 @@
 }:
 let
   inherit (lib)
-    attrValues
     enabled
     merge
     mkIf
-    optionalAttrs
     ;
   systemConfig = config;
 in
 {
-  environment.systemPackages =
-    attrValues
-    <| optionalAttrs config.isDesktop {
-      inherit (pkgs)
-        delta
-        lazygit
-        mergiraf
-        ;
-    };
+  environment.systemPackages = mkIf config.isDesktop [
+    pkgs.delta
+    pkgs.lazygit
+    pkgs.mergiraf
+  ];
 
   home-manager.sharedModules = [
     (

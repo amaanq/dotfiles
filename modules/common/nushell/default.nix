@@ -6,7 +6,6 @@
 }:
 let
   inherit (lib)
-    attrValues
     enabled
     getExe
     mkIf
@@ -41,13 +40,11 @@ in
         q = "exit";
       };
 
-      systemPackages = attrValues {
-        inherit (pkgs)
-          fish # For completions.
-          nu_scripts # Nushell scripts and completions.
-          zoxide # For completions and better cd.
-          ;
-      };
+      systemPackages = [
+        pkgs.fish # For completions.
+        pkgs.nu_scripts # Nushell scripts and completions.
+        pkgs.zoxide # For completions and better cd.
+      ];
 
     };
 

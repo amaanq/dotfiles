@@ -7,21 +7,18 @@
 let
   inherit (lib)
     attrNames
-    attrValues
     enabled
     head
     ;
   user = head (attrNames config.users.users);
 in
 {
-  environment.systemPackages = attrValues {
-    inherit (pkgs)
-      yubikey-manager
-      yubikey-personalization
-      yubioath-flutter
-      pam_u2f
-      ;
-  };
+  environment.systemPackages = [
+    pkgs.yubikey-manager
+    pkgs.yubikey-personalization
+    pkgs.yubioath-flutter
+    pkgs.pam_u2f
+  ];
 
   secrets.u2f = {
     file = ./u2f.age;

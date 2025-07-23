@@ -5,7 +5,11 @@
   ...
 }:
 let
-  inherit (lib) attrValues merge mkIf;
+  inherit (lib)
+    enabled
+    merge
+    mkIf
+    ;
 
   # Override r2modman to version 3.2.1
   r2modman-updated = pkgs.r2modman.overrideAttrs (oldAttrs: {
@@ -36,9 +40,12 @@ merge
     "steam-unwrapped"
   ];
 
+  programs.gamemode = enabled;
+
   # Steam uses 32-bit drivers for some unholy fucking reason.
   hardware.graphics.enable32Bit = true;
-  environment.systemPackages = attrValues {
-    inherit (pkgs) steam r2modman;
-  };
+  environment.systemPackages = [
+    pkgs.steam
+    r2modman-updated
+  ];
 }
