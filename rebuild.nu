@@ -134,11 +134,7 @@ def darwin-set-zshrc [] {
     $env.SHELL = which nu | get 0.path
   "
 
-  let zshrc = $"
-    exec nu --execute '
-      ($nu_command)
-    '
-  "
+  let zshrc = $"exec nu --execute '($nu_command)'"
 
   $zshrc | save --force ~/.zshrc
 }

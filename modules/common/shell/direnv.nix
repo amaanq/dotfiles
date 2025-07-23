@@ -6,9 +6,7 @@ in
   home-manager.sharedModules = [
     {
       programs.direnv = enabled {
-        enableNushellIntegration = true;
-        nix-direnv.enable = true;
-        silent = true;
+        nix-direnv = enabled;
       };
     }
   ];
