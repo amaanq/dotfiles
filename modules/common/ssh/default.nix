@@ -41,32 +41,40 @@ in
   };
 
   home-manager.sharedModules = [
-    {
-      home.activation.createControlPath = {
-        after = [ "writeBoundary" ];
-        before = [ ];
-        data = "mkdir --parents ${controlPath}";
-      };
+    (
+      homeArgs:
+      let
+        lib' = homeArgs.lib;
 
-      programs.ssh = enabled {
-        controlMaster = "auto";
-        controlPath = "${controlPath}/%r@%n:%p";
-        controlPersist = "60m";
-        serverAliveCountMax = 2;
-        serverAliveInterval = 60;
+        inherit (lib'.hm.dag) entryAfter;
+      in
+      {
+        home.activation.createControlPath =
+          entryAfter [ "writeBoundary" ] # bash
+            ''
+              mkdir --parents ${controlPath}
+            '';
 
-        includes = [ config.secrets.sshConfig.path ];
+        programs.ssh = enabled {
+          controlMaster = "auto";
+          controlPath = "${controlPath}/%r@%n:%p";
+          controlPersist = "60m";
+          serverAliveCountMax = 2;
+          serverAliveInterval = 60;
 
-        matchBlocks = hosts // {
-          "*" = {
-            setEnv.COLORTERM = "truecolor";
-            setEnv.TERM = "xterm-256color";
+          includes = [ config.secrets.sshConfig.path ];
 
-            identityFile = "~/.ssh/id";
+          matchBlocks = hosts // {
+            "*" = {
+              setEnv.COLORTERM = "truecolor";
+              setEnv.TERM = "xterm-256color";
+
+              identityFile = "~/.ssh/id";
+            };
           };
         };
-      };
-    }
+      }
+    )
   ];
 
   environment.systemPackages = mkIf config.isDesktop [
