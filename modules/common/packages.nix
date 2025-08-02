@@ -30,6 +30,7 @@ in
     pkgs.file
     pkgs.gitui
     pkgs.hyperfine
+    pkgs.jc
     pkgs.moreutils
     pkgs.nixfmt-rfc-style
     pkgs.openssl

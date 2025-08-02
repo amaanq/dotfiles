@@ -95,7 +95,6 @@
 
   outputs =
     inputs@{
-      self,
       nixpkgs,
       nix-darwin,
       ...
