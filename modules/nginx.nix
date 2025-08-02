@@ -67,7 +67,7 @@ in
 
     recommendedBrotliSettings = true;
     recommendedGzipSettings = true;
-    recommendedZstdSettings = true;
+    experimentalZstdSettings = true;
 
     recommendedOptimisation = true;
     recommendedProxySettings = true;
