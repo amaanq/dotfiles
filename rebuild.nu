@@ -57,7 +57,7 @@ def main --wrapped [
   let nix_flags = [
     "--option" "accept-flake-config" "true"
     "--option" "eval-cache"          "false"
-  ] | append ($args_split | get --ignore-errors 1 | default [])
+  ] | append ($args_split | get --optional 1 | default [])
 
   if (uname | get kernel-name) == "Darwin" {
     NH_NO_CHECKS=1 nh darwin switch . ...$nh_flags -- ...$nix_flags --impure
