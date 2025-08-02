@@ -1,7 +1,7 @@
 { config, lib, ... }:
 let
   inherit (lib) attrNames head enabled;
-  user = head (attrNames config.users.users);
+  user = "amaanq";
 in
 {
   age.secrets.atuin-key = {
