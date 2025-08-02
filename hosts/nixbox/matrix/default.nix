@@ -64,7 +64,6 @@ in
     extras = [
       "postgres"
       "url-preview"
-      "user-search"
     ];
 
     log.root.level = "WARNING"; # Shut the fuck up.
