@@ -46,6 +46,7 @@ merge
   hardware.graphics.enable32Bit = true;
   environment.systemPackages = [
     pkgs.steam
+    pkgs.mangohud
     r2modman-updated
   ];
 }

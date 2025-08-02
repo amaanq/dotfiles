@@ -26,7 +26,10 @@ lib.nixosSystem' (
 
       amaanq = {
         description = "Amaan Qureshi";
-        extraGroups = [ "wheel" ];
+        extraGroups = [
+          "gamemode"
+          "wheel"
+        ];
         isNormalUser = true;
         hashedPasswordFile = config.secrets.password.path;
         openssh.authorizedKeys.keys = keys.admins;
