@@ -33,8 +33,6 @@ in
 
     pkgs.evcxr
 
-    pkgs.taplo
-
     (pkgs.fenix.complete.withComponents [
       "cargo"
       "clippy"

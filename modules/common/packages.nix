@@ -32,7 +32,6 @@ in
     pkgs.hyperfine
     pkgs.jc
     pkgs.moreutils
-    pkgs.nixfmt-rfc-style
     pkgs.openssl
     pkgs.p7zip
     pkgs.pstree
@@ -61,6 +60,7 @@ in
   ++ optionals config.isDesktop [
     pkgs.element-desktop
     pkgs.files-to-prompt
+    pkgs.go
     pkgs.qbittorrent
     pkgs.sequoia-sq
     pkgs.spotify

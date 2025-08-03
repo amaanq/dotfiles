@@ -1,26 +1,14 @@
-{ lib, pkgs, ... }:
-let
-  inherit (lib) enabled;
-in
+{
+  pkgs,
+  inputs,
+  ...
+}:
 {
   environment.variables = {
     EDITOR = "nvim";
   };
 
-  environment.shellAliases = {
-    nv = "nvim";
-    vi = "nvim";
-  };
-
   environment.systemPackages = [
-    pkgs.go
-  ];
-
-  home-manager.sharedModules = [
-    {
-      programs.neovim = enabled {
-        defaultEditor = true;
-      };
-    }
+    inputs.nvim-config.packages.${pkgs.system}.nvim
   ];
 }

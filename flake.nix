@@ -77,6 +77,17 @@
 
     nix.url = "github:DeterminateSystems/nix-src";
 
+    nixCats.url = "github:BirdeeHub/nixCats-nvim";
+
+    neovim-nightly-overlay = {
+      url = "github:nix-community/neovim-nightly-overlay";
+    };
+
+    nvim-config = {
+      url = "github:amaanq/nvim-config";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     crash = {
       url = "github:RGBCube/crash";
 
