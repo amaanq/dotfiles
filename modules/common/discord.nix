@@ -22,9 +22,9 @@ merge
       krisp-patcher =
         pkgs.writers.writePython3Bin "krisp-patcher"
           {
-            libraries = with pkgs.python3Packages; [
-              capstone
-              pyelftools
+            libraries = [
+              pkgs.python3Packages.capstone
+              pkgs.python3Packages.pyelftools
             ];
             flakeIgnore = [
               "E501" # line too long (82 > 79 characters)

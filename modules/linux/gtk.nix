@@ -17,10 +17,10 @@ merge
         gtk3.extraCss = config.theme.adwaitaGtkCss;
         gtk4.extraCss = config.theme.adwaitaGtkCss;
 
-        font = with config.theme.font; {
-          inherit (sans) name package;
+        font = {
+          inherit (config.theme.font.sans) name package;
 
-          size = size.normal;
+          size = config.theme.font.size.normal;
         };
 
         iconTheme = config.theme.icons;
