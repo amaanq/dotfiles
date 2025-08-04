@@ -68,7 +68,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    fenix.url = "github:nix-community/fenix";
+    fenix = {
+      url = "github:nix-community/fenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     ida-pro-overlay = {
       url = "github:msanft/ida-pro-overlay";
@@ -79,10 +82,6 @@
 
     nixCats.url = "github:BirdeeHub/nixCats-nvim";
 
-    neovim-nightly-overlay = {
-      url = "github:nix-community/neovim-nightly-overlay";
-    };
-
     nvim-config = {
       url = "github:amaanq/nvim-config";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -90,11 +89,13 @@
 
     crash = {
       url = "github:RGBCube/crash";
-
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    thorium.url = "github:amaanq/thorium-flake";
+    thorium = {
+      url = "github:amaanq/thorium-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     themes.url = "github:RGBCube/ThemeNix";
 
