@@ -113,6 +113,15 @@ merge
             "DP-2, 3840x2160@160, 0x0, 1.25"
           ];
 
+          workspace = [
+            "1, monitor:DP-1, default:true"
+            "2, monitor:DP-2, default:true"
+            "3, monitor:DP-1"
+            "4, monitor:DP-1"
+            "5, monitor:DP-1"
+            "6, monitor:DP-1"
+          ];
+
           # Environment variables
           env = [
             "CLUTTER_BACKEND,wayland"
@@ -274,10 +283,6 @@ merge
           # Window rules
           windowrulev2 = [
             "suppressevent maximize, class:.*"
-            "stayfocused, title:^()$,class:^(steam)$"
-            "minsize 1 1, title:^()$,class:^(steam)$"
-            "float, class:^(Steam)$,title:^(Friends List)$"
-            "float, class:^(Steam)$,title:^(Steam - News)$"
             "immediate, class:^(cs2)$"
             "opacity 0.94 0.94,class:^(com.mitchellh.ghostty|kitty|discord|Spotify)$"
             "opacity 0.0 override, class:^(xwaylandvideobridge)$"
@@ -285,6 +290,12 @@ merge
             "noinitialfocus, class:^(xwaylandvideobridge)$"
             "maxsize 1 1, class:^(xwaylandvideobridge)$"
             "noblur, class:^(xwaylandvideobridge)$"
+            "nofocus, class:^(xwaylandvideobridge)$"
+            "size 1672 1662, class:^(discord)$"
+            "workspace 1, class:^(thorium-browser)$"
+            "workspace 2, class:^(discord|legcord|Spotify)$"
+            "workspace 3, class:^(com.mitchellh.ghostty|kitty)$"
+            "workspace 4, class:^(steam|r2modman|com.hex-rays.|Element|org.telegram.desktop)$"
           ];
 
           # Key bindings
