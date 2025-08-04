@@ -6,6 +6,8 @@
 }:
 let
   inherit (lib) enabled merge mkIf;
+  tuigreet = "${pkgs.greetd.tuigreet}/bin/tuigreet";
+  hyprland-session = "${pkgs.hyprland}/share/wayland-sessions";
 in
 merge
 <| mkIf config.isDesktop {
@@ -13,7 +15,7 @@ merge
   services.greetd = enabled {
     settings = {
       default_session = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland";
+        command = "${tuigreet} --time --remember --remember-session --sessions ${hyprland-session}";
         user = "greeter";
       };
     };
