@@ -70,6 +70,7 @@ in
     pkgs.obs-studio
     pkgs.megasync
     pkgs.pavucontrol
+    pkgs.thunderbird
     inputs.claude-desktop.packages.${pkgs.system}.claude-desktop
   ];
 }
