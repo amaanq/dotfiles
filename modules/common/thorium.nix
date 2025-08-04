@@ -26,7 +26,7 @@ merge
         buildInputs = [ pkgs.makeWrapper ];
         postBuild = ''
           wrapProgram $out/bin/thorium \
-            --add-flags "--use-angle=vulkan"
+            --add-flags "--use-angle=vulkan --enable-quic --quic-version=h3-29"
         '';
       }
     )
