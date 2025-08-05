@@ -147,7 +147,7 @@ merge
 
           # Variables
           "$terminal" = "kitty";
-          "$fileManager" = "dolphin";
+          "$fileManager" = "thunar";
           "$menu" = "rofi -show drun";
           "$ida" = "ida";
 
