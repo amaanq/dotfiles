@@ -19,6 +19,7 @@ Item {
   property int indexAll: -1
   property bool hasDismiss: true
   property real iconSize: 46
+  property bool expanded: false
 
   property real entryFactor: 1
 
@@ -36,6 +37,14 @@ Item {
     color: C.Config.theme.background
 
     x: root.implicitWidth * (1 - root.entryFactor)
+
+    Behavior on implicitHeight {
+      NumberAnimation {
+        duration: 400
+        easing.type: Easing.BezierSpline
+        easing.bezierCurve: C.Globals.anim_CURVE_SMOOTH_SLIDE
+      }
+    }
 
     RowLayout {
       id: mainLayout
@@ -95,9 +104,11 @@ Item {
         spacing: 5
 
         CW.StyledText {
+          id: notifTitle
           Layout.maximumWidth: contentLayout.width - buttonLayout.width
           text: `${root.summary} - ${root.app}`
-          elide: Text.ElideRight
+          elide: expanded ? Text.ElideNone : Text.ElideRight
+          wrapMode: expanded ? Text.WrapAtWordBoundaryOrAnywhere : Text.NoWrap
           font.pointSize: C.Config.fontSize.large
         }
 
@@ -109,10 +120,12 @@ Item {
         }
 
         CW.StyledText {
+          id: notifContent
           Layout.fillWidth: true
           Layout.fillHeight: true
           font.pointSize: C.Config.fontSize.normal
-          elide: Text.ElideRight
+          elide: expanded ? Text.ElideNone : Text.ElideRight
+          wrapMode: expanded ? Text.WrapAtWordBoundaryOrAnywhere : Text.NoWrap
           text: root.content
         }
       }
@@ -127,6 +140,38 @@ Item {
         right: parent.right
         topMargin: 13
         rightMargin: 12
+      }
+
+      WrapperMouseArea {
+        id: expandButtonMa
+
+        visible: notifTitle.Layout.maximumWidth - 5 < notifTitle.implicitWidth || notifTitle.Layout.maximumWidth < notifContent.implicitWidth
+
+        hoverEnabled: true
+        Layout.fillHeight: true
+        implicitWidth: 22
+
+        onPressed: root.expanded = !root.expanded
+
+        Rectangle {
+          radius: 16
+          color: closeButtonMa.containsMouse ? Qt.lighter(Qt.lighter(Qt.lighter(C.Config.theme.background))) : Qt.lighter(Qt.lighter(C.Config.theme.background))
+          implicitWidth: 22
+          implicitHeight: 22
+
+          CW.FontIcon {
+            text: "expand_all"
+            anchors.centerIn: parent
+          }
+
+          Behavior on color {
+            ColorAnimation {
+              duration: 400
+              easing.type: Easing.BezierSpline
+              easing.bezierCurve: C.Globals.anim_CURVE_SMOOTH_SLIDE
+            }
+          }
+        }
       }
 
       WrapperMouseArea {

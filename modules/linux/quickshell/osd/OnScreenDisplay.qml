@@ -18,6 +18,7 @@ PanelWindow {
   color: "transparent"
   WlrLayershell.namespace: "hyprland-shell:osd"
   WlrLayershell.exclusiveZone: 0
+  WlrLayershell.layer: WlrLayer.Overlay
 
   anchors {
     top: (C.Config.edge == C.Config.BarEdge.Top)
@@ -128,7 +129,7 @@ PanelWindow {
       OsdValue {
         icon: "brightness_6" // FIXME: dynamic icon based on brightness level
         value: C.Config.settings.misc.brightnessSplit ? (S.BrightnessState.brightnesses[root.screen.name] / 100) : (S.BrightnessState.overallBrightness / 100)
-        displayText: Math.round(value)
+        displayText: Math.round(value * 100)
       }
     }
     Component {
