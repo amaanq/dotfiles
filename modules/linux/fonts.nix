@@ -21,6 +21,7 @@ merge
 
     fonts.packages = [
       config.theme.font.sans.package
+      pkgs.material-symbols
       pkgs.noto-fonts
       pkgs.noto-fonts-cjk-sans
       pkgs.noto-fonts-lgc-plus

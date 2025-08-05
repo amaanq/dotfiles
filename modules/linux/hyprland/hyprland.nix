@@ -86,10 +86,11 @@ merge
     pkgs.kdePackages.xwaylandvideobridge
   ];
 
+  # Hint Electron apps to use Wayland:
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
   home-manager.sharedModules = [
     {
-      # Hint Electron apps to use Wayland:
-      home.sessionVariables.NIXOS_OZONE_WL = "1";
 
       # Proper theme configuration for Hyprland
       home.pointerCursor = {
@@ -156,7 +157,7 @@ merge
           exec-once = [
             "systemctl --user start hyprpolkitagent"
             "copyq --start-server"
-            "hyprpanel"
+            "quickshell"
             "hypridle"
             "hyprpaper"
             "xwaylandvideobridge"
