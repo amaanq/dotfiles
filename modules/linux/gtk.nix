@@ -26,7 +26,7 @@ merge
         iconTheme = config.theme.icons;
 
         theme = {
-          name = "rose-pine-gtk";
+          name = "rose-pine"; # Use the dark variant, not just "rose-pine-gtk"
           package = pkgs.rose-pine-gtk-theme;
         };
       };
