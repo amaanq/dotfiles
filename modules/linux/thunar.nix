@@ -21,10 +21,16 @@ merge
     ];
   };
 
+  services.gvfs = enabled;
+  services.udisks2 = enabled {
+    mountOnMedia = true;
+  };
+
   environment.systemPackages = [
     pkgs.ffmpegthumbnailer
     pkgs.libgsf
     pkgs.kdePackages.ark
     pkgs.xfce.tumbler
+    pkgs.gvfs
   ];
 }
