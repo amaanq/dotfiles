@@ -4,7 +4,6 @@
 //@ pragma StateDir $BASE/quickshell/hyprland-shell
 import "./config" as C
 import "./shortcuts" as SH
-import "./versionMismatch" as V
 import "./state" as S
 import QtQuick
 import Quickshell
@@ -22,7 +21,6 @@ Scope {
 
   Variants {
     model: {
-      S.UpdateState.init();
 
       let mons = Quickshell.screens.filter(m => {
         if (Config.settings.panels.monitorChoiceMode == 0)
@@ -51,18 +49,6 @@ Scope {
     screen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? null
   }
 
-
-  V.VersionMismatch {
-    screen: Quickshell.screens[0]
-  }
-
-  IpcHandler {
-    target: "update"
-
-    function updated(epoch: int): void {
-      S.UpdateState.setUpdated(epoch);
-    }
-  }
 
   IpcHandler {
     target: "bar"

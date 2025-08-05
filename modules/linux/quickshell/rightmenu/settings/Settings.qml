@@ -645,46 +645,6 @@ ColumnLayout {
         }
       }
 
-      Spacerr {}
-
-      CW.StyledText {
-        Layout.topMargin: 10
-        font {
-          pointSize: C.Config.fontSize.h2
-          weight: Font.DemiBold
-        }
-        text: "Updates"
-      }
-
-      Spacerr {}
-
-      CW.HorizontalLine {
-        Layout.topMargin: -5
-        Layout.bottomMargin: 5
-        Layout.fillWidth: false
-        Layout.leftMargin: 0
-        implicitWidth: 90
-      }
-
-      Spacerr {}
-
-      CW.ValueSwitch {
-        implicitWidth: sv.width
-        label: "Automatic update checking"
-        checked: C.Config.misc.autoUpdateCheck
-        onToggled: C.Config.misc.autoUpdateCheck = checked
-      }
-
-      Spacerr {}
-
-      CW.ValueSwitch {
-        implicitWidth: sv.width
-        label: "Beta channel"
-        checked: C.Config.misc.betaChannel
-        onToggled: C.Config.misc.betaChannel = checked
-      }
-
-      Spacerr {}
     }
   }
 

@@ -322,11 +322,6 @@ Singleton {
       property real nightLightIntense: 50
       property bool brightnessSplit: true
       property bool introductionDone: false
-      property bool autoUpdateCheck: true
-      property bool betaChannel: false
-      property bool hasUpdates: false
-      property int lastUpdateEpoch: 0
-      property int lastUpdateCheck: 0
       property int lastHyprlandVersion: 0
     }
   }

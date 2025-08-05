@@ -4,7 +4,6 @@ import "../notifs" as N
 import "../state" as S
 import "../shortcuts" as SH
 import "./settings" as ST
-import "./updates" as UP
 import "./power" as PO
 import QtQuick
 import QtQuick.Controls
@@ -15,7 +14,6 @@ import Quickshell.Widgets
 WrapperItem {
   property bool settingsOpen: false
   property bool powerOpen: false
-  property bool updatesOpen: false
 
   property bool idleInhibitEnabled: false
 
@@ -27,11 +25,11 @@ WrapperItem {
     ColumnLayout {
       id: rightMenuLayout
 
-      opacity: settingsOpen || updatesOpen || powerOpen ? 0 : 1
+      opacity: settingsOpen || powerOpen ? 0 : 1
       visible: opacity != 0
       spacing: 15
       anchors.fill: parent
-      z: settingsOpen || updatesOpen || powerOpen ? 1 : 2
+      z: settingsOpen || powerOpen ? 1 : 2
 
       Clock {
         Layout.fillWidth: true
@@ -163,10 +161,6 @@ WrapperItem {
         }
       }
 
-      UpdateBar {
-        visible: S.UpdateState.updatesAvailable && !S.UpdateState.updateRunning
-        Layout.fillWidth: true
-      }
 
       Stats {
         Layout.fillWidth: true
@@ -181,7 +175,7 @@ WrapperItem {
       }
 
       transform: Translate {
-        x: settingsOpen || updatesOpen || powerOpen ? -40 : 0
+        x: settingsOpen || powerOpen ? -40 : 0
 
         Behavior on x {
           NumberAnimation {
@@ -247,35 +241,9 @@ WrapperItem {
       }
     }
 
-    UP.Updates {
-      visible: opacity != 0
-      anchors.fill: parent
-      opacity: updatesOpen ? 1 : 0
-      z: updatesOpen ? 2 : 1
-
-      Behavior on opacity {
-        NumberAnimation {
-          duration: 250
-          easing.type: Easing.BezierSpline
-          easing.bezierCurve: C.Globals.anim_CURVE_SMOOTH_SLIDE
-        }
-      }
-
-      transform: Translate {
-        x: updatesOpen ? 0 : 40
-
-        Behavior on x {
-          NumberAnimation {
-            duration: 300
-            easing.type: Easing.BezierSpline
-            easing.bezierCurve: C.Globals.anim_CURVE_SMOOTH_SLIDE
-          }
-        }
-      }
-    }
 
     RowLayout {
-      opacity: settingsOpen || updatesOpen || powerOpen ? 0 : 1
+      opacity: settingsOpen || powerOpen ? 0 : 1
 
       Behavior on opacity {
         NumberAnimation {
@@ -286,7 +254,7 @@ WrapperItem {
       }
 
       visible: opacity != 0
-      z: settingsOpen || updatesOpen || powerOpen ? 1 : 2
+      z: settingsOpen || powerOpen ? 1 : 2
 
       anchors {
         right: parent.right
@@ -334,7 +302,7 @@ WrapperItem {
     }
 
     RowLayout {
-      opacity: settingsOpen || updatesOpen || powerOpen ? 0 : 1
+      opacity: settingsOpen || powerOpen ? 0 : 1
 
       Behavior on opacity {
         NumberAnimation {
@@ -345,7 +313,7 @@ WrapperItem {
       }
 
       visible: opacity != 0
-      z: settingsOpen || updatesOpen || powerOpen ? 1 : 2
+      z: settingsOpen || powerOpen ? 1 : 2
 
       anchors {
         right: parent.right
@@ -423,35 +391,6 @@ WrapperItem {
         Layout.fillWidth: true
       }
 
-      WrapperMouseArea {
-        id: updatesMa
-
-        implicitHeight: 20
-        implicitWidth: 20
-        hoverEnabled: true
-        onPressed: () => {
-          updatesOpen = true;
-        }
-
-        Rectangle {
-          anchors.fill: parent
-          radius: 4
-          color: C.Config.applySecondaryOpacity(updatesMa.containsMouse ? Qt.lighter(C.Config.theme.surface_container, 3) : C.Config.theme.surface_container)
-
-          CW.FontIcon {
-            anchors.centerIn: parent
-            text: "arrow_upward"
-          }
-
-          Behavior on color {
-            ColorAnimation {
-              duration: 400
-              easing.type: Easing.BezierSpline
-              easing.bezierCurve: C.Globals.anim_CURVE_SMOOTH_SLIDE
-            }
-          }
-        }
-      }
 
       WrapperMouseArea {
         id: settingsMa
@@ -485,7 +424,7 @@ WrapperItem {
     }
 
     RowLayout {
-      opacity: settingsOpen || powerOpen || updatesOpen ? 1 : 0
+      opacity: settingsOpen || powerOpen ? 1 : 0
 
       Behavior on opacity {
         NumberAnimation {
@@ -496,7 +435,7 @@ WrapperItem {
       }
 
       visible: opacity != 0
-      z: settingsOpen || powerOpen || updatesOpen ? 2 : 1
+      z: settingsOpen || powerOpen ? 2 : 1
 
       anchors {
         right: parent.right
@@ -514,7 +453,6 @@ WrapperItem {
         implicitWidth: 20
         hoverEnabled: true
         onPressed: () => {
-          updatesOpen = false;
           settingsOpen = false;
           powerOpen = false;
         }
