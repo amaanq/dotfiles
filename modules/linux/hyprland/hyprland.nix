@@ -353,6 +353,7 @@ merge
             "SUPER, t, togglegroup"
             "SUPER, grave, changegroupactive"
             "SUPER SHIFT, grave, changegroupactive, b"
+            "SUPER SHIFT, t, moveoutofgroup"
 
             # Gamemode
             "WIN, F1, exec, ${gamemode-script}"

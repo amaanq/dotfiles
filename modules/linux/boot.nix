@@ -13,6 +13,5 @@ in
       };
       efi.canTouchEfiVariables = true;
     };
-
   };
 }
