@@ -15,9 +15,6 @@ merge
       programs.hyprlock = enabled {
         settings = {
           general = {
-            no_fade_in = true;
-            grace = 1;
-            disable_loading_bar = false;
             hide_cursor = true;
             ignore_empty_input = true;
             text_trim = true;
@@ -41,7 +38,6 @@ merge
               monitor = "";
               text = "cmd[update:1000] echo -e \"$(date +\"%-I:%M %p\")\"";
               color = "rgba(255, 255, 255, 1)";
-              shadow_pass = 2;
               shadow_size = 3;
               shadow_color = "rgb(0,0,0)";
               shadow_boost = 1.2;
