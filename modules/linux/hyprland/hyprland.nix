@@ -64,6 +64,7 @@ merge
     pkgs.ddcutil
     pkgs.gifski
     pkgs.grim
+    pkgs.grimblast
     pkgs.hypridle
     pkgs.hyprlock
     pkgs.hyprpicker
@@ -334,9 +335,10 @@ merge
             "SUPER ALT, L, resizeactive, 20 0"
 
             # Screenshots
-            "SUPER, PRINT, exec, grim -g \"$(swappy -w)\" - | swappy -f -"
-            ", PRINT, exec, grim - | swappy -f -"
-            "SUPER SHIFT, S, exec, grim -g \"$(slurp)\" - | tee >(wl-copy) | swappy -f -"
+            "SUPER SHIFT, S, exec, grimblast copysave area --freeze --notify"
+            "SUPER SHIFT, A, exec, grim -g \"$(slurp)\" - | swappy -f -"
+            "SUPER, PRINT, exec, grim - | swappy -f -"
+            ", PRINT, exec, grimblast copysave output --notify"
 
             # Recording
             "SUPER SHIFT, R, exec, wf-recorder -g \"$(slurp)\" -f /tmp/recording_$(date +%Y%m%d_%H%M%S).mp4"
