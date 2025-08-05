@@ -36,7 +36,7 @@ merge
           label = [
             {
               monitor = "";
-              text = "cmd[update:1000] echo -e \"$(date +\"%-I:%M %p\")\"";
+              text = "$TIME12";
               color = "rgba(255, 255, 255, 1)";
               shadow_size = 3;
               shadow_color = "rgb(0,0,0)";
@@ -59,7 +59,7 @@ merge
             }
             {
               monitor = "";
-              text = "cmd[update:60000] echo \"<b>$(uptime -p)</b>\"";
+              text = "cmd[update:60000] echo \"<b>up $(awk '{d=int($1/86400); h=int(($1%86400)/3600); m=int(($1%3600)/60); if (d>0) printf \"%dd %dh %dm\", d, h, m; else if (h>0) printf \"%dh %dm\", h, m; else printf \"%dm\", m}' /proc/uptime)</b>\"";
               color = "0xff${rosePineColors.iris}";
               font_size = 14;
               font_family = "Inter Display Medium";
