@@ -61,6 +61,7 @@ merge
     pkgs.aquamarine
     pkgs.brightnessctl
     pkgs.copyq
+    pkgs.ddcutil
     pkgs.gifski
     pkgs.grim
     pkgs.hypridle

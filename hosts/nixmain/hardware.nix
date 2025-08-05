@@ -55,6 +55,7 @@
 
   nixpkgs.hostPlatform = "x86_64-linux";
   hardware.enableRedistributableFirmware = true;
+  hardware.i2c.enable = true;
   hardware.keyboard.qmk.enable = true;
   hardware.cpu.amd.updateMicrocode = config.hardware.enableRedistributableFirmware;
 
