@@ -18,6 +18,10 @@ let
     in
     path: inputs' |> filter (hasAttrByPath path) |> map (getAttrFromPath path);
 
+  inputHomeModules = collectInputs [
+    "home-manager"
+    "default"
+  ];
   inputModulesLinux = collectInputs [
     "nixosModules"
     "default"
@@ -48,14 +52,17 @@ in
     super.nixosSystem {
       inherit specialArgs;
 
-      modules =
-        [
-          module
-          overlayModule
-        ]
-        ++ modulesCommon
-        ++ modulesLinux
-        ++ inputModulesLinux;
+      modules = [
+        module
+        overlayModule
+
+        {
+          home-manager.sharedModules = inputHomeModules;
+        }
+      ]
+      ++ modulesCommon
+      ++ modulesLinux
+      ++ inputModulesLinux;
     };
 
   darwinSystem' =
@@ -63,13 +70,16 @@ in
     super.darwinSystem {
       inherit specialArgs;
 
-      modules =
-        [
-          module
-          overlayModule
-        ]
-        ++ modulesCommon
-        ++ modulesDarwin
-        ++ inputModulesDarwin;
+      modules = [
+        module
+        overlayModule
+
+        {
+          home-manager.sharedModules = inputHomeModules;
+        }
+      ]
+      ++ modulesCommon
+      ++ modulesDarwin
+      ++ inputModulesDarwin;
     };
 }
