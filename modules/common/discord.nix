@@ -47,14 +47,33 @@ merge
 
       discordPackage =
         if config.isLinux then
-          baseDiscord.overrideAttrs (old: {
-            nativeBuildInputs = old.nativeBuildInputs ++ [ pkgs.makeWrapper ];
-            postFixup = ''
-              wrapProgram $out/opt/Discord/Discord \
-                --set ELECTRON_OZONE_PLATFORM_HINT "auto" \
+          pkgs.symlinkJoin {
+            name = "discord-patched";
+            paths = [ baseDiscord ];
+            nativeBuildInputs = [ pkgs.makeWrapper ];
+            postBuild = ''
+              # Remove the original Discord binary
+              rm $out/bin/discord
+
+              # Create our patching wrapper
+              makeWrapper ${baseDiscord}/bin/discord $out/bin/discord \
+                --run '
+                  LATEST_DIR=$(ls -1v ~/.config/discord/ 2>/dev/null | grep -E "^[0-9]+\.[0-9]+\.[0-9]+$" | tail -n1)
+
+                  if [ -n "$LATEST_DIR" ]; then
+                    KRISP_FILE="$HOME/.config/discord/$LATEST_DIR/modules/discord_krisp/discord_krisp.node"
+
+                    if [ -f "$KRISP_FILE" ]; then
+                      if ${pkgs.ripgrep}/bin/rg -q "dualcontourmaybe" "$KRISP_FILE" 2>/dev/null; then
+                        echo "Patching Krisp in version $LATEST_DIR..."
+                        ${krisp-patcher}/bin/krisp-patcher "$KRISP_FILE" || echo "Warning: Failed to patch Krisp"
+                      fi
+                    fi
+                  fi
+                ' \
                 --add-flags "--enable-features=UseOzonePlatform --ozone-platform=wayland"
             '';
-          })
+          }
         else if config.isDarwin then
           baseDiscord
         else
