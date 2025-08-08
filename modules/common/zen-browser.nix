@@ -1,6 +1,11 @@
-{ lib, inputs, ... }:
+{
+  config,
+  lib,
+  inputs,
+  ...
+}:
 let
-  inherit (lib) enabled;
+  inherit (lib) enabled merge mkIf;
 
   lockedAs =
     Value: attrs:
@@ -162,7 +167,8 @@ let
     };
   };
 in
-{
+merge
+<| mkIf config.isDesktop {
   home-manager.sharedModules = [
     {
       imports = [ inputs.zen-browser.homeModules.default ];
