@@ -23,8 +23,10 @@ let
   patchedIdaPro = baseIdaPro.overrideAttrs (old: {
     nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ ida-patcher ];
     postInstall = (old.postInstall or "") + ''
-      cd *ida-pro-9.1.0.250226
+      cd $out/opt
       ${ida-patcher}/bin/ida-patcher $out
+      # Copy license to where IDA expects it
+      cp *.hexlic $out/opt/ || true
     '';
   });
 in
