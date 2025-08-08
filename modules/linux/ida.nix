@@ -14,17 +14,18 @@ let
   } (builtins.readFile ./patch.py);
 
   baseIdaPro = pkgs.callPackage pkgs.ida-pro {
-    runfile = /nix/store/s9gq70w56355yrg33054g97zscr3r64i-ida-pro_91_x64linux.run;
+    runfile = builtins.fetchurl {
+      url = "file://${toString ./.}/modules/linux/ida-pro_91_x64linux.run";
+      sha256 = "1qpr02bkq6yhd3fpzgnbzmnb4mhk1l0h3sp3m69zc3ispqi81w4g";
+    };
   };
 
   patchedIdaPro = baseIdaPro.overrideAttrs (old: {
     nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ ida-patcher ];
-    postInstall =
-      (old.postInstall or "")
-      + ''
-        cd *ida-pro-9.1.0.250226
-        ${ida-patcher}/bin/ida-patcher $out
-      '';
+    postInstall = (old.postInstall or "") + ''
+      cd *ida-pro-9.1.0.250226
+      ${ida-patcher}/bin/ida-patcher $out
+    '';
   });
 in
 merge
