@@ -15,11 +15,4 @@
   };
 
   system.startup.chime = false;
-
-  # Stop login print in shell
-  home-manager.sharedModules = [
-    {
-      home.file.".hushlogin".text = "";
-    }
-  ];
 }
