@@ -6,6 +6,9 @@
   inputs,
   ...
 }:
+let
+  inherit (lib) enabled;
+in
 {
   imports = [
     (modulesPath + "/profiles/qemu-guest.nix")
@@ -29,6 +32,7 @@
     enable = true;
     pkiBundle = "/var/lib/sbctl";
   };
+  boot.plymouth = enabled;
 
   fileSystems."/" = {
     device = "/dev/disk/by-label/nixos";
