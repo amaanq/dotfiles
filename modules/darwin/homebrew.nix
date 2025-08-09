@@ -1,5 +1,4 @@
 {
-  nix-homebrew,
   homebrew-core,
   homebrew-cask,
   config,
@@ -10,8 +9,6 @@ let
   inherit (lib) enabled;
 in
 {
-  imports = [ nix-homebrew.darwinModules.nix-homebrew ];
-
   homebrew = enabled;
 
   nix-homebrew = enabled {
