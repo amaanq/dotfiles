@@ -38,6 +38,8 @@
   };
 
   inputs = {
+    nix.url = "github:DeterminateSystems/nix-src";
+
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     nix-darwin = {
@@ -90,8 +92,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix.url = "github:DeterminateSystems/nix-src";
-
     nixCats.url = "github:BirdeeHub/nixCats-nvim";
 
     nvim-config = {
@@ -104,11 +104,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    thorium = {
-      url = "github:amaanq/thorium-flake";
+    stylix = {
+      url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
     themes.url = "github:RGBCube/ThemeNix";
 
     spicetify = {
@@ -118,6 +117,11 @@
 
     claude-desktop = {
       url = "github:k3d3/claude-desktop-linux-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    thorium = {
+      url = "github:amaanq/thorium-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
