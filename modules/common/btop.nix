@@ -7,9 +7,7 @@ in
     {
       programs.btop = enabled {
         settings = {
-          # Theme and appearance
-          color_theme = "catppuccin_mocha";
-          theme_background = true;
+          # Appearance
           truecolor = true;
           rounded_corners = true;
 

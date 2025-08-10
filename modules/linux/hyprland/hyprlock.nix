@@ -74,12 +74,12 @@ merge
               monitor = "";
               size = "250, 60";
               outline_thickness = 0;
-              outer_color = "rgba(0, 0, 0, 0)";
               dots_size = 0.1;
               dots_spacing = 1;
               dots_center = true;
-              inner_color = "rgba(0, 0, 0, 0)";
               font_color = "rgba(200, 200, 200, 1)";
+              inner_color = "rgba(0, 0, 0, 0)";
+              outer_color = "rgba(0, 0, 0, 0)";
               fade_on_empty = false;
               font_family = "Berkeley Mono";
               placeholder_text = "<span> $USER</span>";

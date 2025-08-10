@@ -15,7 +15,6 @@ in
   home-manager.sharedModules = [
     {
       programs.bat = enabled {
-        config.theme = "TwoDark";
         config.pager = "less -FR";
       };
     }

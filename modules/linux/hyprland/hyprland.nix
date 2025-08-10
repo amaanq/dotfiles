@@ -8,6 +8,7 @@ let
   inherit (lib)
     enabled
     merge
+    mkForce
     mkIf
     flatten
     range
@@ -94,7 +95,6 @@ merge
       home.pointerCursor = {
         gtk.enable = true;
         x11.enable = true;
-        package = pkgs.rose-pine-hyprcursor;
         name = "rose-pine-hyprcursor";
         size = 24;
       };
@@ -197,8 +197,8 @@ merge
             gaps_in = 10;
             gaps_out = 10;
             border_size = 2;
-            "col.active_border" = "0xff${rosePineColors.pine} 0xff${rosePineColors.foam} 90deg";
-            "col.inactive_border" = "0xff${rosePineColors.muted}";
+            "col.active_border" = mkForce "0xff${rosePineColors.pine} 0xff${rosePineColors.foam} 90deg";
+            "col.inactive_border" = mkForce "0xff${rosePineColors.muted}";
             layout = "dwindle";
           };
 
@@ -220,7 +220,7 @@ merge
               offset = "2 2";
               range = 8;
               render_power = 2;
-              color = "0x66000000";
+              color = mkForce "0x66000000";
             };
           };
 
@@ -267,12 +267,12 @@ merge
 
           # Groups
           group = {
-            "col.border_active" = "0xff${rosePineColors.pine} 0xff${rosePineColors.foam} 90deg";
-            "col.border_inactive" = "0xff${rosePineColors.muted}";
+            "col.border_active" = mkForce "0xff${rosePineColors.pine} 0xff${rosePineColors.foam} 90deg";
+            "col.border_inactive" = mkForce "0xff${rosePineColors.muted}";
 
             groupbar = {
-              "col.active" = "0xff${rosePineColors.overlay}";
-              "col.inactive" = "0xff${rosePineColors.surface}";
+              "col.active" = mkForce "0xff${rosePineColors.overlay}";
+              "col.inactive" = mkForce "0xff${rosePineColors.base}";
               font_size = 12;
               height = 16;
               indicator_height = 4;
