@@ -25,6 +25,7 @@ merge
   services.udisks2 = enabled {
     mountOnMedia = true;
   };
+  services.upower = enabled;
 
   environment.systemPackages = [
     pkgs.ffmpegthumbnailer
