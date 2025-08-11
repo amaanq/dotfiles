@@ -1,7 +1,6 @@
 {
   lib,
   pkgs,
-  themes,
   ...
 }:
 let
@@ -10,10 +9,8 @@ in
 {
   options.theme =
     mkValue
-    <| themes.custom
     <|
-      themes.raw.rose-pine
-      // {
+      {
         cornerRadius = 4;
         borderWidth = 2;
 

@@ -14,9 +14,6 @@ merge
   home-manager.sharedModules = [
     {
       gtk = enabled {
-        gtk3.extraCss = config.theme.adwaitaGtkCss;
-        gtk4.extraCss = config.theme.adwaitaGtkCss;
-
         gtk3.extraConfig = {
           gtk-xft-antialias = 1;
           gtk-xft-hinting = 1;

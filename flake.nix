@@ -108,7 +108,6 @@
       url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    themes.url = "github:RGBCube/ThemeNix";
 
     spicetify = {
       url = "github:Gerg-L/spicetify-nix";
