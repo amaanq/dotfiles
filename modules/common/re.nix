@@ -15,7 +15,10 @@ merge
   environment.systemPackages = [
     pkgs.apktool
     pkgs.binwalk
+    pkgs.gef
     pkgs.imhex
+    pkgs.patchelf
+    pkgs.pwninit
     pkgs.radare2
     pkgs.yara
   ];
