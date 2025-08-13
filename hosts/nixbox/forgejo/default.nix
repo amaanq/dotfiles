@@ -2,6 +2,7 @@
   self,
   config,
   lib,
+  pkgs,
   ...
 }:
 let
@@ -22,6 +23,11 @@ in
     (self + /modules/nginx.nix)
     (self + /modules/postgresql.nix)
   ];
+
+  secrets.forgejoRunnerToken = {
+    file = ./runner.age;
+    owner = "forgejo-runner";
+  };
 
   services.postgresql.ensure = [ "forgejo" ];
 
@@ -105,6 +111,22 @@ in
           DESCRIPTION = description;
         };
       };
+  };
+
+  virtualisation.podman = enabled {
+    dockerCompat = true;
+  };
+
+  services.gitea-actions-runner = {
+    package = pkgs.forgejo-actions-runner;
+    instances.default = enabled {
+      name = "monolith";
+      url = "https://git.xeondev.com";
+      tokenFile = config.secrets.forgejoRunnerToken.path;
+      labels = [
+        "nixos-latest:docker://nixpkgs/nix-flakes:latest"
+      ];
+    };
   };
 
   services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
