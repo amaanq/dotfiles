@@ -1,5 +1,10 @@
 let
-  inherit (import ./keys.nix) nixbox admins all;
+  inherit (import ./keys.nix)
+    nixbox
+    admins
+    adminsOvh
+    all
+    ;
 in
 {
   # nixbox server
@@ -21,6 +26,11 @@ in
   "hosts/nixmain/id.age".publicKeys = admins;
   "hosts/nixmain/password.age".publicKeys = admins;
   "hosts/nixmain/yubikey/u2f.age".publicKeys = admins;
+
+  # nixovh server
+  "hosts/nixovh/id.age".publicKeys = admins ++ adminsOvh;
+  "hosts/nixovh/password.age".publicKeys = admins ++ adminsOvh;
+  "hosts/nixovh/restic-password.age".publicKeys = admins ++ adminsOvh;
 
   # shared
   "modules/common/atuin/key.age".publicKeys = all;
