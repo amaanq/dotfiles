@@ -79,6 +79,6 @@ in
 
   environment = mkIf config.isDesktop {
     systemPackages = [ pkgs.mosh ];
-    shellAliases.mosh = "mosh --no-init";
+    shellAliases.mosh = "mosh --no-init --no-ssh-pty";
   };
 }
