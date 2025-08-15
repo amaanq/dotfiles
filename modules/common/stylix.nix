@@ -1,5 +1,4 @@
 {
-  config,
   inputs,
   lib,
   pkgs,
@@ -9,13 +8,12 @@ let
   inherit (lib)
     disabled
     enabled
-    mkIf
     ;
 in
 {
   imports = [ inputs.stylix.nixosModules.stylix ];
 
-  stylix = mkIf config.isDesktop (enabled {
+  stylix = enabled {
     autoEnable = true;
     polarity = "dark";
     base16Scheme = "${pkgs.base16-schemes}/share/themes/rose-pine.yaml";
@@ -27,9 +25,9 @@ in
       plymouth = disabled;
       grub = disabled;
     };
-  });
+  };
 
-  home-manager.sharedModules = mkIf config.isDesktop [
+  home-manager.sharedModules = [
     {
       stylix = enabled {
         autoEnable = true;
@@ -44,6 +42,7 @@ in
           hyprlock = disabled;
           kitty = disabled;
           ghostty = disabled;
+          zen-browser.profileNames = [ "default" ];
         };
       };
     }
