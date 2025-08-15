@@ -20,6 +20,7 @@ lib.nixosSystem' (
     services.openssh.settings = {
       PermitRootLogin = "yes";
       PasswordAuthentication = false;
+      PrintLastLog = false;
     };
     services.openssh.hostKeys = [
       {
