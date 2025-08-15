@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  inherit (lib) attrNames head enabled;
+  inherit (lib) enabled;
   user = "amaanq";
 in
 {
@@ -9,23 +9,21 @@ in
     owner = user;
   };
 
-  home-manager.sharedModules = [
-    {
-      programs.atuin = enabled {
-        daemon = enabled {
-          logLevel = "error";
-        };
-
-        flags = [ "--disable-up-arrow" ];
-        settings = {
-          enter_accept = true;
-          inline_height = 20;
-          search_mode = "prefix";
-          show_preview = false;
-          sync.records = true;
-          key_path = config.age.secrets.atuin-key.path;
-        };
+  home-manager.users.${user} = {
+    programs.atuin = enabled {
+      daemon = enabled {
+        logLevel = "error";
       };
-    }
-  ];
+
+      flags = [ "--disable-up-arrow" ];
+      settings = {
+        enter_accept = true;
+        inline_height = 20;
+        search_mode = "prefix";
+        show_preview = false;
+        sync.records = true;
+        key_path = config.age.secrets.atuin-key.path;
+      };
+    };
+  };
 }
