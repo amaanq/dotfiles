@@ -53,7 +53,7 @@ in
         cache.ENABLED = true;
 
         # AI scrapers can go to hell (w sphere).
-        "cron.archive_cleaup" =
+        "cron.archive_cleanup" =
           let
             interval = "4h";
           in
