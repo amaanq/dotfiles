@@ -13,5 +13,16 @@ in
     loginAccounts."gulag@libg.so" = {
       hashedPasswordFile = config.secrets.mailPassword.path;
     };
+
+    loginAccounts."contact@libg.so" = {
+      aliases = [
+        "@libg.so"
+        "noreply@libg.so"
+        "admin@libg.so"
+        "support@libg.so"
+        "info@libg.so"
+      ];
+      hashedPasswordFile = config.secrets.mailPassword.path;
+    };
   };
 }

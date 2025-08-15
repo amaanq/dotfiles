@@ -34,6 +34,8 @@ in
   "hosts/nixovh/id.age".publicKeys = admins ++ adminsOvh;
   "hosts/nixovh/password.age".publicKeys = admins ++ adminsOvh;
 
+  "hosts/nixovh/plausible/key.age".publicKeys = admins ++ adminsOvh;
+
   # shared
   "modules/common/atuin/key.age".publicKeys = all;
   "modules/common/shell/anthropic-key.age".publicKeys = all;

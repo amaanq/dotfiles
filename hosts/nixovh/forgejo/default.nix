@@ -126,6 +126,7 @@ in
     (removeAttrs config.services.nginx.sslTemplate [ "useACMEHost" ])
     // {
       enableACME = true;
+      extraConfig = config.services.plausible.extraNginxConfigFor domain;
       locations."/" = {
         proxyPass = "http://[::1]:${toString port}";
         extraConfig = # nginx
