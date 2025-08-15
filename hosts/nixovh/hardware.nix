@@ -1,8 +1,9 @@
-{ modulesPath, ... }:
+{ modulesPath, lib, ... }:
 {
   imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
 
   boot.loader.grub.device = "/dev/sda";
+  boot.loader.systemd-boot.enable = lib.mkForce false;
   boot.initrd.availableKernelModules = [
     "ata_piix"
     "uhci_hcd"

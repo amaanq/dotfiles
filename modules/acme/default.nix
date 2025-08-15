@@ -21,7 +21,10 @@ in
     };
 
     certs.${domain} = {
-      extraDomainNames = [ "*.${domain}" ];
+      extraDomainNames = [
+        "*.${domain}"
+        "*.libg.so"
+      ];
       group = "acme";
     };
   };

@@ -24,6 +24,15 @@ in
   };
 
   environment.systemPackages = [
+    (pkgs.fenix.complete.withComponents [
+      "cargo"
+      "clippy"
+      "rust-src"
+      "rustc"
+      "rustfmt"
+    ])
+  ]
+  ++ lib.optionals (!config.isConstrained) [
     pkgs.rust-analyzer-nightly
 
     pkgs.cargo-deny
@@ -32,13 +41,5 @@ in
     pkgs.cargo-watch
 
     pkgs.evcxr
-
-    (pkgs.fenix.complete.withComponents [
-      "cargo"
-      "clippy"
-      "rust-src"
-      "rustc"
-      "rustfmt"
-    ])
   ];
 }

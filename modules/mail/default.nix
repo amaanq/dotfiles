@@ -23,10 +23,22 @@ in
     listenAddress = "[::]";
   };
 
+  services.restic.backups =
+    genAttrs config.services.restic.hosts
+    <| const {
+      paths = [
+        config.mailserver.dkimKeyDirectory
+        config.mailserver.mailDirectory
+      ];
+    };
+
   security.acme.users = [ "mail" ];
 
   mailserver = enabled {
-    domains = mkDefault [ domain ];
+    domains = mkDefault [
+      domain
+      "libg.so"
+    ];
     certificateScheme = "acme";
 
     # We use systemd-resolved instead of Knot Resolver.

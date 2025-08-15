@@ -1,36 +1,36 @@
 {
-  lib,
+  self,
+  config,
   ...
 }:
 let
-  inherit (lib) enabled;
+  domain = "git.xeondev.com";
 in
 {
-  services.nginx = enabled {
-    recommendedGzipSettings = true;
-    recommendedOptimisation = true;
-    recommendedProxySettings = true;
-    recommendedTlsSettings = true;
+  imports = [
+    (self + /modules/nginx.nix)
+  ];
 
-    virtualHosts = {
-      "git.xeondev.com" = {
-        forceSSL = true;
-        enableACME = true;
-        locations."/".proxyPass = "http://[::1]:3000";
+  services.nginx.appendHttpConfig = ''
+    map $http_origin $allow_origin {
+      ~^https://(?:.+\.)?${domain}$ $http_origin;
+    }
+
+    map $http_origin $allow_methods {
+      ~^https://(?:.+\.)?${domain}$ "CONNECT, DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT, TRACE";
+    }
+  '';
+
+  services.nginx.virtualHosts.${domain} =
+    (removeAttrs config.services.nginx.sslTemplate [ "useACMEHost" ])
+    // {
+      enableACME = true;
+      locations."/" = {
+        proxyPass = "http://[::1]:3000";
+        extraConfig = # nginx
+          ''
+            client_max_body_size 100M;
+          '';
       };
     };
-  };
-
-  security.acme = {
-    acceptTerms = true;
-    defaults.email = "amaanq12@gmail.com";
-  };
-
-  networking.firewall = {
-    allowedTCPPorts = [
-      80
-      443
-      3000
-    ];
-  };
 }

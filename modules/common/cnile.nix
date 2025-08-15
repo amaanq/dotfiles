@@ -1,8 +1,13 @@
-{ pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
 in
 {
-  environment.systemPackages = [
+  environment.systemPackages = lib.optionals (!config.isConstrained) [
     pkgs.clang
     pkgs.clang-tools
     pkgs.cmake
@@ -16,7 +21,7 @@ in
   ];
 
   # "Root" clang-format and clang-tidy configuration files
-  home-manager.sharedModules = [
+  home-manager.sharedModules = lib.optionals (!config.isConstrained) [
     {
       home.file.".clang-format".text = ''
         AlignArrayOfStructures: Left

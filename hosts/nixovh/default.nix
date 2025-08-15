@@ -14,19 +14,7 @@ lib.nixosSystem' (
     imports = collectNix ./. |> remove ./default.nix;
 
     type = "server";
-
-    networking = {
-      domain = "vps.ovh.net";
-      hostName = "nixovh";
-      firewall = enabled {
-        allowedTCPPorts = [
-          22
-          80
-          443
-          3000
-        ];
-      };
-    };
+    isConstrained = true;
 
     secrets.id.file = ./id.age;
     services.openssh.settings = {
@@ -43,17 +31,22 @@ lib.nixosSystem' (
     secrets.password.file = ./password.age;
     users.users = {
       root = {
-        openssh.authorizedKeys.keys = keys.admins ++ [
-          # Xeon's key
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH6TGfa968DWRkqo0iBpEXaG62u7LlSaf4do1fVEDPCz xeon@reversedrooms"
-        ];
+        openssh.authorizedKeys.keys = keys.admins;
+        hashedPasswordFile = config.secrets.password.path;
+        shell = pkgs.nushell;
+      };
+
+      amaanq = {
+        description = "Amaan Qureshi";
+        isNormalUser = true;
+        extraGroups = [ "wheel" ];
+        openssh.authorizedKeys.keys = keys.admins;
         hashedPasswordFile = config.secrets.password.path;
         shell = pkgs.nushell;
       };
 
       rr = {
         description = "Reversed Rooms Team";
-        extraGroups = [ "wheel" ];
         isNormalUser = true;
         openssh.authorizedKeys.keys = keys.admins ++ [
           # Xeon's key
@@ -69,13 +62,60 @@ lib.nixosSystem' (
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE5vEUAeQijm37+OvGgdQ3/cLMOS5hHdAuQTYbJCAUWx zihad@sora"
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILcVH8aHNDVPUADwzQWA5DYgLvpFUezy4eMWtOO8Oopi zihad@sora"
         ];
-        shell = pkgs.bash;
+        shell = pkgs.nushell;
+      };
+
+      backup = {
+        description = "Backup";
+        isNormalUser = true;
+        openssh.authorizedKeys.keys = keys.all;
+        hashedPasswordFile = config.secrets.password.path;
+        shell = pkgs.nushell;
       };
     };
 
     home-manager.users = {
       root = { };
+      amaanq = { };
       rr = { };
+      backup = { };
+    };
+
+    networking = {
+      domain = "amaanq.com";
+
+      hostName = "nixovh";
+
+      enableIPv6 = true;
+
+      interfaces.ens3.ipv6.addresses = [
+        {
+          address = "2001:41d0:701:1100::6a06";
+          prefixLength = 64;
+        }
+      ];
+
+      defaultGateway6 = {
+        address = "2001:41d0:701:1100::1";
+        interface = "ens3";
+      };
+
+      firewall = enabled {
+        allowedTCPPorts = [
+          22
+          25
+          53
+          143
+          443
+          465
+          587
+          993
+        ];
+        allowedUDPPorts = [
+          53
+          60001
+        ];
+      };
     };
 
     system.stateVersion = "25.05";

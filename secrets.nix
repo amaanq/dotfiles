@@ -11,6 +11,8 @@ in
   "hosts/nixbox/id.age".publicKeys = [ nixbox ] ++ admins;
   "hosts/nixbox/password.age".publicKeys = [ nixbox ] ++ admins;
 
+  "hosts/nixbox/forgejo/runner.age".publicKeys = [ nixbox ] ++ admins;
+
   "hosts/nixbox/matrix/key.age".publicKeys = [ nixbox ] ++ admins;
   "hosts/nixbox/matrix/secret.age".publicKeys = [ nixbox ] ++ admins;
 
@@ -28,16 +30,17 @@ in
   "hosts/nixmain/yubikey/u2f.age".publicKeys = admins;
 
   # nixovh server
+  "hosts/nixovh/forgejo-assets.tar.gz.age".publicKeys = admins ++ adminsOvh;
   "hosts/nixovh/id.age".publicKeys = admins ++ adminsOvh;
   "hosts/nixovh/password.age".publicKeys = admins ++ adminsOvh;
-  "hosts/nixovh/restic-password.age".publicKeys = admins ++ adminsOvh;
 
   # shared
   "modules/common/atuin/key.age".publicKeys = all;
-  "modules/common/nushell/anthropic-key.age".publicKeys = all;
-  "modules/common/nushell/openai-key.age".publicKeys = all;
+  "modules/common/shell/anthropic-key.age".publicKeys = all;
+  "modules/common/shell/openai-key.age".publicKeys = all;
   "modules/common/ssh/config.age".publicKeys = all;
   "modules/acme/environment.age".publicKeys = all;
+  "modules/linux/restic/password.age".publicKeys = all;
   "modules/mail/password.hash.age".publicKeys = all;
   "modules/mail/password.plain.age".publicKeys = all;
 }

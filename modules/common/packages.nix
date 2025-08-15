@@ -17,7 +17,6 @@ in
 
   environment.systemPackages = [
     pkgs.asciinema
-    pkgs.claude-code
     pkgs.cowsay
     pkgs.curlHTTP3
     pkgs.dig
@@ -25,7 +24,6 @@ in
     pkgs.dust
     pkgs.dwt1-shell-color-scripts
     pkgs.eza
-    pkgs.fastfetch
     pkgs.fd
     pkgs.file
     pkgs.gitui
@@ -37,15 +35,12 @@ in
     pkgs.pstree
     pkgs.rsync
     pkgs.sd
-    pkgs.timg
     pkgs.tokei
     pkgs.unzip
     pkgs.uutils-coreutils-noprefix
     pkgs.watchman
     pkgs.xh
     pkgs.xxd
-    pkgs.yazi
-    pkgs.yt-dlp
   ]
   ++ optionals config.isLinux [
     pkgs.strace
@@ -56,6 +51,14 @@ in
     pkgs.iina
     pkgs.maccy
     pkgs.raycast
+  ]
+  # Server or Desktop, as long as it isn't limited on space
+  ++ optionals (!config.isConstrained) [
+    pkgs.claude-code
+    pkgs.fastfetch
+    pkgs.timg
+    pkgs.yazi
+    pkgs.yt-dlp
   ]
   ++ optionals config.isDesktop [
     pkgs.element-desktop
@@ -72,5 +75,14 @@ in
     pkgs.pavucontrol
     pkgs.thunderbird
     inputs.claude-desktop.packages.${pkgs.system}.claude-desktop
+  ]
+  ++ optionals config.isConstrained [
+    (pkgs.yazi.override {
+      # Yazi pulls in ffmpeg, which I'd rather not for constrained servers.
+      optionalDeps = [
+        pkgs.fd
+        pkgs.ripgrep
+      ];
+    })
   ];
 }

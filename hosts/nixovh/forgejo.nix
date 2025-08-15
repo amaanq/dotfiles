@@ -5,12 +5,33 @@
   ...
 }:
 let
-  inherit (lib) enabled mkForce;
+  inherit (lib)
+    const
+    enabled
+    genAttrs
+    mkForce
+    ;
 in
 {
-  environment.etc."forgejo/templates/home.tmpl" = {
-    source = ./forgejo/home.tmpl;
-  };
+  system.activationScripts.forgejo-assets = ''
+    mkdir -p /etc/forgejo
+    ${pkgs.age}/bin/age -d -i ${config.secrets.id.path} ${./forgejo-assets.tar.gz.age} | ${pkgs.gzip}/bin/gzip -d | ${pkgs.gnutar}/bin/tar -xf - -C /etc/forgejo
+  '';
+
+  services.postgresql.ensure = [ "forgejo" ];
+
+  services.restic.backups =
+    genAttrs config.services.restic.hosts
+    <| const {
+      paths = [
+        "/var/lib/forgejo"
+      ];
+      exclude = [
+        "/var/lib/forgejo/log"
+        "/var/lib/forgejo/data/tmp"
+        "/var/lib/forgejo/data/repo-archive"
+      ];
+    };
 
   services.openssh.settings.AcceptEnv = mkForce "SHELLS COLOTERM GIT_PROTOCOL";
 
@@ -25,18 +46,62 @@ in
     };
 
     settings = {
-      DEFAULT = {
-        APP_NAME = "Reversed Rooms";
+      default.APP_NAME = "Reversed Rooms";
+
+      attachment.ALLOWED_TYPES = "*/*";
+
+      cache.ENABLED = true;
+
+      # AI scrapers can go to hell.
+      "cron.archive_cleaup" =
+        let
+          interval = "4h";
+        in
+        {
+          SCHEDULE = "@every ${interval}";
+          OLDER_THAN = interval;
+        };
+
+      packages.ENABLED = false;
+
+      repository = {
+        DEFAULT_BRANCH = "master";
+        DEFAULT_MERGE_STYLE = "rebase-merge";
+        DEFAULT_REPO_UNITS = "repo.code, repo.issues, repo.pulls";
+
+        DEFAULT_PUSH_CREATE_PRIVATE = false;
+        ENABLE_PUSH_CREATE_ORG = true;
+        ENABLE_PUSH_CREATE_USER = true;
+
+        DISABLE_STARS = true;
       };
+
+      "repository.signing" = {
+        DEFAULT_TRUST_MODEL = "committer";
+      };
+
+      "repository.upload" = {
+        FILE_MAX_SIZE = 100;
+        MAX_FILES = 10;
+      };
+
+      security.INSTALL_LOCK = true;
+
       server = {
         DOMAIN = "git.xeondev.com";
         HTTP_ADDR = "::1";
         HTTP_PORT = 3000;
         ROOT_URL = "https://git.xeondev.com/";
+        DISABLE_ROUTER_LOG = true;
       };
-      service = {
-        DISABLE_REGISTRATION = true;
+
+      service.DISABLE_REGISTRATION = true;
+
+      session = {
+        COOKIE_SECURE = true;
+        SAME_SITE = "strict";
       };
+
       "ui.meta" = {
         AUTHOR = "Reversed Rooms";
         DESCRIPTION = "A slaveless, non-gatekeeping Git service";
@@ -44,43 +109,4 @@ in
       };
     };
   };
-
-  # Backup configuration
-  services.restic.backups = {
-    forgejo = {
-      user = "root";
-      repository = "/backup/forgejo";
-      passwordFile = config.secrets.restic-password.path;
-      paths = [
-        "/var/lib/forgejo"
-      ];
-      exclude = [
-        "/var/lib/forgejo/log"
-        "/var/lib/forgejo/data/tmp"
-      ];
-      timerConfig = {
-        OnCalendar = "daily";
-        Persistent = true;
-        RandomizedDelaySec = "1h";
-      };
-      initialize = true;
-      extraBackupArgs = [
-        "--verbose"
-        "--exclude-caches"
-      ];
-      pruneOpts = [
-        "--keep-daily 7"
-        "--keep-weekly 4"
-        "--keep-monthly 3"
-      ];
-    };
-  };
-
-  # Backup directories and secrets
-  systemd.tmpfiles.rules = [
-    "d /backup 0755 root root -"
-    "d /backup/forgejo 0755 root root -"
-  ];
-
-  secrets.restic-password.file = ./restic-password.age;
 }

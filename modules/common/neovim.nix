@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   inputs,
   ...
@@ -9,6 +10,11 @@
   };
 
   environment.systemPackages = [
-    inputs.nvim-config.packages.${pkgs.system}.nvim
+    (
+      if config.isConstrained then
+        inputs.nvim-config.packages.${pkgs.system}.server
+      else
+        inputs.nvim-config.packages.${pkgs.system}.nvim
+    )
   ];
 }

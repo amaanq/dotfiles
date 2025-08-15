@@ -44,11 +44,19 @@ lib.nixosSystem' (
         openssh.authorizedKeys.keys = keys.admins;
         shell = pkgs.nushell;
       };
+
+      backup = {
+        description = "Backup";
+        openssh.authorizedKeys.keys = keys.all;
+        hashedPasswordFile = config.secrets.password.path;
+        isNormalUser = true;
+      };
     };
 
     home-manager.users = {
       root = { };
       amaanq = { };
+      backup = { };
     };
 
     system.stateVersion = "25.05";

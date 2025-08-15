@@ -6,14 +6,35 @@
 }:
 let
   inherit (lib)
+    const
     enabled
     flip
+    genAttrs
     mkForce
     mkOverride
     mkValue
     ;
 in
 {
+
+  config.services.restic.backups =
+    genAttrs config.services.restic.hosts
+    <| const {
+      paths = [ "/tmp/postgresql-dump.sql.gz" ];
+
+      backupPrepareCommand = # sh
+        ''
+          ${config.services.postgresql.package}/bin/pg_dumpall --clean \
+          | ${lib.getExe pkgs.gzip} --rsyncable \
+          > /tmp/postgresql-dump.sql.gz
+        '';
+
+      backupCleanupCommand = # sh
+        ''
+          rm /tmp/postgresql-dump.sql.gz
+        '';
+    };
+
   config.environment.systemPackages = [
     config.services.postgresql.package
   ];

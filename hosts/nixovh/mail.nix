@@ -1,11 +1,7 @@
-{
-  config,
-  self,
-  ...
-}:
+{ self, config, ... }:
+
 let
   inherit (config.networking) domain;
-
   fqdn = "mail.${domain}";
 in
 {
@@ -14,7 +10,8 @@ in
   mailserver = {
     inherit fqdn;
 
-    stateVersion = 3;
+    loginAccounts."gulag@libg.so" = {
+      hashedPasswordFile = config.secrets.mailPassword.path;
+    };
   };
 }
-
