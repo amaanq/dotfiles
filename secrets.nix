@@ -30,7 +30,7 @@ in
   "hosts/nixmain/yubikey/u2f.age".publicKeys = admins;
 
   # nixovh server
-  "hosts/nixovh/forgejo-assets.tar.gz.age".publicKeys = admins ++ adminsOvh;
+  "hosts/nixovh/forgejo/assets.tar.gz.age".publicKeys = admins ++ adminsOvh;
   "hosts/nixovh/id.age".publicKeys = admins ++ adminsOvh;
   "hosts/nixovh/password.age".publicKeys = admins ++ adminsOvh;
 

@@ -20,7 +20,7 @@ in
 {
   system.activationScripts.forgejo-assets = ''
     mkdir -p /etc/forgejo
-    ${pkgs.age}/bin/age -d -i ${config.secrets.id.path} ${./forgejo-assets.tar.gz.age} | ${pkgs.gzip}/bin/gzip -d | ${pkgs.gnutar}/bin/tar -xf - -C /etc/forgejo
+    ${pkgs.age}/bin/age -d -i ${config.secrets.id.path} ${./assets.tar.gz.age} | ${pkgs.gzip}/bin/gzip -d | ${pkgs.gnutar}/bin/tar -xf - -C /etc/forgejo
   '';
 
   services.postgresql.ensure = [ "forgejo" ];
@@ -44,14 +44,17 @@ in
     lfs = enabled;
     customDir = "/etc/forgejo";
 
-    package = pkgs.forgejo;
+    package = pkgs.forgejo.overrideAttrs (old: {
+      patches = (old.patches or [ ]) ++ [
+        ./discord-webhook.patch
+      ];
+    });
     database = {
       socket = "/run/postgresql";
       type = "postgres";
     };
-
     settings = {
-      default.APP_NAME = "Reversed Rooms";
+      DEFAULT.APP_NAME = "Reversed Rooms";
 
       attachment.ALLOWED_TYPES = "*/*";
 
