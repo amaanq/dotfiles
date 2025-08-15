@@ -1,8 +1,4 @@
-{
-  self,
-  config,
-  ...
-}:
+{ self, ... }:
 let
   domain = "git.xeondev.com";
 in
@@ -21,16 +17,4 @@ in
     }
   '';
 
-  services.nginx.virtualHosts.${domain} =
-    (removeAttrs config.services.nginx.sslTemplate [ "useACMEHost" ])
-    // {
-      enableACME = true;
-      locations."/" = {
-        proxyPass = "http://[::1]:3000";
-        extraConfig = # nginx
-          ''
-            client_max_body_size 100M;
-          '';
-      };
-    };
 }

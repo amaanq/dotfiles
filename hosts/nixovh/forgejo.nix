@@ -8,9 +8,14 @@ let
   inherit (lib)
     const
     enabled
+    head
     genAttrs
     mkForce
+    stringToPort
     ;
+
+  domain = "git.xeondev.com";
+  port = stringToPort "git";
 in
 {
   system.activationScripts.forgejo-assets = ''
@@ -88,10 +93,14 @@ in
       security.INSTALL_LOCK = true;
 
       server = {
-        DOMAIN = "git.xeondev.com";
+        DOMAIN = domain;
+        ROOT_URL = "https://${domain}/";
+
         HTTP_ADDR = "::1";
-        HTTP_PORT = 3000;
-        ROOT_URL = "https://git.xeondev.com/";
+        HTTP_PORT = port;
+
+        SSH_PORT = head config.services.openssh.ports;
+
         DISABLE_ROUTER_LOG = true;
       };
 
@@ -109,4 +118,17 @@ in
       };
     };
   };
+
+  services.nginx.virtualHosts.${domain} =
+    (removeAttrs config.services.nginx.sslTemplate [ "useACMEHost" ])
+    // {
+      enableACME = true;
+      locations."/" = {
+        proxyPass = "http://[::1]:${toString port}";
+        extraConfig = # nginx
+          ''
+            client_max_body_size 100M;
+          '';
+      };
+    };
 }
