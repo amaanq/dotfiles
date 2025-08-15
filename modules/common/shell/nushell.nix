@@ -88,8 +88,14 @@ in
 
               source ${pkgs.nu_scripts}/share/nu_scripts/modules/formats/from-env.nu
 
-              $env.OPENAI_API_KEY = (open ${config.secrets.openai_api_key.path} | str trim)
-              $env.ANTHROPIC_API_KEY = (open ${config.secrets.anthropic_api_key.path} | str trim)
+              if ($env.USER == "amaanq") {
+                if ("${config.secrets.openai_api_key.path}" | path exists) {
+                  $env.OPENAI_API_KEY = (open ${config.secrets.openai_api_key.path} | str trim)
+                }
+                if ("${config.secrets.anthropic_api_key.path}" | path exists) {
+                  $env.ANTHROPIC_API_KEY = (open ${config.secrets.anthropic_api_key.path} | str trim)
+                }
+              }
             '';
         };
       }
