@@ -16,6 +16,8 @@ in
   "hosts/nixbox/matrix/key.age".publicKeys = [ nixbox ] ++ admins;
   "hosts/nixbox/matrix/secret.age".publicKeys = [ nixbox ] ++ admins;
 
+  "hosts/nixbox/github2forgejo/environment.age".publicKeys = [ nixbox ] ++ admins;
+
   "hosts/nixbox/nextcloud/password.age".publicKeys = [ nixbox ] ++ admins;
 
   "hosts/nixbox/plausible/key.age".publicKeys = [ nixbox ] ++ admins;

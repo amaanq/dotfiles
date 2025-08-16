@@ -72,6 +72,11 @@
       inputs.home-manager.follows = "home-manager";
     };
 
+    github2forgejo = {
+      url = "github:RGBCube/GitHub2Forgejo";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     lanzaboote = {
       url = "github:nix-community/lanzaboote/v0.4.2";
       inputs.nixpkgs.follows = "nixpkgs";
