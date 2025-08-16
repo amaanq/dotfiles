@@ -42,16 +42,6 @@ let
   };
 in
 {
-  nixpkgs.overlays = [
-    (self: super: {
-      cinny-unwrapped = super.cinny-unwrapped.overrideAttrs (old: {
-        patches = old.patches or [ ] ++ [
-          ./all-styles.patch
-        ];
-      });
-    })
-  ];
-
   services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
     inherit root;
 
