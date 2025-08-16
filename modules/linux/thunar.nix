@@ -27,6 +27,12 @@ merge
   };
   services.upower = enabled;
 
+  home-manager.sharedModules = [
+    {
+      services.udiskie = enabled;
+    }
+  ];
+
   environment.systemPackages = [
     pkgs.ffmpegthumbnailer
     pkgs.libgsf
