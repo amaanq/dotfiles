@@ -16,6 +16,10 @@ let
     ;
 in
 {
+  config.services.prometheus.exporters.postgres = enabled {
+    listenAddress = "[::]";
+    runAsLocalSuperUser = true;
+  };
 
   config.services.restic.backups =
     genAttrs config.services.restic.hosts

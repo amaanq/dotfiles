@@ -34,6 +34,8 @@ in
   "hosts/nixovh/id.age".publicKeys = admins ++ adminsOvh;
   "hosts/nixovh/password.age".publicKeys = admins ++ adminsOvh;
 
+  "hosts/nixovh/grafana/password.age".publicKeys = admins ++ adminsOvh;
+
   "hosts/nixovh/plausible/key.age".publicKeys = admins ++ adminsOvh;
 
   # shared
