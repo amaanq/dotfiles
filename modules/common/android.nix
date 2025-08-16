@@ -32,7 +32,6 @@ merge
   environment.systemPackages = [
     pkgs.android-tools
     pkgs.android-udev-rules
-    pkgs.androidenv.androidPkgs.emulator
     pkgs.androidenv.androidPkgs.ndk-bundle
     pkgs.androidenv.androidPkgs.platform-tools
     pkgs.androidenv.androidPkgs.tools
