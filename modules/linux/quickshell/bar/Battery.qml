@@ -15,7 +15,7 @@ RowLayout {
   CW.FontIcon {
     Layout.alignment: Qt.AlignVCenter
     color: root.color
-    iconSize: 20
+    iconSize: 15
     text: {
       const iconNumber = Math.round(root.percentage * 7);
       return root.charging ? "battery_android_bolt" : `battery_android_${iconNumber >= 7 ? "full" : iconNumber}`;
@@ -24,6 +24,7 @@ RowLayout {
 
   CW.StyledText {
     Layout.alignment: Qt.AlignVCenter
+    Layout.fillHeight: true
     Layout.leftMargin: 2
     text: `${Math.round(percentage * 100)}%`
     color: root.color

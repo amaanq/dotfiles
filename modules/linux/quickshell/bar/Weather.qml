@@ -15,7 +15,9 @@ RowLayout {
   }
 
   CW.StyledText {
-    text: S.WeatherState.temp + ", " + S.WeatherState.location
+    Layout.alignment: Qt.AlignVCenter
+    Layout.fillHeight: true
+    text: S.WeatherState.getTemp() + ", " + (C.Config.settings.bar.weatherNoLocation ? S.WeatherState.weatherStr : S.WeatherState.location)
     color: C.Config.theme.on_surface
   }
 }

@@ -9,12 +9,14 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
+import Quickshell.Services.SystemTray
 import "config"
 
 Scope {
   property bool showBars: true
 
   Component.onCompleted: {
+    SystemTray; // register a status notifier host as early as possible
     console.log("Shell initialized");
     S.BrightnessState.load();
   }

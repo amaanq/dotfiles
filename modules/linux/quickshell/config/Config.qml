@@ -241,8 +241,11 @@ Singleton {
         property int verticalGap: 5
         property int horizontalGap: 5
         property int height: 30
+        property bool topLayer: false
         property bool weather: false
         property string weatherLocation: "None"
+        property bool weatherNoLocation: false
+        property bool weatherTempInCelcius: true
 
         property JsonObject workspaces: JsonObject {
           property int shown: 10
@@ -265,6 +268,7 @@ Singleton {
       property JsonObject panels: JsonObject {
         property int radius: 10
         property bool borders: true
+        property int bordersSize: 1
         property bool transparent: true
         property real baseOpacity: 0.8
         property bool compactEnabled: true

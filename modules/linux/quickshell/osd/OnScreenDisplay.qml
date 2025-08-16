@@ -81,7 +81,7 @@ PanelWindow {
     rightMargin: 12
     radius: C.Config.settings.panels.radius
     color: C.Config.applyBaseOpacity(C.Config.theme.background)
-    border.width: C.Config.settings.panels.borders ? 1 : 0
+    border.width: C.Config.settings.panels.borders ? C.Config.settings.panels.bordersSize : 0
     border.color: C.Config.applyBaseOpacity(C.Config.theme.outline_variant)
 
     Loader {

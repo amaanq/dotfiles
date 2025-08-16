@@ -60,7 +60,7 @@ BasePopupDelegate {
       margin: 15
       radius: C.Config.settings.panels.radius
       color: C.Config.applyBaseOpacity(C.Config.theme.background)
-      border.width: C.Config.settings.panels.borders ? 1 : 0
+      border.width: C.Config.settings.panels.borders ? C.Config.settings.panels.bordersSize : 0
       border.color: C.Config.applyBaseOpacity(C.Config.theme.outline_variant)
 
       y: C.Config.settings.bar.edge == "bottom" ? (window.implicitHeight - content.implicitHeight + ((1.0 - root.revealProgress) * root.raiseDist) - C.Config.settings.bar.verticalGap) : (root.revealProgress * root.raiseDist + root.raiseDist)

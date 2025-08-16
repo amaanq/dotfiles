@@ -20,6 +20,17 @@ PanelWindow {
   implicitWidth: 1000
   implicitHeight: 600
 
+  GlobalShortcut {
+    name: "shortcutsToggle"
+    appid: "hyprland-shell"
+    description: qsTr("Toggles shortcuts menu on press")
+
+    onPressed: {
+      S.MiscState.shortcutsOpen = !S.MiscState.shortcutsOpen
+      S.MiscState.shortcutsOpenGrab = S.MiscState.shortcutsOpen
+    }
+  }
+
   property list<var> defaultKeybinds: [
     {
       "shortcut": "SUPER + E",
@@ -127,7 +138,7 @@ PanelWindow {
 
     radius: 10
     color: C.Config.applyBaseOpacity(C.Config.theme.background)
-    border.width: C.Config.settings.panels.borders ? 1 : 0
+    border.width: C.Config.settings.panels.borders ? C.Config.settings.panels.bordersSize : 0
     border.color: C.Config.applyBaseOpacity(C.Config.theme.outline_variant)
     anchors.fill: parent
     visible: opacity != 0

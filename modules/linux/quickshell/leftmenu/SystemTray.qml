@@ -35,7 +35,18 @@ WrapperRectangle {
 
           IconImage {
             id: trayIcon
-            source: delegate.modelData.icon
+            source: {
+              let icon = delegate.modelData.icon;
+              if (icon.includes("?path=")) {
+                const [name, path] = icon.split("?path=");
+                icon = `file://${path}/${name.slice(name.lastIndexOf("/") + 1)}`;
+              } else if (icon.includes("?fallback=") || icon.startsWith("?")) {
+                // Handle ?fallback= and other URL parameters
+                icon = icon.split("?")[0];
+              }
+              return icon;
+            }
+            asynchronous: true
             implicitSize: 16
             visible: !C.Config.settings.tray.monochromeIcons
           }

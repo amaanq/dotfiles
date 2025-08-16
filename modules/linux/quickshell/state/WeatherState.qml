@@ -13,10 +13,19 @@ Singleton {
   property string location: "?"
   property string icon: "sunny"
   property string temp: "26°"
+  property string weatherStr: "Sunny"
 
   property bool isWeatherOverridden: C.Config.settings.bar.weatherLocation != "None" && C.Config.settings.bar.weatherLocation != "";
 
   property string lastLocation: ""
+
+  function getTemp() {
+    const IS_FAHR = temp[temp.length - 1] == "F";
+    if (C.Config.settings.bar.weatherTempInCelcius == true)
+      return IS_FAHR ? Math.round((5.0/9.0) * (parseInt(temp.substr(0, temp.length - 2)) - 30)) + "°C" : temp;
+    else
+      return IS_FAHR ? temp : Math.round((9 * parseInt(temp.substr(0, temp.length - 2)) + (32 * 5)) / 5.0) + "°F";
+  }
 
   Timer {
     interval: 5000
@@ -49,6 +58,8 @@ Singleton {
 
         location = RETS[6];
         temp = RETS[1][0] == "+" ? RETS[1].substr(1) : RETS[1];
+
+        weatherStr = RETS[2];
 
         RETS[2] = RETS[2].toLowerCase()
 

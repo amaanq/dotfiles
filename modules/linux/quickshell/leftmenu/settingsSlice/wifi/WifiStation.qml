@@ -49,9 +49,7 @@ WrapperMouseArea {
 
     WifiExpansion {
       Layout.fillWidth: true
-      line1: station.ssid + ", " + station.bssid
-      line2: "Security: " + station.security
-      line3: "Signal: " + (station.bars == 4 ? "Very Good" : (station.bars == 3 ? "Good" : (station.bars == 2 ? "Average" : "Poor")))
+      lines: [station.ssid + ", " + station.bssid, "Freq: " + station.freq + "GHz", "Security: " + station.security, "Wifi Points: " + station.points, "Signal: " + (station.bars == 4 ? "Very Good" : (station.bars == 3 ? "Good" : (station.bars == 2 ? "Average" : "Poor")))]
       visible: opacity != 0
       opacity: open ? 1 : 0
       active: station.active

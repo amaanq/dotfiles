@@ -18,7 +18,7 @@ PanelWindow {
   property real innerPadHorz: 8
   property real compactHeight: barHeight
   property real standardHeight: barHeight + gapsVert
-  readonly property real borderMargin: C.Config.settings.panels.borders ? 1 : 0
+  readonly property real borderMargin: C.Config.settings.panels.borders ? C.Config.settings.panels.bordersSize : 0
   readonly property real topContentMargin: borderMargin + (C.Config.edge == C.Config.BarEdge.Top ? uncompactState : compactState) * gapsVert
   readonly property real bottomContentMargin: borderMargin + (C.Config.edge == C.Config.BarEdge.Bottom ? uncompactState : compactState) * gapsVert
   readonly property bool showBattery: UPower.displayDevice.isLaptopBattery
@@ -29,7 +29,7 @@ PanelWindow {
   color: "transparent"
   exclusiveZone: compact ? compactHeight : standardHeight
   WlrLayershell.namespace: "hyprland-shell:bar"
-  WlrLayershell.layer: WlrLayer.Top
+  WlrLayershell.layer: C.Config.settings.bar.topLayer ? WlrLayer.Top : WlrLayer.Bottom
   implicitHeight: standardHeight
 
   visible: root.show

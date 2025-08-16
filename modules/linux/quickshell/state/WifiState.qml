@@ -75,6 +75,14 @@ Singleton {
     return out;
   }
 
+  function stationFromSSID(ssid) {
+    for (let st of wifiStations) {
+      if (st.ssid == ssid)
+        return st;
+    }
+    return null;
+  }
+
   Process {
     id: updateNmcliProc
     running: false
@@ -91,7 +99,7 @@ Singleton {
     id: nmcliListProc
     running: false
 
-    command: ["nmcli", "--terse", "dev", "wifi", "list"]
+    command: ["nmcli", "--terse", "-f", "IN-USE,BSSID,SSID,MODE,CHAN,RATE,SIGNAL,BARS,SECURITY,FREQ", "dev", "wifi", "list"]
 
     stdout: SplitParser {
       splitMarker: ""
@@ -125,11 +133,34 @@ Singleton {
           s.security = lineParsed[8];
           s.bars = 4 - (lineParsed[7].match(/\_/g) || []).length;
           s.bssid = lineParsed[1];
+          s.points = 1;
+          s.freq = Math.round(parseInt(lineParsed[9].substr(0, lineParsed[9].length - 3)) / 100.0) / 10.0
 
-          if (s.active)
-            activeStation = s;
-          else
-            wifiStations = [s, ...wifiStations];
+          if (s.ssid == "")
+            continue; // hidden station
+
+          if (stationFromSSID(s.ssid) != null) {
+            for (let i = 0; i < wifiStations.length; ++i) {
+              if (wifiStations[i].ssid == s.ssid) {
+                wifiStations[i].points++;
+                wifiStations[i].active = wifiStations[i].active || s.active;
+                wifiStations[i].bars = Math.max(wifiStations[i].bars, s.bars);
+                wifiStations[i].freq = Math.max(wifiStations[i].freq, s.freq);
+                break;
+              }
+            }
+            continue;
+          }
+
+          wifiStations = [s, ...wifiStations];
+        }
+
+        for (let i = 0; i < wifiStations.length; ++i) {
+          if (wifiStations[i].active) {
+            activeStation = wifiStations[i];
+            wifiStations.splice(i, 1);
+            break;
+          }
         }
 
         if (activeStation != null)

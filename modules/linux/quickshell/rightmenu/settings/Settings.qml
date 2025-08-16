@@ -34,7 +34,7 @@ ColumnLayout {
     id: sv
 
     Layout.fillHeight: true
-    Layout.fillWidth: true
+    width: root.width
     ScrollBar.horizontal: null
     ScrollBar.vertical: CW.StyledScrollBar {
       anchors {
@@ -75,6 +75,15 @@ ColumnLayout {
         label: "Bar on top"
         checked: C.Config.settings.bar.edge == "top"
         onToggled: C.Config.settings.bar.edge = checked ? "top" : "bottom"
+      }
+
+      Spacerr {}
+
+      CW.ValueSwitch {
+        implicitWidth: sv.width
+        label: "Bar above windows"
+        checked: C.Config.settings.bar.topLayer
+        onToggled: C.Config.settings.bar.topLayer = checked
       }
 
       Spacerr {}
@@ -251,6 +260,82 @@ ColumnLayout {
         }
       }
 
+      CW.ValueSwitch {
+        visible: opacity != 0
+        opacity: C.Config.settings.bar.weather ? 1 : 0
+        Layout.preferredHeight: C.Config.settings.bar.weather ? implicitHeight : 0
+        z: C.Config.settings.bar.weather ? 3 : 2
+        implicitWidth: sv.width
+        label: "Don't show location"
+        checked: C.Config.settings.bar.weatherNoLocation
+        onToggled: C.Config.settings.bar.weatherNoLocation = checked
+
+        Behavior on opacity {
+          NumberAnimation {
+            duration: C.Globals.anim_MEDIUM
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: C.Globals.anim_CURVE_SMOOTH_SLIDE
+          }
+        }
+
+        Behavior on Layout.preferredHeight {
+          NumberAnimation {
+            duration: C.Globals.anim_MEDIUM
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: C.Globals.anim_CURVE_SMOOTH_SLIDE
+          }
+        }
+      }
+
+      Spacerr {
+        Layout.preferredHeight: C.Config.settings.bar.weather ? 11 : 0
+        Behavior on Layout.preferredHeight {
+          NumberAnimation {
+            duration: C.Globals.anim_MEDIUM
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: C.Globals.anim_CURVE_SMOOTH_SLIDE
+          }
+        }
+      }
+
+      CW.ValueSwitch {
+        visible: opacity != 0
+        opacity: C.Config.settings.bar.weather ? 1 : 0
+        Layout.preferredHeight: C.Config.settings.bar.weather ? implicitHeight : 0
+        z: C.Config.settings.bar.weather ? 3 : 2
+        implicitWidth: sv.width
+        label: "Use Celcius"
+        checked: C.Config.settings.bar.weatherTempInCelcius
+        onToggled: C.Config.settings.bar.weatherTempInCelcius = checked
+
+        Behavior on opacity {
+          NumberAnimation {
+            duration: C.Globals.anim_MEDIUM
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: C.Globals.anim_CURVE_SMOOTH_SLIDE
+          }
+        }
+
+        Behavior on Layout.preferredHeight {
+          NumberAnimation {
+            duration: C.Globals.anim_MEDIUM
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: C.Globals.anim_CURVE_SMOOTH_SLIDE
+          }
+        }
+      }
+
+      Spacerr {
+        Layout.preferredHeight: C.Config.settings.bar.weather ? 11 : 0
+        Behavior on Layout.preferredHeight {
+          NumberAnimation {
+            duration: C.Globals.anim_MEDIUM
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: C.Globals.anim_CURVE_SMOOTH_SLIDE
+          }
+        }
+      }
+
       CW.StyledText {
         Layout.topMargin: 10
         font {
@@ -329,6 +414,46 @@ ColumnLayout {
       }
 
       Spacerr {}
+
+      SliderValue {
+        visible: opacity != 0
+        label: "Border width"
+        from: 1
+        to: 5
+        floatVal: false
+        value: C.Config.settings.panels.bordersSize
+        onMoved: C.Config.settings.panels.bordersSize = Math.round(value)
+
+        Layout.preferredHeight: C.Config.settings.panels.borders ? implicitHeight : 0
+        opacity: C.Config.settings.panels.borders ? 1 : 0
+
+        Behavior on Layout.preferredHeight {
+          NumberAnimation {
+            duration: C.Globals.anim_NORMAL
+            easing.type: Easing.Linear
+            easing.bezierCurve: C.Globals.anim_CURVE_SMOOTH_SLIDE
+          }
+        }
+
+        Behavior on opacity {
+          NumberAnimation {
+            duration: C.Globals.anim_NORMAL
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: C.Globals.anim_CURVE_SMOOTH_SLIDE
+          }
+        }
+      }
+
+      Spacerr {
+        Layout.preferredHeight: C.Config.settings.panels.borders ? 11 : -1
+        Behavior on Layout.preferredHeight {
+          NumberAnimation {
+            duration: C.Globals.anim_NORMAL
+            easing.type: Easing.Linear
+            easing.bezierCurve: C.Globals.anim_CURVE_SMOOTH_SLIDE
+          }
+        }
+      }
 
       CW.ValueSwitch {
         implicitWidth: sv.width
@@ -645,17 +770,51 @@ ColumnLayout {
         }
       }
 
+      Spacerr {}
+
+      CW.StyledText {
+        Layout.topMargin: 10
+        font {
+          pointSize: C.Config.fontSize.h2
+          weight: Font.DemiBold
+        }
+        text: "Updates"
+      }
+
+      Spacerr {}
+
+      CW.HorizontalLine {
+        Layout.topMargin: -5
+        Layout.bottomMargin: 5
+        Layout.fillWidth: false
+        Layout.leftMargin: 0
+        implicitWidth: 90
+      }
+
+      Spacerr {}
+
+      CW.ValueSwitch {
+        implicitWidth: sv.width
+        label: "Automatic update checking"
+        checked: C.Config.misc.autoUpdateCheck
+        onToggled: C.Config.misc.autoUpdateCheck = checked
+      }
+
+      Spacerr {}
+
+      CW.ValueSwitch {
+        implicitWidth: sv.width
+        label: "Beta channel"
+        checked: C.Config.misc.betaChannel
+        onToggled: C.Config.misc.betaChannel = checked
+      }
+
+      Spacerr {}
     }
   }
 
-  // this is horrible but QML has forced my hand.
+  // // this is horrible but QML has forced my hand.
   component Spacerr: Item {
     Layout.preferredHeight: 11
-  }
-
-  CW.StyledText {
-    font.pointSize: C.Config.fontSize.small
-    text: "For Hyprland settings, see ~/.config/hypr/conf.d/custom.d/"
-    color: Qt.darker(C.Config.theme.on_surface)
   }
 }

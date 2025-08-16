@@ -9,9 +9,7 @@ import "../../../state" as S
 Rectangle {
   id: root
 
-  property string line1: ""
-  property string line2: ""
-  property string line3: ""
+  property var lines: []
   property string ssid: ""
   property bool active: false
 
@@ -30,14 +28,13 @@ Rectangle {
       margins: 6
     }
 
-    CW.StyledText {
-      text: line1
-    }
-    CW.StyledText {
-      text: line2
-    }
-    CW.StyledText {
-      text: line3
+    Repeater {
+      model: lines
+
+      CW.StyledText {
+        required property int index;
+        text: lines[index]
+      }
     }
 
     WrapperMouseArea {
