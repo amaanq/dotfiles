@@ -11,7 +11,7 @@ in
   system.defaults.NSGlobalDomain = {
     _HIHideMenuBar = false; # Only hide menubar on fullscreen.
 
-    AppleInterfaceStyle = if lib.isDark config.theme then "Dark" else null;
+    AppleInterfaceStyle = "Dark";
 
     AppleScrollerPagingBehavior = true; # Jump to the spot that was pressed in the scrollbar.
     AppleShowScrollBars = "WhenScrolling";
