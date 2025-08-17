@@ -40,6 +40,9 @@ in
 
   "hosts/nixovh/plausible/key.age".publicKeys = admins ++ adminsOvh;
 
+  # nixwsl desktop
+  "hosts/nixwsl/password.age".publicKeys = admins;
+
   # shared
   "modules/common/atuin/key.age".publicKeys = all;
   "modules/common/shell/anthropic-key.age".publicKeys = all;
