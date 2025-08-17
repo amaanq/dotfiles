@@ -77,8 +77,5 @@ merge
     [
       krisp-patcher
     ]
-    ++ optional (discordPackage != null) discordPackage
-    ++ [
-      pkgs.legcord
-    ];
+    ++ optional (discordPackage != null) discordPackage;
 }
