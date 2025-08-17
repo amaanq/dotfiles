@@ -31,7 +31,7 @@ let
   });
 in
 merge
-<| mkIf config.isDesktop {
+<| mkIf (config.isDesktop && !config.isVirtual) {
   unfree.allowedNames = [
     "ida-pro"
   ];
