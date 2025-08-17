@@ -12,12 +12,14 @@ in
     os = mkConst <| last <| splitString "-" config.nixpkgs.hostPlatform.system;
 
     type = mkValue "desktop";
-    isConstrained = mkValue false;
 
     isLinux = mkConst <| config.os == "linux";
     isDarwin = mkConst <| config.os == "darwin";
 
     isDesktop = mkConst <| config.type == "desktop";
     isServer = mkConst <| config.type == "server";
+
+    isConstrained = mkValue false;
+    isVirtual = mkValue false;
   };
 }

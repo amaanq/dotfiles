@@ -14,6 +14,7 @@ lib.nixosSystem' (
     imports = collectNix ./. |> remove ./default.nix;
 
     type = "desktop";
+    isVirtual = true;
 
     wsl = enabled {
       defaultUser = "amaanq";
