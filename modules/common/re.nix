@@ -8,6 +8,7 @@ let
   inherit (lib)
     merge
     mkIf
+    optionals
     ;
 in
 merge
@@ -18,8 +19,11 @@ merge
     pkgs.gef
     pkgs.imhex
     pkgs.patchelf
-    pkgs.pwninit
     pkgs.radare2
     pkgs.yara
+  ]
+  ++ optionals config.isLinux [
+    pkgs.pwninit
+
   ];
 }
