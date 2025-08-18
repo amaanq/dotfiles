@@ -8,8 +8,8 @@ let
 in
 {
   options.services.restic.hosts = mkConst (
-    # nixovh backs up to nixbox, but nixbox doesn't backup to nixovh
-    if config.networking.hostName == "nixovh" then [ "nixbox" ] else [ ]
+    # nunatak backs up to nixbox, but nixbox doesn't backup to nunatak
+    if config.networking.hostName == "nunatak" then [ "nixbox" ] else [ ]
   );
 
   config.secrets.resticPassword = mkIf config.isServer { file = ./password.age; };

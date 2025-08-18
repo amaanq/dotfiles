@@ -31,14 +31,14 @@ in
   "hosts/nixmain/password.age".publicKeys = admins;
   "hosts/nixmain/yubikey/u2f.age".publicKeys = admins;
 
-  # nixovh server
-  "hosts/nixovh/forgejo/assets.tar.gz.age".publicKeys = admins ++ adminsOvh;
-  "hosts/nixovh/id.age".publicKeys = admins ++ adminsOvh;
-  "hosts/nixovh/password.age".publicKeys = admins ++ adminsOvh;
+  # nunatak server
+  "hosts/nunatak/forgejo/assets.tar.gz.age".publicKeys = admins ++ adminsOvh;
+  "hosts/nunatak/id.age".publicKeys = admins ++ adminsOvh;
+  "hosts/nunatak/password.age".publicKeys = admins ++ adminsOvh;
 
-  "hosts/nixovh/grafana/password.age".publicKeys = admins ++ adminsOvh;
+  "hosts/nunatak/grafana/password.age".publicKeys = admins ++ adminsOvh;
 
-  "hosts/nixovh/plausible/key.age".publicKeys = admins ++ adminsOvh;
+  "hosts/nunatak/plausible/key.age".publicKeys = admins ++ adminsOvh;
 
   # nixwsl desktop
   "hosts/nixwsl/password.age".publicKeys = admins;
