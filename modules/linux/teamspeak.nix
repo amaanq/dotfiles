@@ -8,7 +8,7 @@ let
   inherit (lib) enabled merge mkIf;
 in
 merge
-  (mkIf config.isServer {
+  (mkIf (config.isServer && pkgs.system != "aarch64-linux") {
     unfree.allowedNames = [
       "teamspeak-server"
     ];
