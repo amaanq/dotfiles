@@ -53,7 +53,7 @@ merge
   };
 
   programs.hyprland = enabled {
-    xwayland.enable = true;
+    xwayland = enabled;
   };
 
   programs.xwayland = enabled;
@@ -94,8 +94,8 @@ merge
 
       # Proper theme configuration for Hyprland
       home.pointerCursor = {
-        gtk.enable = true;
-        x11.enable = true;
+        gtk = enabled;
+        x11 = enabled;
         name = "rose-pine-hyprcursor";
         size = 24;
       };

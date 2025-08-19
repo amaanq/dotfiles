@@ -30,7 +30,7 @@ in
           userName = "Amaan Qureshi";
           userEmail = "amaanq12@gmail.com";
 
-          lfs.enable = true;
+          lfs = enabled;
 
           extraConfig =
             merge {

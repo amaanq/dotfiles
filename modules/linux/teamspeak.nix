@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (lib) merge mkIf;
+  inherit (lib) enabled merge mkIf;
 in
 merge
   (mkIf config.isServer {
@@ -13,8 +13,7 @@ merge
       "teamspeak-server"
     ];
 
-    services.teamspeak3 = {
-      enable = true;
+    services.teamspeak3 = enabled {
       openFirewall = true;
     };
   })
