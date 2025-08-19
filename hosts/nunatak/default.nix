@@ -8,7 +8,7 @@ lib.nixosSystem' (
     ...
   }:
   let
-    inherit (lib) collectNix enabled remove;
+    inherit (lib) collectNix remove;
   in
   {
     imports = collectNix ./. |> remove ./default.nix;
@@ -82,50 +82,45 @@ lib.nixosSystem' (
       backup = { };
     };
 
-    networking = {
-      domain = "amaanq.com";
+    networking =
+      let
+        interface = "enp7s0";
+      in
+      {
+        domain = "amaanq.com";
 
-      hostName = "nunatak";
+        hostName = "nunatak";
 
-      enableIPv6 = true;
+        ipv4.address = "152.53.225.105";
+        ipv6.address = "2a0a:4cc0:c0:7892::105";
 
-      interfaces.ens3.ipv6.addresses = [
-        {
-          address = "2001:41d0:305:2100::5f52";
-          prefixLength = 64;
-        }
-      ];
+        defaultGateway = {
+          inherit interface;
 
-      defaultGateway6 = {
-        address = "2001:41d0:305:2100::1";
-        interface = "ens3";
+          address = "152.53.224.1";
+        };
+
+        defaultGateway6 = {
+          inherit interface;
+
+          address = "fe80::1";
+        };
       };
 
-      firewall = enabled {
-        allowedTCPPorts = [
-          22
-          25
-          53
-          143
-          443
-          465
-          587
-          993
-        ];
-        allowedUDPPorts = [
-          53
-          60001
-        ];
-      };
-    };
-
-    system.stateVersion = "25.11";
+    system.stateVersion = "25.05";
     home-manager.sharedModules = [
       {
-        home.stateVersion = "25.11";
+        home.stateVersion = "25.05";
       }
     ];
 
-    time.timeZone = "Europe/Paris";
+    time.timeZone = "Europe/Berlin";
+
+    swapDevices = [
+      {
+        device = "/var/swapfile";
+        size = 2048; # 2GB
+      }
+    ];
   }
 )
