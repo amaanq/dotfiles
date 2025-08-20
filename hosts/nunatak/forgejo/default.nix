@@ -23,6 +23,11 @@ in
     ${pkgs.age}/bin/age -d -i ${config.secrets.id.path} ${./assets.tar.gz.age} | ${pkgs.gzip}/bin/gzip -d | ${pkgs.gnutar}/bin/tar -xf - -C /etc/forgejo
   '';
 
+  secrets.forgejoRunnerToken = {
+    file = ./runner.age;
+    owner = "forgejo-runner";
+  };
+
   services.postgresql.ensure = [ "forgejo" ];
 
   services.restic.backups =
@@ -119,6 +124,22 @@ in
         DESCRIPTION = "A slaveless, non-gatekeeping Git service";
         KEYWORDS = "reversedrooms, Reversed rooms, xeondev, zenless zone zero, ZZZ";
       };
+    };
+  };
+
+  virtualisation.podman = enabled {
+    dockerCompat = true;
+  };
+
+  services.gitea-actions-runner = {
+    package = pkgs.forgejo-actions-runner;
+    instances.nunatak = enabled {
+      name = "nunatak";
+      url = "https://git.xeondev.com";
+      tokenFile = config.secrets.forgejoRunnerToken.path;
+      labels = [
+        "nixos-latest:docker://nixpkgs/nix-flakes:latest"
+      ];
     };
   };
 

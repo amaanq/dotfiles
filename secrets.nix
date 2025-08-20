@@ -1,8 +1,8 @@
 let
   inherit (import ./keys.nix)
     nixbox
+    nunatak
     admins
-    adminsOvh
     all
     ;
 in
@@ -32,13 +32,15 @@ in
   "hosts/nixmain/yubikey/u2f.age".publicKeys = admins;
 
   # nunatak server
-  "hosts/nunatak/forgejo/assets.tar.gz.age".publicKeys = admins ++ adminsOvh;
-  "hosts/nunatak/id.age".publicKeys = admins ++ adminsOvh;
-  "hosts/nunatak/password.age".publicKeys = admins ++ adminsOvh;
+  "hosts/nunatak/id.age".publicKeys = [ nunatak ] ++ admins;
+  "hosts/nunatak/password.age".publicKeys = [ nunatak ] ++ admins;
 
-  "hosts/nunatak/grafana/password.age".publicKeys = admins ++ adminsOvh;
+  "hosts/nunatak/forgejo/assets.tar.gz.age".publicKeys = [ nunatak ] ++ admins;
+  "hosts/nunatak/forgejo/runner.age".publicKeys = [ nunatak ] ++ admins;
 
-  "hosts/nunatak/plausible/key.age".publicKeys = admins ++ adminsOvh;
+  "hosts/nunatak/grafana/password.age".publicKeys = [ nunatak ] ++ admins;
+
+  "hosts/nunatak/plausible/key.age".publicKeys = [ nunatak ] ++ admins;
 
   # nixwsl desktop
   "hosts/nixwsl/password.age".publicKeys = admins;
