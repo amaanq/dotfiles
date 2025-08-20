@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (lib) enabled merge mkConst;
+  inherit (lib) const enabled genAttrs merge mkConst;
 
   fqdn = "data.libg.so";
   port = 8007;
@@ -54,6 +54,12 @@ in
       sub_filter_once on;
     ''
   );
+
+  config.services.restic.backups =
+    genAttrs config.services.restic.hosts
+    <| const {
+      paths = [ "/var/lib/clickhouse" ];
+    };
 
   config.services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
     extraConfig = config.services.plausible.extraNginxConfigFor fqdn;
