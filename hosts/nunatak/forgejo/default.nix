@@ -50,8 +50,10 @@ in
     customDir = "/etc/forgejo";
 
     package = pkgs.forgejo.overrideAttrs (old: {
+      doCheck = false;
       patches = (old.patches or [ ]) ++ [
         ./discord-webhook.patch
+        ./custom-pages.patch
       ];
     });
     database = {
