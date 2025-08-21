@@ -37,7 +37,7 @@ in
       add_header Strict-Transport-Security $hsts_header always;
 
       proxy_hide_header Content-Security-Policy;
-      add_header Content-Security-Policy "script-src 'self' 'unsafe-inline' 'unsafe-eval' ${domain} *.${domain} data.libg.so; object-src 'self' ${domain} *.${domain}; base-uri 'self';" always;
+      add_header Content-Security-Policy "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: ${domain} *.${domain} *.libg.so; worker-src 'self' blob:; object-src 'self' ${domain} *.${domain}; base-uri 'self';" always;
 
       proxy_hide_header Referrer-Policy;
       add_header Referrer-Policy no-referrer always;
