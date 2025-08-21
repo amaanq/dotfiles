@@ -10,6 +10,7 @@ let
     filterAttrs
     flatten
     mapAttrsToList
+    stringToPort
     ;
 in
 {
@@ -65,6 +66,13 @@ in
           );
 
       in
-      self.nixosConfigurations |> mapAttrsToList configToScrapeConfig |> flatten;
+      (self.nixosConfigurations |> mapAttrsToList configToScrapeConfig |> flatten)
+      ++ [
+        {
+          job_name = "forgejo";
+          static_configs = [ { targets = [ "[::1]:${toString (stringToPort "git")}" ]; } ];
+          metrics_path = "/metrics";
+        }
+      ];
   };
 }

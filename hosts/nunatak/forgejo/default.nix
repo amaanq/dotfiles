@@ -121,6 +121,13 @@ in
         SAME_SITE = "strict";
       };
 
+      metrics = {
+        ENABLED = true;
+        ENABLED_ISSUE_BY_LABEL = true;
+        ENABLED_ISSUE_BY_REPOSITORY = true;
+        TOKEN = "";
+      };
+
       "ui.meta" = {
         AUTHOR = "Reversed Rooms";
         DESCRIPTION = "A slaveless, non-gatekeeping Git service";
@@ -156,6 +163,14 @@ in
           ''
             client_max_body_size 100M;
           '';
+      };
+      locations."/metrics" = {
+        proxyPass = "http://[::1]:${toString port}/metrics";
+        extraConfig = ''
+          allow ::1;
+          allow 127.0.0.1;
+          deny all;
+        '';
       };
     };
 }
