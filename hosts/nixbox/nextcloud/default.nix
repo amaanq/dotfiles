@@ -21,6 +21,18 @@ in
     file = ./password.age;
     owner = "nextcloud";
   };
+  secrets.nextcloudPasswordExporter = {
+    file = ./password.age;
+    owner = "nextcloud-exporter";
+  };
+
+  services.prometheus.exporters.nextcloud = enabled {
+    listenAddress = "[::]";
+
+    username = "admin";
+    url = "https://${fqdn}";
+    passwordFile = config.secrets.nextcloudPasswordExporter.path;
+  };
 
   services.postgresql.ensure = [ "nextcloud" ];
 
