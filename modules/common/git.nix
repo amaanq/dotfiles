@@ -13,7 +13,7 @@ let
   systemConfig = config;
 in
 {
-  environment.systemPackages = mkIf config.isDesktop [
+  environment.systemPackages = [
     pkgs.delta
     pkgs.lazygit
     pkgs.mergiraf
