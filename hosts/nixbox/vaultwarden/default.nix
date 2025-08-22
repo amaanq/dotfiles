@@ -2,12 +2,17 @@
   self,
   config,
   lib,
-  pkgs,
   ...
 }:
 let
   inherit (config.networking) domain;
-  inherit (lib) enabled merge stringToPort;
+  inherit (lib)
+    enabled
+    genAttrs
+    const
+    merge
+    stringToPort
+    ;
 
   fqdn = "vault.${domain}";
   rocketPort = stringToPort "vaultwarden";
@@ -67,27 +72,12 @@ in
     '';
   };
 
-  systemd.services.vaultwarden-backup = {
-    description = "Backup Vaultwarden data";
-    serviceConfig = {
-      Type = "oneshot";
-      User = "vaultwarden";
-      ExecStart = ''
-        ${lib.getExe pkgs.sqlite} /var/lib/vaultwarden/db.sqlite3 ".backup '/var/backup/vaultwarden/vaultwarden-$(date +%Y%m%d-%H%M%S).sqlite3'"
-      '';
+  services.restic.backups =
+    genAttrs config.services.restic.hosts
+    <| const {
+      paths = [
+        "/var/lib/vaultwarden"
+        config.services.vaultwarden.backupDir
+      ];
     };
-  };
-
-  systemd.timers.vaultwarden-backup = {
-    description = "Backup Vaultwarden data daily";
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "daily";
-      Persistent = true;
-    };
-  };
-
-  systemd.tmpfiles.rules = [
-    "d /var/backup/vaultwarden 0700 vaultwarden vaultwarden -"
-  ];
 }
