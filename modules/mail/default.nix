@@ -23,6 +23,16 @@ in
     listenAddress = "[::]";
   };
 
+  services.prometheus.exporters.rspamd = enabled {
+    listenAddress = "[::]";
+  };
+
+  services.prometheus.exporters.dovecot = enabled {
+    listenAddress = "[::]";
+    socketPath = "/var/run/dovecot/stats";
+    scopes = [ "user" "global" ];
+  };
+
   services.restic.backups =
     genAttrs config.services.restic.hosts
     <| const {

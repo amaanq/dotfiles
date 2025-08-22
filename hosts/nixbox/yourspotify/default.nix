@@ -20,6 +20,12 @@ in
     owner = "your_spotify";
   };
 
+  services.prometheus.exporters.mongodb = enabled {
+    listenAddress = "[::]";
+    uri = "mongodb://localhost:27017";
+    collectAll = true;
+  };
+
   services.your_spotify = enabled {
     enableLocalDB = true;
 
@@ -34,7 +40,6 @@ in
 
   };
 
-  # Configure nginx to serve both client and API
   services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
     extraConfig = config.services.plausible.extraNginxConfigFor fqdn;
 

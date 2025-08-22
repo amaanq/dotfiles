@@ -55,6 +55,10 @@ in
 
   services.postgresql.ensure = [ "matrix-synapse" ];
 
+  services.prometheus.exporters.redis = enabled {
+    listenAddress = "[::]";
+  };
+
   services.matrix-synapse = enabled {
     withJemalloc = true;
 
