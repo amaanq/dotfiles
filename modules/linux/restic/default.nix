@@ -8,8 +8,14 @@ let
 in
 {
   options.services.restic.hosts = mkConst (
-    # nunatak backs up to scarp, but scarp doesn't backup to nunatak
-    if config.networking.hostName == "nunatak" then [ "scarp" ] else [ ]
+    # nunatak backs up to scarp and dykwabi, but scarp doesn't backup to nunatak
+    if config.networking.hostName == "nunatak" then
+      [
+        "scarp"
+        "dykwabi"
+      ]
+    else
+      [ ]
   );
 
   config.secrets.resticPassword = mkIf config.isServer { file = ./password.age; };
