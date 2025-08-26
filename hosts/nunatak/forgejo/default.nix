@@ -147,7 +147,7 @@ in
       url = "https://git.xeondev.com";
       tokenFile = config.secrets.forgejoRunnerToken.path;
       labels = [
-        "nixos-latest:docker://nixpkgs/nix-flakes:latest"
+        "nixos-arm64:docker://nixpkgs/nix-flakes:latest"
       ];
     };
   };
