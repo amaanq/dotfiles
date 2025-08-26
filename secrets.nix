@@ -42,8 +42,8 @@ in
 
   "hosts/nunatak/plausible/key.age".publicKeys = [ nunatak ] ++ admins;
 
-  # nixwsl desktop
-  "hosts/nixwsl/password.age".publicKeys = admins;
+  # gyre desktop
+  "hosts/gyre/password.age".publicKeys = admins;
 
   # shared
   "modules/common/atuin/key.age".publicKeys = all;

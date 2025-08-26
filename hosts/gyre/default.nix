@@ -20,7 +20,7 @@ lib.nixosSystem' (
       defaultUser = "amaanq";
     };
 
-    networking.hostName = "nixwsl";
+    networking.hostName = "gyre";
 
     secrets.password.file = ./password.age;
     users.users = {
