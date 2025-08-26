@@ -12,7 +12,6 @@ import Quickshell
 import Quickshell.Widgets
 
 WrapperItem {
-  property bool settingsOpen: false
   property bool powerOpen: false
 
   property bool idleInhibitEnabled: false
@@ -25,11 +24,11 @@ WrapperItem {
     ColumnLayout {
       id: rightMenuLayout
 
-      opacity: settingsOpen || powerOpen ? 0 : 1
+      opacity: powerOpen ? 0 : 1
       visible: opacity != 0
       spacing: 15
       anchors.fill: parent
-      z: settingsOpen || powerOpen ? 1 : 2
+      z: powerOpen ? 1 : 2
 
       Clock {
         Layout.fillWidth: true
@@ -175,34 +174,7 @@ WrapperItem {
       }
 
       transform: Translate {
-        x: settingsOpen || powerOpen ? -40 : 0
-
-        Behavior on x {
-          NumberAnimation {
-            duration: 300
-            easing.type: Easing.BezierSpline
-            easing.bezierCurve: C.Globals.anim_CURVE_SMOOTH_SLIDE
-          }
-        }
-      }
-    }
-
-    ST.Settings {
-      visible: opacity != 0
-      anchors.fill: parent
-      opacity: settingsOpen ? 1 : 0
-      z: settingsOpen ? 2 : 1
-
-      Behavior on opacity {
-        NumberAnimation {
-          duration: 250
-          easing.type: Easing.BezierSpline
-          easing.bezierCurve: C.Globals.anim_CURVE_SMOOTH_SLIDE
-        }
-      }
-
-      transform: Translate {
-        x: settingsOpen ? 0 : 40
+        x: powerOpen ? -40 : 0
 
         Behavior on x {
           NumberAnimation {
@@ -243,7 +215,7 @@ WrapperItem {
 
 
     RowLayout {
-      opacity: settingsOpen || powerOpen ? 0 : 1
+      opacity: powerOpen ? 0 : 1
 
       Behavior on opacity {
         NumberAnimation {
@@ -254,7 +226,7 @@ WrapperItem {
       }
 
       visible: opacity != 0
-      z: settingsOpen || powerOpen ? 1 : 2
+      z: powerOpen ? 1 : 2
 
       anchors {
         right: parent.right
@@ -302,7 +274,7 @@ WrapperItem {
     }
 
     RowLayout {
-      opacity: settingsOpen || powerOpen ? 0 : 1
+      opacity: powerOpen ? 0 : 1
 
       Behavior on opacity {
         NumberAnimation {
@@ -313,7 +285,7 @@ WrapperItem {
       }
 
       visible: opacity != 0
-      z: settingsOpen || powerOpen ? 1 : 2
+      z: powerOpen ? 1 : 2
 
       anchors {
         right: parent.right
@@ -399,7 +371,8 @@ WrapperItem {
         implicitWidth: 20
         hoverEnabled: true
         onPressed: () => {
-          settingsOpen = true;
+          S.MiscState.settingsOpen = true;
+          S.MiscState.settingsOpenGrab = true;
         }
 
         Rectangle {
@@ -424,7 +397,7 @@ WrapperItem {
     }
 
     RowLayout {
-      opacity: settingsOpen || powerOpen ? 1 : 0
+      opacity: powerOpen ? 1 : 0
 
       Behavior on opacity {
         NumberAnimation {
@@ -435,7 +408,7 @@ WrapperItem {
       }
 
       visible: opacity != 0
-      z: settingsOpen || powerOpen ? 2 : 1
+      z: powerOpen ? 2 : 1
 
       anchors {
         right: parent.right
@@ -453,7 +426,6 @@ WrapperItem {
         implicitWidth: 20
         hoverEnabled: true
         onPressed: () => {
-          settingsOpen = false;
           powerOpen = false;
         }
 

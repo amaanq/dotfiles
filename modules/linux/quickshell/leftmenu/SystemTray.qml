@@ -40,9 +40,6 @@ WrapperRectangle {
               if (icon.includes("?path=")) {
                 const [name, path] = icon.split("?path=");
                 icon = `file://${path}/${name.slice(name.lastIndexOf("/") + 1)}`;
-              } else if (icon.includes("?fallback=") || icon.startsWith("?")) {
-                // Handle ?fallback= and other URL parameters
-                icon = icon.split("?")[0];
               }
               return icon;
             }

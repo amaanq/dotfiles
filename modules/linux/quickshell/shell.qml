@@ -4,7 +4,9 @@
 //@ pragma StateDir $BASE/quickshell/hyprland-shell
 import "./config" as C
 import "./shortcuts" as SH
+import "./settings" as SE
 import "./state" as S
+import "./monitorRounding" as MR
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -47,10 +49,28 @@ Scope {
     }
   }
 
+  Variants {
+    model: {
+      if (!C.Config.settings.monitorRounding.enabled || !C.Config.settings.monitorRounding.allMonitors)
+        return [];
+
+      return Quickshell.screens;
+    }
+
+    MR.RoundedMonitorElement {
+      required property ShellScreen modelData
+      screen: modelData
+      show: C.Config.settings.monitorRounding.enabled
+    }
+  }
+
   SH.ShortcutsPanel {
     screen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? null
   }
 
+  SE.SettingsPanel {
+    screen: Quickshell.screens.find(s => s.name === Hyprland.focusedMonitor?.name) ?? null
+  }
 
   IpcHandler {
     target: "bar"

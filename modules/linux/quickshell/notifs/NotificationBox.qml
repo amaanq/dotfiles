@@ -34,7 +34,7 @@ Item {
     implicitWidth: root.contentWidth
     implicitHeight: mainLayout.implicitHeight + (root.trackedNotif.notif.actions.length != 0 ? 20 : 0)
     radius: 16
-    color: C.Config.theme.background
+    color: C.Config.applyBaseOpacity(C.Config.theme.background)
 
     x: root.implicitWidth * (1 - root.entryFactor)
 
@@ -83,7 +83,7 @@ Item {
           visible: root.icon == ""
           anchors.fill: parent
           radius: 15
-          color: Qt.lighter(C.Config.theme.background)
+          color: C.Config.applySecondaryOpacity(Qt.lighter(C.Config.theme.background))
 
           CW.FontIcon {
             text: ""
@@ -155,7 +155,7 @@ Item {
 
         Rectangle {
           radius: 16
-          color: closeButtonMa.containsMouse ? Qt.lighter(Qt.lighter(Qt.lighter(C.Config.theme.background))) : Qt.lighter(Qt.lighter(C.Config.theme.background))
+          color: C.Config.applySecondaryOpacity(closeButtonMa.containsMouse ? Qt.lighter(Qt.lighter(Qt.lighter(C.Config.theme.background))) : Qt.lighter(Qt.lighter(C.Config.theme.background)))
           implicitWidth: 22
           implicitHeight: 22
 
@@ -185,7 +185,7 @@ Item {
 
         Rectangle {
           radius: 16
-          color: closeButtonMa.containsMouse ? Qt.lighter(Qt.lighter(Qt.lighter(C.Config.theme.background))) : Qt.lighter(Qt.lighter(C.Config.theme.background))
+          color: C.Config.applySecondaryOpacity(closeButtonMa.containsMouse ? Qt.lighter(Qt.lighter(Qt.lighter(C.Config.theme.background))) : Qt.lighter(Qt.lighter(C.Config.theme.background)))
           implicitWidth: 22
           implicitHeight: 22
 
@@ -217,7 +217,7 @@ Item {
 
         Rectangle {
           radius: 16
-          color: dismissButtonMa.containsMouse ? Qt.lighter(Qt.lighter(Qt.lighter(C.Config.theme.background))) : Qt.lighter(Qt.lighter(C.Config.theme.background))
+          color: C.Config.applySecondaryOpacity(dismissButtonMa.containsMouse ? Qt.lighter(Qt.lighter(Qt.lighter(C.Config.theme.background))) : Qt.lighter(Qt.lighter(C.Config.theme.background)))
           implicitWidth: 22
           implicitHeight: 22
 
@@ -266,13 +266,13 @@ Item {
 
           Rectangle {
             radius: 6
-            color: actionMa.containsMouse ? Qt.lighter(Qt.lighter(Qt.lighter(C.Config.theme.background))) : Qt.lighter(Qt.lighter(C.Config.theme.background))
+            color: C.Config.applySecondaryOpacity(actionMa.containsMouse ? Qt.lighter(Qt.lighter(Qt.lighter(C.Config.theme.background))) : Qt.lighter(Qt.lighter(C.Config.theme.background)))
             implicitWidth: textt.width + 15
             implicitHeight: 22
 
             CW.StyledText {
               id: textt
-              text: root.trackedNotif.notif.actions[index].identifier
+              text: root.trackedNotif.notif.actions[index].identifier == "0" || root.trackedNotif.notif.actions[index].identifier == "Default" ? "Continue" : root.trackedNotif.notif.actions[index].identifier
               anchors.centerIn: parent
             }
 
@@ -302,7 +302,7 @@ Item {
         width: parent.width * root.trackedNotif.timePercentage
         height: 2
         radius: 2
-        color: Qt.darker(C.Config.theme.primary, 1.9)
+        color: C.Config.applySecondaryOpacity(Qt.darker(C.Config.theme.primary, 1.9))
       }
     }
   }

@@ -1,7 +1,7 @@
-import "../../bar" as B
-import "../../commonwidgets" as CW
-import "../../config" as C
-import "../../state" as S
+import "../../../bar" as B
+import "../../../commonwidgets" as CW
+import "../../../config" as C
+import "../../../state" as S
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

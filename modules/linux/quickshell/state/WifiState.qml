@@ -27,7 +27,7 @@ Singleton {
   }
 
   function connect(ssid) {
-    pendingNmcliCommands = [["nmcli", "device", "wifi", "connect", ssid, "--ask"], ...pendingNmcliCommands];
+    pendingNmcliCommands = [["nmcli", "--ask", "device", "wifi", "connect", ssid], ...pendingNmcliCommands];
   }
 
   function setWifiEnabled(on) {

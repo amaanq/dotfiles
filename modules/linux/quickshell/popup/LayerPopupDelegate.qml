@@ -53,7 +53,7 @@ BasePopupDelegate {
       anchors.margins: root.bar.uncompactState * root.bar.gapsVert ?? 100
       margin: 15
       clip: root.clip
-      radius: root.bar.uncompactState * root.bar.barRadius
+      radius: root.bar.uncompactState * C.Config.settings.panels.radius
       color: C.Config.applyBaseOpacity(C.Config.theme.background)
       border.width: root.bar.uncompactState * root.bar.borderMargin
       border.color: C.Config.applyBaseOpacity(C.Config.theme.outline_variant)

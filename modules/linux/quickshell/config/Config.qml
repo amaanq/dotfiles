@@ -241,11 +241,16 @@ Singleton {
         property int verticalGap: 5
         property int horizontalGap: 5
         property int height: 30
+        property int radius: 10
         property bool topLayer: false
         property bool weather: false
         property string weatherLocation: "None"
         property bool weatherNoLocation: false
         property bool weatherTempInCelcius: true
+
+        property string modulesLeft: "workspaces, mpris"
+        property string modulesRight: "clock, battery, weather"
+        property string moduleCenter: "title"
 
         property JsonObject workspaces: JsonObject {
           property int shown: 10
@@ -286,6 +291,13 @@ Singleton {
         property int selectionMode: 0 // 0 - exclude, 1 - include
         property list<string> excludedPlayers: []
         property list<string> includedPlayers: []
+      }
+      property JsonObject monitorRounding: JsonObject {
+        property bool enabled: false
+        property bool ignoreReserved: true
+        property bool amoled: true
+        property bool allMonitors: false
+        property int radius: 20
       }
     }
   }

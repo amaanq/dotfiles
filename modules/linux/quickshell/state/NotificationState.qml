@@ -25,6 +25,10 @@ Singleton {
     function clear() {
       root.trackedNotifs = [];
     }
+
+    function closeLast() {
+      root.trackedNotifs = root.trackedNotifs.slice(1);
+    }
   }
 
   Component {
