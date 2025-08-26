@@ -1,11 +1,6 @@
 lib:
 lib.darwinSystem' (
-  {
-    config,
-    lib,
-    pkgs,
-    ...
-  }:
+  { lib, ... }:
   let
     inherit (lib) collectNix remove;
   in
@@ -14,7 +9,7 @@ lib.darwinSystem' (
 
     type = "desktop";
 
-    networking.hostName = "nixbook";
+    networking.hostName = "squall";
     nixpkgs.config.allowUnfree = true;
     nix.enable = false;
 
