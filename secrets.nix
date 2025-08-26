@@ -1,30 +1,30 @@
 let
   inherit (import ./keys.nix)
-    nixbox
+    scarp
     nunatak
     admins
     all
     ;
 in
 {
-  # nixbox server
-  "hosts/nixbox/id.age".publicKeys = [ nixbox ] ++ admins;
-  "hosts/nixbox/password.age".publicKeys = [ nixbox ] ++ admins;
+  # scarp server
+  "hosts/scarp/id.age".publicKeys = [ scarp ] ++ admins;
+  "hosts/scarp/password.age".publicKeys = [ scarp ] ++ admins;
 
-  "hosts/nixbox/forgejo/runner.age".publicKeys = [ nixbox ] ++ admins;
+  "hosts/scarp/forgejo/runner.age".publicKeys = [ scarp ] ++ admins;
 
-  "hosts/nixbox/matrix/key.age".publicKeys = [ nixbox ] ++ admins;
-  "hosts/nixbox/matrix/secret.age".publicKeys = [ nixbox ] ++ admins;
+  "hosts/scarp/matrix/key.age".publicKeys = [ scarp ] ++ admins;
+  "hosts/scarp/matrix/secret.age".publicKeys = [ scarp ] ++ admins;
 
-  "hosts/nixbox/github2forgejo/environment.age".publicKeys = [ nixbox ] ++ admins;
+  "hosts/scarp/github2forgejo/environment.age".publicKeys = [ scarp ] ++ admins;
 
-  "hosts/nixbox/nextcloud/password.age".publicKeys = [ nixbox ] ++ admins;
+  "hosts/scarp/nextcloud/password.age".publicKeys = [ scarp ] ++ admins;
 
-  "hosts/nixbox/plausible/key.age".publicKeys = [ nixbox ] ++ admins;
+  "hosts/scarp/plausible/key.age".publicKeys = [ scarp ] ++ admins;
 
-  "hosts/nixbox/vaultwarden/env.age".publicKeys = [ nixbox ] ++ admins;
+  "hosts/scarp/vaultwarden/env.age".publicKeys = [ scarp ] ++ admins;
 
-  "hosts/nixbox/yourspotify/secret.age".publicKeys = [ nixbox ] ++ admins;
+  "hosts/scarp/yourspotify/secret.age".publicKeys = [ scarp ] ++ admins;
 
   # derecho desktop
   "hosts/derecho/id.age".publicKeys = admins;

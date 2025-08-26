@@ -17,7 +17,7 @@ lib.nixosSystem' (
 
     networking = {
       domain = "amaanq.com";
-      hostName = "nixbox";
+      hostName = "scarp";
     };
     nixpkgs.config.allowUnfree = true;
 
