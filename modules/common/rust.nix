@@ -31,9 +31,8 @@ in
       "rustc"
       "rustfmt"
     ])
-  ]
-  ++ lib.optionals (!config.isConstrained) [
-    pkgs.rust-analyzer-nightly
+
+    # pkgs.rust-analyzer-nightly
 
     pkgs.cargo-deny
     pkgs.cargo-expand

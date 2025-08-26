@@ -14,7 +14,6 @@ lib.nixosSystem' (
     imports = collectNix ./. |> remove ./default.nix;
 
     type = "server";
-    isConstrained = true;
 
     secrets.id.file = ./id.age;
     services.openssh.settings = {

@@ -12,7 +12,6 @@ in
     pkgs.difftastic
     pkgs.jjui
     pkgs.mergiraf
-  ] ++ lib.optionals (!config.isConstrained) [
     pkgs.radicle-node
   ];
 

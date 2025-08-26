@@ -19,7 +19,6 @@ in
     isDesktop = mkConst <| config.type == "desktop";
     isServer = mkConst <| config.type == "server";
 
-    isConstrained = mkValue false;
     isVirtual = mkValue false;
   };
 }
