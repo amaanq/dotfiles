@@ -1,17 +1,15 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
 }:
 let
-  inherit (lib) merge mkIf optional;
+  inherit (lib) enabled merge mkIf;
 in
 merge
 <| mkIf config.isDesktop {
-  unfree.allowedNames = [
-    "discord"
-  ];
   environment.systemPackages =
     let
       krisp-patcher =
@@ -35,47 +33,130 @@ merge
               }
             )
           );
-      baseDiscord = pkgs.discord.override {
-        withOpenASAR = true;
-        withVencord = true;
-      };
-
-      discordPackage =
-        if config.isLinux then
-          pkgs.symlinkJoin {
-            name = "discord-patched";
-            paths = [ baseDiscord ];
-            nativeBuildInputs = [ pkgs.makeWrapper ];
-            postBuild = ''
-              # Remove the original Discord binary
-              rm $out/bin/discord
-
-              # Create our patching wrapper
-              makeWrapper ${baseDiscord}/bin/discord $out/bin/discord \
-                --run '
-                  LATEST_DIR=$(ls -1v ~/.config/discord/ 2>/dev/null | grep -E "^[0-9]+\.[0-9]+\.[0-9]+$" | tail -n1)
-
-                  if [ -n "$LATEST_DIR" ]; then
-                    KRISP_FILE="$HOME/.config/discord/$LATEST_DIR/modules/discord_krisp/discord_krisp.node"
-
-                    if [ -f "$KRISP_FILE" ]; then
-                      if ${pkgs.ripgrep}/bin/rg -q "dualcontourmaybe" "$KRISP_FILE" 2>/dev/null; then
-                        echo "Patching Krisp in version $LATEST_DIR..."
-                        ${krisp-patcher}/bin/krisp-patcher "$KRISP_FILE" || echo "Warning: Failed to patch Krisp"
-                      fi
-                    fi
-                  fi
-                ' \
-                --add-flags "--enable-features=UseOzonePlatform --ozone-platform=wayland"
-            '';
-          }
-        else if config.isDarwin then
-          baseDiscord
-        else
-          null;
     in
     [
       krisp-patcher
-    ]
-    ++ optional (discordPackage != null) discordPackage;
+    ];
+
+  unfree.allowedNames = [
+    "discord"
+  ];
+
+  home-manager.sharedModules = [
+    inputs.nixcord.homeModules.nixcord
+    {
+      programs.nixcord = enabled {
+        config = {
+          useQuickCss = true;
+          themeLinks = [ ];
+
+          plugins = {
+            alwaysTrust = enabled;
+            anonymiseFileNames = enabled {
+              anonymiseByDefault = true;
+            };
+            betterFolders = enabled;
+            betterGifAltText = enabled;
+            betterRoleContext = enabled;
+            betterSessions = enabled;
+            betterSettings = enabled;
+            betterUploadButton = enabled;
+            biggerStreamPreview = enabled;
+            callTimer = enabled;
+            clearURLs = enabled;
+            colorSighted = enabled;
+            consoleJanitor = enabled;
+            consoleShortcuts = enabled;
+            copyFileContents = enabled;
+            copyStickerLinks = enabled;
+            crashHandler = enabled;
+            dearrow = enabled;
+            disableCallIdle = enabled;
+            emoteCloner = enabled;
+            experiments = enabled {
+              toolbarDevMenu = false;
+            };
+            f8Break = enabled;
+            fakeNitro = enabled;
+            favoriteEmojiFirst = enabled;
+            fixCodeblockGap = enabled;
+            fixImagesQuality = enabled;
+            fixSpotifyEmbeds = enabled;
+            fixYoutubeEmbeds = enabled;
+            forceOwnerCrown = enabled;
+            friendsSince = enabled;
+            fullSearchContext = enabled;
+            gifPaste = enabled;
+            greetStickerPicker = enabled;
+            imageFilename = enabled;
+            imageZoom = enabled;
+            keepCurrentChannel = enabled;
+            memberCount = enabled;
+            messageLatency = enabled;
+            messageLinkEmbeds = enabled;
+            messageLogger = enabled;
+            mutualGroupDMs = enabled;
+            newGuildSettings = enabled;
+            noDevtoolsWarning = enabled;
+            noF1 = enabled;
+            noOnboardingDelay = enabled;
+            noPendingCount = enabled {
+              hideFriendRequestsCount = false;
+              hideMessageRequestCount = false;
+            };
+            noProfileThemes = enabled;
+            noTrack = enabled;
+            noTypingAnimation = enabled;
+            noUnblockToJump = enabled;
+            normalizeMessageLinks = enabled;
+            onePingPerDM = enabled;
+            openInApp = enabled;
+            permissionFreeWill = enabled;
+            permissionsViewer = enabled;
+            pinDMs = enabled;
+            platformIndicators = enabled;
+            reactErrorDecoder = enabled;
+            relationshipNotifier = enabled;
+            replaceGoogleSearch = enabled {
+              customEngineName = "Kagi";
+              customEngineURL = "https://kagi.com/search?q";
+            };
+            replyTimestamp = enabled;
+            reverseImageSearch = enabled;
+            sendTimestamps = enabled;
+            serverInfo = enabled;
+            serverListIndicators = enabled {
+              mode = "onlyServerCount";
+            };
+            showConnections = enabled;
+            showHiddenChannels = enabled;
+            showHiddenThings = enabled;
+            showTimeoutDuration = enabled;
+            silentTyping = enabled;
+            sortFriendRequests = enabled {
+              showDates = true;
+            };
+            spotifyControls = enabled;
+            spotifyCrack = enabled;
+            startupTimings = enabled;
+            translate = enabled;
+            typingIndicator = enabled;
+            typingTweaks = enabled;
+            unindent = enabled;
+            unlockedAvatarZoom = enabled;
+            validUser = enabled;
+            voiceDownload = enabled;
+            voiceMessages = enabled;
+            volumeBooster = enabled;
+            youtubeAdblock = enabled;
+          };
+
+          # Performance settings
+          frameless = false;
+          transparent = false;
+          disableMinSize = false;
+        };
+      };
+    }
+  ];
 }

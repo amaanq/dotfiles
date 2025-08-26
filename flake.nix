@@ -140,6 +140,11 @@
       inputs.home-manager.follows = "home-manager";
     };
 
+    nixcord = {
+      url = "github:kaylorben/nixcord";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nixos-wsl.url = "github:nix-community/nixos-wsl";
   };
 
