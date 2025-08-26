@@ -15,7 +15,7 @@ lib.nixosSystem' (
 
     type = "desktop";
 
-    networking.hostName = "nixmain";
+    networking.hostName = "derecho";
 
     secrets.password.file = ./password.age;
     users.users = {

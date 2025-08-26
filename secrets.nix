@@ -26,10 +26,10 @@ in
 
   "hosts/nixbox/yourspotify/secret.age".publicKeys = [ nixbox ] ++ admins;
 
-  # nixmain desktop
-  "hosts/nixmain/id.age".publicKeys = admins;
-  "hosts/nixmain/password.age".publicKeys = admins;
-  "hosts/nixmain/yubikey/u2f.age".publicKeys = admins;
+  # derecho desktop
+  "hosts/derecho/id.age".publicKeys = admins;
+  "hosts/derecho/password.age".publicKeys = admins;
+  "hosts/derecho/yubikey/u2f.age".publicKeys = admins;
 
   # nunatak server
   "hosts/nunatak/id.age".publicKeys = [ nunatak ] ++ admins;
