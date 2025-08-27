@@ -20,7 +20,7 @@ in
       programs.jujutsu = enabled {
         settings = {
           user.name = "Amaan Qureshi";
-          user.email = "amaanq12@gmail.com";
+          user.email = "contact@amaanq.com";
 
           aliases.".." = [
             "edit"
