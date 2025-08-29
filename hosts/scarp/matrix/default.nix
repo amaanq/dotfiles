@@ -10,7 +10,9 @@
 let
   inherit (config.networking) domain;
   inherit (lib)
+    const
     enabled
+    genAttrs
     merge
     ;
   inherit (lib.strings) toJSON;
@@ -55,6 +57,12 @@ in
 
   services.postgresql.ensure = [ "matrix-synapse" ];
 
+  services.restic.backups =
+    genAttrs config.services.restic.hosts
+    <| const {
+      paths = [ "/var/lib/matrix-synapse" ];
+    };
+
   services.prometheus.exporters.redis = enabled {
     listenAddress = "[::]";
   };
@@ -77,10 +85,7 @@ in
       # We are not setting web_client_location since the root is not accessible
       # from the outside web at all. Only /_matrix is reverse proxied to.
 
-      database = {
-        name = "psycopg2";
-        allow_unsafe_locale = true;
-      };
+      database.name = "psycopg2";
       max_upload_size = "512M";
 
       report_stats = false;
