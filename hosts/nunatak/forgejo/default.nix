@@ -54,6 +54,7 @@ in
       patches = (old.patches or [ ]) ++ [
         ./discord-webhook.patch
         ./custom-pages.patch
+        ./custom-ci-icons.patch
       ];
     });
     database = {

@@ -1,0 +1,20 @@
+diff --git a/templates/repo/commit_status.tmpl b/templates/repo/commit_status.tmpl
+index 1234567..abcdefg 100644
+--- a/templates/repo/commit_status.tmpl
++++ b/templates/repo/commit_status.tmpl
+@@ -3,13 +3,13 @@
+ 	{{svg "octicon-dot-fill" 18 "commit-status icon text yellow"}}
+ {{end}}
+ {{if eq .State "success"}}
+-	{{svg "octicon-check" 18 "commit-status icon text green"}}
++	{{svg "octicon-keycap-3" 18 "commit-status icon text green"}}
+ {{end}}
+ {{if eq .State "error"}}
+ 	{{svg "gitea-exclamation" 18 "commit-status icon text red"}}
+ {{end}}
+ {{if eq .State "failure"}}
+-	{{svg "octicon-x" 18 "commit-status icon text red"}}
++	{{svg "octicon-wheelchair-exploding" 18 "commit-status icon text red"}}
+ {{end}}
+ {{if eq .State "warning"}}
+ 	{{svg "gitea-exclamation" 18 "commit-status icon text yellow"}}
