@@ -97,7 +97,7 @@ in
       };
 
       "repository.upload" = {
-        FILE_MAX_SIZE = 100;
+        FILE_MAX_SIZE = 1000;
         MAX_FILES = 10;
       };
 
@@ -162,7 +162,7 @@ in
         proxyPass = "http://[::1]:${toString port}";
         extraConfig = # nginx
           ''
-            client_max_body_size 100M;
+            client_max_body_size 1000M;
           '';
       };
       locations."/metrics" = {
