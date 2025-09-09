@@ -10,10 +10,12 @@ in
   services.nginx.appendHttpConfig = ''
     map $http_origin $allow_origin {
       ~^https://(?:.+\.)?${domain}$ $http_origin;
+      ~^https://(?:.+\.)?xeondev.com$ $http_origin;
     }
 
     map $http_origin $allow_methods {
       ~^https://(?:.+\.)?${domain}$ "CONNECT, DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT, TRACE";
+      ~^https://(?:.+\.)?xeondev.com$ "CONNECT, DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT, TRACE";
     }
   '';
 
