@@ -5,7 +5,13 @@
   ...
 }:
 let
-  inherit (lib) const enabled genAttrs merge mkConst;
+  inherit (lib)
+    const
+    enabled
+    genAttrs
+    merge
+    mkConst
+    ;
 
   fqdn = "data.libg.so";
   port = 8007;
