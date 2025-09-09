@@ -72,10 +72,10 @@ merge
             crashHandler = enabled;
             dearrow = enabled;
             disableCallIdle = enabled;
-            emoteCloner = enabled;
             experiments = enabled {
               toolbarDevMenu = false;
             };
+            expressionCloner = enabled;
             f8Break = enabled;
             fakeNitro = enabled;
             favoriteEmojiFirst = enabled;
