@@ -20,6 +20,8 @@ in
 
   "hosts/scarp/nextcloud/password.age".publicKeys = [ scarp ] ++ admins;
 
+  "hosts/scarp/nitter/sessions.age".publicKeys = [ scarp ] ++ admins;
+
   "hosts/scarp/plausible/key.age".publicKeys = [ scarp ] ++ admins;
 
   "hosts/scarp/vaultwarden/env.age".publicKeys = [ scarp ] ++ admins;
