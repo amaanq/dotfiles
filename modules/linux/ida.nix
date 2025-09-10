@@ -25,6 +25,8 @@ let
     postInstall = (old.postInstall or "") + ''
       cd $out/opt
       ${ida-patcher}/bin/ida-patcher $out
+      substituteInPlace cfg/hexrays.cfg \
+        --replace "MAX_FUNCSIZE            = 64" "MAX_FUNCSIZE            = 1024"
       # Copy license to where IDA expects it
       cp *.hexlic $out/opt/ || true
     '';
