@@ -94,6 +94,7 @@ in
                 }
                 if ("${config.secrets.anthropic_api_key.path}" | path exists) {
                   $env.ANTHROPIC_API_KEY = (open ${config.secrets.anthropic_api_key.path} | str trim)
+                  $env.ANTHROPIC_BASE_URL = "https://api.z.ai/api/anthropic"
                 }
               }
             '';
