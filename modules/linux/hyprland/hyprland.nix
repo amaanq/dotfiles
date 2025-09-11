@@ -36,7 +36,7 @@ merge
 <| mkIf config.isDesktop {
   hardware.graphics = enabled;
 
-  services.logind.powerKey = "ignore";
+  services.logind.settings.Login.HandlePowerKey = "ignore";
 
   xdg.portal = enabled {
     xdgOpenUsePortal = true;

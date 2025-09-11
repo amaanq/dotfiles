@@ -56,16 +56,16 @@ in
             '';
 
         programs.ssh = enabled {
-          controlMaster = "auto";
-          controlPath = "${controlPath}/%r@%n:%p";
-          controlPersist = "60m";
-          serverAliveCountMax = 2;
-          serverAliveInterval = 60;
-
+          enableDefaultConfig = false;
           includes = [ config.secrets.sshConfig.path ];
-
           matchBlocks = hosts // {
             "*" = {
+              controlMaster = "auto";
+              controlPath = "${controlPath}/%r@%n:%p";
+              controlPersist = "60m";
+              serverAliveCountMax = 2;
+              serverAliveInterval = 60;
+
               setEnv.COLORTERM = "truecolor";
               setEnv.TERM = "xterm-256color";
 
