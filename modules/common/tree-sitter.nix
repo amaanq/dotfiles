@@ -8,18 +8,18 @@
 
   environment.systemPackages = [
     (pkgs.tree-sitter.overrideAttrs (old: rec {
-      version = "0.25.8";
+      version = "0.25.9";
       src = pkgs.fetchFromGitHub {
         owner = "tree-sitter";
         repo = "tree-sitter";
         tag = "v${version}";
-        hash = "sha256-q465DMTiFHoOZy6cMvrSywwO1qJVXPmQ0OVIPmwib6c=";
+        hash = "sha256-i7sptOJuLPSl0v8qYF54zfvVKOUtekcFedqapxehzWI=";
         fetchSubmodules = true;
       };
 
       cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
         inherit src;
-        hash = "sha256-5xtsNE94J5Hg8rGkyzx8P6c8vl1x17zgpSulcGNVKmI=";
+        hash = "sha256-0Do1UxIbfIfJ61dTiJt0ZGDrhOtGV0l9bafyoqcbqgU=";
       };
     }))
     pkgs.python313Packages.pytest
