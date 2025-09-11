@@ -85,10 +85,6 @@ in
         DEFAULT_MERGE_STYLE = "rebase-merge";
         DEFAULT_REPO_UNITS = "repo.code, repo.issues, repo.pulls";
 
-        DEFAULT_PUSH_CREATE_PRIVATE = false;
-        ENABLE_PUSH_CREATE_ORG = true;
-        ENABLE_PUSH_CREATE_USER = true;
-
         DISABLE_STARS = true;
       };
 
