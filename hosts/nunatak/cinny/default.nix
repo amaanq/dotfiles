@@ -13,7 +13,10 @@ let
 
   cinnyConfig = {
     allowCustomHomeservers = false;
-    homeserverList = [ "xeondev.com" ];
+    homeserverList = [
+      "xeondev.com"
+      "libg.so"
+    ];
     defaultHomeserver = 0;
 
     hashRouter = {

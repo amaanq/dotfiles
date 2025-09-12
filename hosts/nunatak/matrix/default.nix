@@ -130,7 +130,8 @@ in
     ];
   };
 
-  services.nginx.virtualHosts.${domain} = configWellKnownResponse;
+  services.nginx.virtualHosts.${domain} =
+    merge config.services.nginx.sslTemplate configWellKnownResponse;
 
   services.nginx.virtualHosts.${fqdn} =
     merge config.services.nginx.sslTemplate configWellKnownResponse
@@ -144,7 +145,14 @@ in
 
         locations."/_matrix" = {
           proxyPass = "http://[::1]:${toString port}";
-          extraConfig = config.services.nginx.headers;
+          extraConfig = ''
+            proxy_set_header X-Forwarded-For $remote_addr;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header Host $host;
+
+            ${config.services.nginx.headers}
+          '';
+
         };
         locations."/_synapse/client" = {
           proxyPass = "http://[::1]:${toString port}";

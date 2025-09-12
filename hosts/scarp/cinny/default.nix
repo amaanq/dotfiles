@@ -13,7 +13,10 @@ let
 
   cinnyConfig = {
     allowCustomHomeservers = false;
-    homeserverList = [ "amaanq.com" ];
+    homeserverList = [
+      "amaanq.com"
+      "libg.so"
+    ];
     defaultHomeserver = 0;
 
     hashRouter = {

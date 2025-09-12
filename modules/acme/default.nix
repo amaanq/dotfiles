@@ -23,6 +23,7 @@ in
     certs.${domain} = {
       extraDomainNames = [
         "*.${domain}"
+        "libg.so"
         "*.libg.so"
       ];
       group = "acme";
