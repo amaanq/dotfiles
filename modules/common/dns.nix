@@ -1,13 +1,14 @@
-{ lib, ... }:
+{ config, lib, ... }:
 let
   inherit (lib) mkConst;
+  hostname = config.networking.hostName;
 in
 {
   options.dns.servers = mkConst [
-    "45.90.28.0#9b2c13.dns.nextdns.io"
-    "2a07:a8c0::#9b2c13.dns.nextdns.io"
-    "45.90.30.0#9b2c13.dns.nextdns.io"
-    "2a07:a8c1::#9b2c13.dns.nextdns.io"
+    "45.90.28.0#${hostname}-9b2c13.dns.nextdns.io"
+    "2a07:a8c0::#${hostname}-9b2c13.dns.nextdns.io"
+    "45.90.30.0#${hostname}-9b2c13.dns.nextdns.io"
+    "2a07:a8c1::#${hostname}-9b2c13.dns.nextdns.io"
   ];
 
   options.dns.serversFallback = mkConst [
