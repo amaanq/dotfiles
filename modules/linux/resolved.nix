@@ -5,7 +5,7 @@ in
 {
   services.resolved = enabled {
     dnssec = "true";
-    dnsovertls = "true";
+    # dnsovertls = "true";
 
     extraConfig = config.dns.servers |> map (server: "DNS=${server}") |> concatStringsSep "\n";
 
