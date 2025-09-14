@@ -75,7 +75,7 @@ merge
     pkgs.hyprland-qt-support
     pkgs.pavucontrol
     pkgs.playerctl
-    pkgs.rofi-wayland
+    pkgs.rofi
     pkgs.rofi-emoji
     pkgs.slurp
     pkgs.swappy
