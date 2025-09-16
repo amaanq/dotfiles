@@ -73,11 +73,6 @@ in
     configureRedisLocally = true;
     settings.redis.enabled = true;
 
-    extras = [
-      "postgres"
-      "url-preview"
-    ];
-
     log.root.level = "WARNING"; # Shut the fuck up.
 
     settings = {
