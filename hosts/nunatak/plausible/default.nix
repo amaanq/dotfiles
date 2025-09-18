@@ -45,8 +45,7 @@ in
       email = "noreply@libg.so";
       smtp = {
         hostAddr = "mail.amaanq.com";
-        hostPort = 587;
-        enableSSL = true;
+        hostPort = 25;
       };
     };
   };

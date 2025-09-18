@@ -42,6 +42,11 @@
 
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
+    hkpoolservices = {
+      url = "git+https://git.amaanq.com/amaanq/hkpoolservices.git";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nix-darwin = {
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -149,11 +154,7 @@
   };
 
   outputs =
-    inputs@{
-      nixpkgs,
-      nix-darwin,
-      ...
-    }:
+    inputs@{ nixpkgs, nix-darwin, ... }:
     let
       inherit (builtins) readDir;
       inherit (nixpkgs.lib)

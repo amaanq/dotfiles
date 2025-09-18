@@ -25,6 +25,7 @@ in
         "*.${domain}"
         "libg.so"
         "*.libg.so"
+        "hkpoolservices.com"
       ];
       group = "acme";
     };
