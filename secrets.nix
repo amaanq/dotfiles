@@ -40,6 +40,8 @@ in
   "hosts/nunatak/forgejo/assets.tar.gz.age".publicKeys = [ nunatak ] ++ admins;
   "hosts/nunatak/forgejo/runner.age".publicKeys = [ nunatak ] ++ admins;
 
+  "hosts/nunatak/mail/hk-password.hash.age".publicKeys = [ nunatak ] ++ admins;
+
   "hosts/nunatak/matrix/tuwunel-token.age".publicKeys = [ nunatak ] ++ admins;
 
   "hosts/nunatak/grafana/password.age".publicKeys = [ nunatak ] ++ admins;

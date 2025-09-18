@@ -7,6 +7,8 @@ in
 {
   imports = [ (self + /modules/mail) ];
 
+  secrets.hkMailPassword.file = ./hk-password.hash.age;
+
   mailserver = {
     inherit fqdn;
 
@@ -23,6 +25,11 @@ in
         "info@libg.so"
       ];
       hashedPasswordFile = config.secrets.mailPassword.path;
+    };
+
+    loginAccounts."reese@hkpoolservices.com" = {
+      aliases = [ "@hkpoolservices.com" ];
+      hashedPasswordFile = config.secrets.hkMailPassword.path;
     };
   };
 }

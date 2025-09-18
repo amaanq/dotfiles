@@ -30,7 +30,10 @@ in
   services.prometheus.exporters.dovecot = enabled {
     listenAddress = "[::]";
     socketPath = "/var/run/dovecot/stats";
-    scopes = [ "user" "global" ];
+    scopes = [
+      "user"
+      "global"
+    ];
   };
 
   services.restic.backups =
@@ -48,6 +51,7 @@ in
     domains = mkDefault [
       domain
       "libg.so"
+      "hkpoolservices.com"
     ];
     certificateScheme = "acme";
 
