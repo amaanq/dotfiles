@@ -41,6 +41,8 @@ in
       type = "postgres";
     };
 
+    package = pkgs.forgejo;
+
     settings =
       let
         description = "amaanq's git instance";
@@ -61,6 +63,14 @@ in
             SCHEDULE = "@every ${interval}";
             OLDER_THAN = interval;
           };
+
+        mailer = {
+          ENABLED = true;
+
+          PROTOCOL = "smtps";
+          SMTP_ADDR = self.nunatak.mailserver.fqdn;
+          USER = "git@${domain}";
+        };
 
         other = {
           SHOW_FOOTER_TEMPLATE_LOAD_TIME = false;
