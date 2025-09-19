@@ -1,4 +1,5 @@
 {
+  self,
   config,
   lib,
   pkgs,
@@ -7,6 +8,7 @@
 let
   inherit (lib)
     enabled
+    head
     merge
     mkIf
     ;
@@ -15,6 +17,7 @@ in
 {
   environment.systemPackages = [
     pkgs.delta
+    pkgs.difftastic
     pkgs.lazygit
     pkgs.mergiraf
   ];
@@ -25,12 +28,19 @@ in
         config,
         ...
       }:
+      let
+        mailDomain = head self.nunatak.mailserver.domains;
+      in
       {
         programs.git = enabled {
           userName = "Amaan Qureshi";
-          userEmail = "contact@amaanq.com";
+          userEmail = "git@${mailDomain}";
 
           lfs = enabled;
+
+          difftastic = enabled {
+            background = "dark";
+          };
 
           extraConfig =
             merge {
