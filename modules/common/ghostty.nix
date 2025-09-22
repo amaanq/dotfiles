@@ -24,9 +24,8 @@ merge
 
         settings = {
           # Font configuration
-          font-family = "TX-02 Book";
-          font-style = "bold";
-          font-size = if config.isDarwin then 13 else 12;
+          font-family = "TX-02 Medium";
+          font-size = if config.isDarwin then 13 else 11;
           font-thicken = true;
 
           # Window settings
@@ -36,7 +35,7 @@ merge
           window-theme = "dark";
           mouse-hide-while-typing = true;
           mouse-shift-capture = true;
-          mouse-scroll-multiplier = 5;
+          mouse-scroll-multiplier = if config.isDarwin then 5 else 1;
 
           # Cursor configuration
           cursor-style = "bar";
