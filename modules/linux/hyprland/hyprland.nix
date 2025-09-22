@@ -188,9 +188,9 @@ merge
           };
 
           # Gestures
-          gestures = {
-            workspace_swipe = false;
-          };
+          gesture = [
+            "3, horizontal, workspace"
+          ];
 
           # General settings
           general = {
