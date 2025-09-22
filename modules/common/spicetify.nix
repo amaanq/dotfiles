@@ -19,7 +19,6 @@ merge
     enabled {
       experimentalFeatures = true;
       enabledExtensions = with inputs.spicetify.legacyPackages.${pkgs.stdenv.system}.extensions; [
-        shuffle
         copyLyrics
       ];
     }
