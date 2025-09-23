@@ -14,6 +14,8 @@ in
 
   options.services.nginx.sslTemplate = mkConst {
     forceSSL = true;
+    http3 = true;
+    kTLS = true;
     quic = true;
     useACMEHost = domain;
   };

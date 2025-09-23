@@ -55,10 +55,12 @@ in
     authentication =
       mkOverride 10 # ini
         ''
-          #     DATABASE USER     ADDRESS       AUTHENTICATION
-          local all      all                    peer
-          host  opengist opengist 127.0.0.1/32  trust
-          host  all      all      ::/0          md5
+          #     DATABASE      USER          ADDRESS      AUTHENTICATION
+          local all           all                        peer
+          host  opengist      opengist      127.0.0.1/32 trust
+          host  all           all           ::/0         md5
+          host  stalwart-mail stalwart-mail 127.0.0.1/32 trust
+          host  stalwart-mail stalwart-mail ::1/128      trust
         '';
 
     ensure = [

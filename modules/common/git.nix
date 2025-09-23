@@ -1,5 +1,4 @@
 {
-  self,
   config,
   lib,
   pkgs,
@@ -8,11 +7,9 @@
 let
   inherit (lib)
     enabled
-    head
     merge
     mkIf
     ;
-  systemConfig = config;
 in
 {
   environment.systemPackages = [
@@ -24,23 +21,20 @@ in
 
   home-manager.sharedModules = [
     (
-      {
-        config,
-        ...
-      }:
+      homeArgs:
       let
-        mailDomain = head self.nunatak.mailserver.domains;
+        config' = homeArgs.config;
       in
       {
         programs.git = enabled {
-          userName = "Amaan Qureshi";
-          userEmail = "git@${mailDomain}";
+          userName = config'.programs.jujutsu.settings.user.name;
+          userEmail = config'.programs.jujutsu.settings.user.email;
 
           lfs = enabled;
 
-          difftastic = enabled {
-            background = "dark";
-          };
+          # difftastic = enabled {
+          #   background = "dark";
+          # };
 
           extraConfig =
             merge {
@@ -48,7 +42,7 @@ in
 
               color.ui = true;
               core = {
-                attributesfile = "${config.xdg.configHome}/git/attributes";
+                attributesfile = "${config'.xdg.configHome}/git/attributes";
                 pager = "delta";
                 preloadindex = true;
                 untrackedcache = true;
@@ -109,17 +103,20 @@ in
               receive.fsckObjects = true;
               transfer.fsckobjects = true;
             }
-            <| mkIf systemConfig.isDesktop {
+            <| mkIf config.isDesktop {
               # This might need to reference system config
               core.sshCommand = "ssh -i ~/.ssh/id";
-              url."ssh://git@github.com/".insteadOf = "https://github.com/";
+              url = {
+                "ssh://git@github.com/".insteadOf = "https://github.com/";
+                "git@github.com".insteadOf = "gh";
+              };
 
               commit.gpgSign = true;
               tag.gpgSign = true;
 
               gpg = {
                 format = "ssh";
-                ssh.allowedSignersFile = "${config.xdg.configHome}/git/allowed_signers";
+                ssh.allowedSignersFile = "${config'.xdg.configHome}/git/allowed_signers";
               };
               user.signingKey = "~/.ssh/id";
             };

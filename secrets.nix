@@ -60,4 +60,6 @@ in
   "modules/linux/restic/password.age".publicKeys = all;
   "modules/mail/password.hash.age".publicKeys = all;
   "modules/mail/password.plain.age".publicKeys = all;
+  "modules/mail/stalwart-admin-password.age".publicKeys = all;
+  "modules/mail/stalwart-postgres-password.age".publicKeys = all;
 }

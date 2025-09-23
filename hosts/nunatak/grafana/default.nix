@@ -5,6 +5,7 @@
   ...
 }:
 let
+  inherit (self.nunatak.services.stalwart-mail.settings.server) hostname;
   inherit (lib)
     const
     enabled
@@ -82,7 +83,7 @@ in
       ehlo_identity = "metrics@${domain}";
       from_address = "metrics@${domain}";
       from_name = "Metrics";
-      host = "${config.mailserver.fqdn}:587";
+      host = "${hostname}:587";
     };
   };
 

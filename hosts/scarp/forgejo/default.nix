@@ -7,6 +7,7 @@
 }:
 let
   inherit (config.networking) domain;
+  inherit (self.nunatak.services.stalwart-mail.settings.server) hostname;
   inherit (lib)
     enabled
     head
@@ -45,7 +46,7 @@ in
 
     settings =
       let
-        description = "amaanq's git instance";
+        description = "Amaan's git instance";
       in
       {
         default.APP_NAME = description;
@@ -68,7 +69,7 @@ in
           ENABLED = true;
 
           PROTOCOL = "smtps";
-          SMTP_ADDR = self.nunatak.mailserver.fqdn;
+          SMTP_ADDR = hostname;
           USER = "git@${domain}";
         };
 
