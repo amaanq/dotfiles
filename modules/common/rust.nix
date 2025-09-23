@@ -36,8 +36,10 @@ in
 
     pkgs.cargo-deny
     pkgs.cargo-expand
+    pkgs.cargo-llvm-cov
     pkgs.cargo-nextest
     pkgs.cargo-watch
+    pkgs.cargo-workspaces
 
     pkgs.evcxr
   ];
