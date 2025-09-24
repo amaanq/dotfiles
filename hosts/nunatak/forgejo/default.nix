@@ -25,7 +25,7 @@ in
 
   secrets.forgejoRunnerToken = {
     file = ./runner.age;
-    owner = "forgejo-runner";
+    owner = "gitea-runner";
   };
 
   services.postgresql.ensure = [ "forgejo" ];
