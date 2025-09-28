@@ -33,7 +33,7 @@ let
   '';
 in
 merge
-<| mkIf config.isDesktop {
+<| mkIf false {
   hardware.graphics = enabled;
 
   services.logind.settings.Login.HandlePowerKey = "ignore";
@@ -298,7 +298,7 @@ merge
             "workspace 1, class:^(thorium-browser)$"
             "workspace 2, class:^(discord|legcord|Spotify)$"
             "workspace 3, class:^(com.mitchellh.ghostty|kitty)$"
-            "workspace 4, class:^(steam|r2modman|com.hex-rays.|Element|org.telegram.desktop)$"
+            "workspace 4, class:^(steam|r2modman|com.hex-rays.|WebApp-.*|org.telegram.desktop)$"
           ];
 
           # Key bindings

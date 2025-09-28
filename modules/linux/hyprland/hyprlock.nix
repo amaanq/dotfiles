@@ -9,7 +9,7 @@ let
   rosePineColors = config.rosePineColors;
 in
 merge
-<| mkIf config.isDesktop {
+<| mkIf false {
   home-manager.sharedModules = [
     {
       programs.hyprlock = enabled {

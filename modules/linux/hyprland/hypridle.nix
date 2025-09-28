@@ -7,7 +7,7 @@ let
   inherit (lib) enabled merge mkIf;
 in
 merge
-<| mkIf config.isDesktop {
+<| mkIf false {
   home-manager.sharedModules = [
     {
       services.hypridle = enabled {
