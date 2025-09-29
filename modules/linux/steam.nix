@@ -5,7 +5,12 @@
   ...
 }:
 let
-  inherit (lib) enabled merge mkIf;
+  inherit (lib)
+    enabled
+    merge
+    mkForce
+    mkIf
+    ;
 in
 merge
 <| mkIf config.isDesktop {
@@ -17,8 +22,8 @@ merge
   programs.gamemode = enabled;
   programs.steam = enabled;
 
-  # Steam uses 32-bit drivers for some unholy fucking reason.
-  hardware.graphics.enable32Bit = true;
+  # Nope
+  hardware.graphics.enable32Bit = mkForce false;
   environment.systemPackages = [
     pkgs.mangohud
     pkgs.r2modman
