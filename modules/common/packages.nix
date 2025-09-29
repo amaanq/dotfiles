@@ -17,7 +17,13 @@ in
 
   environment.systemPackages = [
     pkgs.asciinema
-    pkgs.claude-code
+    (pkgs.claude-code.overrideAttrs (oldAttrs: {
+      version = "2.0.0";
+      src = pkgs.fetchzip {
+        url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.0.0.tgz";
+        hash = "sha256-uHU9SZso0OZkbcroaVqqVoDvpn28rZVc6drHBrElt5M=";
+      };
+    }))
     pkgs.cowsay
     pkgs.curlHTTP3
     pkgs.dig
@@ -72,6 +78,6 @@ in
     pkgs.pavucontrol
     pkgs.spotify
     pkgs.thunderbird
-    inputs.claude-desktop.packages.${pkgs.system}.claude-desktop
+    # inputs.claude-desktop.packages.${pkgs.system}.claude-desktop
   ];
 }
