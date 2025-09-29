@@ -48,11 +48,14 @@ in
     pkgs.tokei
     pkgs.unzip
     pkgs.uutils-coreutils-noprefix
+    pkgs.wabt
+    pkgs.wasmtime
     pkgs.watchman
     pkgs.xh
     pkgs.xxd
     pkgs.yazi
     pkgs.yt-dlp
+    pkgs.zed-editor
   ]
   ++ optionals config.isLinux [
     pkgs.strace
