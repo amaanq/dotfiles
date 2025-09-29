@@ -22,8 +22,10 @@ in
       pkgs.copyq
       pkgs.ddcutil
       # Needed for xdg-desktop-portal-gnome 🦼.
-      pkgs.nautilus
+      pkgs.gnome-keyring
       pkgs.gifski
+      pkgs.mate.mate-polkit # dms 🦼
+      pkgs.nautilus
       pkgs.pavucontrol
       pkgs.playerctl
       pkgs.rofi
@@ -35,28 +37,43 @@ in
       pkgs.xdg-utils
       pkgs.xwayland-satellite
     ];
-    pathsToLink = [
-      "/share/xdg-desktop-portal"
-      "/share/applications"
-    ];
+
+    sessionVariables = {
+      CLUTTER_BACKEND = "wayland";
+      DISPLAY = ":0";
+      GTK_USE_PORTAL = "1";
+      MOZ_ENABLE_WAYLAND = "1";
+      NIXOS_OZONE_WL = "1";
+      NIXOS_XDG_OPEN_USE_PORTAL = "1";
+      QT_QPA_PLATFORM = "wayland;xcb";
+      QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+      SDL_VIDEODRIVER = "wayland";
+      XDG_CURRENT_DESKTOP = "niri";
+      XDG_SESSION_DESKTOP = "niri";
+      XDG_SESSION_TYPE = "wayland";
+    };
   };
 
   xdg.portal = enabled {
     xdgOpenUsePortal = true;
 
     extraPortals = [
+      pkgs.gnome-keyring
       pkgs.xdg-desktop-portal-gnome
       pkgs.xdg-desktop-portal-gtk
     ];
 
     config = {
-      common = {
-        default = [ "*" ];
+      niri = {
+        default = [
+          "gnome"
+          "gtk"
+        ];
         "org.freedesktop.impl.portal.Access" = "gtk";
         "org.freedesktop.impl.portal.Notification" = "gtk";
-        "org.freedesktop.impl.portal.Secret" = [
-          "gnome-keyring"
-        ];
+        "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+        "org.freedesktop.impl.portal.ScreenCast" = "gnome";
+        "org.freedesktop.impl.portal.Screenshot" = "gnome";
       };
     };
   };
@@ -66,16 +83,9 @@ in
       programs.niri = {
         package = pkgs.niri;
         settings = {
+          # TODO: why is this broken on niri
           environment = {
-            CLUTTER_BACKEND = "wayland";
-            DISPLAY = ":0";
-            GDK_BACKEND = "wayland,x11";
-            GTK_USE_PORTAL = "1";
-            MOZ_ENABLE_WAYLAND = "1";
-            NIXOS_OZONE_WL = "1";
-            QT_QPA_PLATFORM = "wayland;xcb";
-            QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
-            SDL_VIDEODRIVER = "wayland";
+            XDG_DATA_DIRS = "~/.nix-profile/share:/run/current-system/sw/share";
           };
 
           spawn-at-startup = [
@@ -88,17 +98,31 @@ in
             }
 
             { command = [ "quickshell" ]; }
-            {
-              command = [
-                "dbus-update-activation-environment"
-                "--systemd"
-                "--all"
-              ];
-            }
             { command = [ "thorium" ]; }
             { command = [ "kitty" ]; }
             { command = [ "spotify" ]; }
             { command = [ "discord" ]; }
+            { command = [ "web-app-Element" ]; }
+            { command = [ "web-app-Cinny" ]; }
+            { command = [ "web-app-Twitter" ]; }
+            { command = [ "swww-daemon" ]; }
+            # dms
+            {
+              command = [
+                "bash"
+                "-c"
+                "wl-paste --watch cliphist store &"
+              ];
+            }
+            {
+              command = [ "${pkgs.mate.mate-polkit}/libexec/polkit-mate-authentication-agent-1" ];
+            }
+            {
+              command = [
+                "dms"
+                "run"
+              ];
+            }
           ];
 
           input = {
@@ -221,10 +245,10 @@ in
             "Mod+Alt+L".action.focus-monitor-right = { };
 
             # Move window/column to monitor
-            "Mod+Shift+Ctrl+H".action.move-column-to-monitor-left = { };
-            "Mod+Shift+Ctrl+J".action.move-column-to-monitor-down = { };
-            "Mod+Shift+Ctrl+K".action.move-column-to-monitor-up = { };
-            "Mod+Shift+Ctrl+L".action.move-column-to-monitor-right = { };
+            "Mod+Shift+Alt+H".action.move-column-to-monitor-left = { };
+            "Mod+Shift+Alt+J".action.move-column-to-monitor-down = { };
+            "Mod+Shift+Alt+K".action.move-column-to-monitor-up = { };
+            "Mod+Shift+Alt+L".action.move-column-to-monitor-right = { };
 
             "Mod+Page_Down".action.focus-workspace-down = { };
             "Mod+Page_Up".action.focus-workspace-up = { };
