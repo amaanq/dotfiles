@@ -56,31 +56,15 @@ in
           config'.shells |> attrsToList |> sortOn ({ name, ... }: toInt name) |> catAttrs "value"
         );
 
-        options.variablesMap = mkConst (
-          {
-            HOME = config'.home.homeDirectory;
-            USER = config'.home.username;
+        options.variablesMap = mkConst {
+          HOME = config'.home.homeDirectory;
+          USER = config'.home.username;
 
-            XDG_CACHE_HOME = config'.xdg.cacheHome;
-            XDG_CONFIG_HOME = config'.xdg.configHome;
-            XDG_DATA_HOME = config'.xdg.dataHome;
-            XDG_STATE_HOME = config'.xdg.stateHome;
-          }
-          |> mapAttrsToList (
-            name: value: [
-              {
-                name = "\$${name}";
-                inherit value;
-              }
-              {
-                name = "\${${name}}";
-                inherit value;
-              }
-            ]
-          )
-          |> flatten
-          |> listToAttrs
-        );
+          XDG_CACHE_HOME = config'.xdg.cacheHome;
+          XDG_CONFIG_HOME = config'.xdg.configHome;
+          XDG_DATA_HOME = config'.xdg.dataHome;
+          XDG_STATE_HOME = config'.xdg.stateHome;
+        };
       }
     )
 

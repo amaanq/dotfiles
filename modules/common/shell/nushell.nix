@@ -11,7 +11,10 @@ let
     const
     enabled
     filterAttrs
+    flatten
+    listToAttrs
     mapAttrs
+    mapAttrsToList
     readFile
     replaceStrings
     ;
@@ -26,10 +29,26 @@ in
         config' = homeArgs.config;
 
         environmentVariables =
+          let
+            variablesMap =
+              config'.variablesMap
+              |> mapAttrsToList (
+                name: value: [
+                  {
+                    name = "\$${name}";
+                    inherit value;
+                  }
+                  {
+                    name = "\${${name}}";
+                    inherit value;
+                  }
+                ]
+              )
+              |> flatten
+              |> listToAttrs;
+          in
           config.environment.variables
-          |> mapAttrs (
-            const <| replaceStrings (attrNames config'.variablesMap) (attrValues config'.variablesMap)
-          )
+          |> mapAttrs (const <| replaceStrings (attrNames variablesMap) (attrValues variablesMap))
           |> filterAttrs (name: const <| name != "TERM");
       in
       {
