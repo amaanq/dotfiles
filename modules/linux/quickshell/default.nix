@@ -1,11 +1,12 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
 }:
 let
-  inherit (lib) merge mkIf;
+  inherit (lib) enabled merge mkIf;
 in
 merge
 <| mkIf config.isDesktop {
@@ -21,13 +22,12 @@ merge
 
   home-manager.sharedModules = [
     {
-      # Copy QuickShell configuration files
-      home.file = {
-        ".config/quickshell" = {
-          source = ./.;
-          recursive = true;
-        };
-      };
+      imports = [
+        inputs.dankMaterialShell.homeModules.dankMaterialShell.default
+        inputs.dankMaterialShell.homeModules.dankMaterialShell.niri
+      ];
+
+      programs.dankMaterialShell = enabled;
     }
   ];
 }
