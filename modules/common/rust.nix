@@ -32,15 +32,17 @@ in
       "rustfmt"
     ])
 
-    # pkgs.rust-analyzer-nightly
+    pkgs.rust-analyzer-nightly
 
     pkgs.cargo-deny
     pkgs.cargo-expand
-    pkgs.cargo-llvm-cov
     pkgs.cargo-nextest
     pkgs.cargo-watch
     pkgs.cargo-workspaces
 
     pkgs.evcxr
+  ]
+  ++ lib.optionals config.isLinux [
+    pkgs.cargo-llvm-cov
   ];
 }
