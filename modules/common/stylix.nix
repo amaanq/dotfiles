@@ -30,9 +30,6 @@ in
     {
       stylix = enabled {
         autoEnable = true;
-        cursor = {
-          size = 24;
-        };
         targets = {
           gtk = disabled;
           helix = disabled;
