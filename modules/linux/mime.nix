@@ -22,8 +22,9 @@ in
           "application/x-extension-xht" = "thorium-browser.desktop";
 
           "x-scheme-handler/ror2mm" = "r2modman.desktop";
-          "x-scheme-handler/tg" = "org.telegram.desktop.desktop";
-          "x-scheme-handler/tonsite" = "org.telegram.desktop.desktop";
+          "x-scheme-handler/tg" = "web-app-Telegram.desktop";
+          "x-scheme-handler/tonsite" = "web-app-Telegram.desktop";
+          "x-scheme-handler/matrix" = "web-app-Element.desktop";
           "x-scheme-handler/discord" = "vesktop.desktop";
 
           "x-scheme-handler/mailto" = "userapp-Thunderbird-3NCNA3.desktop";

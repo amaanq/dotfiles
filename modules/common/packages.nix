@@ -65,12 +65,10 @@ in
     pkgs.raycast
   ]
   ++ optionals config.isDesktop [
-    pkgs.element-desktop
     pkgs.files-to-prompt
     pkgs.go
     # pkgs.qbittorrent
     pkgs.sequoia-sq
-    pkgs.telegram-desktop
   ]
   ++ optionals (config.isLinux && config.isDesktop) [
     pkgs.obs-studio
