@@ -169,6 +169,11 @@
       url = "github:notashelf/stash";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixpak = {
+      url = "github:nixpak/nixpak";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
