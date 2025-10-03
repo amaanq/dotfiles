@@ -192,6 +192,25 @@ in
                 { title = "kitty"; }
               ];
               opacity = 0.94;
+              default-column-width = {
+                proportion = 0.6;
+              };
+            }
+            {
+              matches = [
+                { app-id = "^thorium-discord\\.com__app-Default$"; }
+              ];
+              default-column-width = {
+                proportion = 0.65;
+              };
+            }
+            {
+              matches = [
+                { app-id = "^spotify$"; }
+              ];
+              default-column-width = {
+                proportion = 0.35;
+              };
             }
           ];
 
@@ -201,6 +220,9 @@ in
 
             # Applications
             "Mod+Return".action.spawn = "kitty";
+            "Mod+E".action.spawn = "thunar";
+            "Mod+O".action.spawn = "ida";
+
             # dykwabi
             "Mod+Alt+V".action.spawn = [
               "dykwabi"
@@ -223,8 +245,6 @@ in
               "spotlight"
               "toggle"
             ];
-            "Mod+E".action.spawn = "thunar";
-            "Mod+Y".action.spawn = "ida";
             "Mod+X".action.spawn = [
               "dykwabi"
               "ipc"
@@ -234,11 +254,10 @@ in
             ];
 
             # Window management
+            "Mod+Escape".action.quit = { };
+            "Mod+grave".action.toggle-overview = { };
             "Mod+C".action.close-window = { };
-            "Mod+M".action.quit = { };
             "Mod+V".action.toggle-window-floating = { };
-            "Mod+P".action.consume-window-into-column = { };
-            "Mod+O".action.expel-window-from-column = { };
 
             # Window navigation
             "Mod+H".action.focus-column-left-or-last = { };
@@ -253,10 +272,10 @@ in
             "Mod+Shift+L".action.move-column-right = { };
 
             # Window resizing
-            "Mod+Ctrl+H".action.set-column-width = "-20";
-            "Mod+Ctrl+J".action.set-window-height = "+20";
-            "Mod+Ctrl+K".action.set-window-height = "-20";
-            "Mod+Ctrl+L".action.set-column-width = "+20";
+            "Mod+Alt+H".action.set-column-width = "-20";
+            "Mod+Alt+J".action.set-window-height = "+20";
+            "Mod+Alt+K".action.set-window-height = "-20";
+            "Mod+Alt+L".action.set-column-width = "+20";
 
             "Mod+Home".action.focus-column-first = { };
             "Mod+End".action.focus-column-last = { };
@@ -264,16 +283,14 @@ in
             "Mod+Ctrl+End".action.move-column-to-last = { };
 
             # Monitor focus
-            "Mod+Alt+H".action.focus-monitor-left = { };
-            "Mod+Alt+J".action.focus-monitor-down = { };
-            "Mod+Alt+K".action.focus-monitor-up = { };
-            "Mod+Alt+L".action.focus-monitor-right = { };
+            "Mod+F1".action.focus-monitor = "DP-1";
+            "Mod+F2".action.focus-monitor = "DP-2";
+            "Mod+N".action.focus-monitor-left = { };
+            "Mod+M".action.focus-monitor-right = { };
 
             # Move window/column to monitor
-            "Mod+Shift+Alt+H".action.move-column-to-monitor-left = { };
-            "Mod+Shift+Alt+J".action.move-column-to-monitor-down = { };
-            "Mod+Shift+Alt+K".action.move-column-to-monitor-up = { };
-            "Mod+Shift+Alt+L".action.move-column-to-monitor-right = { };
+            "Mod+Shift+F1".action.move-column-to-monitor = "DP-1";
+            "Mod+Shift+F2".action.move-column-to-monitor = "DP-2";
 
             "Mod+Page_Down".action.focus-workspace-down = { };
             "Mod+Page_Up".action.focus-workspace-up = { };
