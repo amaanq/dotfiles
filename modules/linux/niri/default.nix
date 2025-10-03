@@ -101,10 +101,10 @@ in
             { command = [ "thorium" ]; }
             { command = [ "kitty" ]; }
             { command = [ "spotify" ]; }
-            { command = [ "discord" ]; }
-            { command = [ "web-app-Element" ]; }
-            { command = [ "web-app-Cinny" ]; }
-            { command = [ "web-app-Twitter" ]; }
+            { command = [ "discord-web-app" ]; }
+            { command = [ "element-web-app" ]; }
+            { command = [ "cinny-web-app" ]; }
+            { command = [ "twitter-web-app" ]; }
             { command = [ "swww-daemon" ]; }
             # dms
             {
