@@ -49,7 +49,7 @@ in
           in
           config.environment.variables
           |> mapAttrs (const <| replaceStrings (attrNames variablesMap) (attrValues variablesMap))
-          |> filterAttrs (name: const <| name != "TERM");
+          |> filterAttrs (name: const <| name != "TERM" && name != "XDG_DATA_DIRS");
       in
       {
         home.shell.enableNushellIntegration = true;
