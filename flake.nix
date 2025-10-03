@@ -123,7 +123,7 @@
     };
 
     stylix = {
-      url = "github:danth/stylix";
+      url = "github:musjj/stylix/default-modules";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -160,7 +160,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    bms = {
+    buckMaterialShell = {
       url = "github:amaanq/BuckMaterialShell";
       inputs.nixpkgs.follows = "nixpkgs";
     };

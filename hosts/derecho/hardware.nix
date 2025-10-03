@@ -1,9 +1,9 @@
 {
   config,
+  lanzaboote,
   lib,
   modulesPath,
   pkgs,
-  inputs,
   ...
 }:
 let
@@ -12,7 +12,7 @@ in
 {
   imports = [
     (modulesPath + "/profiles/qemu-guest.nix")
-    inputs.lanzaboote.nixosModules.lanzaboote
+    lanzaboote.nixosModules.lanzaboote
   ];
 
   boot.extraModulePackages = [ ];

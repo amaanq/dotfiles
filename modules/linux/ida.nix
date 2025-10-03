@@ -1,8 +1,8 @@
 {
   config,
   lib,
+  nixpak,
   pkgs,
-  inputs,
   ...
 }:
 let
@@ -40,7 +40,7 @@ let
     '';
   });
 
-  mkNixPak = inputs.nixpak.lib.nixpak {
+  mkNixPak = nixpak.lib.nixpak {
     inherit (pkgs) lib;
     inherit pkgs;
   };

@@ -3,7 +3,7 @@
   config,
   lib,
   pkgs,
-  inputs,
+  hkpoolservices,
   ...
 }:
 let
@@ -12,7 +12,7 @@ let
   group = user;
   stateDir = "/var/lib/${user}";
 
-  hkpoolservices = inputs.hkpoolservices.packages.${pkgs.system}.default;
+  hkpspkg = hkpoolservices.packages.${pkgs.system}.default;
 in
 {
   imports = [
@@ -37,7 +37,7 @@ in
     script = ''
       rm -rf ${stateDir}/*
 
-      cp -r ${hkpoolservices}/* ${stateDir}/
+      cp -r ${hkpspkg}/* ${stateDir}/
 
       chown -R ${user}:${group} ${stateDir}
       chmod 755 ${stateDir}

@@ -48,7 +48,6 @@ merge
   ];
 
   home-manager.sharedModules = [
-    inputs.nixcord.homeModules.nixcord
     {
       programs.nixcord = disabled {
         config = {

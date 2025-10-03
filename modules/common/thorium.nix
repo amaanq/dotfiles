@@ -2,7 +2,7 @@
   config,
   lib,
   pkgs,
-  inputs,
+  thorium,
   ...
 }:
 let
@@ -22,7 +22,7 @@ merge
     optional config.isLinux (
       pkgs.symlinkJoin {
         name = "thorium";
-        paths = [ inputs.thorium.packages.${pkgs.system}.thorium-avx2 ];
+        paths = [ thorium.packages.${pkgs.system}.thorium-avx2 ];
         buildInputs = [ pkgs.makeWrapper ];
         postBuild = ''
           wrapProgram $out/bin/thorium \
@@ -30,5 +30,5 @@ merge
         '';
       }
     )
-    ++ optional config.isDarwin inputs.thorium.packages.${pkgs.system}.thorium-arm;
+    ++ optional config.isDarwin thorium.packages.${pkgs.system}.thorium-arm;
 }

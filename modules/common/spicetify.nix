@@ -1,6 +1,6 @@
 {
   config,
-  inputs,
+  spicetify,
   lib,
   pkgs,
   ...
@@ -18,7 +18,7 @@ merge
   programs.spicetify =
     enabled {
       experimentalFeatures = true;
-      enabledExtensions = with inputs.spicetify.legacyPackages.${pkgs.stdenv.system}.extensions; [
+      enabledExtensions = with spicetify.legacyPackages.${pkgs.stdenv.system}.extensions; [
         copyLyrics
       ];
     }

@@ -79,6 +79,5 @@ in
     pkgs.pavucontrol
     pkgs.spotify
     pkgs.thunderbird
-    # inputs.claude-desktop.packages.${pkgs.system}.claude-desktop
   ];
 }

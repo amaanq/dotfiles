@@ -171,8 +171,6 @@ merge
 <| mkIf config.isDesktop {
   home-manager.sharedModules = [
     {
-      imports = [ inputs.zen-browser.homeModules.default ];
-
       programs.zen-browser = enabled {
         inherit policies;
       };

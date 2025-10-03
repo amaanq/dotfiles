@@ -1,6 +1,5 @@
 {
   config,
-  inputs,
   lib,
   pkgs,
   ...
@@ -22,12 +21,9 @@ merge
 
   home-manager.sharedModules = [
     {
-      imports = [
-        inputs.bms.homeModules.buckMaterialShell.default
-        inputs.bms.homeModules.buckMaterialShell.niri
-      ];
-
-      programs.buckMaterialShell = enabled;
+      programs.buckMaterialShell = enabled {
+        enableDynamicTheming = false;
+      };
     }
   ];
 }

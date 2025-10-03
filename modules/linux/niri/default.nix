@@ -1,5 +1,5 @@
 {
-  inputs,
+  niri,
   lib,
   pkgs,
   ...
@@ -9,8 +9,7 @@ let
 in
 {
   imports = [
-    inputs.niri.nixosModules.niri
-    inputs.nirinit.nixosModules.nirinit
+    niri.nixosModules.niri
   ];
 
   hardware.graphics = enabled;
@@ -95,8 +94,6 @@ in
 
   home-manager.sharedModules = [
     {
-      imports = [ inputs.nirinit.homeManagerModules.nirinit ];
-
       programs.niri = {
         package = pkgs.niri;
         settings = {
