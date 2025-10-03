@@ -40,6 +40,11 @@
 
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
+    nirinit = {
+      url = "github:amaanq/nirinit";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     hkpoolservices = {
       url = "git+https://git.amaanq.com/amaanq/hkpoolservices.git";
       inputs.nixpkgs.follows = "nixpkgs";

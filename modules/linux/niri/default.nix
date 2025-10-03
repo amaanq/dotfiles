@@ -17,7 +17,22 @@ in
 
   services.logind.settings.Login.HandlePowerKey = "ignore";
 
-  programs.niri = enabled;
+  programs.niri = enabled {
+    package = pkgs.niri;
+  };
+
+  services.nirinit = enabled {
+    settings = {
+      launch = {
+        thorium-browser = "thorium";
+        "thorium-cinny.amaanq.com__-Default" = "cinny-web-app";
+        "thorium-discord.com__app-Default" = "discord-web-app";
+        "thorium-app.element.io__-Default" = "element-web-app";
+        "thorium-web.telegram.org__a-Default" = "telegram-web-app";
+        "thorium-twitter.com__-Default" = "twitter-web-app";
+      };
+    };
+  };
 
   environment = {
     systemPackages = [
@@ -80,6 +95,8 @@ in
 
   home-manager.sharedModules = [
     {
+      imports = [ inputs.nirinit.homeManagerModules.nirinit ];
+
       programs.niri = {
         package = pkgs.niri;
         settings = {
