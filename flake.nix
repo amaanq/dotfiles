@@ -40,6 +40,11 @@
 
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
+    nirinit = {
+      url = "github:amaanq/nirinit";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     hkpoolservices = {
       url = "git+https://git.amaanq.com/amaanq/hkpoolservices.git";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -155,8 +160,18 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    dankMaterialShell = {
-      url = "github:AvengeMedia/DankMaterialShell";
+    bms = {
+      url = "github:amaanq/BuckMaterialShell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    stash = {
+      url = "github:notashelf/stash";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixpak = {
+      url = "github:nixpak/nixpak";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

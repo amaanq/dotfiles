@@ -6,7 +6,12 @@
   ...
 }:
 let
-  inherit (lib) enabled merge mkIf;
+  inherit (lib)
+    disabled
+    enabled
+    merge
+    mkIf
+    ;
 in
 merge
 <| mkIf config.isDesktop {
@@ -45,7 +50,7 @@ merge
   home-manager.sharedModules = [
     inputs.nixcord.homeModules.nixcord
     {
-      programs.nixcord = enabled {
+      programs.nixcord = disabled {
         config = {
           useQuickCss = true;
           themeLinks = [ ];
@@ -106,9 +111,9 @@ merge
             };
             noProfileThemes = enabled;
             noTrack = enabled;
+            normalizeMessageLinks = enabled;
             noTypingAnimation = enabled;
             noUnblockToJump = enabled;
-            normalizeMessageLinks = enabled;
             onePingPerDM = enabled;
             openInApp = enabled;
             permissionFreeWill = enabled;

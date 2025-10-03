@@ -7,8 +7,7 @@
 let
   inherit (lib) mkIf;
 
-  webAppLauncher = pkgs.writeShellScript "web-app-launcher" ''
-    #!/bin/bash
+  webAppLauncherScript = pkgs.writeShellScript "web-app-launcher" ''
     browser="thorium"
 
     browser_exec=""
@@ -34,10 +33,13 @@ let
         ;;
     esac
 
+    url="$1"
+    app_name="''${2:-$(basename "$0")}"
+    shift
+
     exec setsid "$browser_exec" \
-      --app="$1" \
-      --user-data-dir="$HOME/.local/share/web-apps/$(echo "$1" | sed 's|https\?://||' | sed 's|[^a-zA-Z0-9]|-|g')" \
-      --class="WebApp-$(basename "$1")" \
+      --app="$url" \
+      --user-data-dir="$HOME/.local/share/web-apps/$app_name" \
       --no-first-run \
       --no-default-browser-check \
       --disable-background-timer-throttling \
@@ -51,10 +53,10 @@ let
       --gtk-version=4 \
       --enable-experimental-web-platform-features \
       --load-extension="$extensions" \
-      ''${@:2}
+      "$@"
   '';
 
-  # Create desktop entries for web apps
+  # Create web app package
   createWebApp =
     {
       name,
@@ -67,66 +69,91 @@ let
         "InstantMessaging"
       ],
     }:
+    let
+      pkgName = "${lib.toLower name}-web-app";
+    in
     {
-      name = "web-app-${name}";
-      value = pkgs.makeDesktopItem {
-        name = "web-app-${name}";
-        desktopName = name;
-        exec = "${webAppLauncher} ${url}";
-        icon = icon;
-        comment = description;
-        categories = categories;
-        mimeTypes = [ ];
-        startupNotify = true;
-        startupWMClass = "WebApp-${url}";
+      name = pkgName;
+      value = pkgs.stdenv.mkDerivation {
+        pname = pkgName;
+        version = "1.0";
+        dontUnpack = true;
+
+        nativeBuildInputs = [
+          pkgs.copyDesktopItems
+          pkgs.makeWrapper
+        ];
+
+        installPhase = ''
+          runHook preInstall
+          makeWrapper ${webAppLauncherScript} $out/bin/${pkgName} \
+            --add-flags "${url}" \
+            --add-flags "${pkgName}"
+          runHook postInstall
+        '';
+
+        desktopItems = [
+          (pkgs.makeDesktopItem {
+            name = pkgName;
+            exec = "${pkgName} %U";
+            icon = icon;
+            desktopName = name;
+            comment = description;
+            categories = categories;
+            startupNotify = true;
+            startupWMClass = pkgName;
+          })
+        ];
       };
     };
 
-  webApps = builtins.listToAttrs [
-    (createWebApp {
-      name = "Cinny";
-      url = "https://cinny.amaanq.com";
-      icon = "cinny";
-      description = "Cinny, a Matrix client";
-    })
-    (createWebApp {
-      name = "Discord";
-      url = "https://discord.com/app";
-      icon = "discord";
-      description = "Discord Web";
-    })
-    (createWebApp {
-      name = "Element";
-      url = "https://app.element.io";
-      icon = "element-desktop";
-      description = "Element, a Matrix client";
-    })
-    (createWebApp {
-      name = "Telegram";
-      url = "https://web.telegram.org/a";
-      icon = "telegram";
-      description = "Telegram Web";
-    })
-    (createWebApp {
-      name = "Twitter";
-      url = "https://twitter.com";
-      icon = "twitter";
-      description = "Twitter Web";
-      categories = [
-        "Network"
-        "News"
-      ];
-    })
-  ];
+  apps = builtins.listToAttrs (
+    map createWebApp [
+      {
+        name = "Cinny";
+        url = "https://cinny.amaanq.com";
+        icon = "cinny";
+        description = "Cinny, a Matrix client";
+      }
+      {
+        name = "Discord";
+        url = "https://discord.com/app";
+        icon = "discord";
+        description = "Discord Web";
+      }
+      {
+        name = "Element";
+        url = "https://app.element.io";
+        icon = "element-desktop";
+        description = "Element, a Matrix client";
+      }
+      {
+        name = "Telegram";
+        url = "https://web.telegram.org/a";
+        icon = "telegram";
+        description = "Telegram Web";
+      }
+      {
+        name = "Twitter";
+        url = "https://twitter.com";
+        icon = "twitter";
+        description = "Twitter Web";
+        categories = [
+          "Network"
+          "News"
+        ];
+      }
+    ]
+  );
 in
 {
   config = mkIf config.isDesktop {
-    environment.systemPackages = builtins.attrValues webApps;
+    environment.systemPackages = builtins.attrValues apps;
 
     xdg.mime.defaultApplications = {
-      "x-scheme-handler/matrix" = "web-app-Element.desktop";
-      "x-scheme-handler/tg" = "web-app-Telegram.desktop";
-      "x-scheme-handler/tonsite" = "web-app-Telegram.desktop";
+      "x-scheme-handler/matrix" = "element-web-app.desktop";
+      "x-scheme-handler/tg" = "telegram-web-app.desktop";
+      "x-scheme-handler/tonsite" = "telegram-web-app.desktop";
     };
 
     environment.etc."web-apps-setup".text = ''

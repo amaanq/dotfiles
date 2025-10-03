@@ -8,28 +8,44 @@ let
   inherit (lib) enabled;
 in
 {
-  imports = [ inputs.niri.nixosModules.niri ];
+  imports = [
+    inputs.niri.nixosModules.niri
+    inputs.nirinit.nixosModules.nirinit
+  ];
 
   hardware.graphics = enabled;
 
   services.logind.settings.Login.HandlePowerKey = "ignore";
 
-  programs.niri = enabled;
+  programs.niri = enabled {
+    package = pkgs.niri;
+  };
+
+  services.nirinit = enabled {
+    settings = {
+      launch = {
+        thorium-browser = "thorium";
+        "thorium-cinny.amaanq.com__-Default" = "cinny-web-app";
+        "thorium-discord.com__app-Default" = "discord-web-app";
+        "thorium-app.element.io__-Default" = "element-web-app";
+        "thorium-web.telegram.org__a-Default" = "telegram-web-app";
+        "thorium-twitter.com__-Default" = "twitter-web-app";
+      };
+    };
+  };
 
   environment = {
     systemPackages = [
       pkgs.brightnessctl
-      pkgs.copyq
       pkgs.ddcutil
       # Needed for xdg-desktop-portal-gnome 🦼.
       pkgs.gnome-keyring
+      inputs.stash.packages.${pkgs.stdenv.hostPlatform.system}.default
       pkgs.gifski
-      pkgs.mate.mate-polkit # dms 🦼
+      pkgs.mate.mate-polkit # dykwabi 🦼
       pkgs.nautilus
       pkgs.pavucontrol
       pkgs.playerctl
-      pkgs.rofi
-      pkgs.rofi-emoji
       pkgs.swww
       pkgs.wf-recorder
       pkgs.wl-clipboard
@@ -80,38 +96,26 @@ in
 
   home-manager.sharedModules = [
     {
+      imports = [ inputs.nirinit.homeManagerModules.nirinit ];
+
       programs.niri = {
         package = pkgs.niri;
         settings = {
-          # TODO: why is this broken on niri
-          environment = {
-            XDG_DATA_DIRS = "~/.nix-profile/share:/run/current-system/sw/share";
-          };
-
           spawn-at-startup = [
             { command = [ "xwayland-satellite" ]; }
-            {
-              command = [
-                "copyq"
-                "--start-server"
-              ];
-            }
-
             { command = [ "quickshell" ]; }
             { command = [ "thorium" ]; }
             { command = [ "kitty" ]; }
             { command = [ "spotify" ]; }
-            { command = [ "discord" ]; }
-            { command = [ "web-app-Element" ]; }
-            { command = [ "web-app-Cinny" ]; }
-            { command = [ "web-app-Twitter" ]; }
+            { command = [ "discord-web-app" ]; }
+            { command = [ "element-web-app" ]; }
+            { command = [ "cinny-web-app" ]; }
+            { command = [ "twitter-web-app" ]; }
             { command = [ "swww-daemon" ]; }
-            # dms
             {
               command = [
-                "bash"
-                "-c"
-                "wl-paste --watch cliphist store &"
+                "stash"
+                "watch"
               ];
             }
             {
@@ -119,7 +123,7 @@ in
             }
             {
               command = [
-                "dms"
+                "dykwabi"
                 "run"
               ];
             }
@@ -188,6 +192,25 @@ in
                 { title = "kitty"; }
               ];
               opacity = 0.94;
+              default-column-width = {
+                proportion = 0.6;
+              };
+            }
+            {
+              matches = [
+                { app-id = "^thorium-discord\\.com__app-Default$"; }
+              ];
+              default-column-width = {
+                proportion = 0.65;
+              };
+            }
+            {
+              matches = [
+                { app-id = "^spotify$"; }
+              ];
+              default-column-width = {
+                proportion = 0.35;
+              };
             }
           ];
 
@@ -197,23 +220,43 @@ in
 
             # Applications
             "Mod+Return".action.spawn = "kitty";
-            "Mod+R".action.spawn = [
-              "rofi"
-              "-show"
-              "drun"
-            ];
             "Mod+E".action.spawn = "thunar";
-            "Mod+Y".action.spawn = "ida";
-            "Mod+Shift+Period".action.spawn =
-              ''rofi -show emoji -emoji-format "{emoji}" -modi emoji -theme ~/.config/rofi/global/emoji -normal-window'';
-            "Super+Alt+L".action.spawn = "swaylock";
+            "Mod+O".action.spawn = "ida";
+
+            # dykwabi
+            "Mod+Alt+V".action.spawn = [
+              "dykwabi"
+              "ipc"
+              "call"
+              "clipboard"
+              "toggle"
+            ];
+            "Mod+N".action.spawn = [
+              "dykwabi"
+              "ipc"
+              "call"
+              "notifications"
+              "toggle"
+            ];
+            "Mod+R".action.spawn = [
+              "dykwabi"
+              "ipc"
+              "call"
+              "spotlight"
+              "toggle"
+            ];
+            "Mod+X".action.spawn = [
+              "dykwabi"
+              "ipc"
+              "call"
+              "powermenu"
+              "toggle"
+            ];
 
             # Window management
             "Mod+C".action.close-window = { };
             "Mod+M".action.quit = { };
             "Mod+V".action.toggle-window-floating = { };
-            "Mod+P".action.consume-window-into-column = { };
-            "Mod+O".action.expel-window-from-column = { };
 
             # Window navigation
             "Mod+H".action.focus-column-left-or-last = { };
@@ -228,10 +271,10 @@ in
             "Mod+Shift+L".action.move-column-right = { };
 
             # Window resizing
-            "Mod+Ctrl+H".action.set-column-width = "-20";
-            "Mod+Ctrl+J".action.set-window-height = "+20";
-            "Mod+Ctrl+K".action.set-window-height = "-20";
-            "Mod+Ctrl+L".action.set-column-width = "+20";
+            "Mod+Alt+H".action.set-column-width = "-20";
+            "Mod+Alt+J".action.set-window-height = "+20";
+            "Mod+Alt+K".action.set-window-height = "-20";
+            "Mod+Alt+L".action.set-column-width = "+20";
 
             "Mod+Home".action.focus-column-first = { };
             "Mod+End".action.focus-column-last = { };
@@ -239,16 +282,12 @@ in
             "Mod+Ctrl+End".action.move-column-to-last = { };
 
             # Monitor focus
-            "Mod+Alt+H".action.focus-monitor-left = { };
-            "Mod+Alt+J".action.focus-monitor-down = { };
-            "Mod+Alt+K".action.focus-monitor-up = { };
-            "Mod+Alt+L".action.focus-monitor-right = { };
+            "Mod+F1".action.focus-monitor = "DP-1";
+            "Mod+F2".action.focus-monitor = "DP-2";
 
             # Move window/column to monitor
-            "Mod+Shift+Alt+H".action.move-column-to-monitor-left = { };
-            "Mod+Shift+Alt+J".action.move-column-to-monitor-down = { };
-            "Mod+Shift+Alt+K".action.move-column-to-monitor-up = { };
-            "Mod+Shift+Alt+L".action.move-column-to-monitor-right = { };
+            "Mod+Shift+F1".action.move-column-to-monitor = "DP-1";
+            "Mod+Shift+F2".action.move-column-to-monitor = "DP-2";
 
             "Mod+Page_Down".action.focus-workspace-down = { };
             "Mod+Page_Up".action.focus-workspace-up = { };

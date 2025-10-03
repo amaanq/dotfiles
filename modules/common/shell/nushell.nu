@@ -1,6 +1,58 @@
 use std/clip
 use std null_device
 
+# # Load system environment variables from /etc/set-environment
+# let env_vars_file = '/tmp/nushell-env-vars'
+# if not ($env_vars_file | path exists) {
+#   if ("/etc/set-environment" | path exists) {
+#     open /etc/set-environment
+#     | lines
+#     | where ($it | str starts-with "export ")
+#     | parse 'export {name}="{value}"'
+#     | reduce --fold {} {|row, acc|
+#       $acc | upsert $row.name (
+#         $row.value
+#         | str replace --all '$HOME' $env.HOME
+#         | str replace --all '${HOME}' $env.HOME
+#         | str replace --all '$USER' $env.USER
+#         | str replace --all '${USER}' $env.USER
+#         | str replace --all '${XDG_STATE_HOME}' $env.XDG_STATE_HOME
+#         | str replace --all '$XDG_STATE_HOME' $env.XDG_STATE_HOME
+#       )
+#     }
+#     | tee { load-env $in }
+#     | to nuon
+#     | save --force $env_vars_file
+#   }
+# } else {
+#   open $env_vars_file
+#   | from nuon
+#   | load-env $in
+# }
+#
+# # Set up ENV_CONVERSIONS for path variables
+# let converter = {
+#   from_string: {|s| $s | split row (char esep) | path expand --no-symlink }
+#   to_string: {|v| $v | path expand --no-symlink | str join (char esep) }
+# }
+#
+# let path_vars = [
+#   XDG_DATA_DIRS
+#   XDG_CONFIG_DIRS
+#   XCURSOR_PATH
+#   TERMINFO_DIRS
+#   QT_PLUGIN_PATH
+#   QTWEBKIT_PLUGIN_PATH
+#   QML2_IMPORT_PATH
+#   INFOPATH
+#   LIBEXEC_PATH
+#   GTK_PATH
+# ]
+# | each { {($in): $converter} }
+# | into record
+#
+# $env.ENV_CONVERSIONS = $env.ENV_CONVERSIONS | merge $path_vars
+
 $env.config.history.file_format = "sqlite"
 $env.config.history.isolation = false
 $env.config.history.max_size = 10_000_000
