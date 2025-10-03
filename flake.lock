@@ -201,21 +201,6 @@
         "type": "github"
       }
     },
-    "crane_3": {
-      "locked": {
-        "lastModified": 1754269165,
-        "narHash": "sha256-0tcS8FHd4QjbCVoxN9jI+PjHgA4vc/IjkUSp+N3zy0U=",
-        "owner": "ipetkov",
-        "repo": "crane",
-        "rev": "444e81206df3f7d92780680e45858e31d2f07a08",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ipetkov",
-        "repo": "crane",
-        "type": "github"
-      }
-    },
     "crash": {
       "inputs": {
         "nixpkgs": [
@@ -1622,7 +1607,6 @@
         "nixpkgs": "nixpkgs_3",
         "nvim-config": "nvim-config",
         "spicetify": "spicetify",
-        "stash": "stash_2",
         "stylix": "stylix",
         "thorium": "thorium",
         "zen-browser": "zen-browser"
@@ -1692,27 +1676,6 @@
         "crane": "crane",
         "nixpkgs": [
           "bms",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1759225540,
-        "narHash": "sha256-xXc5m/RJ0wG+aYCTHPOwZI++IgxIiY8RuZSUdj2CHoU=",
-        "owner": "notashelf",
-        "repo": "stash",
-        "rev": "dd4a9b5894458662b4a3fef77d9cce78a2927cf2",
-        "type": "github"
-      },
-      "original": {
-        "owner": "notashelf",
-        "repo": "stash",
-        "type": "github"
-      }
-    },
-    "stash_2": {
-      "inputs": {
-        "crane": "crane_3",
-        "nixpkgs": [
           "nixpkgs"
         ]
       },

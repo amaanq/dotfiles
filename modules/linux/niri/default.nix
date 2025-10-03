@@ -40,7 +40,6 @@ in
       pkgs.ddcutil
       # Needed for xdg-desktop-portal-gnome 🦼.
       pkgs.gnome-keyring
-      inputs.stash.packages.${pkgs.stdenv.hostPlatform.system}.default
       pkgs.gifski
       pkgs.mate.mate-polkit # dykwabi 🦼
       pkgs.nautilus
