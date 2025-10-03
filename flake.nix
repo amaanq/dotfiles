@@ -155,8 +155,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    dankMaterialShell = {
-      url = "github:AvengeMedia/DankMaterialShell";
+    bms = {
+      url = "github:amaanq/BuckMaterialShell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

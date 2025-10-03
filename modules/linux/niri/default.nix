@@ -8,7 +8,10 @@ let
   inherit (lib) enabled;
 in
 {
-  imports = [ inputs.niri.nixosModules.niri ];
+  imports = [
+    inputs.niri.nixosModules.niri
+    inputs.nirinit.nixosModules.nirinit
+  ];
 
   hardware.graphics = enabled;
 
@@ -19,17 +22,14 @@ in
   environment = {
     systemPackages = [
       pkgs.brightnessctl
-      pkgs.copyq
       pkgs.ddcutil
       # Needed for xdg-desktop-portal-gnome 🦼.
       pkgs.gnome-keyring
       pkgs.gifski
-      pkgs.mate.mate-polkit # dms 🦼
+      pkgs.mate.mate-polkit # dykwabi 🦼
       pkgs.nautilus
       pkgs.pavucontrol
       pkgs.playerctl
-      pkgs.rofi
-      pkgs.rofi-emoji
       pkgs.swww
       pkgs.wf-recorder
       pkgs.wl-clipboard
@@ -83,20 +83,8 @@ in
       programs.niri = {
         package = pkgs.niri;
         settings = {
-          # TODO: why is this broken on niri
-          environment = {
-            XDG_DATA_DIRS = "~/.nix-profile/share:/run/current-system/sw/share";
-          };
-
           spawn-at-startup = [
             { command = [ "xwayland-satellite" ]; }
-            {
-              command = [
-                "copyq"
-                "--start-server"
-              ];
-            }
-
             { command = [ "quickshell" ]; }
             { command = [ "thorium" ]; }
             { command = [ "kitty" ]; }
@@ -106,7 +94,6 @@ in
             { command = [ "cinny-web-app" ]; }
             { command = [ "twitter-web-app" ]; }
             { command = [ "swww-daemon" ]; }
-            # dms
             {
               command = [
                 "bash"
@@ -119,7 +106,7 @@ in
             }
             {
               command = [
-                "dms"
+                "dykwabi"
                 "run"
               ];
             }
@@ -197,16 +184,37 @@ in
 
             # Applications
             "Mod+Return".action.spawn = "kitty";
+            # dykwabi
+            "Mod+Alt+V".action.spawn = [
+              "dykwabi"
+              "ipc"
+              "call"
+              "clipboard"
+              "toggle"
+            ];
+            "Mod+Alt+N".action.spawn = [
+              "dykwabi"
+              "ipc"
+              "call"
+              "notifications"
+              "toggle"
+            ];
             "Mod+R".action.spawn = [
-              "rofi"
-              "-show"
-              "drun"
+              "dykwabi"
+              "ipc"
+              "call"
+              "spotlight"
+              "toggle"
             ];
             "Mod+E".action.spawn = "thunar";
             "Mod+Y".action.spawn = "ida";
-            "Mod+Shift+Period".action.spawn =
-              ''rofi -show emoji -emoji-format "{emoji}" -modi emoji -theme ~/.config/rofi/global/emoji -normal-window'';
-            "Super+Alt+L".action.spawn = "swaylock";
+            "Mod+X".action.spawn = [
+              "dykwabi"
+              "ipc"
+              "call"
+              "powermenu"
+              "toggle"
+            ];
 
             # Window management
             "Mod+C".action.close-window = { };

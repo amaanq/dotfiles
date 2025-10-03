@@ -23,11 +23,11 @@ merge
   home-manager.sharedModules = [
     {
       imports = [
-        inputs.dankMaterialShell.homeModules.dankMaterialShell.default
-        inputs.dankMaterialShell.homeModules.dankMaterialShell.niri
+        inputs.bms.homeModules.buckMaterialShell.default
+        inputs.bms.homeModules.buckMaterialShell.niri
       ];
 
-      programs.dankMaterialShell = enabled;
+      programs.buckMaterialShell = enabled;
     }
   ];
 }
