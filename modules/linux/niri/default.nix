@@ -1,17 +1,15 @@
 {
   niri,
+  config,
   lib,
   pkgs,
   ...
 }:
 let
-  inherit (lib) enabled;
+  inherit (lib) enabled merge mkIf;
 in
-{
-  imports = [
-    niri.nixosModules.niri
-  ];
-
+merge
+<| mkIf config.isDesktop {
   hardware.graphics = enabled;
 
   services.logind.settings.Login.HandlePowerKey = "ignore";
