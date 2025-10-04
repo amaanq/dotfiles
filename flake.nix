@@ -156,7 +156,7 @@
     nixos-wsl.url = "github:nix-community/nixos-wsl";
 
     niri = {
-      url = "github:sodiboo/niri-flake";
+      url = "github:amaanq/niri-flake/default-module";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
