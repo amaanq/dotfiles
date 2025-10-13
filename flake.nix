@@ -123,7 +123,7 @@
     };
 
     stylix = {
-      url = "github:musjj/stylix/default-modules";
+      url = "github:danth/stylix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -169,6 +169,16 @@
       url = "github:nixpak/nixpak";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # hjem = {
+    #   url = "github:feel-co/hjem";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
+    # hjem-rum = {
+    #   url = "path:/home/amaanq/projects/hjem-rum";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    #   inputs.hjem.follows = "hjem";
+    # };
   };
 
   outputs =
