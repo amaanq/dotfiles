@@ -111,10 +111,6 @@ in
                 if ("${config.secrets.openai_api_key.path}" | path exists) {
                   $env.OPENAI_API_KEY = (open ${config.secrets.openai_api_key.path} | str trim)
                 }
-                if ("${config.secrets.anthropic_api_key.path}" | path exists) {
-                  $env.ANTHROPIC_API_KEY = (open ${config.secrets.anthropic_api_key.path} | str trim)
-                  $env.ANTHROPIC_BASE_URL = "https://api.z.ai/api/anthropic"
-                }
               }
             '';
         };
