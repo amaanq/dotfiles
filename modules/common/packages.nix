@@ -56,7 +56,6 @@ in
   ++ optionals config.isDarwin [
     pkgs.iina
     pkgs.maccy
-    pkgs.raycast
   ]
   ++ optionals config.isDesktop [
     (pkgs.files-to-prompt.overridePythonAttrs (old: {
