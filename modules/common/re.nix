@@ -16,8 +16,10 @@ merge
   environment.systemPackages = [
     pkgs.apktool
     pkgs.binwalk
-    pkgs.gef
-    pkgs.imhex
+    # Keystone is broken
+    # pkgs.gef
+    # ImHex is broken (CMake edlib compatibility issue)
+    # pkgs.imhex
     pkgs.patchelf
     pkgs.radare2
     pkgs.yara

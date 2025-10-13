@@ -8,6 +8,7 @@
 let
   inherit (lib)
     attrNames
+    enabled
     head
     merge
     mkIf
@@ -53,10 +54,11 @@ let
         app.binPath = "bin/ida64";
 
         # D-Bus for GUI dialogs?
-        dbus.enable = true;
-        dbus.policies = {
-          "org.freedesktop.DBus" = "talk";
-          "ca.desrt.dconf" = "talk";
+        dbus = enabled {
+          policies = {
+            "org.freedesktop.DBus" = "talk";
+            "ca.desrt.dconf" = "talk";
+          };
         };
 
         flatpak.appId = "com.hexrays.IDA";

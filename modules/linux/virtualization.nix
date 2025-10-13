@@ -57,9 +57,6 @@ merge
       qemu = {
         package = pkgs.qemu;
         swtpm = enabled;
-        ovmf = enabled {
-          packages = [ pkgs.OVMFFull.fd ];
-        };
         vhostUserPackages = [ pkgs.virtiofsd ];
       };
       onBoot = "ignore";
