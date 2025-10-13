@@ -39,7 +39,7 @@ in
           lfs = enabled;
 
           difftastic = enabled {
-            background = "dark";
+            options.background = "dark";
           };
 
           extraConfig =
