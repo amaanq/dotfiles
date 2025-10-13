@@ -23,6 +23,7 @@ merge
     {
       programs.buckMaterialShell = enabled {
         enableDynamicTheming = false;
+        enableClipboard = false;
       };
     }
   ];
