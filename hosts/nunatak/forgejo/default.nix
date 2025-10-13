@@ -153,12 +153,21 @@ in
     (removeAttrs config.services.nginx.sslTemplate [ "useACMEHost" ])
     // {
       enableACME = true;
-      extraConfig = config.services.plausible.extraNginxConfigFor domain;
+      extraConfig = # nginx
+        ''
+          ${config.services.plausible.extraNginxConfigFor domain}
+        '';
       locations."/" = {
         proxyPass = "http://[::1]:${toString port}";
         extraConfig = # nginx
           ''
             client_max_body_size 100M;
+
+            limit_req zone=forgejo_perip burst=50 nodelay;
+            limit_req_status 429;
+
+            limit_conn forgejo_conn 3;
+            limit_conn_status 429;
           '';
       };
       locations."/metrics" = {
