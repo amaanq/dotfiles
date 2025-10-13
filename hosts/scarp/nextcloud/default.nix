@@ -95,8 +95,6 @@ in
         previewgenerator
         ;
     };
-
-    nginx.recommendedHttpHeaders = true;
   };
 
   services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
