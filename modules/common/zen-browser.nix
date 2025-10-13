@@ -173,20 +173,7 @@ let
   };
 in
 merge
-<| mkIf config.isDesktop {
-  nixpkgs.overlays = optionals config.isDarwin [
-    (final: prev: {
-      gtk3 = prev.gtk3.overrideAttrs (old: {
-        patches = (old.patches or [ ]) ++ [
-          (pkgs.fetchpatch {
-            url = "https://patch-diff.githubusercontent.com/raw/NixOS/nixpkgs/pull/362859.patch";
-            hash = "sha256-A1T6EYkKmi/JbErYc/oTgnHMahcXdujS8LpeFp0vIVY=";
-          })
-        ];
-      });
-    })
-  ];
-
+<| mkIf (config.isDesktop && config.isLinux) {
   home-manager.sharedModules = [
     {
       programs.zen-browser = enabled {
