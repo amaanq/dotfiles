@@ -150,26 +150,6 @@
         "type": "github"
       }
     },
-    "claude-desktop": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1758491166,
-        "narHash": "sha256-aBB8Dkg2I/2d42GBPzUhcTDJhXUynuvRTo1UpZcKsyI=",
-        "owner": "amaanq",
-        "repo": "claude-desktop-linux-flake",
-        "rev": "9076a50480f4882504ce7461df3a2d9ec4b7a0bf",
-        "type": "github"
-      },
-      "original": {
-        "owner": "amaanq",
-        "repo": "claude-desktop-linux-flake",
-        "type": "github"
-      }
-    },
     "crane": {
       "locked": {
         "lastModified": 1731098351,
@@ -1568,7 +1548,6 @@
       "inputs": {
         "agenix": "agenix",
         "buckMaterialShell": "buckMaterialShell",
-        "claude-desktop": "claude-desktop",
         "crash": "crash",
         "disko": "disko",
         "fenix": "fenix",

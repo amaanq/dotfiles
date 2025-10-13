@@ -132,11 +132,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    claude-desktop = {
-      url = "github:amaanq/claude-desktop-linux-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     thorium = {
       url = "github:amaanq/thorium-flake";
       inputs.nixpkgs.follows = "nixpkgs";
