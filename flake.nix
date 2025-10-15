@@ -101,7 +101,7 @@
     };
 
     ida-pro-overlay = {
-      url = "github:amaanq/ida-pro-overlay";
+      url = "github:msanft/ida-pro-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

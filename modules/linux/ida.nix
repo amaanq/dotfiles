@@ -24,8 +24,8 @@ let
 
   baseIdaPro = pkgs.callPackage pkgs.ida-pro {
     runfile = builtins.fetchurl {
-      url = "file://${toString ./.}/modules/linux/ida-pro_91_x64linux.run";
-      sha256 = "1qpr02bkq6yhd3fpzgnbzmnb4mhk1l0h3sp3m69zc3ispqi81w4g";
+      url = "file://${toString ./.}/ida-pro_92_x64linux.run";
+      sha256 = "1qass0401igrfn14sfrvjfyz668npx586x59yaa4zf3jx650zpda";
     };
   };
 
