@@ -157,19 +157,66 @@ in
         ''
           ${config.services.plausible.extraNginxConfigFor domain}
         '';
-      locations."/" = {
+
+      # Static assets
+      locations."~ ^/(assets|avatars|repo-avatars|user/avatar)/.*" = {
         proxyPass = "http://[::1]:${toString port}";
         extraConfig = # nginx
           ''
-            client_max_body_size 100M;
-
-            limit_req zone=forgejo_perip burst=50 nodelay;
+            limit_req zone=forgejo_static burst=100 nodelay;
             limit_req_status 429;
 
-            limit_conn forgejo_conn 3;
+            limit_conn forgejo_conn 20;
             limit_conn_status 429;
+
+            expires 1h;
+            add_header Cache-Control "public, immutable" always;
+
+            ${config.services.nginx.headers}
           '';
       };
+
+      # API and auth
+      locations."~ ^/(api/|user/login|api/v1/users/.*/tokens).*" = {
+        proxyPass = "http://[::1]:${toString port}";
+        extraConfig = /* nginx */ ''
+          client_max_body_size 100M;
+
+          limit_req zone=forgejo_api burst=20 nodelay;
+          limit_req_status 429;
+
+          limit_conn forgejo_conn 5;
+          limit_conn_status 429;
+        '';
+      };
+
+      # Git
+      locations."~ ^/.*/.*\\.git/.*" = {
+        proxyPass = "http://[::1]:${toString port}";
+        extraConfig = /* nginx */ ''
+          client_max_body_size 100M;
+
+          limit_req zone=forgejo_api burst=10 nodelay;
+          limit_req_status 429;
+
+          limit_conn forgejo_conn 3;
+          limit_conn_status 429;
+        '';
+      };
+
+      locations."/" = {
+        proxyPass = "http://[::1]:${toString port}";
+        extraConfig = /* nginx */ ''
+          client_max_body_size 100M;
+
+          limit_req zone=forgejo_general burst=30 nodelay;
+          limit_req_status 429;
+
+          limit_conn forgejo_conn 10;
+          limit_conn_status 429;
+        '';
+      };
+
       locations."/metrics" = {
         proxyPass = "http://[::1]:${toString port}/metrics";
         extraConfig = ''

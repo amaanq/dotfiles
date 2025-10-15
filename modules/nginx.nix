@@ -115,8 +115,17 @@ in
         set_real_ip_from 2c0f:f248::/32;
         real_ip_header CF-Connecting-IP;
 
-        limit_req_zone $binary_remote_addr zone=forgejo_perip:500m rate=50r/s;
-        limit_conn_zone $binary_remote_addr zone=forgejo_conn:500m;
+        # Static assets
+        limit_req_zone $binary_remote_addr zone=forgejo_static:10m rate=200r/s;
+
+        # General requests
+        limit_req_zone $binary_remote_addr zone=forgejo_general:100m rate=30r/s;
+
+        # API/Auth
+        limit_req_zone $binary_remote_addr zone=forgejo_api:100m rate=10r/s;
+
+        # Connection limits
+        limit_conn_zone $binary_remote_addr zone=forgejo_conn:10m;
       '';
   };
 }
