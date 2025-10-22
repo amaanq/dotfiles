@@ -59,6 +59,9 @@ merge
       NIXOS_XDG_OPEN_USE_PORTAL = "1";
       QT_QPA_PLATFORM = "wayland;xcb";
       QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+      QS_NO_RELOAD_POPUP = "1";
+      QML_DISABLE_DISK_CACHE = "1";
+      QML2_IMPORT_PATH = "${pkgs.qt6.qt5compat}/${pkgs.qt6.qtbase.qtQmlPrefix}";
       SDL_VIDEODRIVER = "wayland";
       XDG_CURRENT_DESKTOP = "niri";
       XDG_SESSION_DESKTOP = "niri";
@@ -87,6 +90,11 @@ merge
 
   home-manager.sharedModules = [
     {
+      programs.buckMaterialShell = enabled {
+        enableDynamicTheming = false;
+        enableClipboard = false;
+      };
+
       programs.niri = {
         package = pkgs.niri;
         settings = {
