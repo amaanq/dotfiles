@@ -61,7 +61,7 @@ in
   ++ optionals config.isDesktop [
     pkgs.files-to-prompt
     pkgs.go
-    # pkgs.qbittorrent
+    pkgs.qbittorrent
     pkgs.sequoia-sq
     pkgs.wabt
     pkgs.wasmtime
