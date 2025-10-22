@@ -70,7 +70,6 @@ in
   ++ optionals (config.isLinux && config.isDesktop) [
     pkgs.obs-studio
     pkgs.megasync
-    pkgs.pavucontrol
     pkgs.spotify
     pkgs.thunderbird
   ];

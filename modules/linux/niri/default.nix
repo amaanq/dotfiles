@@ -40,7 +40,7 @@ merge
       pkgs.gifski
       pkgs.mate.mate-polkit # dykwabi 🦼
       pkgs.nautilus
-      pkgs.pavucontrol
+      pkgs.lxqt.pavucontrol-qt
       pkgs.playerctl
       pkgs.swww
       pkgs.wf-recorder
