@@ -90,6 +90,28 @@ merge
       programs.niri = {
         package = pkgs.niri;
         settings = {
+          layer-rules = [
+            {
+              matches = [ { } ]; # matches all layers
+              place-within-backdrop = true;
+            }
+          ];
+
+          layout = {
+            gaps = 8;
+            focus-ring = {
+              width = 2;
+              active.color = "#c4a7e7";
+            };
+
+            preset-column-widths = [
+              { proportion = 1. / 3.; }
+              { proportion = 2. / 3.; }
+            ];
+
+            background-color = "transparent";
+          };
+
           spawn-at-startup = [
             { command = [ "xwayland-satellite" ]; }
             { command = [ "quickshell" ]; }
