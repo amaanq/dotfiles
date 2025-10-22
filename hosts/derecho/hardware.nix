@@ -15,7 +15,7 @@ in
     lanzaboote.nixosModules.lanzaboote
   ];
 
-  boot.extraModulePackages = [ ];
+  boot.extraModulePackages = [ config.boot.kernelPackages.ddcci-driver ];
   boot.initrd.availableKernelModules = [
     "nvme"
     "xhci_pci"
@@ -26,7 +26,10 @@ in
     "sd_mod"
   ];
   boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" ];
+  boot.kernelModules = [
+    "ddcci_backlight"
+    "kvm-amd"
+  ];
   boot.loader.systemd-boot.enable = lib.mkForce false;
   boot.lanzaboote = enabled {
     pkiBundle = "/var/lib/sbctl";
