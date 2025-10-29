@@ -24,8 +24,5 @@ merge
     pkgs.android-tools
     pkgs.androidenv.androidPkgs.ndk-bundle
     pkgs.androidenv.androidPkgs.platform-tools
-  ]
-  ++ optionals config.isLinux [
-    pkgs.android-udev-rules
   ];
 }
