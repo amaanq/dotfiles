@@ -8,6 +8,9 @@ let
 in
 keys
 // {
-  admins = [ keys.derecho keys.simoom ];
+  admins = [
+    keys.derecho
+    keys.simoom
+  ];
   all = builtins.attrValues keys;
 }
