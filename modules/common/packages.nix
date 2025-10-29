@@ -2,7 +2,6 @@
   config,
   lib,
   pkgs,
-  inputs,
   ...
 }:
 let
@@ -18,6 +17,7 @@ in
   environment.systemPackages = [
     pkgs.asciinema
     pkgs.claude-code
+    pkgs.codex
     pkgs.cowsay
     pkgs.curl
     pkgs.dig
