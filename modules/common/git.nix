@@ -32,18 +32,20 @@ in
         mailDomain = head self.nunatak.mailserver.domains;
       in
       {
+
+        programs.difftastic = enabled {
+          options.background = "dark";
+        };
+
         programs.git = enabled {
-          userName = "Amaan Qureshi";
-          userEmail = "git@${mailDomain}";
-
           lfs = enabled;
-
-          difftastic = enabled {
-            options.background = "dark";
-          };
-
-          extraConfig =
+          settings =
             merge {
+              user = {
+                name = "Amaan Qureshi";
+                email = "git@${mailDomain}";
+              };
+
               init.defaultBranch = "master";
 
               color.ui = true;
@@ -108,6 +110,15 @@ in
               fetch.prune = true;
               receive.fsckObjects = true;
               transfer.fsckobjects = true;
+
+              alias = {
+                st = "status -sb";
+                co = "checkout";
+                c = "commit --short";
+                ci = "commit --short";
+                p = "push";
+                l = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --decorate --date=short";
+              };
             }
             <| mkIf systemConfig.isDesktop {
               # This might need to reference system config
@@ -123,15 +134,6 @@ in
               };
               user.signingKey = "~/.ssh/id";
             };
-
-          aliases = {
-            st = "status -sb";
-            co = "checkout";
-            c = "commit --short";
-            ci = "commit --short";
-            p = "push";
-            l = "log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --decorate --date=short";
-          };
         };
 
         xdg.configFile."git/attributes".text = ''
