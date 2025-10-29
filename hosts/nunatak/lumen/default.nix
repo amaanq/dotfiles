@@ -6,10 +6,9 @@
   ...
 }:
 let
-  inherit (config.networking) domain;
   inherit (lib) merge stringToPort;
 
-  fqdn = "re.${domain}";
+  fqdn = "re.libg.so";
   lumenPort = stringToPort "lumen";
   apiPort = stringToPort "lumen-api";
 
