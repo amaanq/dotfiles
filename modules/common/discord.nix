@@ -48,7 +48,7 @@ merge
 
   home-manager.sharedModules = [
     {
-      programs.nixcord = disabled {
+      programs.nixcord = mkIf config.isDarwin (enabled {
         config = {
           useQuickCss = true;
           themeLinks = [ ];
@@ -159,7 +159,7 @@ merge
           transparent = false;
           disableMinSize = false;
         };
-      };
+      });
     }
   ];
 }
