@@ -8,6 +8,22 @@ let
   inherit (lib) optionals;
 in
 {
+  # Temporary fix for qtbase 6.10.0 on Darwin
+  # https://github.com/NixOS/nixpkgs/pull/353633
+  nixpkgs.config.packageOverrides =
+    pkgs:
+    lib.optionalAttrs config.isDarwin {
+      qt6 = pkgs.qt6.overrideScope (
+        qtfinal: qtprev: {
+          qtbase = qtprev.qtbase.overrideAttrs (old: {
+            cmakeFlags = old.cmakeFlags or [ ] ++ [
+              "-DCMAKE_FIND_FRAMEWORK=FIRST"
+            ];
+          });
+        }
+      );
+    };
+
   unfree.allowedNames = [
     "claude-code"
     "megasync"
