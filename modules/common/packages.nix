@@ -59,7 +59,9 @@ in
     pkgs.raycast
   ]
   ++ optionals config.isDesktop [
-    pkgs.files-to-prompt
+    (pkgs.files-to-prompt.overridePythonAttrs (old: {
+      doCheck = false;
+    }))
     pkgs.go
     pkgs.qbittorrent
     pkgs.sequoia-sq
