@@ -1,9 +1,101 @@
-{ config, pkgs, ... }:
 {
-  boot.kernelPackages =
-    if config.isServer then pkgs.linuxPackages_latest else pkgs.linuxKernel.packages.linux_zen;
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  inherit (lib.kernel)
+    freeform
+    yes
+    no
+    ;
 
-  environment.systemPackages = [ pkgs.perf ];
+  kernelPackage =
+    if config.isServer then
+      pkgs.linuxPackages_latest
+    else
+      pkgs.linuxKernel.packagesFor (
+        (pkgs.linuxKernel.kernels.linux_zen.override {
+          stdenv = pkgs.clangStdenv;
+          structuredExtraConfig = {
+            # Full LTO with Clang
+            LTO_CLANG_FULL = yes;
+            LTO_CLANG_THIN = lib.mkForce no;
+
+            # AMD Zen 4 (x86-64-v4) microarchitecture
+            GENERIC_CPU = lib.mkForce no;
+            MZEN4 = yes;
+
+            # Always use THP (zen defaults to madvise)
+            TRANSPARENT_HUGEPAGE_ALWAYS = yes;
+            TRANSPARENT_HUGEPAGE_MADVISE = lib.mkForce no;
+
+            # AMD P-State EPP in active mode (mode 3)
+            X86_AMD_PSTATE = yes;
+            X86_AMD_PSTATE_DEFAULT_MODE = freeform "3";
+
+            # ZSTD for kernel modules
+            MODULE_COMPRESS_ZSTD = yes;
+            MODULE_COMPRESS_XZ = lib.mkForce no;
+
+            # Control Flow Integrity (CFI) with Clang
+            CFI_CLANG = yes;
+
+            # Prevent physical memory writes
+            ACPI_CUSTOM_METHOD = no;
+
+            # Wipe CPU registers on return (prevents ROP attacks)
+            ZERO_CALL_USED_REGS = yes;
+
+            # Restrict setuid operations
+            SECURITY_SAFESETID = yes;
+
+            # Controls the behavior of vsyscalls. This has been defaulted to none back in 2016 - break really old binaries for security.
+            LEGACY_VSYSCALL_NONE = yes;
+
+            # Make stack-based attacks on the kernel harder.
+            RANDOMIZE_KSTACK_OFFSET_DEFAULT = yes;
+
+            # Reduce most of the exposure of a heap attack to a single cache.
+            SLAB_MERGE_DEFAULT = no;
+          };
+        }).overrideAttrs
+          (old: {
+            # Fix rust/Makefile being stripped during kernel build
+            # This is needed for rust-analyzer support in out-of-tree Rust kernel modules
+            postInstall =
+              builtins.replaceStrings
+                [ "# Keep whole scripts dir" ]
+                [
+                  ''
+                    # Keep rust Makefile and source files for rust-analyzer support
+                              [ -f rust/Makefile ] && chmod u-w rust/Makefile
+                              find rust -type f -name '*.rs' -print0 | xargs -0 -r chmod u-w
+
+                              # Keep whole scripts dir''
+                ]
+                (old.postInstall or "");
+
+            # Patch generate_rust_analyzer.py to work with Nix's separate sysroot/sysroot_src
+            postPatch = (old.postPatch or "") + ''
+              # Remove assertion that sysroot must be parent of sysroot_src
+              # In Nix, these are separate store paths
+              substituteInPlace scripts/generate_rust_analyzer.py \
+                --replace-fail "assert args.sysroot in args.sysroot_src.parents" "# assert disabled for Nix"
+            '';
+          })
+      );
+in
+{
+  boot.kernelPackages = kernelPackage;
+
+  environment = {
+    sessionVariables = {
+      KDIR = "${kernelPackage.kernel.dev}/lib/modules/${kernelPackage.kernel.modDirVersion}/build";
+    };
+    systemPackages = [ pkgs.perf ];
+  };
 
   # Credits:
   # - https://github.com/NotAShelf/nyx/blob/main/modules/core/common/system/security/kernel.nix
@@ -45,23 +137,11 @@
 
   # https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html
   boot.kernelParams = [
-    # Make stack-based attacks on the kernel harder.
-    "randomize_kstack_offset=on"
-
-    # Controls the behavior of vsyscalls. This has been defaulted to none back in 2016 - break really old binaries for security.
-    "vsyscall=none"
-
-    # Reduce most of the exposure of a heap attack to a single cache.
-    "slab_nomerge"
-
     # Only allow signed modules.
     "module.sig_enforce=1"
 
     # Blocks access to all kernel memory, even preventing administrators from being able to inspect and probe the kernel.
     "lockdown=confidentiality"
-
-    # Enable buddy allocator free poisoning.
-    "page_poison=1"
 
     # Performance improvement for direct-mapped memory-side-cache utilization, reduces the predictability of page allocations.
     "page_alloc.shuffle=1"
@@ -77,6 +157,9 @@
 
     # Prevent the kernel from blanking plymouth out of the fb.
     "fbcon=nodefer"
+
+    # Don't expose kernel memory
+    "kcore=off"
   ];
 
   boot.blacklistedKernelModules = [
