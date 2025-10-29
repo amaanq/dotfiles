@@ -116,6 +116,11 @@ in
     extraConfig = ''
       proxy_read_timeout 300s;
       proxy_connect_timeout 75s;
+
+      # Support older TLS versions and ciphers for IDA Pro compatibility
+      ssl_protocols TLSv1.2 TLSv1.3;
+      ssl_ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:TLS_AES_256_GCM_SHA384:TLS_AES_128_GCM_SHA256;
+      ssl_prefer_server_ciphers on;
     '';
   };
 }
