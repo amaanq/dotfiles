@@ -6,10 +6,6 @@ let
   interface = "ts0";
 in
 {
-  # This doesn't work with dig but works with curl, Zen
-  # and all other tools. Skill issue.
-  services.resolved.domains = [ "osiris-arcturus.ts.net" ];
-
   services.tailscale = enabled {
     interfaceName = interface;
     useRoutingFeatures = "both";
