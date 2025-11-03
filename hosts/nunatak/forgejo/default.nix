@@ -138,7 +138,7 @@ in
   };
 
   services.gitea-actions-runner = {
-    package = pkgs.forgejo-actions-runner;
+    package = pkgs.forgejo-runner;
     instances.nunatak = enabled {
       name = "nunatak";
       url = "https://git.xeondev.com";
