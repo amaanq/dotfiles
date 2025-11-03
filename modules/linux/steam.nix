@@ -20,7 +20,12 @@ merge
   ];
 
   programs.gamemode = enabled;
-  programs.steam = enabled;
+  programs.steam = enabled {
+    protontricks = enabled;
+    extraCompatPackages = [
+      pkgs.proton-ge-bin
+    ];
+  };
 
   # Nope
   hardware.graphics.enable32Bit = mkForce false;
