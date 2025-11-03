@@ -48,6 +48,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    bindiff = {
+      url = "github:amaanq/bindiff";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     hkpoolservices = {
       url = "git+https://git.amaanq.com/amaanq/hkpoolservices.git";
       inputs.nixpkgs.follows = "nixpkgs";
