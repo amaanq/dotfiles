@@ -36,7 +36,10 @@
   };
 
   inputs = {
-    nix.url = "github:DeterminateSystems/nix-src";
+    nix = {
+      url = "github:DeterminateSystems/nix-src";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
@@ -88,6 +91,12 @@
     lanzaboote = {
       url = "github:nix-community/lanzaboote/v0.4.2";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.rust-overlay.follows = "rust-overlay";
+    };
+
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nixos-mailserver = {
@@ -104,8 +113,6 @@
       url = "github:msanft/ida-pro-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    nixCats.url = "github:BirdeeHub/nixCats-nvim";
 
     nvim-config = {
       url = "github:amaanq/nvim-config";
