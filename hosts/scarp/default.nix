@@ -63,6 +63,8 @@ lib.nixosSystem' (
     home-manager.sharedModules = [
       {
         home.stateVersion = "25.05";
+        # Override niri config to prevent it from building on server
+        programs.niri.config = lib.mkForce null;
       }
     ];
 

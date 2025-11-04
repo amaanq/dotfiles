@@ -8,8 +8,7 @@
 let
   inherit (lib) enabled merge mkIf;
 in
-merge
-<| mkIf config.isDesktop {
+mkIf config.isDesktop {
   hardware.graphics = enabled;
 
   services.logind.settings.Login.HandlePowerKey = "ignore";
@@ -90,14 +89,14 @@ merge
 
   home-manager.sharedModules = [
     (
-      { osConfig, ... }:
-      {
-        programs.buckMaterialShell = mkIf osConfig.isDesktop (enabled {
+      { osConfig, lib, ... }:
+      lib.mkIf osConfig.isDesktop {
+        programs.buckMaterialShell = enabled {
           enableDynamicTheming = false;
           enableClipboard = false;
-        });
+        };
 
-        programs.niri = mkIf osConfig.isDesktop {
+        programs.niri = {
           package = pkgs.niri;
           settings = {
             layer-rules = [
