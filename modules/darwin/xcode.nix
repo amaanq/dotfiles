@@ -5,6 +5,6 @@
   ];
 
   environment.systemPackages = [
-    pkgs.darwin.xcode;
+    pkgs.darwin.xcode
   ];
 }

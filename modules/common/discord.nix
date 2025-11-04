@@ -6,7 +6,6 @@
 }:
 let
   inherit (lib)
-    disabled
     enabled
     merge
     mkIf
