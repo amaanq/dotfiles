@@ -14,4 +14,9 @@
   nixpkgs.hostPlatform = "aarch64-linux";
 
   boot.tmp.cleanOnBoot = true;
+
+  networking.useDHCP = false;
+  networking.interfaces.enp7s0.useDHCP = false;
+
+  networking.nameservers = [ "127.0.0.53" ];
 }
