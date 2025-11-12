@@ -52,11 +52,13 @@ in
             };
 
             git = {
-              paging = {
-                colorArg = "always";
-                pager = "delta --dark --paging=never";
-                useConfig = false;
-              };
+              pagers = [
+                {
+                  colorArg = "always";
+                  pager = "delta --dark --paging=never";
+                  useConfig = false;
+                }
+              ];
               commit = {
                 signOff = false;
               };
@@ -185,7 +187,7 @@ in
                 viewResetOptions = "D";
                 fetch = "f";
                 toggleTreeView = "`";
-                openMergeTool = "M";
+                openMergeOptions = "M";
                 openStatusFilter = "<c-b>";
               };
 
