@@ -94,12 +94,11 @@ let
 
         desktopItems = [
           (pkgs.makeDesktopItem {
+            inherit icon categories;
             name = pkgName;
             exec = "${pkgName} %U";
-            icon = icon;
             desktopName = name;
             comment = description;
-            categories = categories;
             startupNotify = true;
             startupWMClass = pkgName;
           })

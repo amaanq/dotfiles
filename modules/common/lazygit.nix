@@ -14,7 +14,7 @@ in
     (
       homeArgs:
       let
-        config = homeArgs.config;
+        inherit (homeArgs) config;
       in
       {
         home.sessionVariables = {

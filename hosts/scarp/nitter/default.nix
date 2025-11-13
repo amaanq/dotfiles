@@ -27,10 +27,10 @@ in
       infiniteScroll = true;
     };
     server = {
+      inherit port;
       address = "127.0.0.1";
       hostname = fqdn;
       https = true;
-      port = port;
       title = "Dykwabi";
     };
     cache.listMinutes = 240;

@@ -1,4 +1,3 @@
-{ ... }:
 {
   environment.shellAliases = {
     sc = "systemctl";

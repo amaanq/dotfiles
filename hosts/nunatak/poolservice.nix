@@ -20,8 +20,8 @@ in
   ];
 
   users.users.${user} = {
+    inherit group;
     isSystemUser = true;
-    group = group;
     home = stateDir;
     createHome = true;
   };
