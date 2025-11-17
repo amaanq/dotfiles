@@ -21,7 +21,7 @@ in
       programs.jujutsu = enabled {
         settings =
           let
-            mailDomain = head self.nunatak.mailserver.domains;
+            mailDomain = "amaanq.com";
           in
           {
             user.name = "Amaan Qureshi";

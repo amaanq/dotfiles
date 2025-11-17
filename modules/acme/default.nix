@@ -26,6 +26,7 @@ in
         "libg.so"
         "*.libg.so"
         "hkpoolservices.com"
+        "*.hkpoolservices.com"
       ];
       group = "acme";
     };

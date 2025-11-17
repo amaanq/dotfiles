@@ -68,7 +68,7 @@ in
           ENABLED = true;
 
           PROTOCOL = "smtps";
-          SMTP_ADDR = self.nunatak.mailserver.fqdn;
+          SMTP_ADDR = "mail.amaanq.com";
           USER = "git@${domain}";
         };
 

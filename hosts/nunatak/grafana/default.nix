@@ -82,7 +82,7 @@ in
       ehlo_identity = "metrics@${domain}";
       from_address = "metrics@${domain}";
       from_name = "Metrics";
-      host = "${config.mailserver.fqdn}:587";
+      host = "mail.amaanq.com:587";
     };
   };
 

@@ -41,6 +41,7 @@ in
   "hosts/nunatak/forgejo/runner.age".publicKeys = [ nunatak ] ++ admins;
 
   "hosts/nunatak/mail/hk-password.hash.age".publicKeys = [ nunatak ] ++ admins;
+  "hosts/nunatak/mail/hk-password.plain.age".publicKeys = [ nunatak ] ++ admins;
 
   "hosts/nunatak/matrix/tuwunel-token.age".publicKeys = [ nunatak ] ++ admins;
 

@@ -29,7 +29,7 @@ in
         ...
       }:
       let
-        mailDomain = head self.nunatak.mailserver.domains;
+        mailDomain = "amaanq.com";
       in
       {
 
