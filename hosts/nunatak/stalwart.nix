@@ -13,6 +13,7 @@ in
   imports = [ (self + /modules/acme) ];
 
   secrets.stalwartPassword.file = ../../modules/mail/password.plain.age;
+  secrets.stalwartAmeerqPassword.file = ./mail/ameerq-password.plain.age;
   secrets.stalwartHkPassword.file = ./mail/hk-password.plain.age;
 
   users.users.stalwart-mail.extraGroups = [ "acme" ];
@@ -55,6 +56,7 @@ in
 
     credentials = {
       password = config.secrets.stalwartPassword.path;
+      ameerq_password = config.secrets.stalwartAmeerqPassword.path;
       hk_password = config.secrets.stalwartHkPassword.path;
     };
 
@@ -143,6 +145,16 @@ in
 
           {
             class = "individual";
+            name = "info";
+            secret = "%{file:/run/credentials/stalwart-mail.service/ameerq_password}%";
+            email = [
+              "info@ameerq.com"
+              "@ameerq.com"
+            ];
+          }
+
+          {
+            class = "individual";
             name = "contact-libg";
             secret = "%{file:/run/credentials/stalwart-mail.service/password}%";
             email = [
@@ -179,6 +191,7 @@ in
         selector = "stalwart";
         domains = [
           "amaanq.com"
+          "ameerq.com"
           "libg.so"
           "hkpoolservices.com"
         ];
@@ -186,6 +199,7 @@ in
 
       server.virtual = [
         { domain = "amaanq.com"; }
+        { domain = "ameerq.com"; }
         { domain = "libg.so"; }
         { domain = "hkpoolservices.com"; }
       ];

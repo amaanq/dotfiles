@@ -23,6 +23,8 @@ in
     certs.${domain} = {
       extraDomainNames = [
         "*.${domain}"
+        "ameerq.com"
+        "*.ameerq.com"
         "libg.so"
         "*.libg.so"
         "hkpoolservices.com"
