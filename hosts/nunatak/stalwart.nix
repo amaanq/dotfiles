@@ -8,6 +8,29 @@
 let
   inherit (config.networking) domain;
   inherit (lib) enabled;
+
+  domains = [
+    "amaanq.com"
+    "ameerq.com"
+    "libg.so"
+    "hkpoolservices.com"
+  ];
+
+  mkDkimSignature = domain: {
+    name = "rsa-${domain}";
+    value = {
+      inherit domain;
+      private-key = "%{file:/run/credentials/stalwart-mail.service/dkim_key}%";
+      selector = "stalwart";
+      algorithm = "rsa-sha256";
+      canonicalization = "relaxed/relaxed";
+    };
+  };
+
+  mkDkimSignRule = domain: {
+    "if" = "sender_domain == '${domain}'";
+    "then" = "['rsa-${domain}']";
+  };
 in
 {
   imports = [ (self + /modules/acme) ];
@@ -15,6 +38,7 @@ in
   secrets.stalwartPassword.file = ../../modules/mail/password.plain.age;
   secrets.stalwartAmeerqPassword.file = ./mail/ameerq-password.plain.age;
   secrets.stalwartHkPassword.file = ./mail/hk-password.plain.age;
+  secrets.stalwartDkimKey.file = ./mail/dkim-stalwart.key.age;
 
   users.users.stalwart-mail.extraGroups = [ "acme" ];
 
@@ -65,6 +89,7 @@ in
       password = config.secrets.stalwartPassword.path;
       ameerq_password = config.secrets.stalwartAmeerqPassword.path;
       hk_password = config.secrets.stalwartHkPassword.path;
+      dkim_key = config.secrets.stalwartDkimKey.path;
     };
 
     settings = {
@@ -102,15 +127,12 @@ in
           };
 
           "jmap" = {
-            bind = [
-              "127.0.0.1:8080"
-              "[::1]:8080"
-            ];
+            bind = [ "[::1]:8080" ];
             protocol = "http";
           };
 
           "admin" = {
-            bind = [ "127.0.0.1:9080" ];
+            bind = [ "[::1]:9080" ];
             protocol = "http";
           };
         };
@@ -196,23 +218,15 @@ in
         ];
       };
 
-      signature."dkim" = {
-        enable = true;
-        selector = "stalwart";
-        domains = [
-          "amaanq.com"
-          "ameerq.com"
-          "libg.so"
-          "hkpoolservices.com"
-        ];
-      };
+      signature = lib.listToAttrs (map mkDkimSignature domains);
 
-      server.virtual = [
-        { domain = "amaanq.com"; }
-        { domain = "ameerq.com"; }
-        { domain = "libg.so"; }
-        { domain = "hkpoolservices.com"; }
+      auth.dkim.sign = (map mkDkimSignRule domains) ++ [
+        {
+          "else" = false;
+        }
       ];
+
+      server.virtual = map (domain: { inherit domain; }) domains;
     };
   };
 }
