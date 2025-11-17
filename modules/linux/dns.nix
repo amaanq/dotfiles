@@ -49,14 +49,14 @@ in
               {
                 protocol = {
                   server_name = "dns.nextdns.io";
-                  path = "/${hostname}-9b2c13";
+                  path = "/9b2c13/${hostname}";
                   type = "h3";
                 };
               }
               {
                 protocol = {
                   server_name = "dns.nextdns.io";
-                  path = "/${hostname}-9b2c13";
+                  path = "/9b2c13/${hostname}";
                   type = "https";
                 };
               }
