@@ -20,34 +20,41 @@ in
 
   security.acme.certs.${domain}.reloadServices = [ "stalwart-mail.service" ];
 
-  services.nginx.virtualHosts = lib.genAttrs [
-    "mail.${domain}"
-    domain
-    "ameerq.com"
-    "libg.so"
-    "hkpoolservices.com"
-  ] (_: config.services.nginx.sslTemplate // {
-    locations."/.well-known/jmap" = {
-      proxyPass = "http://[::1]:8080/.well-known/jmap";
-      extraConfig = ''
-        proxy_set_header Host mail.${domain};
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-      '';
-    };
+  services.nginx.virtualHosts =
+    lib.genAttrs
+      [
+        "mail.${domain}"
+        domain
+        "ameerq.com"
+        "libg.so"
+        "hkpoolservices.com"
+      ]
+      (
+        _:
+        config.services.nginx.sslTemplate
+        // {
+          locations."/.well-known/jmap" = {
+            proxyPass = "http://[::1]:8080/.well-known/jmap";
+            extraConfig = ''
+              proxy_set_header Host mail.${domain};
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+            '';
+          };
 
-    locations."/jmap" = {
-      proxyPass = "http://[::1]:8080/jmap";
-      extraConfig = ''
-        proxy_set_header Host mail.${domain};
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        client_max_body_size 50M;
-      '';
-    };
-  });
+          locations."/jmap" = {
+            proxyPass = "http://[::1]:8080/jmap";
+            extraConfig = ''
+              proxy_set_header Host mail.${domain};
+              proxy_set_header X-Real-IP $remote_addr;
+              proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $scheme;
+              client_max_body_size 50M;
+            '';
+          };
+        }
+      );
 
   services.stalwart-mail = enabled {
     dataDir = "/var/lib/stalwart-mail";
@@ -95,7 +102,10 @@ in
           };
 
           "jmap" = {
-            bind = [ "127.0.0.1:8080" "[::1]:8080" ];
+            bind = [
+              "127.0.0.1:8080"
+              "[::1]:8080"
+            ];
             protocol = "http";
           };
 
@@ -155,6 +165,13 @@ in
 
           {
             class = "individual";
+            name = "gulag";
+            secret = "%{file:/run/credentials/stalwart-mail.service/password}%";
+            email = [ "gulag@libg.so" ];
+          }
+
+          {
+            class = "individual";
             name = "contact-libg";
             secret = "%{file:/run/credentials/stalwart-mail.service/password}%";
             email = [
@@ -165,13 +182,6 @@ in
               "support@libg.so"
               "info@libg.so"
             ];
-          }
-
-          {
-            class = "individual";
-            name = "gulag";
-            secret = "%{file:/run/credentials/stalwart-mail.service/password}%";
-            email = [ "gulag@libg.so" ];
           }
 
           {
