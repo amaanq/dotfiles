@@ -704,6 +704,26 @@
         "type": "gitlab"
       }
     },
+    "helium": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1763443196,
+        "narHash": "sha256-CfgYSeccw/6rd1EXjU4+L/OPBGfXrcUdEwIc+NxayVw=",
+        "owner": "amaanq",
+        "repo": "helium-flake",
+        "rev": "b2c2c41a4b98f8228eeba41cb75c328fd42d887a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "amaanq",
+        "repo": "helium-flake",
+        "type": "github"
+      }
+    },
     "hercules-ci-effects": {
       "inputs": {
         "flake-parts": [
@@ -1300,6 +1320,7 @@
         "disko": "disko",
         "fenix": "fenix",
         "github2forgejo": "github2forgejo",
+        "helium": "helium",
         "hkpoolservices": "hkpoolservices",
         "home-manager": "home-manager",
         "homebrew-cask": "homebrew-cask",
