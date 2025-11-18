@@ -20,6 +20,13 @@ in
     (self + /modules/nginx.nix)
   ];
 
+  secrets.mollyVapidKey.file = ./vapid-key.age;
+
+  systemd.services.mollysocket.serviceConfig = {
+    LoadCredential = "vapid_key:${config.secrets.mollyVapidKey.path}";
+    Environment = "MOLLY_VAPID_KEY_FILE=%d/vapid_key";
+  };
+
   services.mollysocket = enabled {
     settings = {
       host = "::1";
