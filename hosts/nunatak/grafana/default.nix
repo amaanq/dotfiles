@@ -28,7 +28,7 @@ in
     owner = "grafana";
   };
   secrets.grafanaPasswordMail = {
-    file = self + /modules/mail/password.plain.age;
+    file = ../mail/password.plain.age;
     owner = "grafana";
   };
 

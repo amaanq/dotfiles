@@ -41,10 +41,9 @@ in
   "hosts/nunatak/forgejo/runner.age".publicKeys = [ nunatak ] ++ admins;
 
   "hosts/nunatak/mail/dkim-stalwart.key.age".publicKeys = [ nunatak ] ++ admins;
-
-  "hosts/nunatak/mail/hk-password.plain.age".publicKeys = [ nunatak ] ++ admins;
-
+  "hosts/nunatak/mail/password.plain.age".publicKeys = [ nunatak ] ++ admins;
   "hosts/nunatak/mail/ameerq-password.plain.age".publicKeys = [ nunatak ] ++ admins;
+  "hosts/nunatak/mail/hk-password.plain.age".publicKeys = [ nunatak ] ++ admins;
 
   "hosts/nunatak/matrix/tuwunel-token.age".publicKeys = [ nunatak ] ++ admins;
 
@@ -62,6 +61,4 @@ in
   "modules/common/ssh/config.age".publicKeys = all;
   "modules/acme/environment.age".publicKeys = all;
   "modules/linux/restic/password.age".publicKeys = all;
-  "modules/mail/password.hash.age".publicKeys = all;
-  "modules/mail/password.plain.age".publicKeys = all;
 }
