@@ -35,6 +35,7 @@ merge
     pkgs.androidenv.androidPkgs.ndk-bundle
     pkgs.androidenv.androidPkgs.platform-tools
     pkgs.git-repo
+    pkgs.scrcpy
     avbroot
   ];
 }
