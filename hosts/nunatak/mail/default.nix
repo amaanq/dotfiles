@@ -40,6 +40,8 @@ in
   secrets.stalwartHkPassword.file = ./hk-password.plain.age;
   secrets.stalwartDkimKey.file = ./dkim-stalwart.key.age;
 
+  services.postgresql.ensure = [ "stalwart-mail" ];
+
   users.users.stalwart-mail.extraGroups = [ "acme" ];
 
   security.acme.certs.${domain}.reloadServices = [ "stalwart-mail.service" ];
@@ -93,6 +95,13 @@ in
     };
 
     settings = {
+      tracer.stdout.level = "debug";
+
+      storage.data = "postgres";
+      storage.blob = "postgres";
+      storage.fts = "postgres";
+      storage.lookup = "postgres";
+
       server = {
         hostname = "mail.${domain}";
 
@@ -149,73 +158,30 @@ in
         certificate = "default";
       };
 
+      authentication.fallback-admin = {
+        user = "admin";
+        secret = "%{file:/run/credentials/stalwart-mail.service/password}%";
+      };
+
       session.auth = {
         mechanisms = "[plain, login]";
         directory = "'internal'";
       };
 
+      store."postgres" = {
+        type = "postgresql";
+        host = "localhost";
+        port = 5432;
+        database = "stalwart-mail";
+        user = "stalwart-mail";
+        password = "";
+        timeout = "15s";
+        pool.max-connections = 10;
+      };
+
       directory."internal" = {
-        type = "memory";
-
-        principals = [
-          {
-            class = "admin";
-            name = "admin";
-            secret = "%{file:/run/credentials/stalwart-mail.service/password}%";
-            email = [ "admin@${domain}" ];
-          }
-
-          {
-            class = "individual";
-            name = "contact";
-            secret = "%{file:/run/credentials/stalwart-mail.service/password}%";
-            email = [
-              "contact@amaanq.com"
-              "@amaanq.com"
-            ];
-          }
-
-          {
-            class = "individual";
-            name = "info";
-            secret = "%{file:/run/credentials/stalwart-mail.service/ameerq_password}%";
-            email = [
-              "info@ameerq.com"
-              "@ameerq.com"
-            ];
-          }
-
-          {
-            class = "individual";
-            name = "gulag";
-            secret = "%{file:/run/credentials/stalwart-mail.service/password}%";
-            email = [ "gulag@libg.so" ];
-          }
-
-          {
-            class = "individual";
-            name = "contact-libg";
-            secret = "%{file:/run/credentials/stalwart-mail.service/password}%";
-            email = [
-              "contact@libg.so"
-              "@libg.so"
-              "noreply@libg.so"
-              "admin@libg.so"
-              "support@libg.so"
-              "info@libg.so"
-            ];
-          }
-
-          {
-            class = "individual";
-            name = "reese";
-            secret = "%{file:/run/credentials/stalwart-mail.service/hk_password}%";
-            email = [
-              "reese@hkpoolservices.com"
-              "@hkpoolservices.com"
-            ];
-          }
-        ];
+        type = "internal";
+        store = "postgres";
       };
 
       signature = lib.listToAttrs (map mkDkimSignature domains);
