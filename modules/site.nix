@@ -34,6 +34,17 @@ in
           add_header Cache-Control $cache_header always;
         '';
 
+      locations."/.well-known/jmap" = {
+        proxyPass = "https://mail.${domain}/.well-known/jmap";
+      };
+
+      locations."/jmap" = {
+        proxyPass = "https://mail.${domain}/jmap";
+        extraConfig = ''
+          client_max_body_size 50M;
+        '';
+      };
+
       extraConfig = # nginx
         ''
           error_page 404 /404.html;
