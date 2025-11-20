@@ -5,6 +5,7 @@
   ...
 }:
 let
+  inherit (lib) optionals;
   inherit (lib.kernel)
     freeform
     yes
@@ -160,6 +161,10 @@ in
 
     # Don't expose kernel memory
     "kcore=off"
+  ]
+  ++ optionals config.isDesktop [
+    # Disable CPU vulnerability mitigations (Spectre, Meltdown, etc.) for performance on desktops
+    "mitigations=off"
   ];
 
   boot.blacklistedKernelModules = [
