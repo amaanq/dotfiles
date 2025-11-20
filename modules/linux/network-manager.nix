@@ -12,9 +12,7 @@ let
 in
 merge
 <| mkIf config.isDesktop {
-  networking.networkmanager = enabled {
-    dns = "none";
-  };
+  networking.networkmanager = enabled;
 
   users.extraGroups.networkmanager.members =
     config.users.users |> filterAttrs (const <| getAttr "isNormalUser") |> attrNames;

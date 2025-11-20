@@ -36,9 +36,6 @@ in
   };
   boot.plymouth = enabled;
 
-  networking.useDHCP = lib.mkDefault true;
-  networking.interfaces.enp16s0.useDHCP = true;
-
   nixpkgs.hostPlatform = "x86_64-linux";
   hardware.enableRedistributableFirmware = true;
   hardware.i2c = enabled;
