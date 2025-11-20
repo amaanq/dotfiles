@@ -221,7 +221,6 @@ in
         proxyPass = "http://[::1]:${toString port}/metrics";
         extraConfig = ''
           allow ::1;
-          allow 127.0.0.1;
           deny all;
         '';
       };
