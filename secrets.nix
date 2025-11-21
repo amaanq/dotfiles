@@ -11,6 +11,10 @@ in
   "hosts/scarp/id.age".publicKeys = [ scarp ] ++ admins;
   "hosts/scarp/password.age".publicKeys = [ scarp ] ++ admins;
 
+  "hosts/scarp/fdroid/upload-token.age".publicKeys = [ scarp ] ++ admins;
+  "hosts/scarp/fdroid/keystore.p12.age".publicKeys = [ scarp ] ++ admins;
+  "hosts/scarp/fdroid/keystore-password.age".publicKeys = [ scarp ] ++ admins;
+
   "hosts/scarp/forgejo/runner.age".publicKeys = [ scarp ] ++ admins;
 
   "hosts/scarp/matrix/key.age".publicKeys = [ scarp ] ++ admins;
