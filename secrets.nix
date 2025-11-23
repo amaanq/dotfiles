@@ -66,5 +66,6 @@ in
   "modules/common/shell/openai-key.age".publicKeys = all;
   "modules/common/ssh/config.age".publicKeys = all;
   "modules/acme/environment.age".publicKeys = all;
+  "modules/linux/tailscale/authkey.age".publicKeys = all;
   "modules/linux/restic/password.age".publicKeys = all;
 }
