@@ -44,6 +44,7 @@ in
     pkgs.fastfetch
     pkgs.fd
     pkgs.file
+    pkgs.gemini-cli
     pkgs.gitui
     pkgs.graphviz
     pkgs.hyperfine
