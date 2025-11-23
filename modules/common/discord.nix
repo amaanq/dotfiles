@@ -104,10 +104,9 @@ merge
             noOnboardingDelay = enabled;
             noPendingCount = enabled {
               hideFriendRequestsCount = false;
-              hideMessageRequestCount = false;
+              hideMessageRequestsCount = false;
             };
             noProfileThemes = enabled;
-            noTrack = enabled;
             normalizeMessageLinks = enabled;
             noTypingAnimation = enabled;
             noUnblockToJump = enabled;
@@ -121,7 +120,7 @@ merge
             relationshipNotifier = enabled;
             replaceGoogleSearch = enabled {
               customEngineName = "Kagi";
-              customEngineURL = "https://kagi.com/search?q";
+              customEngineUrl = "https://kagi.com/search?q";
             };
             replyTimestamp = enabled;
             reverseImageSearch = enabled;
