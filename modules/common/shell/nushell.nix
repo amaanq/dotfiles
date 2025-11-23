@@ -105,6 +105,7 @@ in
               ]}
               ${readFile ./nushell.nu}
 
+              use ${pkgs.nu_scripts}/share/nu_scripts/modules/capture-foreign-env
               source ${pkgs.nu_scripts}/share/nu_scripts/modules/formats/from-env.nu
 
               if ($env.USER == "amaanq") {
