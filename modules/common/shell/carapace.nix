@@ -1,10 +1,16 @@
 { lib, pkgs, ... }:
 let
   inherit (lib) enabled;
+
+  carapace = pkgs.carapace.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [
+      ./carapace-adb-devices.patch
+    ];
+  });
 in
 {
   environment.systemPackages = [
-    pkgs.carapace
+    carapace
     pkgs.fish
     pkgs.zsh
     pkgs.inshellisense
@@ -12,7 +18,9 @@ in
 
   home-manager.sharedModules = [
     {
-      programs.carapace = enabled;
+      programs.carapace = enabled {
+        package = carapace;
+      };
     }
   ];
 }
