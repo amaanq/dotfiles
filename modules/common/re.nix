@@ -20,10 +20,17 @@ merge
     pkgs.imhex
     pkgs.patchelf
     pkgs.radare2
+    pkgs.rizin
+    pkgs.rizinPlugins.rz-ghidra
     pkgs.yara
   ]
   ++ optionals config.isLinux [
     pkgs.pwninit
+  ];
 
+  home-manager.sharedModules = [
+    {
+      home.sessionVariables.RZ_LIB_PLUGINS = "${pkgs.rizinPlugins.rz-ghidra}/lib/rizin/plugins";
+    }
   ];
 }
