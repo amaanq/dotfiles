@@ -29,7 +29,7 @@ in
   environment = mkIf config.isDesktop {
     shellAliases.agenix = "agenix --identity ~/.ssh/id";
     systemPackages = [
-      pkgs.ragenix
+      pkgs.agenix
     ];
   };
 }
