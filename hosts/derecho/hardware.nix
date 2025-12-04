@@ -35,6 +35,21 @@ in
     pkiBundle = "/var/lib/sbctl";
   };
   boot.plymouth = enabled;
+  boot.supportedFilesystems = [ "bcachefs" ];
+
+  fileSystems."/" = {
+    device = "UUID=fef71188-998b-4a00-a263-6b525fe9832b";
+    fsType = "bcachefs";
+  };
+
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-partlabel/boot";
+    fsType = "vfat";
+    options = [
+      "fmask=0022"
+      "dmask=0022"
+    ];
+  };
 
   nixpkgs.hostPlatform = "x86_64-linux";
   hardware.enableRedistributableFirmware = true;
