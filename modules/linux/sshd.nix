@@ -4,18 +4,31 @@ let
   port = 2001;
 in
 merge
-<| mkIf config.isServer {
-  programs.mosh = enabled {
-    openFirewall = true;
-  };
-
-  services.openssh = enabled {
-    ports = [ port ];
-    settings = {
-      KbdInteractiveAuthentication = false;
-      PasswordAuthentication = false;
-
-      AcceptEnv = "SHELLS COLORTERM";
+  (mkIf config.isServer {
+    programs.mosh = enabled {
+      openFirewall = true;
     };
-  };
-}
+
+    services.openssh = enabled {
+      ports = [ port ];
+      settings = {
+        KbdInteractiveAuthentication = false;
+        PasswordAuthentication = false;
+
+        AcceptEnv = "SHELLS COLORTERM";
+      };
+    };
+  })
+
+  (
+    mkIf config.isDesktop {
+      services.openssh = enabled {
+        ports = [ port ];
+        openFirewall = false;
+        settings = {
+          KbdInteractiveAuthentication = false;
+          PasswordAuthentication = false;
+        };
+      };
+    }
+  )
