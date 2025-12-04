@@ -8,8 +8,24 @@
 let
   inherit (lib) enabled mkIf;
   niriPackage = niri-src.packages.${pkgs.system}.niri;
+
+  ziplineUpload = pkgs.writeShellScript "zipline-upload" ''
+    set -e
+    FILE="$1"
+    TOKEN=$(cat ${config.secrets.ziplineToken.path})
+    RESPONSE=$(${pkgs.curl}/bin/curl -s -X POST "https://i.amaanq.com/api/upload" \
+      -H "Authorization: $TOKEN" \
+      -F "file=@$FILE")
+    URL=$(echo "$RESPONSE" | ${pkgs.jq}/bin/jq -r '.files[0].url')
+    echo -n "$URL" | ${pkgs.wl-clipboard}/bin/wl-copy
+    ${pkgs.libnotify}/bin/notify-send "Uploaded" "$URL"
+  '';
 in
 mkIf config.isDesktop {
+  secrets.ziplineToken = {
+    file = ./zipline-token.age;
+    owner = "amaanq";
+  };
   hardware.graphics = enabled;
 
   services.logind.settings.Login.HandlePowerKey = "ignore";
@@ -38,6 +54,7 @@ mkIf config.isDesktop {
       # Needed for xdg-desktop-portal-gnome 🦼.
       pkgs.gnome-keyring
       pkgs.gifski
+      pkgs.inotify-tools
       pkgs.mate.mate-polkit # dykwabi 🦼
       pkgs.nautilus
       pkgs.lxqt.pavucontrol-qt
@@ -396,7 +413,14 @@ mkIf config.isDesktop {
               "Mod+Shift+A".action.spawn = [
                 "sh"
                 "-c"
-                "niri msg action screenshot --path /tmp/screenshot.png && satty --filename /tmp/screenshot.png"
+                "rm -f /tmp/screenshot.png; niri msg action screenshot --path /tmp/screenshot.png; inotifywait -q -e close_write --include screenshot.png /tmp && satty --filename /tmp/screenshot.png"
+              ];
+
+              # Screenshot with annotation + upload to Zipline
+              "Mod+Shift+D".action.spawn = [
+                "sh"
+                "-c"
+                "rm -f /tmp/screenshot.png; niri msg action screenshot --path /tmp/screenshot.png; inotifywait -q -e close_write --include screenshot.png /tmp && satty --filename /tmp/screenshot.png --output-filename /tmp/annotated.png --early-exit && ${ziplineUpload} /tmp/annotated.png"
               ];
 
               "Mod+Shift+T".action.spawn = [

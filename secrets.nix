@@ -68,6 +68,7 @@ in
   "modules/common/graphene/komodo/keys.tar.gz.age".publicKeys = admins;
 
   # shared
+  "modules/linux/niri/zipline-token.age".publicKeys = admins;
   "modules/common/atuin/key.age".publicKeys = all;
   "modules/common/builder-key.age".publicKeys = all;
   "modules/common/shell/anthropic-key.age".publicKeys = all;
