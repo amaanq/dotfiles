@@ -32,7 +32,13 @@ in
 
   environment.systemPackages = [
     pkgs.asciinema
-    pkgs.claude-code
+    (pkgs.claude-code.overrideAttrs (old: {
+      version = "2.0.58";
+      src = pkgs.fetchzip {
+        url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.0.58.tgz";
+        hash = "sha256-6BLpBNqNR2qrKBcXINqvfl2dgaQA6NmxsEsk1ILqeT8=";
+      };
+    }))
     pkgs.codex
     pkgs.cowsay
     pkgs.curl
