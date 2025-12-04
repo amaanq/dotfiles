@@ -69,6 +69,7 @@ in
 
   # shared
   "modules/common/atuin/key.age".publicKeys = all;
+  "modules/common/builder-key.age".publicKeys = all;
   "modules/common/shell/anthropic-key.age".publicKeys = all;
   "modules/common/shell/openai-key.age".publicKeys = all;
   "modules/common/ssh/config.age".publicKeys = all;

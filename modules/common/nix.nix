@@ -7,8 +7,10 @@
   ...
 }:
 let
+  builderKeyPath = config.secrets.builderKey.path;
   inherit (lib)
     attrsToList
+    concatMapStringsSep
     concatStringsSep
     const
     disabled
@@ -26,32 +28,59 @@ let
     ;
   inherit (lib.strings) toJSON;
   registryMap = inputs |> filterAttrs (const <| isType "flake");
-in
-{
-  # Store flake inputs to prevent garbage collection
-  environment.etc.".system-inputs.json".text = toJSON registryMap;
 
-  nix.distributedBuilds = true;
-  nix.buildMachines =
-    self.nixosConfigurations
+  builderHosts =
+    (self.nixosConfigurations // (self.darwinConfigurations or { }))
     |> attrsToList
     |> filter ({ name, value }: name != config.networking.hostName && value.config.users.users ? build)
     |> map (
       { name, value }:
       {
-        hostName = name;
-        maxJobs = 20;
-        protocol = "ssh-ng";
-        sshUser = "build";
-        supportedFeatures = [
-          "benchmark"
-          "big-parallel"
-          "kvm"
-          "nixos-test"
-        ];
-        system = value.config.nixpkgs.hostPlatform.system;
+        inherit name;
+        port = value.config.services.openssh.ports or [ 22 ] |> builtins.head;
       }
     );
+in
+{
+  secrets.builderKey.file = ./builder-key.age;
+
+  # Store flake inputs to prevent garbage collection
+  environment.etc.".system-inputs.json".text = toJSON registryMap;
+
+  nix.distributedBuilds = true;
+  nix.buildMachines =
+    let
+      mkMachines =
+        configs: extraFeatures:
+        configs
+        |> attrsToList
+        |> filter ({ name, value }: name != config.networking.hostName && value.config.users.users ? build)
+        |> map (
+          { name, value }:
+          let
+            hostSystem = value.config.nixpkgs.hostPlatform.system;
+            emulatedSystems = value.config.boot.binfmt.emulatedSystems or [ ];
+          in
+          {
+            hostName = name;
+            maxJobs = 20;
+            protocol = "ssh-ng";
+            sshKey = builderKeyPath;
+            sshUser = "build";
+            supportedFeatures = [
+              "benchmark"
+              "big-parallel"
+            ]
+            ++ extraFeatures;
+            systems = [ hostSystem ] ++ emulatedSystems;
+          }
+        );
+    in
+    mkMachines self.nixosConfigurations [
+      "kvm"
+      "nixos-test"
+    ]
+    ++ mkMachines (self.darwinConfigurations or { }) [ ];
 
   nix.channel = disabled;
 
@@ -84,6 +113,17 @@ in
     pkgs.nix-index
     pkgs.nix-output-monitor
   ];
+
+  programs.ssh.extraConfig =
+    builderHosts
+    |> concatMapStringsSep "\n" (
+      { name, port }:
+      ''
+        Host ${name}
+          Port ${toString port}
+          StrictHostKeyChecking accept-new
+      ''
+    );
 
   # Add nushell helpers
   home-manager.sharedModules = [
