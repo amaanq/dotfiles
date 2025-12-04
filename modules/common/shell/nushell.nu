@@ -559,3 +559,13 @@ def hex [num: int] {
 def oct [num: int] {
 	$num | format number | get octal
 }
+
+def set-android-animations [
+    scale: float
+    --serial (-s): string = "47021FDAS004YA"
+] {
+    let s = ($scale | into string)
+    adb -s $serial shell settings put global window_animation_scale $s
+    adb -s $serial shell settings put global transition_animation_scale $s
+    adb -s $serial shell settings put global animator_duration_scale $s
+}
