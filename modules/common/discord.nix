@@ -65,7 +65,7 @@ merge
             betterUploadButton = enabled;
             biggerStreamPreview = enabled;
             callTimer = enabled;
-            clearURLs = enabled;
+            clearUrLs = enabled;
             colorSighted = enabled;
             consoleJanitor = enabled;
             consoleShortcuts = enabled;
@@ -110,7 +110,7 @@ merge
             normalizeMessageLinks = enabled;
             noTypingAnimation = enabled;
             noUnblockToJump = enabled;
-            onePingPerDM = enabled;
+            onePingPerDm = enabled;
             openInApp = enabled;
             permissionFreeWill = enabled;
             permissionsViewer = enabled;
@@ -127,7 +127,7 @@ merge
             sendTimestamps = enabled;
             serverInfo = enabled;
             serverListIndicators = enabled {
-              mode = "onlyServerCount";
+              mode = 1;
             };
             showConnections = enabled;
             showHiddenChannels = enabled;
