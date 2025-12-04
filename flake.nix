@@ -37,7 +37,7 @@
 
   inputs = {
     nix = {
-      url = "github:DeterminateSystems/nix-src";
+      url = "github:SandaruKasa/nix-src/postInstall";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
