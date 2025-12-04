@@ -8,6 +8,7 @@ let
   inherit (lib)
     merge
     mkIf
+    optionals
     ;
 in
 merge
@@ -56,13 +57,14 @@ merge
     ];
 
     environment.systemPackages = [
-      pkgs.android-studio
       pkgs.android-tools
       androidComposition.androidsdk
       pkgs.git-repo
       pkgs.jadx
       pkgs.scrcpy
       avbroot
+    ] ++ optionals config.isLinux [
+      pkgs.android-studio
     ];
 
     home-manager.sharedModules = [
