@@ -39,8 +39,6 @@ in
     pkgs.cargo-nextest
     pkgs.cargo-watch
     pkgs.cargo-workspaces
-
-    pkgs.evcxr
   ]
   ++ lib.optionals config.isLinux [
     pkgs.cargo-llvm-cov
