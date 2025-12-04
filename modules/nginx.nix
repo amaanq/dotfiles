@@ -61,7 +61,7 @@ in
   config.security.acme.users = [ "nginx" ];
 
   config.services.nginx = enabled {
-    package = pkgs.nginxQuic;
+    package = pkgs.nginx;
 
     statusPage = true;
 
