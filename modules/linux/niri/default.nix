@@ -42,6 +42,7 @@ mkIf config.isDesktop {
       pkgs.nautilus
       pkgs.lxqt.pavucontrol-qt
       pkgs.playerctl
+      pkgs.satty
       pkgs.swww
       pkgs.wf-recorder
       pkgs.wl-clipboard
@@ -391,6 +392,13 @@ mkIf config.isDesktop {
                 show-pointer = false;
               };
 
+              # Screenshot with annotation
+              "Mod+Shift+A".action.spawn = [
+                "sh"
+                "-c"
+                "niri msg action screenshot --path /tmp/screenshot.png && satty --filename /tmp/screenshot.png"
+              ];
+
               "Mod+Shift+T".action.spawn = [
                 "sh"
                 "-c"
@@ -492,6 +500,13 @@ mkIf config.isDesktop {
             };
           };
         };
+
+        xdg.configFile."satty/config.toml".text = ''
+          [general]
+          early-exit = true
+          copy-command = "wl-copy"
+          output-filename = "~/Pictures/Screenshots/screenshot-%Y%m%d-%H%M%S.png"
+        '';
       }
     )
   ];
