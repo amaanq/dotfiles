@@ -12,12 +12,12 @@ in
   services.hickory-dns = enabled {
     package =
       let
-        version = "0.26.0-unstable-2024-11-03";
+        version = "0.26.0-alpha.1";
         src = pkgs.fetchFromGitHub {
           owner = "hickory-dns";
           repo = "hickory-dns";
-          rev = "fb1a21a23eb036d542177534f64b9cb4efafc4f7";
-          hash = "sha256-EHUUHyGlc1v6MYsO/BaqaSmwKW/p/w21jlrYddpvaLk=";
+          rev = "8065bacde2ed02dfa7fd5019b50882bdb8a88475";
+          hash = "sha256-7aO4p4Kh0B18jIaB6R1UkZHWkGMbdhwos5CsEOymyxQ=";
         };
       in
       pkgs.hickory-dns.overrideAttrs (old: {
