@@ -36,6 +36,8 @@ in
 
   "hosts/scarp/yourspotify/secret.age".publicKeys = [ scarp ] ++ admins;
 
+  "hosts/scarp/zipline/secret.age".publicKeys = [ scarp ] ++ admins;
+
   # derecho desktop
   "hosts/derecho/id.age".publicKeys = admins;
   "hosts/derecho/password.age".publicKeys = admins;
