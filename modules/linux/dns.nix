@@ -36,46 +36,63 @@ in
       listen_addrs_ipv4 = singleton "127.0.0.53";
       listen_addrs_ipv6 = singleton "::1";
 
-      zones = singleton {
-        zone = ".";
-        zone_type = "External";
-
-        stores = {
-          type = "forward";
-          name_servers = singleton {
-            ip = "2a07:a8c0::";
-            trust_negative_responses = true;
-            connections = [
-              {
-                protocol = {
-                  server_name = "dns.nextdns.io";
-                  path = "/9b2c13/${hostname}";
-                  type = "h3";
-                };
-              }
-              {
-                protocol = {
-                  server_name = "dns.nextdns.io";
-                  path = "/9b2c13/${hostname}";
-                  type = "https";
-                };
-              }
-              {
-                protocol = {
-                  server_name = "${hostname}-9b2c13.dns.nextdns.io";
-                  type = "quic";
-                };
-              }
-              {
-                protocol = {
-                  server_name = "${hostname}-9b2c13.dns.nextdns.io";
-                  type = "tls";
-                };
-              }
-            ];
+      zones = [
+        # UDP for Headscale MagicDNS zone
+        {
+          zone = "cirque.amaanq.com";
+          zone_type = "External";
+          stores = {
+            type = "forward";
+            name_servers = singleton {
+              ip = "100.100.100.100";
+              trust_negative_responses = true;
+              connections = singleton {
+                protocol.type = "udp";
+              };
+            };
           };
-        };
-      };
+        }
+        # DoH/DoQ for anything else
+        {
+          zone = ".";
+          zone_type = "External";
+          stores = {
+            type = "forward";
+            name_servers = singleton {
+              ip = "2a07:a8c0::";
+              trust_negative_responses = true;
+              connections = [
+                {
+                  protocol = {
+                    server_name = "dns.nextdns.io";
+                    path = "/9b2c13/${hostname}";
+                    type = "h3";
+                  };
+                }
+                {
+                  protocol = {
+                    server_name = "dns.nextdns.io";
+                    path = "/9b2c13/${hostname}";
+                    type = "https";
+                  };
+                }
+                {
+                  protocol = {
+                    server_name = "${hostname}-9b2c13.dns.nextdns.io";
+                    type = "quic";
+                  };
+                }
+                {
+                  protocol = {
+                    server_name = "${hostname}-9b2c13.dns.nextdns.io";
+                    type = "tls";
+                  };
+                }
+              ];
+            };
+          };
+        }
+      ];
     };
   };
 
