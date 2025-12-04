@@ -62,6 +62,9 @@ in
   # gyre desktop
   "hosts/gyre/password.age".publicKeys = admins;
 
+  # grapheneos keys
+  "modules/common/graphene/komodo/keys.tar.gz.age".publicKeys = admins;
+
   # shared
   "modules/common/atuin/key.age".publicKeys = all;
   "modules/common/shell/anthropic-key.age".publicKeys = all;
