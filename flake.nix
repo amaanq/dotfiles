@@ -169,6 +169,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    niri-src = {
+      url = "github:YaLTeR/niri";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     buckMaterialShell = {
       url = "github:amaanq/BuckMaterialShell";
       inputs.nixpkgs.follows = "nixpkgs";

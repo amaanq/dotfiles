@@ -1,12 +1,13 @@
 {
-  niri,
+  niri-src,
   config,
   lib,
   pkgs,
   ...
 }:
 let
-  inherit (lib) enabled merge mkIf;
+  inherit (lib) enabled mkIf;
+  niriPackage = niri-src.packages.${pkgs.system}.niri;
 in
 mkIf config.isDesktop {
   hardware.graphics = enabled;
@@ -14,7 +15,7 @@ mkIf config.isDesktop {
   services.logind.settings.Login.HandlePowerKey = "ignore";
 
   programs.niri = enabled {
-    package = pkgs.niri;
+    package = niriPackage;
   };
 
   services.nirinit = enabled {
@@ -97,7 +98,7 @@ mkIf config.isDesktop {
         };
 
         programs.niri = {
-          package = pkgs.niri;
+          package = niriPackage;
           settings = {
             layer-rules = [
               {
@@ -275,7 +276,7 @@ mkIf config.isDesktop {
 
               # Window management
               "Mod+Escape".action.quit = { };
-              "Mod+grave".action.toggle-overview = { };
+              "Mod+Space".action.toggle-overview = { };
               "Mod+C".action.close-window = { };
               "Mod+V".action.toggle-window-floating = { };
 
@@ -302,15 +303,13 @@ mkIf config.isDesktop {
               "Mod+Ctrl+Home".action.move-column-to-first = { };
               "Mod+Ctrl+End".action.move-column-to-last = { };
 
-              # Monitor focus
-              "Mod+F1".action.focus-monitor = "DP-1";
-              "Mod+F2".action.focus-monitor = "DP-2";
-              "Mod+N".action.focus-monitor-left = { };
-              "Mod+M".action.focus-monitor-right = { };
+              # Monitor navigation
+              "Mod+Left".action.focus-monitor-left = { };
+              "Mod+Right".action.focus-monitor-right = { };
 
               # Move window/column to monitor
-              "Mod+Shift+F1".action.move-column-to-monitor = "DP-1";
-              "Mod+Shift+F2".action.move-column-to-monitor = "DP-2";
+              "Mod+Shift+Left".action.move-column-to-monitor-left = { };
+              "Mod+Shift+Right".action.move-column-to-monitor-right = { };
 
               "Mod+Page_Down".action.focus-workspace-down = { };
               "Mod+Page_Up".action.focus-workspace-up = { };
