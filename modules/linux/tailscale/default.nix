@@ -17,7 +17,10 @@ in
     interfaceName = interface;
     useRoutingFeatures = "both";
     authKeyFile = config.secrets.tailscaleAuthKey.path;
-    extraUpFlags = [ "--login-server=https://headscale.${self.scarp.networking.domain}" ];
+    extraUpFlags = [
+      "--login-server=https://headscale.${self.scarp.networking.domain}"
+      "--accept-dns=false" # hickory-dns handles DNS
+    ];
   };
 
   networking.firewall.trustedInterfaces = [ interface ];
