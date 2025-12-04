@@ -98,7 +98,12 @@ in
 
   networking.nameservers = [ "127.0.0.53" ];
 
+  networking.search = [ "cirque.amaanq.com" ];
+
   # Prevent DHCP from overriding DNS settings, because Verizon's DNS is garbage and hangs my matrix homeserver.
+  # dhcpcd
+  networking.dhcpcd.extraConfig = "nohook resolv.conf";
+  # systemd-networkd
   systemd.network.networks."99-ethernet-default-dhcp".dhcpV4Config.UseDNS = false;
   systemd.network.networks."99-ethernet-default-dhcp".dhcpV6Config.UseDNS = false;
   systemd.network.networks."99-ethernet-default-dhcp".ipv6AcceptRAConfig.UseDNS = false;
