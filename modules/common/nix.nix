@@ -43,6 +43,14 @@ let
 in
 {
   secrets.builderKey.file = ./builder-key.age;
+  secrets.githubToken = {
+    file = ./github-token.age;
+    mode = "0444";
+  };
+
+  nix.extraOptions = ''
+    !include ${config.secrets.githubToken.path}
+  '';
 
   # Store flake inputs to prevent garbage collection
   environment.etc.".system-inputs.json".text = toJSON registryMap;
