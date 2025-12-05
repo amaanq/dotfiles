@@ -14,6 +14,7 @@ lib.nixosSystem' (
     imports = collectNix ./. |> remove ./default.nix;
 
     type = "server";
+    isBuilder = true;
 
     networking = {
       domain = "amaanq.com";

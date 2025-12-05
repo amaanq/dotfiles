@@ -14,6 +14,7 @@ lib.nixosSystem' (
     imports = collectNix ./. |> remove ./default.nix;
 
     type = "desktop";
+    isBuilder = true;
 
     networking.hostName = "derecho";
 

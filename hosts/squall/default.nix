@@ -8,6 +8,7 @@ lib.darwinSystem' (
     imports = collectNix ./. |> remove ./default.nix;
 
     type = "desktop";
+    isBuilder = true;
 
     networking.hostName = "squall";
     nixpkgs.config.allowUnfree = true;

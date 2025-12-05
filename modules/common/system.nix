@@ -20,5 +20,7 @@ in
     isServer = mkConst <| config.type == "server";
 
     isVirtual = mkValue false;
+
+    isBuilder = mkValue false;
   };
 }
