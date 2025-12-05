@@ -18,7 +18,7 @@ in
 
   secrets.nitterSessions = {
     file = ./sessions.age;
-    owner = "nitter";
+    mode = "0444";
   };
 
   services.nitter = enabled {
