@@ -118,7 +118,7 @@ lib.nixosSystem' (
     swapDevices = [
       {
         device = "/var/swapfile";
-        size = 4096;
+        size = 8192;
       }
     ];
   }
