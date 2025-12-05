@@ -63,8 +63,9 @@ in
           in
           {
             hostName = name;
-            maxJobs = 20;
+            maxJobs = value.config.builderMaxJobs;
             protocol = "ssh-ng";
+            speedFactor = value.config.builderSpeedFactor;
             sshKey = builderKeyPath;
             sshUser = "build";
             supportedFeatures = [

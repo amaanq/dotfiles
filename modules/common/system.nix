@@ -22,5 +22,7 @@ in
     isVirtual = mkValue false;
 
     isBuilder = mkValue false;
+    builderSpeedFactor = mkValue 1;
+    builderMaxJobs = mkValue 8;
   };
 }

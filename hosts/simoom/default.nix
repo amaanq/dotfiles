@@ -9,6 +9,8 @@ lib.darwinSystem' (
 
     type = "desktop";
     isBuilder = true;
+    builderSpeedFactor = 4;
+    builderMaxJobs = 32;
 
     networking.hostName = "simoom";
     nixpkgs.config.allowUnfree = true;
