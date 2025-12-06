@@ -2,6 +2,7 @@
   self,
   config,
   lib,
+  pkgs,
   ...
 }:
 let
@@ -22,6 +23,15 @@ in
   };
 
   services.nitter = enabled {
+    package = pkgs.nitter.overrideAttrs {
+      version = "0-unstable-2025-12-05";
+      src = pkgs.fetchFromGitHub {
+        owner = "zedeus";
+        repo = "nitter";
+        rev = "17fc2628f91f70b9bfda1915c76e94708a5197bf";
+        hash = "sha256-yl1ge/Vm5+gkbEl73B7n3Ooh3Rpn4f1lyq0RU4VQRRI=";
+      };
+    };
     preferences = {
       hlsPlayback = true;
       infiniteScroll = true;
