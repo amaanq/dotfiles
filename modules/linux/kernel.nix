@@ -24,9 +24,9 @@ let
             LTO_CLANG_FULL = yes;
             LTO_CLANG_THIN = lib.mkForce no;
 
-            # AMD Zen 4 (x86-64-v4) microarchitecture
+            # Microarchitecture target
             GENERIC_CPU = lib.mkForce no;
-            MZEN4 = yes;
+            ${config.kernelArch} = yes;
 
             # Always use THP (zen defaults to madvise)
             TRANSPARENT_HUGEPAGE_ALWAYS = yes;

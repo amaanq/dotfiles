@@ -15,6 +15,8 @@ in
     lanzaboote.nixosModules.lanzaboote
   ];
 
+  kernelArch = "MZEN4";
+
   boot.extraModulePackages = [ config.boot.kernelPackages.ddcci-driver ];
   boot.initrd.availableKernelModules = [
     "nvme"
