@@ -55,7 +55,9 @@ in
   # Store flake inputs to prevent garbage collection
   environment.etc.".system-inputs.json".text = toJSON registryMap;
 
-  nix.distributedBuilds = true;
+  # Only servers use distributed builds to avoid circular delegation deadlocks
+  # See: https://github.com/NixOS/nix/issues/10740
+  nix.distributedBuilds = config.type == "server";
   nix.buildMachines =
     let
       mkMachines =
