@@ -46,14 +46,6 @@ in
     (self + /modules/postgresql.nix)
   ];
 
-  nixpkgs.overlays = [
-    (final: prev: {
-      matrix-synapse-unwrapped = prev.matrix-synapse-unwrapped.overrideAttrs (old: {
-        patches = (old.patches or [ ]) ++ [ ./srv-timeout.patch ];
-      });
-    })
-  ];
-
   secrets.matrixKey = {
     file = ./key.age;
     owner = "matrix-synapse";
