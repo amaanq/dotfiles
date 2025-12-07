@@ -14,17 +14,6 @@ in
 merge
 <| mkIf config.isDesktop (
   let
-    avbroot = pkgs.avbroot.overrideAttrs (oldAttrs: rec {
-      version = "3.23.2";
-      src = pkgs.fetchFromGitHub {
-        owner = "chenxiaolong";
-        repo = "avbroot";
-        rev = "v${version}";
-        hash = "sha256-rS3V+D7dBt/px0UNC8ZZyQ4FzNsjTykMSeXbjFF6iis=";
-      };
-      cargoHash = "sha256-v1oR5z7g7jjJgPiE56wYA3s4bF41QV6JRs7iMumfKnI=";
-    });
-
     androidComposition = pkgs.androidenv.composeAndroidPackages {
       buildToolsVersions = [ "35.0.0" ];
       includeNDK = true;
@@ -58,12 +47,13 @@ merge
 
     environment.systemPackages = [
       pkgs.android-tools
+      pkgs.avbroot
       androidComposition.androidsdk
       pkgs.git-repo
       pkgs.jadx
       pkgs.scrcpy
-      avbroot
-    ] ++ optionals config.isLinux [
+    ]
+    ++ optionals config.isLinux [
       pkgs.android-studio
     ];
 
