@@ -41,7 +41,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # Unstable nixpkgs, using the new Lockable HTTP Tarball protocol
+    # https://github.com/NixOS/infra/pull/562.
+    # credits: @faukah
+    nixpkgs.url = "https://channels.nixos.org/nixos-unstable/nixexprs.tar.xz";
+    nixpkgs-small.url = "https://channels.nixos.org/nixos-unstable-small/nixexprs.tar.xz";
 
     nirinit = {
       url = "github:amaanq/nirinit";
