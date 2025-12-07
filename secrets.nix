@@ -63,6 +63,9 @@ in
 
   "hosts/nunatak/plausible/key.age".publicKeys = [ nunatak ] ++ admins;
 
+  # lahar laptop
+  "hosts/lahar/password.age".publicKeys = admins;
+
   # gyre desktop
   "hosts/gyre/password.age".publicKeys = admins;
 
