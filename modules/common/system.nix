@@ -24,5 +24,7 @@ in
     isBuilder = mkValue false;
     builderSpeedFactor = mkValue 1;
     builderMaxJobs = mkValue 8;
+
+    displayOutputs = mkValue { };
   };
 }

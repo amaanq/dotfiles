@@ -190,32 +190,7 @@ mkIf config.isDesktop {
               };
             };
 
-            outputs = {
-              "DP-1" = {
-                mode = {
-                  width = 3840;
-                  height = 2160;
-                  refresh = 239.991;
-                };
-                scale = 1.25;
-                position = {
-                  x = 3072;
-                  y = 0;
-                };
-              };
-              "DP-2" = {
-                mode = {
-                  width = 3840;
-                  height = 2160;
-                  refresh = 160.0;
-                };
-                scale = 1.25;
-                position = {
-                  x = 0;
-                  y = 0;
-                };
-              };
-            };
+            outputs = osConfig.displayOutputs;
 
             cursor = {
               size = 20;
