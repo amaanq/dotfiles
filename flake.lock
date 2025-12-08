@@ -1417,6 +1417,7 @@
         "spicetify": "spicetify",
         "stylix": "stylix",
         "thorium": "thorium",
+        "watt": "watt",
         "zen-browser": "zen-browser"
       }
     },
@@ -1809,6 +1810,27 @@
       "original": {
         "owner": "tinted-theming",
         "repo": "base16-zed",
+        "type": "github"
+      }
+    },
+    "watt": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1764956445,
+        "narHash": "sha256-ORcrHG39emERbAM99pv1Prmfm9TNqSwW9uyibrcj5Js=",
+        "owner": "notashelf",
+        "repo": "watt",
+        "rev": "ae310b5ef2d39bec9a48b8833c48ea948b3bcb7f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "notashelf",
+        "ref": "v1-dev",
+        "repo": "watt",
         "type": "github"
       }
     },

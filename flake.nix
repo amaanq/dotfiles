@@ -193,6 +193,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    watt = {
+      url = "github:notashelf/watt/v1-dev";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # hjem = {
     #   url = "github:feel-co/hjem";
     #   inputs.nixpkgs.follows = "nixpkgs";
