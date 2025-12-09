@@ -1,4 +1,5 @@
 {
+  dankMaterialShell,
   niri-src,
   config,
   lib,
@@ -6,7 +7,7 @@
   ...
 }:
 let
-  inherit (lib) enabled mkIf;
+  inherit (lib) enabled merge mkIf;
   niriPackage = niri-src.packages.${pkgs.system}.niri;
 
   ziplineUpload = pkgs.writeShellScript "zipline-upload" ''
@@ -21,7 +22,13 @@ let
     ${pkgs.libnotify}/bin/notify-send "Uploaded" "$URL"
   '';
 in
-mkIf config.isDesktop {
+{
+  imports = [
+    dankMaterialShell.nixosModules.greeter
+  ];
+}
+// merge
+<| mkIf config.isDesktop {
   secrets.ziplineToken = {
     file = ./zipline-token.age;
     owner = "amaanq";
@@ -55,7 +62,7 @@ mkIf config.isDesktop {
       pkgs.gnome-keyring
       pkgs.gifski
       pkgs.inotify-tools
-      pkgs.mate.mate-polkit # dykwabi 🦼
+      pkgs.mate.mate-polkit # dms 🦼
       pkgs.nautilus
       pkgs.lxqt.pavucontrol-qt
       pkgs.playerctl
@@ -107,12 +114,12 @@ mkIf config.isDesktop {
   };
 
   home-manager.sharedModules = [
+    dankMaterialShell.homeModules.dankMaterialShell.default
     (
       { osConfig, lib, ... }:
       lib.mkIf osConfig.isDesktop {
-        programs.buckMaterialShell = enabled {
+        programs.dankMaterialShell = enabled {
           enableDynamicTheming = false;
-          enableClipboard = false;
         };
 
         programs.niri = {
@@ -162,7 +169,7 @@ mkIf config.isDesktop {
               }
               {
                 command = [
-                  "dykwabi"
+                  "dms"
                   "run"
                 ];
               }
@@ -237,30 +244,30 @@ mkIf config.isDesktop {
               "Mod+E".action.spawn = "thunar";
               "Mod+O".action.spawn = "ida";
 
-              # dykwabi
+              # dms
               "Mod+Alt+V".action.spawn = [
-                "dykwabi"
+                "dms"
                 "ipc"
                 "call"
                 "clipboard"
                 "toggle"
               ];
               "Mod+Alt+N".action.spawn = [
-                "dykwabi"
+                "dms"
                 "ipc"
                 "call"
                 "notifications"
                 "toggle"
               ];
               "Mod+R".action.spawn = [
-                "dykwabi"
+                "dms"
                 "ipc"
                 "call"
                 "spotlight"
                 "toggle"
               ];
               "Mod+X".action.spawn = [
-                "dykwabi"
+                "dms"
                 "ipc"
                 "call"
                 "powermenu"
