@@ -58,38 +58,72 @@ in
           zone_type = "External";
           stores = {
             type = "forward";
-            name_servers = singleton {
-              ip = "2a07:a8c0::";
-              trust_negative_responses = true;
-              connections = [
-                {
-                  protocol = {
-                    server_name = "dns.nextdns.io";
-                    path = "/9b2c13/${hostname}";
-                    type = "h3";
-                  };
-                }
-                {
-                  protocol = {
-                    server_name = "dns.nextdns.io";
-                    path = "/9b2c13/${hostname}";
-                    type = "https";
-                  };
-                }
-                {
-                  protocol = {
-                    server_name = "${hostname}-9b2c13.dns.nextdns.io";
-                    type = "quic";
-                  };
-                }
-                {
-                  protocol = {
-                    server_name = "${hostname}-9b2c13.dns.nextdns.io";
-                    type = "tls";
-                  };
-                }
-              ];
-            };
+            name_servers = [
+              {
+                ip = "2a07:a8c0::";
+                trust_negative_responses = true;
+                connections = [
+                  {
+                    protocol = {
+                      server_name = "dns.nextdns.io";
+                      path = "/9b2c13/${hostname}";
+                      type = "h3";
+                    };
+                  }
+                  {
+                    protocol = {
+                      server_name = "dns.nextdns.io";
+                      path = "/9b2c13/${hostname}";
+                      type = "https";
+                    };
+                  }
+                  {
+                    protocol = {
+                      server_name = "${hostname}-9b2c13.dns.nextdns.io";
+                      type = "quic";
+                    };
+                  }
+                  {
+                    protocol = {
+                      server_name = "${hostname}-9b2c13.dns.nextdns.io";
+                      type = "tls";
+                    };
+                  }
+                ];
+              }
+              {
+                ip = "2a07:a8c1::";
+                trust_negative_responses = true;
+                connections = [
+                  {
+                    protocol = {
+                      server_name = "dns.nextdns.io";
+                      path = "/9b2c13/${hostname}";
+                      type = "h3";
+                    };
+                  }
+                  {
+                    protocol = {
+                      server_name = "dns.nextdns.io";
+                      path = "/9b2c13/${hostname}";
+                      type = "https";
+                    };
+                  }
+                  {
+                    protocol = {
+                      server_name = "${hostname}-9b2c13.dns.nextdns.io";
+                      type = "quic";
+                    };
+                  }
+                  {
+                    protocol = {
+                      server_name = "${hostname}-9b2c13.dns.nextdns.io";
+                      type = "tls";
+                    };
+                  }
+                ];
+              }
+            ];
           };
         }
       ];
