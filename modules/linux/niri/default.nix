@@ -29,6 +29,12 @@ in
 }
 // merge
 <| mkIf config.isDesktop {
+  programs.dankMaterialShell.greeter = {
+    enable = true;
+    compositor.name = "niri";
+    configHome = "/home/amaanq";
+  };
+
   secrets.ziplineToken = {
     file = ./zipline-token.age;
     owner = "amaanq";
