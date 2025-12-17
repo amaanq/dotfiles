@@ -12,6 +12,16 @@ let
     no
     ;
 
+  bcachefs-tools-fixed = pkgs.bcachefs-tools.overrideAttrs (old: {
+    version = "1.33.1-git-07fda9c";
+    src = pkgs.fetchFromGitHub {
+      owner = "koverstreet";
+      repo = "bcachefs-tools";
+      rev = "07fda9cd8633e5ae416a67bffdd2c782b383649f";
+      hash = "sha256-L7Ir5oOKMxgHWxdRBhM9VVGWMu/ePmezkUy4pHoMB2M=";
+    };
+  });
+
   kernelPackage =
     if config.isServer then
       pkgs.linuxPackages_latest
@@ -89,6 +99,8 @@ let
       );
 in
 {
+  boot.bcachefs.package = bcachefs-tools-fixed;
+
   boot.kernelPackages = kernelPackage;
 
   environment = {
