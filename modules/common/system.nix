@@ -27,8 +27,5 @@ in
     builderMaxJobs = mkValue 8;
 
     displayOutputs = mkValue { };
-
-    # Kernel microarchitecture target ("MZEN4", "MZEN3", "GENERIC_CPU")
-    kernelArch = mkValue "GENERIC_CPU";
   };
 }

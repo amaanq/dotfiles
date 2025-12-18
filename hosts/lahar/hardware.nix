@@ -16,8 +16,6 @@ in
     "nvidia-x11"
   ];
 
-  kernelArch = "MZEN3";
-
   boot.initrd.availableKernelModules = [
     "nvme"
     "xhci_pci"

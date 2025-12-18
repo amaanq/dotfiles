@@ -15,8 +15,6 @@ in
     lanzaboote.nixosModules.lanzaboote
   ];
 
-  kernelArch = "MZEN4";
-
   boot.extraModulePackages = [ config.boot.kernelPackages.ddcci-driver ];
   boot.initrd.availableKernelModules = [
     "nvme"
@@ -30,6 +28,7 @@ in
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [
     "ddcci_backlight"
+    "i2c-dev"
     "kvm-amd"
   ];
   boot.loader.systemd-boot.enable = lib.mkForce false;

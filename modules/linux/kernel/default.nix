@@ -8,9 +8,31 @@ let
   inherit (lib) optionals;
   inherit (lib.kernel)
     freeform
+    option
     yes
     no
     ;
+
+  # Full LLVM stdenv with clang + lld + llvm-ar/nm (required for LTO_CLANG)
+  llvmStdenv = pkgs.overrideCC pkgs.llvmPackages.stdenv (
+    pkgs.llvmPackages.clang.override {
+      bintools = pkgs.llvmPackages.bintools;
+    }
+  );
+
+  # Kernel patches
+  zenPatches = {
+    # rwsem spin faster
+    rwsem = {
+      name = "rwsem-spin-faster";
+      patch = ./0001-rwsem-spin-faster.patch;
+    };
+    # BFQ/mq-deadline lock contention reduction
+    block = {
+      name = "block-perf";
+      patch = ./0002-block.patch;
+    };
+  };
 
   bcachefs-tools-fixed = pkgs.bcachefs-tools.overrideAttrs (old: {
     version = "1.33.1-git-07fda9c";
@@ -28,48 +50,58 @@ let
     else
       pkgs.linuxKernel.packagesFor (
         (pkgs.linuxKernel.kernels.linux_zen.override {
-          stdenv = pkgs.clangStdenv;
-          structuredExtraConfig = {
-            # Full LTO with Clang
-            LTO_CLANG_FULL = yes;
-            LTO_CLANG_THIN = lib.mkForce no;
+          stdenv = llvmStdenv;
+          argsOverride = {
+            kernelPatches = with zenPatches; [
+              rwsem
+              block
+            ];
+            structuredExtraConfig = {
+              # Disable BTF to allow RUST + LTO + CFI
+              # (BTF + LTO + RUST is blocked upstream due to pahole limitations)
+              DEBUG_INFO_BTF = lib.mkForce no;
+              # These depend on BTF - use option to suppress errors when they don't exist
+              NET_SCH_BPF = lib.mkForce (option no);
+              SCHED_CLASS_EXT = lib.mkForce (option no);
+              MODULE_ALLOW_BTF_MISMATCH = lib.mkForce (option no);
 
-            # Microarchitecture target
-            GENERIC_CPU = lib.mkForce no;
-            ${config.kernelArch} = yes;
+              # Full LTO with Clang
+              LTO_CLANG_FULL = yes;
+              LTO_CLANG_THIN = lib.mkForce no;
 
-            # Always use THP (zen defaults to madvise)
-            TRANSPARENT_HUGEPAGE_ALWAYS = yes;
-            TRANSPARENT_HUGEPAGE_MADVISE = lib.mkForce no;
+              # Use native CPU optimization
+              X86_NATIVE_CPU = yes;
 
-            # AMD P-State EPP in active mode (mode 3)
-            X86_AMD_PSTATE = yes;
-            X86_AMD_PSTATE_DEFAULT_MODE = freeform "3";
+              # Always use THP (zen defaults to madvise)
+              TRANSPARENT_HUGEPAGE_ALWAYS = lib.mkForce yes;
+              TRANSPARENT_HUGEPAGE_MADVISE = lib.mkForce no;
 
-            # ZSTD for kernel modules
-            MODULE_COMPRESS_ZSTD = yes;
-            MODULE_COMPRESS_XZ = lib.mkForce no;
+              # AMD P-State EPP in active mode (mode 3)
+              X86_AMD_PSTATE = yes;
+              X86_AMD_PSTATE_DEFAULT_MODE = freeform "3";
 
-            # Control Flow Integrity (CFI) with Clang
-            CFI_CLANG = yes;
+              # ZSTD for kernel modules
+              MODULE_COMPRESS_ZSTD = lib.mkForce yes;
+              MODULE_COMPRESS_XZ = lib.mkForce no;
 
-            # Prevent physical memory writes
-            ACPI_CUSTOM_METHOD = no;
+              # Control Flow Integrity (CFI) with Clang
+              CFI = yes;
 
-            # Wipe CPU registers on return (prevents ROP attacks)
-            ZERO_CALL_USED_REGS = yes;
+              # Wipe CPU registers on return (prevents ROP attacks)
+              ZERO_CALL_USED_REGS = yes;
 
-            # Restrict setuid operations
-            SECURITY_SAFESETID = yes;
+              # Restrict setuid operations
+              SECURITY_SAFESETID = yes;
 
-            # Controls the behavior of vsyscalls. This has been defaulted to none back in 2016 - break really old binaries for security.
-            LEGACY_VSYSCALL_NONE = yes;
+              # Controls the behavior of vsyscalls. This has been defaulted to none back in 2016 - break really old binaries for security.
+              LEGACY_VSYSCALL_NONE = yes;
 
-            # Make stack-based attacks on the kernel harder.
-            RANDOMIZE_KSTACK_OFFSET_DEFAULT = yes;
+              # Make stack-based attacks on the kernel harder.
+              RANDOMIZE_KSTACK_OFFSET_DEFAULT = yes;
 
-            # Reduce most of the exposure of a heap attack to a single cache.
-            SLAB_MERGE_DEFAULT = no;
+              # Reduce most of the exposure of a heap attack to a single cache.
+              SLAB_MERGE_DEFAULT = no;
+            };
           };
         }).overrideAttrs
           (old: {
