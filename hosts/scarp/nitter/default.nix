@@ -47,6 +47,12 @@ in
     sessionsFile = config.secrets.nitterSessions.path;
   };
 
+  # Force IPv4 only since X.com sometimes returns 403 for IPv6 connections
+  systemd.services.nitter.serviceConfig.RestrictAddressFamilies = lib.mkForce [
+    "AF_INET"
+    "AF_UNIX"
+  ];
+
   services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
     locations."/".proxyPass = "http://127.0.0.1:${toString port}";
   };
