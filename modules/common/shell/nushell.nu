@@ -271,6 +271,12 @@ do --env {
       ""
     }
 
+    let android_env = if ($env.DEVICE? | is-not-empty) and ($env.TYPE? | is-not-empty) {
+      $" (ansi light_purple)\(($env.DEVICE)-($env.TYPE)\)(ansi reset)"
+    } else {
+      ""
+    }
+
     # https://github.com/nushell/nushell/issues/16205
     #
     # Case insensitive filesystems strike again!
@@ -347,7 +353,7 @@ do --env {
       ""
     }
 
-    $"(ansi light_cyan_bold)($left_char)($exit_code)($middle)($command_duration)(ansi reset) ($body)($jj_info)(char newline)"
+    $"(ansi light_cyan_bold)($left_char)($exit_code)($middle)($command_duration)(ansi reset) ($body)($android_env)($jj_info)(char newline)"
   }
 
   $env.PROMPT_INDICATOR = $"(ansi light_cyan_bold)┃(ansi reset) ";
