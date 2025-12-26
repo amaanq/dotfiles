@@ -8,7 +8,7 @@ lib.nixosSystem' (
     ...
   }:
   let
-    inherit (lib) collectNix remove;
+    inherit (lib) collectNix enabled remove;
   in
   {
     imports = collectNix ./. |> remove ./default.nix;
@@ -114,6 +114,8 @@ lib.nixosSystem' (
     ];
 
     time.timeZone = "Europe/Berlin";
+
+    services.qemuGuest = enabled;
 
     swapDevices = [
       {
