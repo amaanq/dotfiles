@@ -41,7 +41,6 @@ let
         "stylix"
         "niri"
         "nirinit"
-        "buckMaterialShell"
       ]
     )
     |> filter (hasAttrByPath [

@@ -182,10 +182,6 @@
       url = "github:AvengeMedia/DankMaterialShell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    buckMaterialShell = {
-      url = "github:amaanq/BuckMaterialShell";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     nixpak = {
       url = "github:nixpak/nixpak";
