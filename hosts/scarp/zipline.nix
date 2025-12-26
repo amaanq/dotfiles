@@ -30,12 +30,14 @@ in
       DATABASE_URL = "postgresql://zipline@localhost/zipline?host=/run/postgresql";
       DATASOURCE_TYPE = "local";
       DATASOURCE_LOCAL_DIRECTORY = "/var/lib/zipline/uploads";
+      FILES_MAX_FILE_SIZE = "10gb";
     };
 
     environmentFiles = [ config.secrets.ziplineSecret.path ];
   };
 
   services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
+    extraConfig = "client_max_body_size 10G;";
     locations."/" = {
       proxyPass = "http://127.0.0.1:${toString port}";
       proxyWebsockets = true;
