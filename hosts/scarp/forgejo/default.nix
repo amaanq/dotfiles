@@ -31,7 +31,7 @@ in
 
   services.postgresql.ensure = [ "forgejo" ];
 
-  services.openssh.settings.AcceptEnv = mkForce "SHELLS COLOTERM GIT_PROTOCOL";
+  services.openssh.settings.AcceptEnv = mkForce [ "SHELLS" "COLOTERM" "GIT_PROTOCOL" ];
 
   services.forgejo = enabled {
     lfs = enabled;
