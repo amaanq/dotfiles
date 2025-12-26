@@ -22,7 +22,7 @@ let
     ];
   } (builtins.readFile ./patch.py);
 
-  baseIdaPro = pkgs.callPackage pkgs.ida-pro {
+  baseIdaPro = pkgs.ida-pro.override {
     runfile = builtins.fetchurl {
       url = "file://${toString ./.}/ida-pro_92_x64linux.run";
       sha256 = "1qass0401igrfn14sfrvjfyz668npx586x59yaa4zf3jx650zpda";
