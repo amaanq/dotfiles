@@ -65,7 +65,7 @@ merge
             betterUploadButton = enabled;
             biggerStreamPreview = enabled;
             callTimer = enabled;
-            clearUrLs = enabled;
+            ClearURLs = enabled;
             colorSighted = enabled;
             consoleJanitor = enabled;
             consoleShortcuts = enabled;
@@ -97,7 +97,7 @@ merge
             messageLatency = enabled;
             messageLinkEmbeds = enabled;
             messageLogger = enabled;
-            mutualGroupDMs = enabled;
+            MutualGroupDMs = enabled;
             newGuildSettings = enabled;
             noDevtoolsWarning = enabled;
             noF1 = enabled;
@@ -110,17 +110,17 @@ merge
             normalizeMessageLinks = enabled;
             noTypingAnimation = enabled;
             noUnblockToJump = enabled;
-            onePingPerDm = enabled;
+            OnePingPerDM = enabled;
             openInApp = enabled;
             permissionFreeWill = enabled;
             permissionsViewer = enabled;
-            pinDMs = enabled;
+            PinDMs = enabled;
             platformIndicators = enabled;
             reactErrorDecoder = enabled;
             relationshipNotifier = enabled;
             replaceGoogleSearch = enabled {
               customEngineName = "Kagi";
-              customEngineUrl = "https://kagi.com/search?q";
+              customEngineURL = "https://kagi.com/search?q";
             };
             replyTimestamp = enabled;
             reverseImageSearch = enabled;
