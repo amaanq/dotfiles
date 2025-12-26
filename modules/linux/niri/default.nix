@@ -114,11 +114,10 @@ in
   };
 
   home-manager.sharedModules = [
-    dankMaterialShell.homeModules.dankMaterialShell.default
     (
       { osConfig, lib, ... }:
       lib.mkIf osConfig.isDesktop {
-        programs.dankMaterialShell = enabled {
+        programs.dank-material-shell = enabled {
           enableDynamicTheming = false;
         };
 
