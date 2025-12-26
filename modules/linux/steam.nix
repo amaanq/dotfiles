@@ -31,6 +31,6 @@ merge
   hardware.graphics.enable32Bit = mkForce false;
   environment.systemPackages = [
     pkgs.mangohud
-    # pkgs.gale
+    pkgs.gale
   ];
 }
