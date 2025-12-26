@@ -9,7 +9,7 @@ let
 in
 {
   config = mkIf config.isLaptop {
-    services.watt.enable = true;
+    services.watt = enabled;
 
     services.upower = enabled {
       percentageLow = 15;

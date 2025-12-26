@@ -1,12 +1,11 @@
 {
-  self,
   config,
   lib,
   pkgs,
   ...
 }:
 let
-  inherit (lib) enabled head mkIf;
+  inherit (lib) enabled mkIf;
 in
 {
   environment.systemPackages = [
