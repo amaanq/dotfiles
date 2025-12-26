@@ -34,15 +34,19 @@ let
     };
   };
 
-  bcachefs-tools-fixed = pkgs.bcachefs-tools.overrideAttrs (old: {
-    version = "1.33.1-git-07fda9c";
-    src = pkgs.fetchFromGitHub {
-      owner = "koverstreet";
-      repo = "bcachefs-tools";
-      rev = "07fda9cd8633e5ae416a67bffdd2c782b383649f";
-      hash = "sha256-L7Ir5oOKMxgHWxdRBhM9VVGWMu/ePmezkUy4pHoMB2M=";
-    };
-  });
+  bcachefs-tools-fixed =
+    let
+      version = "1.33.3";
+    in
+    pkgs.bcachefs-tools.overrideAttrs (old: {
+      inherit version;
+      src = pkgs.fetchFromGitHub {
+        owner = "koverstreet";
+        repo = "bcachefs-tools";
+        rev = "v${version}";
+        hash = "sha256-g08z/0Qrj0d5K+X7foSiUI4pQ+h6um8LV9Nc6EjnelU=";
+      };
+    });
 
   kernelPackage =
     if config.isServer then
