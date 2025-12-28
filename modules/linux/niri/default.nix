@@ -44,12 +44,12 @@ in
   services.nirinit = enabled {
     settings = {
       launch = {
-        thorium-browser = "thorium";
-        "thorium-cinny.amaanq.com__-Default" = "cinny-web-app";
-        "thorium-discord.com__app-Default" = "discord-web-app";
-        "thorium-app.element.io__-Default" = "element-web-app";
-        "thorium-web.telegram.org__a-Default" = "telegram-web-app";
-        "thorium-twitter.com__-Default" = "twitter-web-app";
+        helium-browser = "helium";
+        "helium-cinny.amaanq.com__-Default" = "cinny-web-app";
+        "helium-discord.com__app-Default" = "discord-web-app";
+        "helium-app.element.io__-Default" = "element-web-app";
+        "helium-web.telegram.org__a-Default" = "telegram-web-app";
+        "helium-twitter.com__-Default" = "twitter-web-app";
       };
     };
   };
@@ -149,7 +149,7 @@ in
             spawn-at-startup = [
               { command = [ "xwayland-satellite" ]; }
               { command = [ "quickshell" ]; }
-              { command = [ "thorium" ]; }
+              { command = [ "helium" ]; }
               { command = [ "kitty" ]; }
               { command = [ "spotify" ]; }
               { command = [ "discord-web-app" ]; }
@@ -218,7 +218,7 @@ in
               }
               {
                 matches = [
-                  { app-id = "^thorium-discord\\.com__app-Default$"; }
+                  { app-id = "^helium-discord\\.com__app-Default$"; }
                 ];
                 default-column-width = {
                   proportion = 0.65;

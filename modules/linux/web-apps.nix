@@ -8,7 +8,7 @@ let
   inherit (lib) mkIf;
 
   webAppLauncherScript = pkgs.writeShellScript "web-app-launcher" ''
-    browser="thorium"
+    browser="helium"
 
     browser_exec=""
     for path in ~/.local ~/.nix-profile /usr; do
@@ -19,17 +19,17 @@ let
     done
 
     if [ -z "$browser_exec" ]; then
-      browser_exec="thorium"
+      browser_exec="helium"
     fi
 
-    extensions="$HOME/.config/thorium-extensions/adnauseam.chromium/"
+    extensions="$HOME/.config/helium-extensions/adnauseam.chromium/"
 
     case "$1" in
       *discord.com*)
-        extensions="$extensions,$HOME/.config/thorium-extensions/vencord/"
+        extensions="$extensions,$HOME/.config/helium-extensions/vencord/"
         ;;
       *twitter.com*)
-        extensions="$extensions,$HOME/.config/thorium-extensions/control-panel-for-twitter/"
+        extensions="$extensions,$HOME/.config/helium-extensions/control-panel-for-twitter/"
         ;;
     esac
 

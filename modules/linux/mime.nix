@@ -8,18 +8,18 @@ in
       xdg.mimeApps = enabled {
         defaultApplications = {
           # Browser
-          "text/html" = "thorium-browser.desktop";
-          "x-scheme-handler/about" = "thorium-browser.desktop";
-          "x-scheme-handler/chrome" = "thorium-browser.desktop";
-          "x-scheme-handler/http" = "thorium-browser.desktop";
-          "x-scheme-handler/https" = "thorium-browser.desktop";
-          "x-scheme-handler/unknown" = "thorium-browser.desktop";
-          "application/x-extension-htm" = "thorium-browser.desktop";
-          "application/x-extension-html" = "thorium-browser.desktop";
-          "application/x-extension-shtml" = "thorium-browser.desktop";
-          "application/xhtml+xml" = "thorium-browser.desktop";
-          "application/x-extension-xhtml" = "thorium-browser.desktop";
-          "application/x-extension-xht" = "thorium-browser.desktop";
+          "text/html" = "helium.desktop";
+          "x-scheme-handler/about" = "helium.desktop";
+          "x-scheme-handler/chrome" = "helium.desktop";
+          "x-scheme-handler/http" = "helium.desktop";
+          "x-scheme-handler/https" = "helium.desktop";
+          "x-scheme-handler/unknown" = "helium.desktop";
+          "application/x-extension-htm" = "helium.desktop";
+          "application/x-extension-html" = "helium.desktop";
+          "application/x-extension-shtml" = "helium.desktop";
+          "application/xhtml+xml" = "helium.desktop";
+          "application/x-extension-xhtml" = "helium.desktop";
+          "application/x-extension-xht" = "helium.desktop";
 
           "x-scheme-handler/ror2mm" = "r2modman.desktop";
           "x-scheme-handler/tg" = "web-app-Telegram.desktop";

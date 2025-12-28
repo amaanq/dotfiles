@@ -1289,7 +1289,6 @@
         "rust-overlay": "rust-overlay_3",
         "spicetify": "spicetify",
         "stylix": "stylix",
-        "thorium": "thorium",
         "watt": "watt",
         "zen-browser": "zen-browser"
       }
@@ -1515,26 +1514,6 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
-        "type": "github"
-      }
-    },
-    "thorium": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1749702777,
-        "narHash": "sha256-BpEYAAu0fz+WPO9JH5nt79LBkWLnx+We/VYbg83NoIg=",
-        "owner": "amaanq",
-        "repo": "thorium-flake",
-        "rev": "eba4fc3a80492ed7a16e24193977eeef46e4caf1",
-        "type": "github"
-      },
-      "original": {
-        "owner": "amaanq",
-        "repo": "thorium-flake",
         "type": "github"
       }
     },

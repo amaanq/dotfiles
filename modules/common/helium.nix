@@ -2,7 +2,7 @@
   config,
   lib,
   pkgs,
-  thorium,
+  helium,
   ...
 }:
 let
@@ -15,20 +15,20 @@ in
 merge
 <| mkIf config.isDesktop {
   environment.variables = {
-    BROWSER = "thorium";
+    BROWSER = "helium";
   };
 
   environment.systemPackages =
     optional config.isLinux (
       pkgs.symlinkJoin {
-        name = "thorium";
-        paths = [ thorium.packages.${pkgs.system}.thorium-avx2 ];
+        name = "helium";
+        paths = [ helium.packages.${pkgs.system}.helium ];
         buildInputs = [ pkgs.makeWrapper ];
         postBuild = ''
-          wrapProgram $out/bin/thorium \
+          wrapProgram $out/bin/helium \
             --add-flags "--use-angle=vulkan --enable-quic --quic-version=h3-29"
         '';
       }
     )
-    ++ optional config.isDarwin thorium.packages.${pkgs.system}.thorium-arm;
+    ++ optional config.isDarwin helium.packages.${pkgs.system}.helium;
 }
