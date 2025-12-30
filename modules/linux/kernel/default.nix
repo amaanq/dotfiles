@@ -181,7 +181,37 @@ in
     "kernel.perf_event_paranoid" = 3;
 
     # Require CAP_BPF to use bpf.
-    "kernel.unprvileged_bpf_disabled" = 1;
+    "kernel.unprivileged_bpf_disabled" = 1;
+
+    # Disable kexec which can be used to replace the running kernel.
+    "kernel.kexec_load_disabled" = 1;
+
+    # Network hardening.
+    # SYN flood protection - uses SYN cookies when SYN queue fills up.
+    "net.ipv4.tcp_syncookies" = 1;
+
+    # TIME-WAIT assassination protection (RFC 1337).
+    "net.ipv4.tcp_rfc1337" = 1;
+
+    # Reverse path filtering - drop packets with spoofed source addresses.
+    "net.ipv4.conf.all.rp_filter" = 1;
+    "net.ipv4.conf.default.rp_filter" = 1;
+
+    # Disable ICMP redirects - prevents MITM via fake route injection.
+    "net.ipv4.conf.all.accept_redirects" = 0;
+    "net.ipv4.conf.default.accept_redirects" = 0;
+    "net.ipv6.conf.all.accept_redirects" = 0;
+    "net.ipv6.conf.default.accept_redirects" = 0;
+    "net.ipv4.conf.all.send_redirects" = 0;
+    "net.ipv4.conf.default.send_redirects" = 0;
+
+    # Disable source routing - ancient feature, only useful for attackers.
+    "net.ipv4.conf.all.accept_source_route" = 0;
+    "net.ipv6.conf.all.accept_source_route" = 0;
+
+    # Log packets with impossible addresses.
+    "net.ipv4.conf.all.log_martians" = 1;
+    "net.ipv4.conf.default.log_martians" = 1;
   };
 
   # https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html
@@ -207,7 +237,7 @@ in
     # Prevent the kernel from blanking plymouth out of the fb.
     "fbcon=nodefer"
 
-    # Don't expose kernel memory
+    # Don't expose kernel memory.
     "kcore=off"
   ]
   ++ optionals config.isDesktop [
@@ -269,8 +299,18 @@ in
     "udf" # https://docs.kernel.org/5.15/filesystems/udf.html
     "vivid" # Virtual Video Test Driver (unnecessary)
 
-    # Disable Thunderbolt and FireWire to prevent DMA attacks
+    # Disable Thunderbolt and FireWire to prevent DMA attacks.
     "firewire-core"
+    "firewire_core"
+    "firewire-ohci"
+    "firewire_ohci"
+    "firewire-sbp2"
+    "firewire_sbp2"
+    "ohci1394"
+    "sbp2"
+    "dv1394"
+    "raw1394"
+    "video1394"
     "thunderbolt"
   ];
 }
