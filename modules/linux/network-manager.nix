@@ -7,6 +7,7 @@ let
     filterAttrs
     getAttr
     merge
+    mkForce
     mkIf
     ;
 in
@@ -15,6 +16,14 @@ merge
   networking.networkmanager = enabled {
     dns = "none";
     settings.main.rc-manager = "unmanaged";
+
+    connectionConfig = {
+      # Use a random MAC address for each connection.
+      "ethernet.cloned-mac-address" = mkForce "random";
+      "wifi.cloned-mac-address" = mkForce "random";
+      # Use temporary addresses.
+      "ipv6.ip6-privacy" = mkForce 2;
+    };
   };
 
   users.extraGroups.networkmanager.members =
