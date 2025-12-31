@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (lib) optionals;
+  inherit (lib) mkIf optionals;
   inherit (lib.kernel)
     freeform
     option
@@ -313,4 +313,7 @@ in
     "video1394"
     "thunderbolt"
   ];
+
+  # Use GrapheneOS' hardened_malloc as the system allocator.
+  environment.memoryAllocator.provider = mkIf config.isDesktop "graphene-hardened";
 }
