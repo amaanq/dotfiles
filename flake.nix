@@ -193,6 +193,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    run0-sudo-shim = {
+      url = "github:LordGrimmauld/run0-sudo-shim";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # hjem = {
     #   url = "github:feel-co/hjem";
     #   inputs.nixpkgs.follows = "nixpkgs";
