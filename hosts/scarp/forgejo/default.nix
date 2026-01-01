@@ -142,6 +142,9 @@ in
   services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
     extraConfig = config.services.plausible.extraNginxConfigFor fqdn;
 
-    locations."/".proxyPass = "http://[::1]:${toString port}";
+    locations."/" = {
+      proxyPass = "http://[::1]:${toString port}";
+      extraConfig = "client_max_body_size 512M;";
+    };
   };
 }
