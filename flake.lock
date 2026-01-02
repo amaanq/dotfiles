@@ -1307,8 +1307,7 @@
         "rust-overlay": "rust-overlay_4",
         "spicetify": "spicetify",
         "stylix": "stylix",
-        "watt": "watt",
-        "zen-browser": "zen-browser"
+        "watt": "watt"
       }
     },
     "run0-sudo-shim": {

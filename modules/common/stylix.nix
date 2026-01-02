@@ -35,7 +35,6 @@ in
           helix = disabled;
           kitty = disabled;
           ghostty = disabled;
-          zen-browser.profileNames = [ "default" ];
         };
       };
     }
