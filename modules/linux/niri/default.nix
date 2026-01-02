@@ -45,11 +45,11 @@ in
     settings = {
       launch = {
         helium-browser = "helium";
-        "helium-cinny.amaanq.com__-Default" = "cinny-web-app";
-        "helium-discord.com__app-Default" = "discord-web-app";
-        "helium-app.element.io__-Default" = "element-web-app";
-        "helium-web.telegram.org__a-Default" = "telegram-web-app";
-        "helium-twitter.com__-Default" = "twitter-web-app";
+        "chrome-cinny.amaanq.com__-Default" = "cinny-web-app";
+        "chrome-discord.com__app-Default" = "discord-web-app";
+        "chrome-app.element.io__-Default" = "element-web-app";
+        "chrome-web.telegram.org__a-Default" = "telegram-web-app";
+        "chrome-twitter.com__-Default" = "twitter-web-app";
       };
     };
   };
@@ -218,7 +218,7 @@ in
               }
               {
                 matches = [
-                  { app-id = "^helium-discord\\.com__app-Default$"; }
+                  { app-id = "^chrome-discord\\.com__app-Default$"; }
                 ];
                 default-column-width = {
                   proportion = 0.65;
