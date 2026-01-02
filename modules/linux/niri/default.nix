@@ -133,9 +133,9 @@ in
 
             layout = {
               gaps = 8;
-              focus-ring = {
+              border = {
                 width = 2;
-                active.color = "#c4a7e7";
+                active.color = "#31748f";
               };
 
               preset-column-widths = [
@@ -391,6 +391,7 @@ in
               "Mod+Shift+R".action.reset-window-height = { };
               "Mod+F".action.fullscreen-window = { };
               "Mod+D".action.maximize-column = { };
+              "Mod+G".action.expand-column-to-available-width = { };
               "Mod+Ctrl+C".action.center-column = { };
               "Mod+Shift+F".action.center-visible-columns = { }; # Fit all visible columns to monitor
 
