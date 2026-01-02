@@ -26,6 +26,7 @@ in
 
   unfree.allowedNames = [
     "claude-code"
+    "libsciter"
     "megasync"
     "spotify"
   ];
@@ -86,6 +87,7 @@ in
     }))
     pkgs.go
     pkgs.qbittorrent
+    pkgs.rustdesk
     pkgs.sequoia-sq
     pkgs.wabt
     pkgs.wasmtime
