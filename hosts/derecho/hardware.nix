@@ -58,6 +58,11 @@ in
   hardware.keyboard.qmk = enabled;
   hardware.cpu.amd.updateMicrocode = config.hardware.enableRedistributableFirmware;
 
+  # Workaround for RX 9070 power management crash (https://gitlab.freedesktop.org/drm/amd/-/issues/4829)
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="drm", KERNEL=="card[0-9]*", DRIVERS=="amdgpu", ATTR{device/power_dpm_force_performance_level}="high"
+  '';
+
   environment.systemPackages = [
     pkgs.sbctl
   ];
