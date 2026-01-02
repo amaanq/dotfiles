@@ -94,7 +94,6 @@ in
   ++ optionals (config.isLinux && config.isDesktop) [
     pkgs.obs-studio
     pkgs.megasync
-    pkgs.spotify
     pkgs.thunderbird
   ];
 }
