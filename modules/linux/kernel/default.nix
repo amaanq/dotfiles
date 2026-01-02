@@ -135,6 +135,8 @@ let
       );
 in
 {
+  disabledModules = [ "config/malloc.nix" ];
+
   boot.bcachefs.package = bcachefs-tools-fixed;
 
   boot.kernelPackages = kernelPackage;
@@ -315,5 +317,15 @@ in
   ];
 
   # Use GrapheneOS' hardened_malloc as the system allocator.
-  environment.memoryAllocator.provider = mkIf config.isDesktop "graphene-hardened";
+  environment.memoryAllocator = {
+    provider = mkIf config.isDesktop "graphene-hardened";
+
+    mozillaPackages = [
+      pkgs.thunderbird
+    ];
+
+    excludedPackages = [
+      config.programs.spicetify.spicedSpotify
+    ];
+  };
 }
