@@ -142,6 +142,35 @@ let
           done
         '') cfg.excludedPackages}
       '';
+
+  # Create wrapper scripts for excluded commands (non-NixOS binaries)
+  # These find the real binary in PATH and exec without LD_PRELOAD
+  wrappedExcludedCommands =
+    pkgs.runCommand "malloc-excluded-commands"
+      {
+        preferLocalBuild = true;
+        allowSubstitutes = false;
+        # Take precedence over non-wrapped versions
+        meta.priority = -1;
+      }
+      ''
+        mkdir -p $out/bin
+        ${lib.concatMapStringsSep "\n" (cmd: ''
+          cat > "$out/bin/${cmd}" <<'EOF'
+        #!${pkgs.runtimeShell}
+        unset LD_PRELOAD
+        # Find the real binary, skipping this wrapper
+        for dir in $(echo "$PATH" | tr ':' '\n'); do
+          if [ -x "$dir/${cmd}" ] && [ "$dir/${cmd}" != "$0" ]; then
+            exec "$dir/${cmd}" "$@"
+          fi
+        done
+        echo "${cmd}: command not found" >&2
+        exit 127
+        EOF
+          chmod +x "$out/bin/${cmd}"
+        '') cfg.excludedCommands}
+      '';
 in
 
 {
@@ -197,6 +226,18 @@ in
         causing them to use libc's default allocator instead.
       '';
     };
+
+    environment.memoryAllocator.excludedCommands = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      example = [ "ckati" "ninja" ];
+      description = ''
+        Command names to exclude from the system-wide memory allocator.
+        Use this for non-NixOS binaries (e.g., prebuilt tools in external projects).
+        Wrapper scripts will be created that unset `LD_PRELOAD` before executing
+        the real binary found in PATH.
+      '';
+    };
   };
 
   config = lib.mkIf (cfg.provider != "libc") {
@@ -204,7 +245,8 @@ in
 
     environment.systemPackages =
       lib.optional needsMozillaFix wrappedMozillaPackages
-      ++ lib.optional (cfg.excludedPackages != [ ]) wrappedExcludedPackages;
+      ++ lib.optional (cfg.excludedPackages != [ ]) wrappedExcludedPackages
+      ++ lib.optional (cfg.excludedCommands != [ ]) wrappedExcludedCommands;
 
     security.apparmor.includes = {
       "abstractions/base" = ''

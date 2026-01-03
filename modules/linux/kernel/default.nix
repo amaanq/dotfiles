@@ -326,6 +326,7 @@ in
 
     excludedPackages = [
       config.programs.spicetify.spicedSpotify
+      pkgs.steam
     ];
   };
 }
