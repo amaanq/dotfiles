@@ -24,6 +24,9 @@ in
       proxy_hide_header Access-Control-Allow-Origin;
       add_header Access-Control-Allow-Origin $allow_origin always;
 
+      proxy_hide_header Access-Control-Allow-Credentials;
+      add_header Access-Control-Allow-Credentials true always;
+
       ${config.services.nginx.headersNoAccessControlOrigin}
     '';
 
