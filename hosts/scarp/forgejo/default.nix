@@ -17,12 +17,26 @@ let
 
   fqdn = "git.${domain}";
   port = stringToPort "git";
+  goAwayPort = stringToPort "go-away";
 in
 {
   imports = [
     (self + /modules/nginx.nix)
     (self + /modules/postgresql.nix)
+    (self + /modules/go-away.nix)
   ];
+
+  services.go-away = enabled {
+    bindAddress = "[::1]:${toString goAwayPort}";
+    metricsAddress = "[::]:9099";
+    backends = {
+      ${fqdn} = "http://[::1]:${toString port}";
+      "nitter.${domain}" = "http://127.0.0.1:${toString (stringToPort "nitter")}";
+    };
+    challengeTemplate = "forgejo";
+    challengeTemplateTheme = "forgejo-auto";
+    policyFile = self + /modules/go-away/forgejo.yml;
+  };
 
   secrets.forgejoRunnerToken = {
     file = ./runner.age;
@@ -31,7 +45,11 @@ in
 
   services.postgresql.ensure = [ "forgejo" ];
 
-  services.openssh.settings.AcceptEnv = mkForce [ "SHELLS" "COLOTERM" "GIT_PROTOCOL" ];
+  services.openssh.settings.AcceptEnv = mkForce [
+    "SHELLS"
+    "COLOTERM"
+    "GIT_PROTOCOL"
+  ];
 
   services.forgejo = enabled {
     lfs = enabled;
@@ -142,8 +160,9 @@ in
   services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
     extraConfig = config.services.plausible.extraNginxConfigFor fqdn;
 
+    # Route traffic through go-away for bot protection
     locations."/" = {
-      proxyPass = "http://[::1]:${toString port}";
+      proxyPass = "http://[::1]:${toString goAwayPort}";
       extraConfig = "client_max_body_size 512M;";
     };
   };

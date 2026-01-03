@@ -1,4 +1,5 @@
 {
+  self,
   config,
   lib,
   pkgs,
@@ -16,8 +17,20 @@ let
 
   domain = "git.xeondev.com";
   port = stringToPort "git";
+  goAwayPort = stringToPort "go-away";
 in
 {
+  imports = [ (self + /modules/go-away.nix) ];
+
+  services.go-away = enabled {
+    bindAddress = "[::1]:${toString goAwayPort}";
+    metricsAddress = "[::1]:9099";
+    backends.${domain} = "http://[::1]:${toString port}";
+    challengeTemplate = "forgejo";
+    challengeTemplateTheme = "forgejo-auto";
+    policyFile = self + /modules/go-away/forgejo.yml;
+  };
+
   system.activationScripts.forgejo-assets = ''
     mkdir -p /etc/forgejo
     ${pkgs.age}/bin/age -d -i ${config.secrets.id.path} ${./assets.tar.gz.age} | ${pkgs.gzip}/bin/gzip -d | ${pkgs.gnutar}/bin/tar -xf - -C /etc/forgejo
@@ -43,7 +56,11 @@ in
       ];
     };
 
-  services.openssh.settings.AcceptEnv = mkForce [ "SHELLS" "COLOTERM" "GIT_PROTOCOL" ];
+  services.openssh.settings.AcceptEnv = mkForce [
+    "SHELLS"
+    "COLOTERM"
+    "GIT_PROTOCOL"
+  ];
 
   services.forgejo = enabled {
     lfs = enabled;
@@ -158,65 +175,15 @@ in
           ${config.services.plausible.extraNginxConfigFor domain}
         '';
 
-      # Static assets
-      locations."~ ^/(assets|avatars|repo-avatars|user/avatar)/.*" = {
-        proxyPass = "http://[::1]:${toString port}";
-        extraConfig = # nginx
-          ''
-            limit_req zone=forgejo_static burst=100 nodelay;
-            limit_req_status 429;
-
-            limit_conn forgejo_conn 20;
-            limit_conn_status 429;
-
-            expires 1h;
-            add_header Cache-Control "public, immutable" always;
-
-            ${config.services.nginx.headers}
-          '';
-      };
-
-      # API and auth
-      locations."~ ^/(api/|user/login|api/v1/users/.*/tokens).*" = {
-        proxyPass = "http://[::1]:${toString port}";
-        extraConfig = /* nginx */ ''
-          client_max_body_size 100M;
-
-          limit_req zone=forgejo_api burst=20 nodelay;
-          limit_req_status 429;
-
-          limit_conn forgejo_conn 5;
-          limit_conn_status 429;
-        '';
-      };
-
-      # Git
-      locations."~ ^/.*/.*\\.git/.*" = {
-        proxyPass = "http://[::1]:${toString port}";
-        extraConfig = /* nginx */ ''
-          client_max_body_size 100M;
-
-          limit_req zone=forgejo_api burst=10 nodelay;
-          limit_req_status 429;
-
-          limit_conn forgejo_conn 3;
-          limit_conn_status 429;
-        '';
-      };
-
+      # Route traffic through go-away for bot protection
       locations."/" = {
-        proxyPass = "http://[::1]:${toString port}";
+        proxyPass = "http://[::1]:${toString goAwayPort}";
         extraConfig = /* nginx */ ''
           client_max_body_size 100M;
-
-          limit_req zone=forgejo_general burst=30 nodelay;
-          limit_req_status 429;
-
-          limit_conn forgejo_conn 10;
-          limit_conn_status 429;
         '';
       };
 
+      # Metrics bypass go-away (already restricted to localhost)
       locations."/metrics" = {
         proxyPass = "http://[::1]:${toString port}/metrics";
         extraConfig = ''

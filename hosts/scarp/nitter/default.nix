@@ -11,6 +11,7 @@ let
 
   fqdn = "nitter.${domain}";
   port = stringToPort "nitter";
+  goAwayPort = stringToPort "go-away";
 in
 {
   imports = [
@@ -54,6 +55,6 @@ in
   ];
 
   services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
-    locations."/".proxyPass = "http://127.0.0.1:${toString port}";
+    locations."/".proxyPass = "http://[::1]:${toString goAwayPort}";
   };
 }

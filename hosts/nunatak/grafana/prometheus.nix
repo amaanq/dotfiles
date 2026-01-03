@@ -73,6 +73,19 @@ in
           static_configs = [ { targets = [ "[::1]:${toString (stringToPort "git")}" ]; } ];
           metrics_path = "/metrics";
         }
+        {
+          job_name = "go-away";
+          static_configs = [
+            {
+              targets = [ "[::1]:9099" ];
+              labels.instance = "nunatak:9099";
+            }
+            {
+              targets = [ "scarp:9099" ];
+              labels.instance = "scarp:9099";
+            }
+          ];
+        }
       ];
   };
 }

@@ -1,0 +1,435 @@
+# =============================================================================
+# NETWORKS
+# =============================================================================
+networks:
+  # Search engine bots (allowed)
+  googlebot:
+    - url: https://developers.google.com/static/search/apis/ipranges/googlebot.json
+      jq-path: '(.prefixes[] | select(has("ipv4Prefix")) | .ipv4Prefix), (.prefixes[] | select(has("ipv6Prefix")) | .ipv6Prefix)'
+
+  bingbot:
+    - url: https://www.bing.com/toolbox/bingbot.json
+      jq-path: '(.prefixes[] | select(has("ipv4Prefix")) | .ipv4Prefix), (.prefixes[] | select(has("ipv6Prefix")) | .ipv6Prefix)'
+
+  duckduckbot:
+    - url: https://duckduckgo.com/duckduckgo-help-pages/results/duckduckbot
+      regex: "<li><div>(?P<prefix>[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+)</div></li>"
+
+  kagibot:
+    - url: https://kagi.com/bot
+      regex: "\\n(?P<prefix>[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+) "
+
+  qwantbot:
+    - url: https://help.qwant.com/wp-content/uploads/sites/latest/qwantbot.json
+      jq-path: '(.prefixes[] | select(has("ipv4Prefix")) | .ipv4Prefix), (.prefixes[] | select(has("ipv6Prefix")) | .ipv6Prefix)'
+
+  yandexbot:
+    - prefixes:
+        - "5.45.192.0/18"
+        - "5.255.192.0/18"
+        - "37.9.64.0/18"
+        - "37.140.128.0/18"
+        - "77.88.0.0/18"
+        - "84.252.160.0/19"
+        - "87.250.224.0/19"
+        - "90.156.176.0/22"
+        - "93.158.128.0/18"
+        - "95.108.128.0/17"
+        - "141.8.128.0/18"
+        - "178.154.128.0/18"
+        - "185.32.187.0/24"
+        - "2a02:6b8::/29"
+
+  # Monitoring (allowed)
+  uptimerobot:
+    - url: https://uptimerobot.com/inc/files/ips/IPv4andIPv6.txt
+      regex: "(?P<prefix>[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+(/[0-9]+)?|[0-9a-f:]+:.+)"
+
+  betterstack:
+    - url: https://uptime.betterstack.com/ips-by-cluster.json
+      jq-path: ".[] | .[]"
+
+  # Cloud providers (suspicious by default)
+  huawei-cloud:
+    - asn: 136907
+  alibaba-cloud:
+    - asn: 45102
+  zenlayer-inc:
+    - asn: 21859
+
+  aws-cloud:
+    - url: https://ip-ranges.amazonaws.com/ip-ranges.json
+      jq-path: '(.prefixes[] | select(has("ip_prefix")) | .ip_prefix), (.prefixes[] | select(has("ipv6_prefix")) | .ipv6_prefix)'
+
+  google-cloud:
+    - url: https://www.gstatic.com/ipranges/cloud.json
+      jq-path: '(.prefixes[] | select(has("ipv4Prefix")) | .ipv4Prefix), (.prefixes[] | select(has("ipv6Prefix")) | .ipv6Prefix)'
+
+# =============================================================================
+# CHALLENGES
+# =============================================================================
+challenges:
+  # Cookie-based session check against backend
+  # Port 32378 = stringToPort "git"
+  http-cookie-check:
+    runtime: http
+    parameters:
+      http-url: http://[::1]:32378/user/stopwatches
+      http-method: GET
+      http-cookie: i_like_gitea
+      http-code: 200
+      verify-probability: 0.1
+
+  # Non-JS challenges
+  cookie:
+    runtime: "cookie"
+
+  preload-link:
+    condition: '"Sec-Fetch-Mode" in headers && headers["Sec-Fetch-Mode"] == "navigate"'
+    runtime: "preload-link"
+    parameters:
+      preload-early-hint-deadline: 2s
+
+  header-refresh:
+    runtime: "refresh"
+    parameters:
+      refresh-via: "header"
+
+  meta-refresh:
+    runtime: "refresh"
+    parameters:
+      refresh-via: "meta"
+
+  resource-load:
+    runtime: "resource-load"
+
+  # JS challenges
+  js-refresh:
+    runtime: "refresh"
+    parameters:
+      refresh-via: "javascript"
+
+  js-pow-sha256:
+    runtime: js
+    parameters:
+      path: "js-pow-sha256"
+      js-loader: load.mjs
+      wasm-runtime: runtime.wasm
+      wasm-runtime-settings:
+        difficulty: 20
+      verify-probability: 0.02
+
+  # DNSBL check
+  dnsbl:
+    runtime: dnsbl
+    parameters:
+      dnsbl-decay: 1h
+      dnsbl-timeout: 1s
+
+# =============================================================================
+# CONDITIONS
+# =============================================================================
+conditions:
+  # Bot detection with network verification
+  is-bot-googlebot:
+    - &is-bot-googlebot '(userAgent.contains("+http://www.google.com/bot.html") || userAgent.contains("Google-PageRenderer") || userAgent.contains("Google-InspectionTool") || userAgent.contains("Googlebot")) && remoteAddress.network("googlebot")'
+
+  is-bot-bingbot:
+    - &is-bot-bingbot 'userAgent.contains("+http://www.bing.com/bingbot.htm") && remoteAddress.network("bingbot")'
+
+  is-bot-duckduckbot:
+    - &is-bot-duckduckbot 'userAgent.contains("+http://duckduckgo.com/duckduckbot.html") && remoteAddress.network("duckduckbot")'
+
+  is-bot-kagibot:
+    - &is-bot-kagibot 'userAgent.contains("+https://kagi.com/bot") && remoteAddress.network("kagibot")'
+
+  is-bot-qwantbot:
+    - &is-bot-qwantbot 'userAgent.contains("+https://help.qwant.com/bot/") && remoteAddress.network("qwantbot")'
+
+  is-bot-yandexbot:
+    - &is-bot-yandexbot 'userAgent.contains("+http://yandex.com/bots") && remoteAddress.network("yandexbot")'
+
+  is-bot-uptimerobot:
+    - &is-bot-uptimerobot 'userAgent.contains("http://www.uptimerobot.com/") && remoteAddress.network("uptimerobot")'
+
+  is-bot-betterstack:
+    - &is-bot-betterstack '((userAgent.startsWith("Better Stack Better Uptime Bot") || userAgent.startsWith("Better Uptime Bot"))) && remoteAddress.network("betterstack")'
+
+  # Asset detection
+  is-well-known-asset:
+    - 'path == "/robots.txt" || path == "/security.txt"'
+    - 'path == "/app-ads.txt" || path == "/ads.txt"'
+    - 'path == "/favicon.ico"'
+    - 'path == "/crossdomain.xml"'
+    - 'path.startsWith("/.well-known/")'
+
+  is-static-asset:
+    - 'path == "/apple-touch-icon.png"'
+    - 'path == "/apple-touch-icon-precomposed.png"'
+    - 'path.startsWith("/assets/")'
+    - 'path.startsWith("/repo-avatars/")'
+    - 'path.startsWith("/avatars/")'
+    - 'path.startsWith("/avatar/")'
+    - 'path.startsWith("/user/avatar/")'
+    - 'path.startsWith("/attachments/")'
+
+  is-git-path:
+    - 'path.matches("^/[^/]+/[^/]+/(git-upload-pack|git-receive-pack|HEAD|info/refs|info/lfs|objects)")'
+
+  # User agent detection
+  is-git-ua:
+    - 'userAgent.startsWith("git/") || userAgent.contains("libgit")'
+    - 'userAgent.startsWith("go-git")'
+    - 'userAgent.startsWith("JGit/") || userAgent.startsWith("JGit-")'
+    - 'userAgent.startsWith("GoModuleMirror/")'
+    - 'userAgent.startsWith("Go-http-client/") && "go-get" in query && query["go-get"] == "1"'
+    - '"Git-Protocol" in headers && headers["Git-Protocol"] == "version=2"'
+
+  is-generic-browser:
+    - 'userAgent.startsWith("Mozilla/") || userAgent.startsWith("Opera/")'
+
+  is-generic-robot-ua:
+    - 'userAgent.matches("compatible[;)]") && !userAgent.contains("Trident/")'
+    - 'userAgent.matches("\\+https?://")'
+    - 'userAgent.contains("@")'
+    - 'userAgent.matches("[bB]ot/[0-9]")'
+
+  is-tool-ua:
+    - 'userAgent.startsWith("python-requests/")'
+    - 'userAgent.startsWith("Python-urllib/")'
+    - 'userAgent.startsWith("python-httpx/")'
+    - 'userAgent.contains("aoihttp/")'
+    - 'userAgent.startsWith("http.rb/")'
+    - 'userAgent.startsWith("curl/")'
+    - 'userAgent.startsWith("Wget/")'
+    - 'userAgent.startsWith("libcurl/")'
+    - 'userAgent.startsWith("okhttp/")'
+    - 'userAgent.startsWith("Java/")'
+    - 'userAgent.startsWith("Apache-HttpClient//")'
+    - 'userAgent.startsWith("Go-http-client/")'
+    - 'userAgent.startsWith("node-fetch/")'
+    - 'userAgent.startsWith("reqwest/")'
+
+  is-headless-chromium:
+    - 'userAgent.contains("HeadlessChrome") || userAgent.contains("HeadlessChromium")'
+    - '"Sec-Ch-Ua" in headers && (headers["Sec-Ch-Ua"].contains("HeadlessChrome") || headers["Sec-Ch-Ua"].contains("HeadlessChromium"))'
+
+  is-suspicious-crawler:
+    - '(userAgent.startsWith("Mozilla/") || userAgent.startsWith("Opera/")) && ("ja4" in fp && fp.ja4.matches("^t[0-9a-z]+00_")) && !(userAgent.contains("compatible;") || userAgent.contains("+http") || userAgent.contains("facebookexternalhit/") || userAgent.contains("Twitterbot/"))'
+    - 'userAgent.contains("Presto/") || userAgent.contains("Trident/")'
+    - 'userAgent.matches("MSIE ([2-9]|10|11)\\.")'
+    - 'userAgent.matches("Linux i[63]86") || userAgent.matches("FreeBSD i[63]86")'
+    - 'userAgent.matches("Windows (3|95|98|CE)") || userAgent.matches("Windows NT [1-5]\\.")'
+    - 'userAgent.matches("Android [1-5]\\.") || userAgent.matches("(iPad|iPhone) OS [1-9]_")'
+    - 'userAgent.startsWith("Opera/")'
+    - 'userAgent.matches("^Mozilla/[1-4]")'
+
+  is-heavy-resource:
+    - 'path.startsWith("/explore/")'
+    - 'path.matches("^/[^/]+/[^/]+/src/commit/")'
+    - 'path.matches("^/[^/]+/[^/]+/compare/")'
+    - 'path.matches("^/[^/]+/[^/]+/commits/commit/")'
+    - 'path.matches("^/[^/]+/[^/]+/blame/")'
+    - 'path.matches("^/[^/]+/[^/]+/search/")'
+    - 'path.matches("^/[^/]+/[^/]+/find/")'
+    - 'path.matches("^/[^/]+/[^/]+/activity")'
+    - 'path.matches("^/[^/]+/[^/]+/graph$")'
+    - '"q" in query && query.q != ""'
+    - 'path.matches("^/[^/]+$") && "tab" in query && query.tab == "activity"'
+
+# =============================================================================
+# RULES
+# =============================================================================
+rules:
+  - name: allow-well-known-resources
+    conditions: ["($is-well-known-asset)"]
+    action: pass
+
+  - name: allow-static-resources
+    conditions: ["($is-static-asset)"]
+    action: pass
+
+  - name: desired-crawlers
+    conditions:
+      - *is-bot-googlebot
+      - *is-bot-bingbot
+      - *is-bot-duckduckbot
+      - *is-bot-kagibot
+      - *is-bot-qwantbot
+      - *is-bot-yandexbot
+    action: pass
+
+  - name: monitoring-bots
+    conditions:
+      - *is-bot-uptimerobot
+      - *is-bot-betterstack
+    action: pass
+
+  - name: undesired-networks
+    conditions:
+      - 'remoteAddress.network("huawei-cloud") || remoteAddress.network("alibaba-cloud") || remoteAddress.network("zenlayer-inc") || remoteAddress.network("aws-cloud") || remoteAddress.network("google-cloud")'
+    action: drop
+
+  - name: undesired-crawlers
+    conditions:
+      - "($is-headless-chromium)"
+      - 'userAgent.startsWith("Lightpanda/")'
+      - 'userAgent.startsWith("masscan/")'
+      - 'userAgent.matches("^Opera/[0-9.]+\\.\\(")'
+      # AI scrapers
+      - 'userAgent.contains("Bytedance") || userAgent.contains("Bytespider") || userAgent.contains("TikTokSpider")'
+      - 'userAgent.contains("meta-externalagent/") || userAgent.contains("meta-externalfetcher/") || userAgent.contains("FacebookBot")'
+      - 'userAgent.contains("ClaudeBot") || userAgent.contains("Claude-User") || userAgent.contains("Claude-SearchBot")'
+      - 'userAgent.contains("CCBot")'
+      - 'userAgent.contains("GPTBot") || userAgent.contains("OAI-SearchBot") || userAgent.contains("ChatGPT-User")'
+      - 'userAgent.contains("Amazonbot") || userAgent.contains("Google-Extended") || userAgent.contains("PanguBot") || userAgent.contains("AI2Bot") || userAgent.contains("Diffbot") || userAgent.contains("cohere-training-data-crawler") || userAgent.contains("Applebot-Extended")'
+      - 'userAgent.contains("BLEXBot")'
+    action: drop
+
+  - name: unknown-crawlers
+    conditions:
+      - 'userAgent == ""'
+    action: deny
+
+  - name: suspicious-crawlers
+    conditions: ["($is-suspicious-crawler)"]
+    action: none
+    children:
+      - name: 0
+        action: check
+        settings:
+          challenges: [js-refresh, http-cookie-check]
+      - name: 1
+        action: check
+        settings:
+          challenges: [preload-link, resource-load]
+      - name: 2
+        action: check
+        settings:
+          challenges: [header-refresh]
+
+  - name: always-pow-challenge
+    conditions:
+      - 'path.startsWith("/user/sign_up")'
+      - 'path.startsWith("/user/login") || path.startsWith("/user/oauth2/")'
+      - 'path.startsWith("/user/activate")'
+      - 'path == "/repo/create" || path == "/repo/migrate" || path == "/org/create"'
+      - 'path == "/user/settings" || path.startsWith("/user/settings/hooks/")'
+      - 'path.matches("^/[^/]+/[^/]+/issues/new")'
+      - 'path.matches("^/[^/]+/[^/]+/archive/.*\\.(bundle|zip|tar\\.gz)") && ($is-generic-browser)'
+    action: challenge
+    settings:
+      challenges: [js-refresh]
+
+  - name: allow-git-operations
+    conditions:
+      - "($is-git-path)"
+      - 'path.matches("^/[^/]+/[^/]+\\.git")'
+      - 'path.matches("^/[^/]+/[^/]+/") && ($is-git-ua)'
+    action: pass
+
+  - name: sitemap
+    conditions:
+      - 'path == "/sitemap.xml" || path.matches("^/explore/(users|repos)/sitemap-[0-9]+\\.xml$")'
+    action: pass
+
+  - name: api-call
+    conditions:
+      - 'path.startsWith("/api/v1/") || path.startsWith("/api/forgejo/v1/")'
+      - 'path.startsWith("/login/oauth/")'
+      - 'path.startsWith("/captcha/")'
+      - 'path.startsWith("/metrics/")'
+      - 'path == "/-/markup"'
+      - 'path == "/user/events"'
+      - 'path == "/ssh_info"'
+      - 'path == "/api/healthz"'
+      - 'path.startsWith("/api/actions/") || path.startsWith("/api/actions_pipeline/")'
+      - 'path.matches("^/[^/]+\\.keys$")'
+      - 'path.matches("^/[^/]+\\.gpg")'
+      - 'path.startsWith("/api/packages/") || path == "/api/packages"'
+      - 'path.startsWith("/v2/") || path == "/v2"'
+      - 'path.endsWith("/branches/list") || path.endsWith("/tags/list")'
+    action: pass
+
+  - name: preview-fetchers
+    conditions:
+      - 'path.endsWith("/-/summary-card") || path.matches("^/[^/]+/[^/]+/releases/summary-card/[^/]+$")'
+    action: pass
+
+  - name: embed-bots
+    conditions:
+      - 'userAgent.contains("Discordbot/") || userAgent.contains("Slackbot") || userAgent.contains("TelegramBot") || userAgent.contains("WhatsApp")'
+    action: pass
+
+  - name: homesite
+    conditions:
+      - 'path == "/"'
+      - '(path.matches("^/[^/]+/[^/]+/?$") || path.matches("^/[^/]+/[^/]+/badges/") || path.matches("^/[^/]+/[^/]+/(issues|pulls)/[0-9]+$") || (path.matches("^/[^/]+/?$") && size(query) == 0)) && !path.matches("(?i)^/(api|metrics|v2|assets|attachments|avatar|avatars|repo-avatars|captcha|login|org|repo|user|admin|devtest|explore|issues|pulls|milestones|notifications|ghost)(/|$)")'
+    action: pass
+
+  - name: heavy-operations
+    conditions: ["($is-heavy-resource)"]
+    action: none
+    children:
+      - name: 0
+        action: check
+        settings:
+          challenges: [preload-link, header-refresh, js-refresh, http-cookie-check]
+      - name: 1
+        action: check
+        settings:
+          challenges: [resource-load, js-refresh, http-cookie-check]
+
+  - name: source-download
+    conditions:
+      - 'path.matches("^/[^/]+/[^/]+/raw/branch/")'
+      - 'path.matches("^/[^/]+/[^/]+/archive/")'
+      - 'path.matches("^/[^/]+/[^/]+/releases/download/")'
+      - 'path.matches("^/[^/]+/[^/]+/media/") && ($is-generic-browser)'
+    action: pass
+
+  - name: undesired-dnsbl
+    action: check
+    settings:
+      challenges: [dnsbl]
+      fail: check
+      fail-settings:
+        challenges: [js-refresh, http-cookie-check]
+
+  - name: non-get-request
+    action: pass
+    conditions:
+      - '!(method == "HEAD" || method == "GET")'
+
+  - name: enable-meta-tags
+    action: context
+    conditions:
+      - 'userAgent.contains("facebookexternalhit/") || userAgent.contains("Facebot/") || userAgent.contains("Twitterbot/")'
+      - "($is-generic-robot-ua)"
+      - "!($is-generic-browser)"
+    settings:
+      context-set:
+        proxy-meta-tags: "true"
+
+  - name: plaintext-browser
+    action: challenge
+    settings:
+      challenges: [http-cookie-check, meta-refresh, cookie]
+    conditions:
+      - 'userAgent.startsWith("Lynx/")'
+
+  - name: standard-tools
+    action: challenge
+    settings:
+      challenges: [cookie]
+    conditions:
+      - "($is-tool-ua)"
+      - "!($is-generic-browser)"
+
+  - name: standard-browser
+    action: challenge
+    settings:
+      challenges: [http-cookie-check, preload-link, meta-refresh, resource-load, js-refresh, js-pow-sha256]
+    conditions:
+      - "($is-generic-browser)"
+# Default: PASS
