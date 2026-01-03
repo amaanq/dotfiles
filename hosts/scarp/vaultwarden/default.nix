@@ -16,7 +16,6 @@ let
 
   fqdn = "vault.${domain}";
   rocketPort = stringToPort "vaultwarden";
-  websocketPort = stringToPort "vaultwarden-ws";
 in
 {
   imports = [
@@ -34,10 +33,6 @@ in
       DOMAIN = "https://${fqdn}";
       SIGNUPS_ALLOWED = false;
       INVITATIONS_ALLOWED = true;
-
-      WEBSOCKET_ENABLED = true;
-      WEBSOCKET_ADDRESS = "::";
-      WEBSOCKET_PORT = websocketPort;
 
       ROCKET_ADDRESS = "::1";
       ROCKET_PORT = rocketPort;
@@ -58,7 +53,7 @@ in
       "/".proxyPass = "http://[::1]:${toString rocketPort}";
 
       "/notifications/hub" = {
-        proxyPass = "http://[::1]:${toString websocketPort}";
+        proxyPass = "http://[::1]:${toString rocketPort}";
         proxyWebsockets = true;
       };
 
