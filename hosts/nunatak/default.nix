@@ -106,10 +106,10 @@ lib.nixosSystem' (
         };
       };
 
-    system.stateVersion = "25.05";
+    system.stateVersion = "25.11";
     home-manager.sharedModules = [
       {
-        home.stateVersion = "25.05";
+        home.stateVersion = "25.11";
       }
     ];
 

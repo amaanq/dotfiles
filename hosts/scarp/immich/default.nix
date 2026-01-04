@@ -26,8 +26,6 @@ in
 
     database = enabled {
       host = "/run/postgresql";
-      enableVectors = false;
-      enableVectorChord = true;
     };
   };
 
