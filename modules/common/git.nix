@@ -130,6 +130,7 @@ in
 
               gpg = {
                 format = "ssh";
+                program = toString (pkgs.writeShellScript "no-gpg" "exit 1");
                 ssh.allowedSignersFile = "${config.xdg.configHome}/git/allowed_signers";
               };
               user.signingKey = "~/.ssh/id";
