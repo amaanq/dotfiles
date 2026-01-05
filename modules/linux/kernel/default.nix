@@ -328,5 +328,9 @@ in
       config.programs.spicetify.spicedSpotify
       pkgs.steam
     ];
+
+    excludedCommands = [
+      "ckati"
+    ];
   };
 }
