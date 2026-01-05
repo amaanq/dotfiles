@@ -1,12 +1,5 @@
-{ lib, pkgs, ... }:
-let
-  inherit (lib) getExe readFile;
-in
+{ lib, ... }:
 {
-  # Yes, IFD. Deal with it.
-  environment.variables.LS_COLORS =
-    readFile
-    <| pkgs.runCommand "ls_colors.txt" { } ''
-      ${getExe pkgs.vivid} generate tokyonight-moon > $out
-    '';
+  # Regenerate with: nix run nixpkgs#vivid -- generate tokyonight-moon > modules/common/shell/ls_colors.txt
+  environment.variables.LS_COLORS = lib.readFile ./ls_colors.txt;
 }
