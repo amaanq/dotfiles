@@ -8,6 +8,14 @@
 }:
 let
   builderKeyPath = config.secrets.builderKey.path;
+
+  # lowdown 2.0.2's Makefile doesn't have the variables the cygwin patch expects
+  # (LIB_LOWDOWN, MAIN_OBJS, etc.) - those were added in 2.0.4
+  # Remove the patch since we're not on Cygwin anyway
+  lowdownOverlay = _: prev: {
+    lowdown = prev.lowdown.overrideAttrs { patches = [ ]; };
+  };
+
   inherit (lib)
     attrsToList
     concatMapStringsSep
@@ -42,6 +50,8 @@ let
     );
 in
 {
+  nixpkgs.overlays = [ lowdownOverlay ];
+
   secrets.builderKey.file = ./builder-key.age;
   secrets.githubToken = {
     file = ./github-token.age;
