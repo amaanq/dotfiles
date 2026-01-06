@@ -1,9 +1,18 @@
 {
   lib,
+  pkgs,
   ...
 }:
 let
   inherit (lib) enabled;
+
+  # Fix unbounded memory growth in large repos (150k+ commits can use 4-9GB)
+  # See: https://github.com/jesseduffield/lazygit/issues/2460
+  lazygit = pkgs.lazygit.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [
+      ./lazygit-memory-fix.patch
+    ];
+  });
 in
 {
   environment.shellAliases = {
@@ -22,6 +31,7 @@ in
         };
 
         programs.lazygit = enabled {
+          package = lazygit;
           settings = {
             gui = {
               authorColors = { };
