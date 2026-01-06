@@ -34,20 +34,6 @@ let
     };
   };
 
-  bcachefs-tools-fixed =
-    let
-      version = "1.33.3";
-    in
-    pkgs.bcachefs-tools.overrideAttrs (old: {
-      inherit version;
-      src = pkgs.fetchFromGitHub {
-        owner = "koverstreet";
-        repo = "bcachefs-tools";
-        rev = "v${version}";
-        hash = "sha256-g08z/0Qrj0d5K+X7foSiUI4pQ+h6um8LV9Nc6EjnelU=";
-      };
-    });
-
   kernelPackage =
     if config.isServer then
       pkgs.linuxPackages_latest
@@ -136,8 +122,6 @@ let
 in
 {
   disabledModules = [ "config/malloc.nix" ];
-
-  boot.bcachefs.package = bcachefs-tools-fixed;
 
   boot.kernelPackages = kernelPackage;
 
