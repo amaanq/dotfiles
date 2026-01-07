@@ -95,6 +95,7 @@ in
       };
     }))
     pkgs.sequoia-sq
+    pkgs.signal-desktop
     pkgs.wabt
     pkgs.wasmtime
     pkgs.zed-editor
