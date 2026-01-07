@@ -87,7 +87,13 @@ in
     }))
     pkgs.go
     pkgs.qbittorrent
-    pkgs.rustdesk
+    (pkgs.rustdesk.overrideAttrs (old: {
+      # GCC 15 requires explicit #include <cstdint> for uint64_t
+      # The webm-sys crate's bundled libwebm is missing this include
+      env = old.env // {
+        CXXFLAGS = "-include cstdint";
+      };
+    }))
     pkgs.sequoia-sq
     pkgs.wabt
     pkgs.wasmtime
