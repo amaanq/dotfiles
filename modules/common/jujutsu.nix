@@ -183,7 +183,7 @@ in
                 "change-amaanq-" ++ change_id.short()
               '';
 
-            git.auto-local-bookmark = true;
+            remotes.origin.auto-track-bookmarks = "glob:*";
 
             git.fetch = [
               "origin"
