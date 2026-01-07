@@ -11,6 +11,16 @@ let
     mkForce
     mkIf
     ;
+
+  # Override Steam to unset LD_PRELOAD in the init script
+  # This is needed because the init script sources /etc/profile which
+  # re-introduces LD_PRELOAD after our wrapper unsets it
+  steamWithoutMalloc = pkgs.steam.override {
+    extraLibraries = pkgs: [ ];
+    extraProfile = ''
+      unset LD_PRELOAD
+    '';
+  };
 in
 merge
 <| mkIf config.isDesktop {
@@ -21,6 +31,7 @@ merge
 
   programs.gamemode = enabled;
   programs.steam = enabled {
+    package = steamWithoutMalloc;
     protontricks = enabled;
     extraCompatPackages = [
       pkgs.proton-ge-bin
