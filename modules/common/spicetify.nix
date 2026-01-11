@@ -19,7 +19,7 @@ merge
   programs.spicetify =
     enabled {
       experimentalFeatures = true;
-      enabledExtensions = with spicetify.legacyPackages.${pkgs.stdenv.system}.extensions; [
+      enabledExtensions = with spicetify.legacyPackages.${config.hostSystem}.extensions; [
         copyLyrics
       ];
     }

@@ -22,7 +22,7 @@ merge
     optional config.isLinux (
       pkgs.symlinkJoin {
         name = "helium";
-        paths = [ helium.packages.${pkgs.system}.helium ];
+        paths = [ helium.packages.${config.hostSystem}.helium ];
         buildInputs = [ pkgs.makeWrapper ];
         postBuild = ''
           wrapProgram $out/bin/helium \
@@ -30,5 +30,5 @@ merge
         '';
       }
     )
-    ++ optional config.isDarwin helium.packages.${pkgs.system}.helium;
+    ++ optional config.isDarwin helium.packages.${config.hostSystem}.helium;
 }

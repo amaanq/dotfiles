@@ -9,6 +9,7 @@ let
 in
 {
   options = {
+    hostSystem = mkConst config.nixpkgs.hostPlatform.system;
     os = mkConst <| last <| splitString "-" config.nixpkgs.hostPlatform.system;
 
     type = mkValue "desktop";

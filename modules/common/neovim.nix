@@ -1,5 +1,5 @@
 {
-  pkgs,
+  config,
   nvim-config,
   ...
 }:
@@ -9,6 +9,6 @@
   };
 
   environment.systemPackages = [
-    nvim-config.packages.${pkgs.system}.nvim
+    nvim-config.packages.${config.hostSystem}.nvim
   ];
 }

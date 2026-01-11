@@ -8,7 +8,7 @@
 }:
 let
   inherit (lib) enabled merge mkIf;
-  niriPackage = niri-src.packages.${pkgs.system}.niri;
+  niriPackage = niri-src.packages.${config.hostSystem}.niri;
 
   ziplineUpload = pkgs.writeShellScript "zipline-upload" ''
     set -e
