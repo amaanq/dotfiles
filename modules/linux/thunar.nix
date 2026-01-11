@@ -15,9 +15,9 @@ merge
 <| mkIf config.isDesktop {
   programs.thunar = enabled {
     plugins = [
-      pkgs.xfce.thunar-archive-plugin
-      pkgs.xfce.thunar-media-tags-plugin
-      pkgs.xfce.thunar-volman
+      pkgs.thunar-archive-plugin
+      pkgs.thunar-media-tags-plugin
+      pkgs.thunar-volman
     ];
   };
 
@@ -37,7 +37,7 @@ merge
     pkgs.ffmpegthumbnailer
     pkgs.libgsf
     pkgs.kdePackages.ark
-    pkgs.xfce.tumbler
+    pkgs.tumbler
     pkgs.gvfs
   ];
 }
