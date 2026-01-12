@@ -10,6 +10,9 @@ in
     sharedModules = [
       {
         xdg = enabled { };
+        manual.html.enable = false;
+        manual.manpages.enable = false;
+        manual.json.enable = false;
       }
     ];
   };
