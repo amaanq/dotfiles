@@ -1,0 +1,102 @@
+diff --git a/src/btop_draw.cpp b/src/btop_draw.cpp
+index cadaefa..e93614d 100644
+--- a/src/btop_draw.cpp
++++ b/src/btop_draw.cpp
+@@ -1794,20 +1794,28 @@ namespace Proc {
+ 				if (item_fit >= 6) out += cjust("User:", item_width);
+ 				if (item_fit >= 7) out += cjust("Threads:", item_width);
+ 				if (item_fit >= 8) out += cjust("Nice:", item_width);
+ 
+ 
+-				//? Command line
+-				for (int i = 0; const auto& l : {'C', 'M', 'D'})
+-				out += Mv::to(d_y + 5 + i++, d_x + 1) + l;
++				//? CWD and Command line
++				out += Mv::to(d_y + 5, d_x + 1) + Theme::c("title") + Fx::b + "CWD" + Fx::ub;
++				out += Mv::to(d_y + 6, d_x + 1) + Theme::c("title") + Fx::b + "CMD" + Fx::ub;
++
++				out += Theme::c("main_fg");
++				//? CWD line
++				out += Mv::to(d_y + 5, d_x + 5);
++				if (detailed.cwd.empty())
++					out += Theme::c("inactive_fg") + "(permission denied or kernel thread)";
++				else
++					out += uresize(detailed.cwd, d_width - 6, true);
+ 
+-				out += Theme::c("main_fg") + Fx::ub;
++				//? Command lines (2 lines)
+ 				const auto san_cmd = replace_ascii_control(detailed.entry.cmd);
+ 				const int cmd_size = ulen(san_cmd, true);
+-				for (int num_lines = min(3, (int)ceil((double)cmd_size / (d_width - 5))), i = 0; i < num_lines; i++) {
+-					out += Mv::to(d_y + 5 + (num_lines == 1 ? 1 : i), d_x + 3)
+-						+ cjust(luresize(san_cmd, cmd_size - (d_width - 5) * i, true), d_width - 5, true, true);
++				for (int num_lines = min(2, (int)ceil((double)cmd_size / (d_width - 6))), i = 0; i < num_lines; i++) {
++					out += Mv::to(d_y + 6 + (num_lines == 1 ? 0 : i), d_x + 5)
++						+ cjust(luresize(san_cmd, cmd_size - (d_width - 6) * i, true), d_width - 6, true, true);
+ 				}
+ 
+ 			}
+ 
+ 			//? Filter
+diff --git a/src/btop_shared.hpp b/src/btop_shared.hpp
+index e18f4b2..1187d0e 100644
+--- a/src/btop_shared.hpp
++++ b/src/btop_shared.hpp
+@@ -412,11 +412,11 @@ namespace Proc {
+ 	//* Container for process info box
+ 	struct detail_container {
+ 		size_t last_pid{};
+ 		bool skip_smaps{};
+ 		proc_info entry;
+-		string elapsed, parent, status, io_read, io_write, memory;
++		string elapsed, parent, status, io_read, io_write, memory, cwd;
+ 		long long first_mem = -1;
+ 		deque<long long> cpu_percent;
+ 		deque<long long> mem_bytes;
+ 	};
+ 
+diff --git a/src/linux/btop_collect.cpp b/src/linux/btop_collect.cpp
+index 456abfa..3ab01f9 100644
+--- a/src/linux/btop_collect.cpp
++++ b/src/linux/btop_collect.cpp
+@@ -2885,10 +2885,18 @@ namespace Proc {
+ 			}
+ 			catch (const std::invalid_argument&) {}
+ 			catch (const std::out_of_range&) {}
+ 			d_read.close();
+ 		}
++
++		//? Get current working directory from proc/[pid]/cwd symlink
++		detailed.cwd.clear();
++		try {
++			if (fs::exists(pid_path / "cwd"))
++				detailed.cwd = fs::read_symlink(pid_path / "cwd").string();
++		}
++		catch (...) {}
+ 	}
+ 
+ 	//* Collects and sorts process information from /proc
+ 	auto collect(bool no_update) -> vector<proc_info>& {
+ 		if (Runner::stopping) return current_procs;
+diff --git a/src/osx/btop_collect.cpp b/src/osx/btop_collect.cpp
+index 068451e..807e9bf 100644
+--- a/src/osx/btop_collect.cpp
++++ b/src/osx/btop_collect.cpp
+@@ -1114,10 +1114,17 @@ namespace Proc {
+ 		if (proc_pid_rusage(pid, RUSAGE_INFO_CURRENT, (void **)&rusage) == 0) {
+ 			// this fails for processes we don't own - same as in Linux
+ 			detailed.io_read = floating_humanizer(rusage.ri_diskio_bytesread);
+ 			detailed.io_write = floating_humanizer(rusage.ri_diskio_byteswritten);
+ 		}
++
++		//? Get current working directory
++		detailed.cwd.clear();
++		struct proc_vnodepathinfo vpi;
++		if (proc_pidinfo(pid, PROC_PIDVNODEPATHINFO, 0, &vpi, sizeof(vpi)) > 0) {
++			detailed.cwd = vpi.pvi_cdir.vip_path;
++		}
+ 	}
+ 
+ 	//* Collects and sorts process information from /proc
+ 	auto collect(bool no_update) -> vector<proc_info> & {
+ 		const auto &sorting = Config::getS("proc_sorting");

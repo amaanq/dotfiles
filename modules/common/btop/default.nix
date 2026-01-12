@@ -1,8 +1,18 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 let
   inherit (lib) enabled;
 in
 {
+  nixpkgs.overlays = [
+    (final: prev: {
+      btop = prev.btop.overrideAttrs (oldAttrs: {
+        patches = (oldAttrs.patches or [ ]) ++ [
+          ./cwd-detail.patch
+        ];
+      });
+    })
+  ];
+
   home-manager.sharedModules = [
     {
       programs.btop = enabled {
