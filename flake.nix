@@ -187,6 +187,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    fcm2up-bridge = {
+      url = "github:amaanq/fcm2up";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # hjem = {
     #   url = "github:feel-co/hjem";
     #   inputs.nixpkgs.follows = "nixpkgs";
