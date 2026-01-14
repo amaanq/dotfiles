@@ -34,10 +34,10 @@ in
   environment.systemPackages = [
     pkgs.asciinema
     (pkgs.claude-code.overrideAttrs (old: {
-      version = "2.1.4";
+      version = "2.1.7";
       src = pkgs.fetchzip {
-        url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.4.tgz";
-        hash = "sha256-+trjrFphFJ4fzTu0Ij7LlO8nR90Ri3MKhPyJAin9OS8=";
+        url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.7.tgz";
+        hash = "sha256-s/XPemwJYPUNFBgWo00VQ6W6eFIy44y9lFoRN0Duk9I=";
       };
     }))
     pkgs.codex
