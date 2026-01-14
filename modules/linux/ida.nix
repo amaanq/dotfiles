@@ -22,14 +22,7 @@ let
     ];
   } (builtins.readFile ./patch.py);
 
-  baseIdaPro = pkgs.ida-pro.override {
-    runfile = builtins.fetchurl {
-      url = "file://${toString ./.}/ida-pro_92_x64linux.run";
-      sha256 = "1qass0401igrfn14sfrvjfyz668npx586x59yaa4zf3jx650zpda";
-    };
-  };
-
-  patchedIdaPro = baseIdaPro.overrideAttrs (old: {
+  patchedIdaPro = pkgs.ida-pro.overrideAttrs (old: {
     nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ ida-patcher ];
     postInstall = (old.postInstall or "") + ''
       cd $out/opt
