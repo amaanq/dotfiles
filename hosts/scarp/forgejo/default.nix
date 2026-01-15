@@ -20,6 +20,8 @@ let
   goAwayPort = stringToPort "go-away";
 in
 {
+  networking.firewall.allowedTCPPorts = [ 6767 ];
+
   imports = [
     (self + /modules/nginx.nix)
     (self + /modules/postgresql.nix)
@@ -122,7 +124,10 @@ in
           HTTP_ADDR = "::1";
           HTTP_PORT = port;
 
-          SSH_PORT = head config.services.openssh.ports;
+          START_SSH_SERVER = true;
+          SSH_LISTEN_HOST = "::";
+          SSH_LISTEN_PORT = 6767;
+          SSH_PORT = 6767;
 
           DISABLE_ROUTER_LOG = true;
         };
