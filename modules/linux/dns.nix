@@ -58,72 +58,48 @@ in
           zone_type = "External";
           stores = {
             type = "forward";
-            name_servers = [
-              {
-                ip = "2a07:a8c0::";
-                trust_negative_responses = true;
-                connections = [
-                  {
-                    protocol = {
-                      server_name = "dns.nextdns.io";
-                      path = "/9b2c13/${hostname}";
-                      type = "h3";
-                    };
-                  }
-                  {
-                    protocol = {
-                      server_name = "dns.nextdns.io";
-                      path = "/9b2c13/${hostname}";
-                      type = "https";
-                    };
-                  }
-                  {
-                    protocol = {
-                      server_name = "${hostname}-9b2c13.dns.nextdns.io";
-                      type = "quic";
-                    };
-                  }
-                  {
-                    protocol = {
-                      server_name = "${hostname}-9b2c13.dns.nextdns.io";
-                      type = "tls";
-                    };
-                  }
-                ];
-              }
-              {
-                ip = "2a07:a8c1::";
-                trust_negative_responses = true;
-                connections = [
-                  {
-                    protocol = {
-                      server_name = "dns.nextdns.io";
-                      path = "/9b2c13/${hostname}";
-                      type = "h3";
-                    };
-                  }
-                  {
-                    protocol = {
-                      server_name = "dns.nextdns.io";
-                      path = "/9b2c13/${hostname}";
-                      type = "https";
-                    };
-                  }
-                  {
-                    protocol = {
-                      server_name = "${hostname}-9b2c13.dns.nextdns.io";
-                      type = "quic";
-                    };
-                  }
-                  {
-                    protocol = {
-                      server_name = "${hostname}-9b2c13.dns.nextdns.io";
-                      type = "tls";
-                    };
-                  }
-                ];
-              }
-            ];
+            name_servers =
+              let
+                mkNextDnsServer = ip: {
+                  inherit ip;
+                  trust_negative_responses = true;
+                  connections = [
+                    {
+                      protocol = {
+                        server_name = "dns.nextdns.io";
+                        path = "/9b2c13/${hostname}";
+                        type = "h3";
+                      };
+                    }
+                    {
+                      protocol = {
+                        server_name = "dns.nextdns.io";
+                        path = "/9b2c13/${hostname}";
+                        type = "https";
+                      };
+                    }
+                    {
+                      protocol = {
+                        server_name = "${hostname}-9b2c13.dns.nextdns.io";
+                        type = "quic";
+                      };
+                    }
+                    {
+                      protocol = {
+                        server_name = "${hostname}-9b2c13.dns.nextdns.io";
+                        type = "tls";
+                      };
+                    }
+                  ];
+                };
+              in
+              [
+                (mkNextDnsServer "45.90.28.0")
+                (mkNextDnsServer "45.90.30.0")
+                # IPv6 disabled until NextDNS fixes routing from Verizon FiOS
+                # (mkNextDnsServer "2a07:a8c0::")
+                # (mkNextDnsServer "2a07:a8c1::")
+              ];
           };
         }
       ];
