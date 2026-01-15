@@ -25,7 +25,7 @@ in
     "usb_storage"
     "sd_mod"
   ];
-  boot.initrd.kernelModules = [ ];
+  boot.initrd.kernelModules = [ "amdgpu" ];
   boot.kernelModules = [
     "ddcci_backlight"
     "i2c-dev"
@@ -37,6 +37,14 @@ in
   };
   boot.plymouth = enabled;
   boot.supportedFilesystems = [ "bcachefs" ];
+
+  # RDNA 4 (RX 9070) MES scheduler hang workaround
+  # See: https://github.com/ROCm/ROCm/issues/3207
+  boot.kernelParams = [
+    "amdgpu.mcbp=0" # Disable mid-command buffer preemption (primary MES fix)
+    "amdgpu.sg_display=0" # Disable scatter-gather display (reduces TLB pressure)
+    "amdgpu.gpu_recovery=1" # Auto-recover from hangs if they still occur
+  ];
 
   fileSystems."/" = {
     device = "UUID=fef71188-998b-4a00-a263-6b525fe9832b";
