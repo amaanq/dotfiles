@@ -18,6 +18,14 @@ let
   domain = "git.xeondev.com";
   port = stringToPort "git";
   goAwayPort = stringToPort "go-away";
+
+  forgejo' = (pkgs.callPackage (self + /packages/forgejo.nix) { }).overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [
+      ./discord-webhook.patch
+      ./custom-pages.patch
+      ./custom-ci-icons.patch
+    ];
+  });
 in
 {
   imports = [ (self + /modules/go-away.nix) ];
@@ -66,14 +74,7 @@ in
     lfs = enabled;
     customDir = "/etc/forgejo";
 
-    package = pkgs.forgejo.overrideAttrs (old: {
-      doCheck = false;
-      patches = (old.patches or [ ]) ++ [
-        ./discord-webhook.patch
-        ./custom-pages.patch
-        ./custom-ci-icons.patch
-      ];
-    });
+    package = forgejo';
     database = {
       socket = "/run/postgresql";
       type = "postgres";

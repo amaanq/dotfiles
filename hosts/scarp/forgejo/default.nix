@@ -18,6 +18,8 @@ let
   fqdn = "git.${domain}";
   port = stringToPort "git";
   goAwayPort = stringToPort "go-away";
+
+  forgejo' = pkgs.callPackage (self + /packages/forgejo.nix) { };
 in
 {
   networking.firewall.allowedTCPPorts = [ 6767 ];
@@ -61,7 +63,7 @@ in
       type = "postgres";
     };
 
-    package = pkgs.forgejo;
+    package = forgejo';
 
     settings =
       let
