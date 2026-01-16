@@ -7,8 +7,12 @@
   ...
 }:
 let
-  inherit (lib) enabled merge mkIf;
+  inherit (lib) enabled merge mkIf mkForce;
   niriPackage = niri-src.packages.${config.hostSystem}.niri;
+
+  xdg-desktop-portal-gnome' = pkgs.xdg-desktop-portal-gnome.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [ ./xdg-portal-gnome-screencast-fix.patch ];
+  });
 
   ziplineUpload = pkgs.writeShellScript "zipline-upload" ''
     set -e
@@ -97,9 +101,9 @@ in
   xdg.portal = enabled {
     xdgOpenUsePortal = true;
 
-    extraPortals = [
+    extraPortals = mkForce [
       pkgs.gnome-keyring
-      pkgs.xdg-desktop-portal-gnome
+      xdg-desktop-portal-gnome'
       pkgs.xdg-desktop-portal-gtk
     ];
 
