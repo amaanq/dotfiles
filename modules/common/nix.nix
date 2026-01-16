@@ -22,11 +22,13 @@ let
     concatStringsSep
     const
     disabled
+    escapeShellArg
     filter
     filterAttrs
     flip
     id
     isType
+    length
     mapAttrs
     mapAttrsToList
     merge
@@ -34,8 +36,45 @@ let
     mkIf
     optionalAttrs
     optionals
+    zipListsWith
     ;
   inherit (lib.strings) toJSON;
+
+  nix-output-monitor =
+    let
+      oldIcons = [
+        "↑"
+        "↓"
+        "⏱"
+        "⏵"
+        "✔"
+        "⏸"
+        "⚠"
+        "∅"
+        "∑"
+      ];
+      newIcons = [
+        "f062" #
+        "f063" #
+        "f520" #
+        "f04b" #
+        "f00c" #
+        "f04c" #
+        "f071" #
+        "f1da" #
+        "f04a0" # 󰒠
+      ];
+      zippedIcons = zipListsWith (a: b: "s/${a}/\\\\x${b}/") oldIcons newIcons;
+    in
+    assert length oldIcons == length newIcons;
+    pkgs.nix-output-monitor.overrideAttrs (old: {
+      postPatch = (old.postPatch or "") + ''
+        sed -i ${escapeShellArg (concatStringsSep "\n" zippedIcons)} lib/NOM/Print.hs
+        substituteInPlace lib/NOM/Print/Tree.hs --replace-fail '┌' '╭'
+      '';
+    });
+
+  nh = pkgs.nh.override { inherit nix-output-monitor; };
   registryMap = inputs |> filterAttrs (const <| isType "flake");
 
   # Resolve hostname via tailscale, connect with netcat
@@ -148,9 +187,9 @@ in
   nix.optimise.automatic = !config.isDarwin;
 
   environment.systemPackages = [
-    pkgs.nh
+    nh
+    nix-output-monitor
     pkgs.nix-index
-    pkgs.nix-output-monitor
   ];
 
   programs.ssh.extraConfig =
