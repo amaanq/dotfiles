@@ -575,3 +575,51 @@ def set-android-animations [
     adb -s $serial shell settings put global transition_animation_scale $s
     adb -s $serial shell settings put global animator_duration_scale $s
 }
+
+# Find the latest PR touching a nixpkgs package.
+def npr [pkg_name: string] {
+    print $"--- Searching for ($pkg_name) ---"
+    # Get the position and clean it up
+    let raw_pos = (
+        nix eval --raw $"nixpkgs#($pkg_name).meta.position"
+        | complete
+        | get stdout
+        | str replace --all '"' ''
+        | str trim
+    )
+    if ($raw_pos | is-empty) {
+        error make {msg: $"Error: Could not find package '($pkg_name)'."}
+    }
+    # Remove the nix store prefix and the trailing line number
+    # Regex handles: /nix/store/<hash>-source/
+    let clean_path = (
+        $raw_pos
+        | str replace --regex '^.*/nix/store/[^/]+-source/' ''
+        | split row ":"
+        | first
+    )
+    print $"Normalized path: ($clean_path)"
+    # Search for the newest PR touching that path
+    let pr_data = (
+        gh search prs --repo NixOS/nixpkgs $clean_path --sort created --limit 1 --json number
+        | from json
+    )
+    if ($pr_data | is-empty) {
+        error make {msg: $"Error: No Pull Request found for ($clean_path)"}
+    }
+    let pr_number = $pr_data.0.number
+    let tracker_url = $"https://nixpk.gs/pr-tracker.html?pr=($pr_number)"
+    print $"Latest PR: #($pr_number)"
+    print $"URL: ($tracker_url)"
+
+    # Open the URL
+    if (which xdg-open | is-not-empty) {
+        xdg-open $tracker_url
+    } else if (which open | is-not-empty) {
+        open $tracker_url
+    } else {
+        print "Please open the URL manually."
+    }
+}
+
+def fg [id?: int] { job unfreeze $id }
