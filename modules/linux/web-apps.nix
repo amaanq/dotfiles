@@ -35,7 +35,7 @@ let
 
     url="$1"
     app_name="''${2:-$(basename "$0")}"
-    shift
+    shift 2
 
     exec setsid "$browser_exec" \
       --app="$url" \
@@ -45,10 +45,9 @@ let
       --disable-background-timer-throttling \
       --disable-backgrounding-occluded-windows \
       --disable-renderer-backgrounding \
-      --use-angle=vulkan \
       --enable-quic \
       --quic-version=h3-29 \
-      --enable-features=UseOzonePlatform,WaylandWindowDecorations,WaylandPerWindowScaling,WaylandTextInputV3 \
+      --enable-features=UseOzonePlatform,WaylandWindowDecorations,WaylandPerWindowScaling,WaylandTextInputV3,WebRTCPipeWireCapturer \
       --ozone-platform=wayland \
       --gtk-version=4 \
       --enable-experimental-web-platform-features \
@@ -70,7 +69,7 @@ let
       ],
     }:
     let
-      pkgName = "${lib.toLower name}-web-app";
+      pkgName = "${lib.replaceStrings [ " " ] [ "-" ] (lib.toLower name)}-web-app";
     in
     {
       name = pkgName;
@@ -141,6 +140,12 @@ let
           "Network"
           "News"
         ];
+      }
+      {
+        name = "Gather Town";
+        url = "https://app.v2.gather.town";
+        icon = "gather-town";
+        description = "Gather Town virtual office";
       }
     ]
   );
