@@ -575,3 +575,87 @@ def set-android-animations [
     adb -s $serial shell settings put global transition_animation_scale $s
     adb -s $serial shell settings put global animator_duration_scale $s
 }
+
+# Find the latest PRs touching a nixpkgs package.
+def npr [
+    pkg_name: string
+    --count (-c): int = 3  # Number of PRs to show
+    --merged (-m)          # Only show merged PRs
+    --open (-o)            # Only show open PRs
+    --no-browser (-n)      # Don't open the tracker URL
+] {
+    print -n $"(ansi grey)Searching for ($pkg_name)...(ansi reset)"
+
+    # Get the position and clean it up
+    let raw_pos = (
+        nix eval --raw $"nixpkgs#($pkg_name).meta.position"
+        | complete
+        | get stdout
+        | str replace --all '"' ''
+        | str trim
+    )
+    if ($raw_pos | is-empty) {
+        print ""  # newline before error
+        error make {msg: $"Error: Could not find package '($pkg_name)'."}
+    }
+    # Remove the nix store prefix and the trailing line number
+    # Regex handles: /nix/store/<hash>-source/
+    let clean_path = (
+        $raw_pos
+        | str replace --regex '^.*/nix/store/[^/]+-source/' ''
+        | split row ":"
+        | first
+    )
+
+    # Search for PRs with the package name in the title (nixpkgs convention: "pkg: version -> version")
+    let pr_state = if $merged { "merged" } else if $open { "open" } else { "all" }
+    let pr_data = (
+        gh pr list --repo NixOS/nixpkgs --search $"in:title \"($pkg_name): \"" --limit 20 --json number,title,state,updatedAt,createdAt,mergedAt,author --state $pr_state
+        | from json
+        | where { $in.title | str starts-with $"($pkg_name): " }
+        | sort-by -r updatedAt
+        | first $count
+        | each {|pr|
+            let date = if $pr.state == "MERGED" {
+                $pr.mergedAt | into datetime | format date "%Y-%m-%d"
+            } else {
+                $pr.createdAt | into datetime | format date "%Y-%m-%d"
+            }
+            let url = $"https://nixpk.gs/pr-tracker.html?pr=($pr.number)"
+            let link_start = $"\e]8;;($url)\e\\"
+            let link_end = $"\e]8;;\e\\"
+            {
+                "PR": (match $pr.state {
+                    "MERGED" => $"($link_start)(ansi purple)($pr.number) \(merged\)(ansi reset)($link_end)"
+                    "OPEN" => $"($link_start)(ansi green)($pr.number) \(open\)(ansi reset)($link_end)"
+                    _ => $"($link_start)(ansi red)($pr.number) \(closed\)(ansi reset)($link_end)"
+                })
+                title: $pr.title
+                author: $pr.author.login
+                date: $date
+                url: $url
+            }
+        }
+    )
+
+    # Clear the "Searching..." line and print results
+    print $"\r(ansi erase_line)(ansi cyan_bold)($pkg_name)(ansi reset) (ansi grey)($clean_path)(ansi reset)"
+
+    if ($pr_data | is-empty) {
+        error make {msg: $"Error: No Pull Request found for ($pkg_name)"}
+    }
+
+    print ($pr_data | select "PR" title author date | table)
+
+    # Open the first (most recent) PR's tracker URL
+    if not $no_browser {
+        let tracker_url = $pr_data.0.url
+        if (which xdg-open | is-not-empty) {
+            xdg-open $tracker_url o+e>| ignore
+        } else if (which open | is-not-empty) {
+            open $tracker_url o+e>| ignore
+        }
+    }
+}
+
+def fg [id?: int] { job unfreeze $id }
