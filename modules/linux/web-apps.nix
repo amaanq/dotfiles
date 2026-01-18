@@ -48,6 +48,7 @@ let
       --enable-quic \
       --quic-version=h3-29 \
       --enable-features=UseOzonePlatform,WaylandWindowDecorations,WaylandPerWindowScaling,WaylandTextInputV3,WebRTCPipeWireCapturer \
+      --disable-features=WebRtcAllowInputVolumeAdjustment \
       --ozone-platform=wayland \
       --gtk-version=4 \
       --enable-experimental-web-platform-features \
