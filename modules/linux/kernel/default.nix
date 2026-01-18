@@ -310,6 +310,7 @@ in
 
     excludedPackages = [
       config.programs.spicetify.spicedSpotify
+      pkgs.android-studio
     ];
 
     excludedCommands = [
