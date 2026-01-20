@@ -187,6 +187,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    xitter-notify-server = {
+      url = "github:amaanq/xitter-notify-server";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     qtengine = {
       url = "github:kossLAN/qtengine";
       inputs.nixpkgs.follows = "nixpkgs";
