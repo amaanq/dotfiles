@@ -230,6 +230,26 @@
         "type": "github"
       }
     },
+    "fcm2up-bridge": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1768636915,
+        "narHash": "sha256-CBjETtfqgJ/LdHJ1Eu0U7ih8d78mcEj5moWa1pIfM54=",
+        "owner": "amaanq",
+        "repo": "fcm2up",
+        "rev": "bd2ecb960595f828f5247abf0b57ad4fe6e6b816",
+        "type": "github"
+      },
+      "original": {
+        "owner": "amaanq",
+        "repo": "fcm2up",
+        "type": "github"
+      }
+    },
     "fenix": {
       "inputs": {
         "nixpkgs": [
@@ -1331,6 +1351,7 @@
         "crash": "crash",
         "dankMaterialShell": "dankMaterialShell",
         "disko": "disko",
+        "fcm2up-bridge": "fcm2up-bridge",
         "fenix": "fenix",
         "github2forgejo": "github2forgejo",
         "headplane": "headplane",

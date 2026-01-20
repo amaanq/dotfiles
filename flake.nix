@@ -187,6 +187,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    fcm2up-bridge = {
+      url = "github:amaanq/fcm2up";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     xitter-notify-server = {
       url = "github:amaanq/xitter-notify-server";
       inputs.nixpkgs.follows = "nixpkgs";
