@@ -23,6 +23,7 @@ in
     targets = optionalAttrs config.isLinux {
       plymouth = disabled;
       grub = disabled;
+      qt = disabled;
     };
   };
 

@@ -1260,6 +1260,26 @@
         "type": "github"
       }
     },
+    "qtengine": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1768705077,
+        "narHash": "sha256-2xIe0lG32XZj1eFzBwynR36tPFUV421EZOtkUnruoGo=",
+        "owner": "kossLAN",
+        "repo": "qtengine",
+        "rev": "442a6f1dc4866ed2eb7c6be834eeafb40b28e256",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kossLAN",
+        "repo": "qtengine",
+        "type": "github"
+      }
+    },
     "quickshell": {
       "inputs": {
         "nixpkgs": [
@@ -1310,6 +1330,7 @@
         "nixpkgs": "nixpkgs",
         "nixpkgs-small": "nixpkgs-small",
         "nvim-config": "nvim-config",
+        "qtengine": "qtengine",
         "run0-sudo-shim": "run0-sudo-shim",
         "rust-overlay": "rust-overlay_4",
         "spicetify": "spicetify",
