@@ -7,7 +7,12 @@
   ...
 }:
 let
-  inherit (lib) enabled merge mkIf mkForce;
+  inherit (lib)
+    enabled
+    merge
+    mkIf
+    mkForce
+    ;
   niriPackage = niri-src.packages.${config.hostSystem}.niri;
 
   xdg-desktop-portal-gnome' = pkgs.xdg-desktop-portal-gnome.overrideAttrs (old: {
@@ -26,12 +31,7 @@ let
     ${pkgs.libnotify}/bin/notify-send "Uploaded" "$URL"
   '';
 in
-{
-  imports = [
-    dankMaterialShell.nixosModules.greeter
-  ];
-}
-// merge
+merge
 <| mkIf config.isDesktop {
   secrets.ziplineToken = {
     file = ./zipline-token.age;
