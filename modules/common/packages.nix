@@ -56,6 +56,7 @@ in
     pkgs.graphviz
     pkgs.hyperfine
     pkgs.jc
+    pkgs.jq
     pkgs.moreutils
     pkgs.openssl
     pkgs.p7zip
