@@ -23,6 +23,12 @@ let
   } (builtins.readFile ./patch.py);
 
   patchedIdaPro = pkgs.ida-pro.overrideAttrs (old: {
+    version = "9.3.0.260613";
+    src = pkgs.requireFile {
+      name = "ida-pro_93_x64linux.run";
+      url = "https://my.hex-rays.com/";
+      sha256 = "0vx2c0cwry36sbb6ynw0ykylzfaadlwhy8sxx4hxwbhrlmd2i060";
+    };
     nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ ida-patcher ];
     postInstall = (old.postInstall or "") + ''
       cd $out/opt
