@@ -66,6 +66,9 @@ in
   # lahar laptop
   "hosts/lahar/password.age".publicKeys = admins;
 
+  # esker laptop
+  "hosts/esker/password.age".publicKeys = admins;
+
   # gyre desktop
   "hosts/gyre/password.age".publicKeys = admins;
 
