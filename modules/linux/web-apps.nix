@@ -148,6 +148,12 @@ let
         icon = "gather-town";
         description = "Gather Town virtual office";
       }
+      {
+        name = "Slack";
+        url = "https://app.slack.com";
+        icon = "slack";
+        description = "Slack Web";
+      }
     ]
   );
 in
