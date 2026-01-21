@@ -46,10 +46,11 @@ merge
     ];
 
     environment.systemPackages = [
+      androidComposition.androidsdk
       pkgs.android-tools
       pkgs.avbroot
-      androidComposition.androidsdk
       pkgs.git-repo
+      pkgs.gnirehtet
       pkgs.jadx
       pkgs.scrcpy
     ]
