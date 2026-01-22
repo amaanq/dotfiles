@@ -6,6 +6,14 @@
 }:
 let
   inherit (lib) optionals;
+
+  claude-code = pkgs.claude-code.overrideAttrs (old: {
+    version = "2.1.17";
+    src = pkgs.fetchzip {
+      url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.17.tgz";
+      hash = "sha256-cLJ8qKa8OhGpjdB7l1KAcG73EvH5T+OUww3flAKWihI=";
+    };
+  });
 in
 {
   # Temporary fix for qtbase 6.10.0 on Darwin
@@ -33,13 +41,7 @@ in
 
   environment.systemPackages = [
     pkgs.asciinema
-    (pkgs.claude-code.overrideAttrs (old: {
-      version = "2.1.14";
-      src = pkgs.fetchzip {
-        url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.14.tgz";
-        hash = "sha256-QiBvRm1iMtO3mmlu5a/aKaJzcAQxeBW7yLK4R4k6SU0=";
-      };
-    }))
+    claude-code
     pkgs.codex
     pkgs.cowsay
     pkgs.curl
