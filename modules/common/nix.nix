@@ -54,14 +54,14 @@ let
         "∑"
       ];
       newIcons = [
-        "f062" #
-        "f063" #
-        "f520" #
-        "f04b" #
-        "f00c" #
-        "f04c" #
-        "f071" #
-        "f1da" #
+        "f062" # 
+        "f063" # 
+        "f520" # 
+        "f04b" # 
+        "f00c" # 
+        "f04c" # 
+        "f071" # 
+        "f1da" # 
         "f04a0" # 󰒠
       ];
       zippedIcons = zipListsWith (a: b: "s/${a}/\\\\x${b}/") oldIcons newIcons;

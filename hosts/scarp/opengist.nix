@@ -49,7 +49,10 @@ let
 
     vendorHash = "sha256-NGRJuNSypmIc8G0wMW7HT+LkP5i5n/p3QH8FyU9pF5w=";
     tags = [ "fs_embed" ];
-    ldflags = [ "-s" "-X github.com/thomiceli/opengist/internal/config.OpengistVersion=v1.11.1" ];
+    ldflags = [
+      "-s"
+      "-X github.com/thomiceli/opengist/internal/config.OpengistVersion=v1.11.1"
+    ];
 
     postPatch = ''
       cp -R ${frontend'}/public/{manifest.json,assets} public/

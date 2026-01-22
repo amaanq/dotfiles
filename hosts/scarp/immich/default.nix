@@ -45,8 +45,12 @@ let
       ln -s ${pkgs.vips.out}/lib/libvips-cpp.so.42.20.0 "$libvipsDir/libvips-cpp.so.8.18.0"
     '';
     passthru = old.passthru // {
-      web = old.passthru.web.overrideAttrs (w: { patches = (w.patches or [ ]) ++ [ ./sharp-0.35.patch ]; });
-      plugins = old.passthru.plugins.overrideAttrs (p: { patches = (p.patches or [ ]) ++ [ ./sharp-0.35.patch ]; });
+      web = old.passthru.web.overrideAttrs (w: {
+        patches = (w.patches or [ ]) ++ [ ./sharp-0.35.patch ];
+      });
+      plugins = old.passthru.plugins.overrideAttrs (p: {
+        patches = (p.patches or [ ]) ++ [ ./sharp-0.35.patch ];
+      });
     };
   });
 in

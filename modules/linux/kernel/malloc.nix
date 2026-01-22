@@ -156,19 +156,19 @@ let
       ''
         mkdir -p $out/bin
         ${lib.concatMapStringsSep "\n" (cmd: ''
-          cat > "$out/bin/${cmd}" <<'EOF'
-        #!${pkgs.runtimeShell}
-        unset LD_PRELOAD
-        # Find the real binary, skipping this wrapper
-        for dir in $(echo "$PATH" | tr ':' '\n'); do
-          if [ -x "$dir/${cmd}" ] && [ "$dir/${cmd}" != "$0" ]; then
-            exec "$dir/${cmd}" "$@"
-          fi
-        done
-        echo "${cmd}: command not found" >&2
-        exit 127
-        EOF
-          chmod +x "$out/bin/${cmd}"
+            cat > "$out/bin/${cmd}" <<'EOF'
+          #!${pkgs.runtimeShell}
+          unset LD_PRELOAD
+          # Find the real binary, skipping this wrapper
+          for dir in $(echo "$PATH" | tr ':' '\n'); do
+            if [ -x "$dir/${cmd}" ] && [ "$dir/${cmd}" != "$0" ]; then
+              exec "$dir/${cmd}" "$@"
+            fi
+          done
+          echo "${cmd}: command not found" >&2
+          exit 127
+          EOF
+            chmod +x "$out/bin/${cmd}"
         '') cfg.excludedCommands}
       '';
 in
@@ -230,7 +230,10 @@ in
     environment.memoryAllocator.excludedCommands = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ ];
-      example = [ "ckati" "ninja" ];
+      example = [
+        "ckati"
+        "ninja"
+      ];
       description = ''
         Command names to exclude from the system-wide memory allocator.
         Use this for non-NixOS binaries (e.g., prebuilt tools in external projects).
