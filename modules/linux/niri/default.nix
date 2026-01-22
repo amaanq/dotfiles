@@ -113,6 +113,12 @@ merge
           "gnome"
           "gtk"
         ];
+        # gnome ScreenCast needs gnome Settings - using gtk Settings can cause crashes
+        "org.freedesktop.impl.portal.Settings" = [
+          "gtk"
+          "gnome"
+        ];
+        "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" ];
       };
     };
   };
