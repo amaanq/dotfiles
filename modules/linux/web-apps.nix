@@ -7,7 +7,7 @@
 let
   inherit (lib) mkIf;
 
-  webAppLauncherScript = pkgs.writeShellScript "web-app-launcher" ''
+  webAppLauncher = pkgs.writeShellScript "web-app-launcher" ''
     browser="helium"
 
     browser_exec=""
@@ -21,17 +21,6 @@ let
     if [ -z "$browser_exec" ]; then
       browser_exec="helium"
     fi
-
-    extensions="$HOME/.config/helium-extensions/adnauseam.chromium/"
-
-    case "$1" in
-      *discord.com*)
-        extensions="$extensions,$HOME/.config/helium-extensions/vencord/"
-        ;;
-      *twitter.com*)
-        extensions="$extensions,$HOME/.config/helium-extensions/control-panel-for-twitter/"
-        ;;
-    esac
 
     url="$1"
     app_name="''${2:-$(basename "$0")}"
@@ -52,7 +41,6 @@ let
       --ozone-platform=wayland \
       --gtk-version=4 \
       --enable-experimental-web-platform-features \
-      --load-extension="$extensions" \
       "$@"
   '';
 
@@ -86,7 +74,7 @@ let
 
         installPhase = ''
           runHook preInstall
-          makeWrapper ${webAppLauncherScript} $out/bin/${pkgName} \
+          makeWrapper ${webAppLauncher} $out/bin/${pkgName} \
             --add-flags "${url}" \
             --add-flags "${pkgName}"
           runHook postInstall
