@@ -63,6 +63,7 @@ in
     pkgs.openssl
     pkgs.p7zip
     pkgs.pstree
+    pkgs.rbw
     pkgs.rsync
     pkgs.sd
     pkgs.timg
