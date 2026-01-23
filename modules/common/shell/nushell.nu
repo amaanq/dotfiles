@@ -658,7 +658,9 @@ def npr [
     }
 }
 
-def fg [id?: int] { job unfreeze $id }
+def fg [id?: int] {
+  if $id == null { job unfreeze } else { job unfreeze $id }
+}
 
 def --wrapped claude-work [...rest] {
   with-env { CLAUDE_CONFIG_DIR: $'($env.HOME)/.claude-work' } {
