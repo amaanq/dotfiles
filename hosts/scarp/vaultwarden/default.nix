@@ -22,7 +22,7 @@ in
     (self + /modules/nginx.nix)
   ];
 
-  age.secrets."vaultwarden-env" = {
+  secrets.vaultwardenEnv = {
     file = ./env.age;
     owner = "vaultwarden";
     group = "vaultwarden";
@@ -43,9 +43,16 @@ in
 
       SHOW_PASSWORD_HINT = false;
       PASSWORD_ITERATIONS = 500000;
+
+      # SMTP
+      SMTP_HOST = "mail.${domain}";
+      SMTP_PORT = 465;
+      SMTP_SECURITY = "force_tls";
+      SMTP_FROM = "vault@${domain}";
+      SMTP_USERNAME = "contact@${domain}";
     };
     backupDir = "/var/backup/vaultwarden";
-    environmentFile = config.age.secrets."vaultwarden-env".path;
+    environmentFile = config.secrets.vaultwardenEnv.path;
   };
 
   services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
