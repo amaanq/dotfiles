@@ -71,6 +71,22 @@ in
     ACTION=="add", SUBSYSTEM=="drm", KERNEL=="card[0-9]*", DRIVERS=="amdgpu", ATTR{device/power_dpm_force_performance_level}="high"
   '';
 
+  # Realtek RTL8125 NIC workarounds - disable offloading and EEE to fix driver issues
+  systemd.services.ethtool-enp18s0 = {
+    description = "Configure ethtool settings for enp18s0";
+    after = [ "sys-subsystem-net-devices-enp18s0.device" ];
+    wantedBy = [ "sys-subsystem-net-devices-enp18s0.device" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "ethtool-enp18s0" ''
+        ${pkgs.ethtool}/bin/ethtool -K enp18s0 gso off gro off tso off
+        ${pkgs.ethtool}/bin/ethtool --set-eee enp18s0 eee off
+        ${pkgs.ethtool}/bin/ethtool -A enp18s0 autoneg off rx off tx off
+      '';
+    };
+  };
+
   environment.systemPackages = [
     pkgs.sbctl
   ];
