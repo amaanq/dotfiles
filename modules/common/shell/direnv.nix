@@ -1,13 +1,9 @@
-{ lib, ... }:
-let
-  inherit (lib) enabled;
-in
+{ pkgs, ... }:
 {
-  home-manager.sharedModules = [
-    {
-      programs.direnv = enabled {
-        nix-direnv = enabled;
-      };
-    }
+  environment.systemPackages = [
+    pkgs.direnv
+    pkgs.nix-direnv
   ];
+
+  environment.etc."direnv/lib/nix-direnv.sh".source = "${pkgs.nix-direnv}/share/nix-direnv/direnvrc";
 }

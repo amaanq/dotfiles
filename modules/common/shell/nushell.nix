@@ -121,6 +121,35 @@ in
                   ''${pkgs.carapace}/bin/carapace _carapace nushell | sed 's|"/homeless-shelter|$"($env.HOME)|g' >> "$out"''
               }
 
+              # direnv
+              $env.config = ($env.config? | default {})
+              $env.config.hooks = ($env.config.hooks? | default {})
+              $env.config.hooks.pre_prompt = (
+                  $env.config.hooks.pre_prompt?
+                  | default []
+                  | append {||
+                      ${pkgs.direnv}/bin/direnv export json
+                      | from json --strict
+                      | default {}
+                      | items {|key, value|
+                          let value = do (
+                              {
+                                "PATH": {
+                                  from_string: {|s| $s | split row (char esep) | path expand --no-symlink }
+                                  to_string: {|v| $v | path expand --no-symlink | str join (char esep) }
+                                }
+                              }
+                              | merge ($env.ENV_CONVERSIONS? | default {})
+                              | get ([[value, optional, insensitive]; [$key, true, true] [from_string, true, false]] | into cell-path)
+                              | if ($in | is-empty) { {|x| $x} } else { $in }
+                          ) $value
+                          return [ $key $value ]
+                      }
+                      | into record
+                      | load-env
+                  }
+              )
+
               if ($env.USER == "amaanq") {
                 if ("${config.secrets.openai_api_key.path}" | path exists) {
                   $env.OPENAI_API_KEY = (open ${config.secrets.openai_api_key.path} | str trim)
