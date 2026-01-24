@@ -1,29 +1,11 @@
-{ config, lib, ... }:
-let
-  inherit (lib) enabled;
-  user = "amaanq";
-in
+{ config, pkgs, ... }:
 {
   age.secrets.atuin-key = {
     file = ./key.age;
-    owner = user;
+    owner = "amaanq";
   };
 
-  home-manager.users.${user} = {
-    programs.atuin = enabled {
-      daemon = enabled {
-        logLevel = "error";
-      };
+  environment.systemPackages = [ pkgs.atuin ];
 
-      flags = [ "--disable-up-arrow" ];
-      settings = {
-        enter_accept = true;
-        inline_height = 20;
-        search_mode = "prefix";
-        show_preview = false;
-        sync.records = true;
-        key_path = config.age.secrets.atuin-key.path;
-      };
-    };
-  };
+  environment.variables.ATUIN_CONFIG_DIR = "/etc/atuin";
 }

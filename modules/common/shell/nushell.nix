@@ -150,6 +150,12 @@ in
                   }
               )
 
+              # atuin
+              source ${
+                pkgs.runCommand "atuin.nu" { nativeBuildInputs = [ pkgs.writableTmpDirAsHomeHook ]; }
+                  ''${pkgs.atuin}/bin/atuin init nu --disable-up-arrow >> "$out"''
+              }
+
               if ($env.USER == "amaanq") {
                 if ("${config.secrets.openai_api_key.path}" | path exists) {
                   $env.OPENAI_API_KEY = (open ${config.secrets.openai_api_key.path} | str trim)
