@@ -94,11 +94,11 @@ in
                 };
               in
               [
+                (mkNextDnsServer "2a07:a8c0::")
+                (mkNextDnsServer "2a07:a8c1::")
+                # IPv4 fallback
                 (mkNextDnsServer "45.90.28.0")
                 (mkNextDnsServer "45.90.30.0")
-                # IPv6 disabled until NextDNS fixes routing from Verizon FiOS
-                # (mkNextDnsServer "2a07:a8c0::")
-                # (mkNextDnsServer "2a07:a8c1::")
               ];
           };
         }
