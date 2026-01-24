@@ -18,11 +18,10 @@ let
     in
     path: inputs' |> filter (hasAttrByPath path) |> map (getAttrFromPath path);
 
-  # Stylix and Niri's nixos module handles home-manager integration automatically
+  # Niri's nixos module handles home-manager integration automatically
   inputHomeModulesLinux =
     attrValues (
       builtins.removeAttrs inputs [
-        "stylix"
         "niri"
       ]
     )
