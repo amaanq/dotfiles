@@ -4,7 +4,7 @@
   ...
 }:
 let
-  inherit (lib) enabled mkIf;
+  inherit (lib) enabled mkIf theme;
 
   cfg = config.chromiumExtensions;
   isServer = config.type == "server";
@@ -34,6 +34,9 @@ in
       extensions = extensionStrings;
 
       extraOpts = {
+        # Rose Pine theme color
+        BrowserThemeColor = theme.withHashtag.base00;
+
         # Disable promotions and sync
         PromotionsEnabled = false;
         SyncDisabled = true;
