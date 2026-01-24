@@ -74,6 +74,7 @@ in
     pkgs.xh
     pkgs.xxd
     pkgs.yt-dlp
+    pkgs.zoxide
   ]
   ++ optionals config.isLinux [
     pkgs.strace

@@ -110,6 +110,11 @@ in
               use ${pkgs.nu_scripts}/share/nu_scripts/modules/capture-foreign-env
               source ${pkgs.nu_scripts}/share/nu_scripts/modules/formats/from-env.nu
 
+              # zoxide
+              source ${
+                pkgs.runCommand "zoxide.nu" { } ''${pkgs.zoxide}/bin/zoxide init nushell --cmd cd >> "$out"''
+              }
+
               if ($env.USER == "amaanq") {
                 if ("${config.secrets.openai_api_key.path}" | path exists) {
                   $env.OPENAI_API_KEY = (open ${config.secrets.openai_api_key.path} | str trim)
