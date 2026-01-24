@@ -73,7 +73,6 @@ in
     pkgs.watchman
     pkgs.xh
     pkgs.xxd
-    pkgs.yazi
     pkgs.yt-dlp
   ]
   ++ optionals config.isLinux [
