@@ -1,5 +1,4 @@
 {
-  dankMaterialShell,
   niri-src,
   config,
   lib,
@@ -12,6 +11,7 @@ let
     merge
     mkIf
     mkForce
+    theme
     ;
   niriPackage = niri-src.packages.${config.hostSystem}.niri;
 
@@ -143,9 +143,10 @@ merge
 
             layout = {
               gaps = 8;
-              border = {
-                width = 2;
-                active.color = "#31748f";
+              focus-ring.enable = false;
+              border = enabled {
+                active.color = "#${theme.base0B}"; # pine (dark blue)
+                inactive.color = "#${theme.base03}"; # muted
               };
 
               preset-column-widths = [
