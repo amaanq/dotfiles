@@ -1,108 +1,137 @@
 { lib, pkgs, ... }:
 let
-  inherit (lib) enabled;
+  colors = lib.theme.withHashtag;
+
+  btop-patched = pkgs.btop.overrideAttrs (oldAttrs: {
+    patches = (oldAttrs.patches or [ ]) ++ [
+      ./cwd-detail.patch
+    ];
+  });
+
+  btop-wrapped = pkgs.symlinkJoin {
+    name = "btop";
+    paths = [ btop-patched ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      rm $out/bin/btop
+      makeWrapper ${btop-patched}/bin/btop $out/bin/btop \
+        --add-flags "--config /etc/btop/btop.conf" \
+        --add-flags "--themes-dir /etc/btop/themes"
+    '';
+    inherit (btop-patched) meta;
+  };
 in
 {
-  nixpkgs.overlays = [
-    (final: prev: {
-      btop = prev.btop.overrideAttrs (oldAttrs: {
-        patches = (oldAttrs.patches or [ ]) ++ [
-          ./cwd-detail.patch
-        ];
-      });
-    })
-  ];
+  environment.systemPackages = [ btop-wrapped ];
 
-  home-manager.sharedModules = [
-    {
-      programs.btop = enabled {
-        settings = {
-          # Appearance
-          truecolor = true;
-          rounded_corners = true;
+  environment.etc."btop/themes/rose-pine.theme".text = ''
+    theme[main_bg]="${colors.base00}"
+    theme[main_fg]="${colors.base05}"
+    theme[title]="${colors.base05}"
+    theme[hi_fg]="${colors.base0D}"
+    theme[selected_bg]="${colors.base03}"
+    theme[selected_fg]="${colors.base0D}"
+    theme[inactive_fg]="${colors.base04}"
+    theme[graph_text]="${colors.base06}"
+    theme[meter_bg]="${colors.base03}"
+    theme[proc_misc]="${colors.base06}"
+    theme[cpu_box]="${colors.base0E}"
+    theme[mem_box]="${colors.base0B}"
+    theme[net_box]="${colors.base0C}"
+    theme[proc_box]="${colors.base0D}"
+    theme[div_line]="${colors.base01}"
+    theme[temp_start]="${colors.base0B}"
+    theme[temp_mid]="${colors.base0A}"
+    theme[temp_end]="${colors.base08}"
+    theme[cpu_start]="${colors.base0B}"
+    theme[cpu_mid]="${colors.base0A}"
+    theme[cpu_end]="${colors.base08}"
+    theme[free_start]="${colors.base0A}"
+    theme[free_mid]="${colors.base0B}"
+    theme[free_end]="${colors.base0B}"
+    theme[cached_start]="${colors.base0C}"
+    theme[cached_mid]="${colors.base0C}"
+    theme[cached_end]="${colors.base0A}"
+    theme[available_start]="${colors.base08}"
+    theme[available_mid]="${colors.base0A}"
+    theme[available_end]="${colors.base0B}"
+    theme[used_start]="${colors.base0A}"
+    theme[used_mid]="${colors.base09}"
+    theme[used_end]="${colors.base08}"
+    theme[download_start]="${colors.base0B}"
+    theme[download_mid]="${colors.base0A}"
+    theme[download_end]="${colors.base08}"
+    theme[upload_start]="${colors.base0B}"
+    theme[upload_mid]="${colors.base0A}"
+    theme[upload_end]="${colors.base08}"
+    theme[process_start]="${colors.base0B}"
+    theme[process_mid]="${colors.base0A}"
+    theme[process_end]="${colors.base08}"
+  '';
 
-          # Navigation
-          vim_keys = true;
-
-          # Layout and presets
-          presets = "cpu:1:default,proc:0:default cpu:0:default,mem:0:default,net:0:default cpu:0:block,net:0:tty";
-          shown_boxes = "cpu mem net proc";
-
-          # Graph settings
-          graph_symbol = "braille";
-          graph_symbol_cpu = "default";
-          graph_symbol_mem = "default";
-          graph_symbol_net = "default";
-          graph_symbol_proc = "default";
-
-          # Performance
-          update_ms = 2000;
-
-          # Process list
-          proc_sorting = "user";
-          proc_reversed = false;
-          proc_tree = false;
-          proc_colors = true;
-          proc_gradient = true;
-          proc_per_core = false;
-          proc_mem_bytes = true;
-          proc_cpu_graphs = true;
-          proc_info_smaps = false;
-          proc_left = false;
-          proc_filter_kernel = false;
-
-          # CPU settings
-          cpu_graph_upper = "total";
-          cpu_graph_lower = "total";
-          cpu_invert_lower = true;
-          cpu_single_graph = false;
-          cpu_bottom = false;
-          show_uptime = true;
-          check_temp = true;
-          cpu_sensor = "Auto";
-          show_coretemp = true;
-          cpu_core_map = "";
-          temp_scale = "celsius";
-          show_cpu_freq = true;
-          custom_cpu_name = "";
-
-          # General UI
-          clock_format = "%X";
-          background_update = true;
-          base_10_sizes = false;
-
-          # Memory and disk settings
-          mem_graphs = true;
-          mem_below_net = false;
-          zfs_arc_cached = true;
-          show_swap = true;
-          swap_disk = true;
-          show_disks = true;
-          only_physical = true;
-          use_fstab = true;
-          zfs_hide_datasets = false;
-          disk_free_priv = false;
-          show_io_stat = true;
-          io_mode = false;
-          io_graph_combined = false;
-          io_graph_speeds = "";
-          disks_filter = "";
-
-          # Network settings
-          net_download = 100;
-          net_upload = 100;
-          net_auto = true;
-          net_sync = true;
-          net_iface = "";
-
-          # Battery
-          show_battery = true;
-          selected_battery = "Auto";
-
-          # Logging
-          log_level = "WARNING";
-        };
-      };
-    }
-  ];
+  environment.etc."btop/btop.conf".text = ''
+    color_theme = "rose-pine"
+    theme_background = False
+    truecolor = True
+    rounded_corners = True
+    vim_keys = True
+    presets = "cpu:1:default,proc:0:default cpu:0:default,mem:0:default,net:0:default cpu:0:block,net:0:tty"
+    shown_boxes = "cpu mem net proc"
+    graph_symbol = "braille"
+    graph_symbol_cpu = "default"
+    graph_symbol_mem = "default"
+    graph_symbol_net = "default"
+    graph_symbol_proc = "default"
+    update_ms = 2000
+    proc_sorting = "user"
+    proc_reversed = False
+    proc_tree = False
+    proc_colors = True
+    proc_gradient = True
+    proc_per_core = False
+    proc_mem_bytes = True
+    proc_cpu_graphs = True
+    proc_info_smaps = False
+    proc_left = False
+    proc_filter_kernel = False
+    cpu_graph_upper = "total"
+    cpu_graph_lower = "total"
+    cpu_invert_lower = True
+    cpu_single_graph = False
+    cpu_bottom = False
+    show_uptime = True
+    check_temp = True
+    cpu_sensor = "Auto"
+    show_coretemp = True
+    cpu_core_map = ""
+    temp_scale = "celsius"
+    show_cpu_freq = True
+    custom_cpu_name = ""
+    clock_format = "%X"
+    background_update = True
+    base_10_sizes = False
+    mem_graphs = True
+    mem_below_net = False
+    zfs_arc_cached = True
+    show_swap = True
+    swap_disk = True
+    show_disks = True
+    only_physical = True
+    use_fstab = True
+    zfs_hide_datasets = False
+    disk_free_priv = False
+    show_io_stat = True
+    io_mode = False
+    io_graph_combined = False
+    io_graph_speeds = ""
+    disks_filter = ""
+    net_download = 100
+    net_upload = 100
+    net_auto = True
+    net_sync = True
+    net_iface = ""
+    show_battery = True
+    selected_battery = "Auto"
+    log_level = "WARNING"
+  '';
 }
