@@ -115,6 +115,12 @@ in
                 pkgs.runCommand "zoxide.nu" { } ''${pkgs.zoxide}/bin/zoxide init nushell --cmd cd >> "$out"''
               }
 
+              # carapace
+              source ${
+                pkgs.runCommand "carapace.nu" { }
+                  ''${pkgs.carapace}/bin/carapace _carapace nushell | sed 's|"/homeless-shelter|$"($env.HOME)|g' >> "$out"''
+              }
+
               if ($env.USER == "amaanq") {
                 if ("${config.secrets.openai_api_key.path}" | path exists) {
                   $env.OPENAI_API_KEY = (open ${config.secrets.openai_api_key.path} | str trim)
