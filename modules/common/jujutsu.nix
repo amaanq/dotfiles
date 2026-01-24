@@ -5,198 +5,104 @@
   ...
 }:
 let
-  inherit (lib) enabled mkIf;
+  graphStyle = if config.theme.cornerRadius > 0 then "curved" else "square";
+  signingConfig =
+    if config.isDesktop then
+      ''
+        [signing]
+        backend = "ssh"
+        behavior = "own"
+        key = "~/.ssh/id"
+      ''
+    else
+      "";
 in
 {
   environment.systemPackages = [
     pkgs.difftastic
     pkgs.jjui
+    pkgs.jujutsu
     pkgs.mergiraf
     pkgs.radicle-node
   ];
 
-  home-manager.sharedModules = [
-    {
-      programs.jujutsu = enabled {
-        settings =
-          let
-            mailDomain = "amaanq.com";
-          in
-          {
-            user.name = "Amaan Qureshi";
-            user.email = "git@${mailDomain}";
+  environment.variables.JJ_CONFIG = "/etc/jj/config.toml";
 
-            aliases.".." = [
-              "edit"
-              "@-"
-            ];
-            aliases.",," = [
-              "edit"
-              "@+"
-            ];
+  environment.etc."jj/config.toml".text = ''
+    [user]
+    name = "Amaan Qureshi"
+    email = "git@amaanq.com"
 
-            aliases.fetch = [
-              "git"
-              "fetch"
-            ];
-            aliases.f = [
-              "git"
-              "fetch"
-            ];
+    [aliases]
+    ".." = ["edit", "@-"]
+    ",," = ["edit", "@+"]
+    fetch = ["git", "fetch"]
+    f = ["git", "fetch"]
+    push = ["git", "push"]
+    p = ["git", "push"]
+    clone = ["git", "clone", "--colocate"]
+    cl = ["git", "clone", "--colocate"]
+    init = ["git", "init", "--colocate"]
+    i = ["git", "init", "--colocate"]
+    a = ["abandon"]
+    c = ["commit"]
+    ci = ["commit", "--interactive"]
+    d = ["diff"]
+    e = ["edit"]
+    l = ["log"]
+    la = ["log", "--revisions", "::"]
+    ls = ["log", "--summary"]
+    lsa = ["log", "--summary", "--revisions", "::"]
+    lp = ["log", "--patch"]
+    lpa = ["log", "--patch", "--revisions", "::"]
+    r = ["rebase"]
+    res = ["resolve"]
+    resolve-ast = ["resolve", "--tool", "mergiraf"]
+    resa = ["resolve-ast"]
+    s = ["squash"]
+    si = ["squash", "--interactive"]
+    sh = ["show"]
+    tug = ["bookmark", "move", "--from", "closest(@-)", "--to", "closest_pushable(@)"]
+    t = ["tug"]
+    u = ["undo"]
 
-            aliases.push = [
-              "git"
-              "push"
-            ];
-            aliases.p = [
-              "git"
-              "push"
-            ];
+    [revset-aliases]
+    "closest(to)" = "heads(::to & bookmarks())"
+    "closest_pushable(to)" = "heads(::to & ~description(exact:\"\") & (~empty() | merges()))"
 
-            aliases.clone = [
-              "git"
-              "clone"
-              "--colocate"
-            ];
-            aliases.cl = [
-              "git"
-              "clone"
-              "--colocate"
-            ];
+    [revsets]
+    log = "present(@) | present(trunk()) | ancestors(remote_bookmarks().. | @.., 8)"
 
-            aliases.init = [
-              "git"
-              "init"
-              "--colocate"
-            ];
-            aliases.i = [
-              "git"
-              "init"
-              "--colocate"
-            ];
+    [ui]
+    default-command = "ls"
+    diff-editor = ":builtin"
+    diff-formatter = ["difft", "--color", "always", "$left", "$right"]
+    conflict-marker-style = "snapshot"
 
-            aliases.a = [ "abandon" ];
+    [ui.graph]
+    style = "${graphStyle}"
 
-            aliases.c = [ "commit" ];
-            aliases.ci = [
-              "commit"
-              "--interactive"
-            ];
+    [templates]
+    draft_commit_description = """
+    concat(
+      coalesce(description, "\n"),
+      surround(
+        "\nJJ: This commit contains the following changes:\n", "",
+        indent("JJ:     ", diff.stat(72)),
+      ),
+      "\nJJ: ignore-rest\n",
+      diff.git(),
+    )
+    """
+    git_push_bookmark = '"change-amaanq-" ++ change_id.short()'
 
-            aliases.d = [ "diff" ];
+    [remotes.origin]
+    auto-track-bookmarks = "glob:*"
 
-            aliases.e = [ "edit" ];
+    [git]
+    fetch = ["origin", "upstream", "rad"]
+    push = "origin"
 
-            aliases.l = [ "log" ];
-            aliases.la = [
-              "log"
-              "--revisions"
-              "::"
-            ];
-            aliases.ls = [
-              "log"
-              "--summary"
-            ];
-            aliases.lsa = [
-              "log"
-              "--summary"
-              "--revisions"
-              "::"
-            ];
-            aliases.lp = [
-              "log"
-              "--patch"
-            ];
-            aliases.lpa = [
-              "log"
-              "--patch"
-              "--revisions"
-              "::"
-            ];
-
-            aliases.r = [ "rebase" ];
-
-            aliases.res = [ "resolve" ];
-
-            aliases.resolve-ast = [
-              "resolve"
-              "--tool"
-              "mergiraf"
-            ];
-            aliases.resa = [ "resolve-ast" ];
-
-            aliases.s = [ "squash" ];
-            aliases.si = [
-              "squash"
-              "--interactive"
-            ];
-
-            aliases.sh = [ "show" ];
-
-            aliases.tug = [
-              "bookmark"
-              "move"
-              "--from"
-              "closest(@-)"
-              "--to"
-              "closest_pushable(@)"
-            ];
-            aliases.t = [ "tug" ];
-
-            aliases.u = [ "undo" ];
-
-            revset-aliases."closest(to)" = "heads(::to & bookmarks())";
-            revset-aliases."closest_pushable(to)" =
-              "heads(::to & ~description(exact:\"\") & (~empty() | merges()))";
-
-            revsets.log = "present(@) | present(trunk()) | ancestors(remote_bookmarks().. | @.., 8)";
-
-            ui.default-command = "ls";
-
-            ui.diff-editor = ":builtin";
-            ui.diff-formatter = [
-              "difft"
-              "--color"
-              "always"
-              "$left"
-              "$right"
-            ];
-
-            ui.conflict-marker-style = "snapshot";
-            ui.graph.style = if config.theme.cornerRadius > 0 then "curved" else "square";
-
-            templates.draft_commit_description = # python
-              ''
-                concat(
-                  coalesce(description, "\n"),
-                  surround(
-                    "\nJJ: This commit contains the following changes:\n", "",
-                    indent("JJ:     ", diff.stat(72)),
-                  ),
-                  "\nJJ: ignore-rest\n",
-                  diff.git(),
-                )
-              '';
-
-            templates.git_push_bookmark = # python
-              ''
-                "change-amaanq-" ++ change_id.short()
-              '';
-
-            remotes.origin.auto-track-bookmarks = "glob:*";
-
-            git.fetch = [
-              "origin"
-              "upstream"
-              "rad"
-            ];
-            git.push = "origin";
-
-            signing.backend = mkIf config.isDesktop "ssh";
-            signing.behavior = mkIf config.isDesktop "own";
-            signing.key = mkIf config.isDesktop "~/.ssh/id";
-          };
-      };
-    }
-  ];
+    ${signingConfig}
+  '';
 }
