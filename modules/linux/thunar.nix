@@ -27,11 +27,16 @@ merge
   };
   services.upower = enabled;
 
-  home-manager.sharedModules = [
-    {
-      services.udiskie = enabled;
-    }
-  ];
+  # udiskie user service for auto-mounting
+  systemd.user.services.udiskie = {
+    description = "udiskie mount daemon";
+    wantedBy = [ "graphical-session.target" ];
+    partOf = [ "graphical-session.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.udiskie}/bin/udiskie";
+      Restart = "on-failure";
+    };
+  };
 
   environment.systemPackages = [
     pkgs.ffmpegthumbnailer
@@ -39,5 +44,6 @@ merge
     pkgs.kdePackages.ark
     pkgs.tumbler
     pkgs.gvfs
+    pkgs.udiskie
   ];
 }
