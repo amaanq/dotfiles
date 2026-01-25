@@ -44,22 +44,12 @@
     WarnOnEmptyTrash = false;
   };
 
-  home-manager.sharedModules = [
-    (
-      homeArgs:
-      let
-        lib' = homeArgs.lib;
-
-        inherit (lib'.hm.dag) entryAfter;
-      in
-      {
-        home.activation.showLibrary =
-          entryAfter [ "writeBoundary" ] # bash
-            ''
-              # Unhide ~/Library.
-              /usr/bin/chflags nohidden ~/Library
-            '';
-      }
-    )
-  ];
+  # Unhide ~/Library for all users
+  system.activationScripts.postActivation.text = ''
+    for user_home in /Users/*; do
+      if [ -d "$user_home/Library" ]; then
+        /usr/bin/chflags nohidden "$user_home/Library"
+      fi
+    done
+  '';
 }
