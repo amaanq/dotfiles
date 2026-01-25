@@ -1,0 +1,14 @@
+diff --git a/internal/config/config.go b/internal/config/config.go
+index 4d83bd4e5..8c4092842 100644
+--- a/internal/config/config.go
++++ b/internal/config/config.go
+@@ -699,6 +699,9 @@ func StateDir() string {
+ }
+
+ func DataDir() string {
++	if dir := os.Getenv("GH_DATA_DIR"); dir != "" {
++		return dir
++	}
+ 	return ghConfig.DataDir()
+ }
+

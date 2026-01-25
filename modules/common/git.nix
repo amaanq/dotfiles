@@ -151,11 +151,15 @@ merge {
   );
 
   environment.systemPackages = [
-    pkgs.gh
+    (pkgs.gh.overrideAttrs (old: {
+      patches = (old.patches or [ ]) ++ [ ./gh-data-dir.patch ];
+    }))
     pkgs.gh-dash
     pkgs.gh-notify
   ];
 
   environment.etc."gh/config.yml".text = generators.toYAML { } ghConfig;
+  environment.etc."gh/extensions/gh-notify".source = "${pkgs.gh-notify}/bin";
   environment.variables.GH_CONFIG_DIR = "/etc/gh";
+  environment.variables.GH_DATA_DIR = "/etc/gh";
 }
