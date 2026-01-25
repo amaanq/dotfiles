@@ -58,16 +58,9 @@ merge
       pkgs.android-studio
     ];
 
-    home-manager.sharedModules = [
-      (
-        { config, ... }:
-        {
-          home.sessionVariables = {
-            ANDROID_SDK_ROOT = "${androidComposition.androidsdk}/libexec/android-sdk";
-            ANDROID_USER_HOME = "${config.xdg.dataHome}/android";
-          };
-        }
-      )
-    ];
+    environment.variables = {
+      ANDROID_SDK_ROOT = "${androidComposition.androidsdk}/libexec/android-sdk";
+      ANDROID_USER_HOME = "$HOME/.local/share/android";
+    };
   }
 )
