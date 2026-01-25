@@ -152,8 +152,7 @@ in
         private-key = "%{file:/var/lib/acme/${domain}/key.pem}%";
       };
 
-      server.tls = {
-        enable = true;
+      server.tls = enabled {
         implicit = false;
         certificate = "default";
       };

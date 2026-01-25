@@ -16,7 +16,7 @@ let
   # This is needed because the init script sources /etc/profile which
   # re-introduces LD_PRELOAD after our wrapper unsets it
   steamWithoutMalloc = pkgs.steam.override {
-    extraLibraries = pkgs: [ ];
+    extraLibraries = _: [ ];
     extraProfile = ''
       unset LD_PRELOAD
     '';

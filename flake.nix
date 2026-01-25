@@ -204,7 +204,7 @@
         mapAttrs
         nameValuePair
         ;
-      lib' = nixpkgs.lib.extend (const: const: nix-darwin.lib);
+      lib' = nixpkgs.lib.extend (_: _: nix-darwin.lib);
       lib = lib'.extend <| import ./lib inputs;
 
       hostsByType =

@@ -17,10 +17,6 @@ let
     url = "https://registry.npmjs.org/@img/sharp-linux-x64/-/sharp-linux-x64-0.35.0-rc.0.tgz";
     hash = "sha256-QAWZlCn3qqiXPTx6fb2CjWcUrqb6POyL0srh0cBNLE4=";
   };
-  sharpLibvips = pkgs.fetchurl {
-    url = "https://registry.npmjs.org/@img/sharp-libvips-linux-x64/-/sharp-libvips-linux-x64-1.3.0-rc.2.tgz";
-    hash = "sha256-/IhN6fRXLHk4RXSFwXiHW1REis9TFIFJ1ogQFcsacx0=";
-  };
 
   immich' = pkgs.immich.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ./sharp-0.35.patch ];

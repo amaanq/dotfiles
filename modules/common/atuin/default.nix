@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 {
   age.secrets.atuin-key = {
     file = ./key.age;

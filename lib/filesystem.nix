@@ -1,4 +1,4 @@
-_: self: super:
+_: self: _:
 let
   inherit (self) filter hasSuffix;
   inherit (self.filesystem) listFilesRecursive;

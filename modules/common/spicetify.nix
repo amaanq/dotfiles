@@ -11,7 +11,6 @@ let
     merge
     mkForce
     mkIf
-    optionals
     optionalAttrs
     theme
     ;

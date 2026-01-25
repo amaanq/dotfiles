@@ -7,7 +7,7 @@
 let
   inherit (lib) optionals;
 
-  claude-code = pkgs.claude-code.overrideAttrs (old: {
+  claude-code = pkgs.claude-code.overrideAttrs (_: {
     version = "2.1.19";
     src = pkgs.fetchzip {
       url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.19.tgz";

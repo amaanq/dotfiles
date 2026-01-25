@@ -9,7 +9,6 @@ let
   inherit (config.networking) domain;
   inherit (lib)
     enabled
-    head
     merge
     mkForce
     stringToPort

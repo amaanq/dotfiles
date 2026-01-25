@@ -25,7 +25,6 @@ let
     mapAttrs
     mapAttrsToList
     merge
-    mkIf
     optionalAttrs
     optionals
     zipListsWith
