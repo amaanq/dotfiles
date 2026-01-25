@@ -685,3 +685,18 @@ def --wrapped ns [...programs] {
     }
   })
 }
+
+# macOS: Insert shadow path before /usr/bin to suppress xcode-select popups
+if $nu.os-info.name == "macos" {
+  let shadow_path = $"($env.HOME)/.local/shadow"
+  if ($shadow_path | path exists) {
+    let usr_bin_index = $env.PATH
+    | enumerate
+    | where item == /usr/bin
+    | get 0?.index?
+
+    if $usr_bin_index != null {
+      $env.PATH = $env.PATH | insert $usr_bin_index $shadow_path
+    }
+  }
+}
