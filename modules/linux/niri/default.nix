@@ -58,7 +58,10 @@ in
   services.logind.settings.Login.HandlePowerKey = "ignore";
 
   programs.dank-material-shell = enabled {
+    enableAudioWavelength = false;
+    enableCalendarEvents = false;
     enableDynamicTheming = false;
+    enableVPN = false;
   };
 
   services.power-profiles-daemon.enable = mkForce false;
