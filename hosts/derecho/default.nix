@@ -67,17 +67,7 @@ lib.nixosSystem' (
       };
     };
 
-    home-manager.users = {
-      root = { };
-      amaanq = { };
-    };
-
     system.stateVersion = "25.11";
-    home-manager.sharedModules = [
-      {
-        home.stateVersion = "25.11";
-      }
-    ];
 
     time.timeZone = "America/New_York";
   }

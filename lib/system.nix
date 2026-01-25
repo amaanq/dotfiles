@@ -18,39 +18,6 @@ let
     in
     path: inputs' |> filter (hasAttrByPath path) |> map (getAttrFromPath path);
 
-  # Niri's nixos module handles home-manager integration automatically
-  inputHomeModulesLinux =
-    attrValues (
-      builtins.removeAttrs inputs [
-        "niri"
-      ]
-    )
-    |> filter (hasAttrByPath [
-      "homeModules"
-      "default"
-    ])
-    |> map (getAttrFromPath [
-      "homeModules"
-      "default"
-    ]);
-
-  inputHomeModulesDarwin =
-    attrValues (
-      builtins.removeAttrs inputs [
-        "stylix"
-        "niri"
-        "nirinit"
-      ]
-    )
-    |> filter (hasAttrByPath [
-      "homeModules"
-      "default"
-    ])
-    |> map (getAttrFromPath [
-      "homeModules"
-      "default"
-    ]);
-
   inputModulesLinux = collectInputs [
     "nixosModules"
     "default"
@@ -84,10 +51,6 @@ in
       modules = [
         module
         overlayModule
-
-        {
-          home-manager.sharedModules = inputHomeModulesLinux;
-        }
       ]
       ++ modulesCommon
       ++ modulesLinux
@@ -102,10 +65,6 @@ in
       modules = [
         module
         overlayModule
-
-        {
-          home-manager.sharedModules = inputHomeModulesDarwin;
-        }
       ]
       ++ modulesCommon
       ++ modulesDarwin

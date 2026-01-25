@@ -55,20 +55,7 @@ lib.nixosSystem' (
       };
     };
 
-    home-manager.users = {
-      root = { };
-      amaanq = { };
-      backup = { };
-    };
-
     system.stateVersion = "25.11";
-    home-manager.sharedModules = [
-      {
-        home.stateVersion = "25.11";
-        # Override niri config to prevent it from building on server
-        programs.niri.config = lib.mkForce null;
-      }
-    ];
 
     time.timeZone = "America/New_York";
   }
