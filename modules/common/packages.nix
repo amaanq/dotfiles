@@ -18,7 +18,6 @@ in
 {
   unfree.allowedNames = [
     "claude-code"
-    "libsciter"
     "megasync"
     "spotify"
   ];
@@ -26,7 +25,6 @@ in
   environment.systemPackages = [
     pkgs.asciinema
     claude-code
-    pkgs.codex
     pkgs.cowsay
     pkgs.curl
     pkgs.dig
@@ -37,7 +35,6 @@ in
     pkgs.fastfetch
     pkgs.fd
     pkgs.file
-    pkgs.gemini-cli
     pkgs.gitui
     pkgs.graphviz
     pkgs.hyperfine
@@ -73,18 +70,10 @@ in
     pkgs.files-to-prompt
     pkgs.go
     pkgs.qbittorrent
-    (pkgs.rustdesk.overrideAttrs (old: {
-      # GCC 15 requires explicit #include <cstdint> for uint64_t
-      # The webm-sys crate's bundled libwebm is missing this include
-      env = old.env // {
-        CXXFLAGS = "-include cstdint";
-      };
-    }))
     pkgs.sequoia-sq
     pkgs.signal-desktop
     pkgs.wabt
     pkgs.wasmtime
-    pkgs.zed-editor
   ]
   ++ optionals (config.isLinux && config.isDesktop) [
     pkgs.obs-studio
