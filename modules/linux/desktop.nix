@@ -9,6 +9,8 @@ let
 in
 merge
 <| mkIf config.isDesktop {
+  services.speechd.enable = false;
+
   # Display manager
   services.greetd =
     let
