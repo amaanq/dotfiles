@@ -32,7 +32,6 @@ let
     mapAttrs
     mapAttrsToList
     merge
-    mkAfter
     mkIf
     optionalAttrs
     optionals
@@ -207,29 +206,4 @@ in
       + lib.optionalString config.isServer "      ProxyCommand ${tailscale-proxy} %h ${toString port}\n"
     );
 
-  # Add nushell helpers
-  home-manager.sharedModules = [
-    {
-      programs.nushell.configFile.text =
-        # nu
-        mkAfter ''
-          def --wrapped nr [program: string = "", ...arguments] {
-            if ($program | str contains "#") or ($program | str contains ":") {
-              nix run $program -- ...$arguments
-            } else {
-              nix run ("default#" + $program) -- ...$arguments
-            }
-          }
-          def --wrapped ns [...programs] {
-            nix shell ...($programs | each {
-              if ($in | str contains "#") or ($in | str contains ":") {
-                $in
-              } else {
-                "default#" + $in
-              }
-            })
-          }
-        '';
-    }
-  ];
 }

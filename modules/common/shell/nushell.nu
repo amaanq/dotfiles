@@ -667,3 +667,21 @@ def --wrapped claude-work [...rest] {
     ^claude ...$rest
   }
 }
+
+def --wrapped nr [program: string = "", ...arguments] {
+  if ($program | str contains "#") or ($program | str contains ":") {
+    nix run $program -- ...$arguments
+  } else {
+    nix run ("default#" + $program) -- ...$arguments
+  }
+}
+
+def --wrapped ns [...programs] {
+  nix shell ...($programs | each {
+    if ($in | str contains "#") or ($in | str contains ":") {
+      $in
+    } else {
+      "default#" + $in
+    }
+  })
+}
