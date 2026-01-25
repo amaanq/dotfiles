@@ -127,11 +127,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    crash = {
-      url = "github:RGBCube/crash";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";

@@ -6,38 +6,25 @@
 }:
 let
   inherit (lib)
-    attrsToList
-    catAttrs
     concatStringsSep
     const
     filter
-    flatten
     foldl'
-    getAttr
     getExe
     head
     last
-    listToAttrs
     mapAttrs
     mapAttrsToList
     match
     mkConst
     mkIf
-    mkValue
     nameValuePair
     readFile
-    sortOn
     splitString
-    toInt
-    unique
     ;
 in
 {
-  environment.shells =
-    config.home-manager.users
-    |> mapAttrsToList (const <| getAttr "shellsByPriority")
-    |> flatten
-    |> unique;
+  environment.shells = [ pkgs.nushell ];
 
   environment.systemPackages = [
     pkgs.nu_scripts # Nushell scripts and completions.
@@ -50,12 +37,6 @@ in
         config' = homeArgs.config;
       in
       {
-        options.shells = mkValue { };
-
-        options.shellsByPriority = mkConst (
-          config'.shells |> attrsToList |> sortOn ({ name, ... }: toInt name) |> catAttrs "value"
-        );
-
         options.variablesMap = mkConst {
           HOME = config'.home.homeDirectory;
           USER = config'.home.username;
@@ -111,16 +92,9 @@ in
                 |> mapAttrsToList (name: value: "export ${name}='${value}'")
                 |> concatStringsSep "\n"
               }
-              SHELL='${getExe <| head config'.shellsByPriority}' exec "$SHELL"
+              SHELL='${getExe pkgs.nushell}' exec "$SHELL"
             '';
       }
     ))
   ];
-
-  # More at modules/linux/shell/default.nix.
-  #
-  # Can't put that here with an optionalAttributes
-  # becuase of an infinite recursion error, and can't
-  # do that with a mkIf because the nix-darwin module
-  # system doesn't have those attributes.
 }

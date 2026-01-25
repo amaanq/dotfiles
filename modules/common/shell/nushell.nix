@@ -56,8 +56,6 @@ in
       {
         home.shell.enableNushellIntegration = true;
 
-        shells."0" = package;
-
         programs.nushell = enabled {
           inherit package;
 
