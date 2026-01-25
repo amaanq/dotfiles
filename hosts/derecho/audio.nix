@@ -82,6 +82,7 @@
               "stream.dont-remix" = true;
               "node.passive" = true;
               "node.target" = "Game-Output-Proxy";
+              "stream.capture.sink" = true;
             };
             "playback.props" = {
               "node.name" = "game-loopback-playback";
