@@ -51,20 +51,10 @@ let
       "default"
     ]);
 
-  inputModulesLinux =
-    attrValues (
-      builtins.removeAttrs inputs [
-        "nixcord" # Use home-manager module instead
-      ]
-    )
-    |> filter (hasAttrByPath [
-      "nixosModules"
-      "default"
-    ])
-    |> map (getAttrFromPath [
-      "nixosModules"
-      "default"
-    ]);
+  inputModulesLinux = collectInputs [
+    "nixosModules"
+    "default"
+  ];
   inputModulesDarwin = collectInputs [
     "darwinModules"
     "default"

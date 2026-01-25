@@ -142,11 +142,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nixcord = {
-      url = "github:FlameFlag/nixcord";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     niri = {
       url = "github:amaanq/niri-flake/default-module";
       inputs.nixpkgs.follows = "nixpkgs";

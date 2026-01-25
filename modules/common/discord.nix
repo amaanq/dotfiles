@@ -6,7 +6,6 @@
 }:
 let
   inherit (lib)
-    enabled
     merge
     mkIf
     theme
@@ -299,121 +298,5 @@ merge
 
   unfree.allowedNames = [
     "discord"
-  ];
-
-  home-manager.sharedModules = [
-    {
-      programs.nixcord = mkIf config.isDarwin (enabled {
-        config = {
-          useQuickCss = true;
-          themeLinks = [ ];
-
-          plugins = {
-            alwaysTrust = enabled;
-            anonymiseFileNames = enabled {
-              anonymiseByDefault = true;
-            };
-            betterFolders = enabled;
-            betterGifAltText = enabled;
-            betterRoleContext = enabled;
-            betterSessions = enabled;
-            betterSettings = enabled;
-            betterUploadButton = enabled;
-            biggerStreamPreview = enabled;
-            callTimer = enabled;
-            ClearURLs = enabled;
-            colorSighted = enabled;
-            consoleJanitor = enabled;
-            consoleShortcuts = enabled;
-            copyFileContents = enabled;
-            copyStickerLinks = enabled;
-            crashHandler = enabled;
-            dearrow = enabled;
-            disableCallIdle = enabled;
-            experiments = enabled {
-              toolbarDevMenu = false;
-            };
-            expressionCloner = enabled;
-            f8Break = enabled;
-            fakeNitro = enabled;
-            favoriteEmojiFirst = enabled;
-            fixCodeblockGap = enabled;
-            fixImagesQuality = enabled;
-            fixSpotifyEmbeds = enabled;
-            fixYoutubeEmbeds = enabled;
-            forceOwnerCrown = enabled;
-            friendsSince = enabled;
-            fullSearchContext = enabled;
-            gifPaste = enabled;
-            greetStickerPicker = enabled;
-            imageFilename = enabled;
-            imageZoom = enabled;
-            keepCurrentChannel = enabled;
-            memberCount = enabled;
-            messageLatency = enabled;
-            messageLinkEmbeds = enabled;
-            messageLogger = enabled;
-            MutualGroupDMs = enabled;
-            newGuildSettings = enabled;
-            noDevtoolsWarning = enabled;
-            noF1 = enabled;
-            noOnboardingDelay = enabled;
-            noPendingCount = enabled {
-              hideFriendRequestsCount = false;
-              hideMessageRequestsCount = false;
-            };
-            noProfileThemes = enabled;
-            normalizeMessageLinks = enabled;
-            noTypingAnimation = enabled;
-            noUnblockToJump = enabled;
-            OnePingPerDM = enabled;
-            openInApp = enabled;
-            permissionFreeWill = enabled;
-            permissionsViewer = enabled;
-            PinDMs = enabled;
-            platformIndicators = enabled;
-            reactErrorDecoder = enabled;
-            relationshipNotifier = enabled;
-            replaceGoogleSearch = enabled {
-              customEngineName = "Kagi";
-              customEngineURL = "https://kagi.com/search?q";
-            };
-            replyTimestamp = enabled;
-            reverseImageSearch = enabled;
-            sendTimestamps = enabled;
-            serverInfo = enabled;
-            serverListIndicators = enabled {
-              mode = 1;
-            };
-            showConnections = enabled;
-            showHiddenChannels = enabled;
-            showHiddenThings = enabled;
-            showTimeoutDuration = enabled;
-            silentTyping = enabled;
-            sortFriendRequests = enabled {
-              showDates = true;
-            };
-            spotifyControls = enabled;
-            spotifyCrack = enabled;
-            startupTimings = enabled;
-            translate = enabled;
-            typingIndicator = enabled;
-            typingTweaks = enabled;
-            unindent = enabled;
-            unlockedAvatarZoom = enabled;
-            validUser = enabled;
-            voiceDownload = enabled;
-            voiceMessages = enabled;
-            volumeBooster = enabled;
-            youtubeAdblock = enabled;
-          };
-
-          # Performance settings
-          frameless = false;
-          transparent = false;
-          disableMinSize = false;
-        };
-      });
-    }
   ];
 }
