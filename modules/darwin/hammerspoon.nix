@@ -1,13 +1,12 @@
 {
   homebrew.casks = [ "hammerspoon" ];
 
-  home-manager.sharedModules = [
-    {
-      xdg.configFile."hammerspoon/init.lua".text = "";
-
-      home.activation.setHammerspoonConfig = ''
-        $DRY_RUN_CMD /usr/bin/defaults write org.hammerspoon.Hammerspoon MJConfigFile ~/.config/hammerspoon/init.lua
-      '';
-    }
-  ];
+  # Point Hammerspoon to XDG config location
+  system.activationScripts.postActivation.text = ''
+    for user_home in /Users/*; do
+      if [ -d "$user_home" ]; then
+        /usr/bin/defaults write org.hammerspoon.Hammerspoon MJConfigFile "$user_home/.config/hammerspoon/init.lua"
+      fi
+    done
+  '';
 }
