@@ -37,6 +37,7 @@ let
 in
 merge {
   environment.shells = [ pkgs.nushell ];
+  environment.variables.HISTFILE = "$XDG_STATE_HOME/bash/history";
 }
 <| mkIf config.isDarwin {
   environment.systemPackages = [ pkgs.nushell ];

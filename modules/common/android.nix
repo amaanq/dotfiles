@@ -61,6 +61,8 @@ merge
     environment.variables = {
       ANDROID_SDK_ROOT = "${androidComposition.androidsdk}/libexec/android-sdk";
       ANDROID_USER_HOME = "$HOME/.local/share/android";
+      GRADLE_USER_HOME = "$XDG_DATA_HOME/gradle";
+      _JAVA_OPTIONS = "-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java";
     };
   }
 )

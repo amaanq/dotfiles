@@ -25,7 +25,10 @@ in
     pkgs.radicle-node
   ];
 
-  environment.variables.JJ_CONFIG = "/etc/jj/config.toml";
+  environment.variables = {
+    JJ_CONFIG = "/etc/jj/config.toml";
+    RAD_HOME = "$XDG_DATA_HOME/radicle";
+  };
 
   environment.etc."jj/config.toml".text = ''
     [user]

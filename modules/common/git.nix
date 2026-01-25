@@ -131,7 +131,10 @@ merge {
     will.lillis24@gmail.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIYWWRfOsSpi7M6ejCEWHGTtsvOA8v7FiUOBR2If1nVa
   '';
 
-  environment.variables.GIT_CONFIG_GLOBAL = "/etc/git/config";
+  environment.variables = {
+    GIT_CONFIG_GLOBAL = "/etc/git/config";
+    GNUPGHOME = "$XDG_DATA_HOME/gnupg";
+  };
 }
 <| mkIf config.isDesktop {
   environment.etc."git/config-desktop".source =

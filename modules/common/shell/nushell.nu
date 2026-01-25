@@ -663,7 +663,7 @@ def fg [id?: int] {
 }
 
 def --wrapped claude-work [...rest] {
-  with-env { CLAUDE_CONFIG_DIR: $'($env.HOME)/.claude-work' } {
+  with-env { CLAUDE_CONFIG_DIR: $'($env.XDG_CONFIG_HOME)/claude-work' } {
     ^claude ...$rest
   }
 }

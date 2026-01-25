@@ -28,5 +28,8 @@ merge
     pkgs.pwninit
   ];
 
-  environment.variables.RZ_LIB_PLUGINS = "${pkgs.rizinPlugins.rz-ghidra}/lib/rizin/plugins";
+  environment.variables = {
+    IDAUSR = "$XDG_DATA_HOME/idapro";
+    RZ_LIB_PLUGINS = "${pkgs.rizinPlugins.rz-ghidra}/lib/rizin/plugins";
+  };
 }
