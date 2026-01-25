@@ -28,9 +28,5 @@ merge
     pkgs.pwninit
   ];
 
-  home-manager.sharedModules = [
-    {
-      home.sessionVariables.RZ_LIB_PLUGINS = "${pkgs.rizinPlugins.rz-ghidra}/lib/rizin/plugins";
-    }
-  ];
+  environment.variables.RZ_LIB_PLUGINS = "${pkgs.rizinPlugins.rz-ghidra}/lib/rizin/plugins";
 }
