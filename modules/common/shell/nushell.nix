@@ -30,10 +30,19 @@ in
       let
         config' = homeArgs.config;
 
+        baseVariablesMap = {
+          HOME = config'.home.homeDirectory;
+          USER = config'.home.username;
+          XDG_CACHE_HOME = config'.xdg.cacheHome;
+          XDG_CONFIG_HOME = config'.xdg.configHome;
+          XDG_DATA_HOME = config'.xdg.dataHome;
+          XDG_STATE_HOME = config'.xdg.stateHome;
+        };
+
         environmentVariables =
           let
             variablesMap =
-              config'.variablesMap
+              baseVariablesMap
               |> mapAttrsToList (
                 name: value: [
                   {
@@ -150,8 +159,9 @@ in
 
               # atuin
               source ${
-                pkgs.runCommand "atuin.nu" { nativeBuildInputs = [ pkgs.writableTmpDirAsHomeHook ]; }
-                  ''${pkgs.atuin}/bin/atuin init nu --disable-up-arrow >> "$out"''
+                pkgs.runCommand "atuin.nu" {
+                  nativeBuildInputs = [ pkgs.writableTmpDirAsHomeHook ];
+                } ''${pkgs.atuin}/bin/atuin init nu --disable-up-arrow >> "$out"''
               }
 
               if ($env.USER == "amaanq") {
