@@ -181,7 +181,8 @@ in
 
   nix.settings =
     (import (self + /flake.nix)).nixConfig
-    |> flip removeAttrs (optionals (config.isDarwin or false) [ "use-cgroups" ]);
+    |> flip removeAttrs (optionals (config.isDarwin or false) [ "use-cgroups" ])
+    |> merge { eval-cores = 0; }; # parallel evaluation
 
   nix.optimise.automatic = !config.isDarwin;
 
