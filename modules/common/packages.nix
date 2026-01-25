@@ -70,9 +70,7 @@ in
     pkgs.maccy
   ]
   ++ optionals config.isDesktop [
-    (pkgs.files-to-prompt.overridePythonAttrs (old: {
-      doCheck = false;
-    }))
+    pkgs.files-to-prompt
     pkgs.go
     pkgs.qbittorrent
     (pkgs.rustdesk.overrideAttrs (old: {
