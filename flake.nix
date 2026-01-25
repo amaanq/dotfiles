@@ -38,18 +38,17 @@
   inputs = {
     nix = {
       url = "github:DeterminateSystems/nix-src";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # Unstable nixpkgs, using the new Lockable HTTP Tarball protocol
     # https://github.com/NixOS/infra/pull/562.
     # credits: @faukah
     nixpkgs.url = "https://channels.nixos.org/nixos-unstable/nixexprs.tar.xz";
-    nixpkgs-small.url = "https://channels.nixos.org/nixos-unstable-small/nixexprs.tar.xz";
 
     nirinit = {
       url = "github:amaanq/nirinit";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.fenix.follows = "fenix";
     };
 
     bindiff = {
@@ -91,6 +90,11 @@
       inputs.darwin.follows = "nix-darwin";
     };
 
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
+
     github2forgejo = {
       url = "github:RGBCube/GitHub2Forgejo";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -99,6 +103,9 @@
     lanzaboote = {
       url = "github:nix-community/lanzaboote/v0.4.3";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.rust-overlay.follows = "rust-overlay";
+      inputs.flake-compat.follows = "";
+      inputs.flake-parts.follows = "flake-parts";
     };
 
     rust-overlay = {
@@ -119,6 +126,8 @@
     nvim-config = {
       url = "github:amaanq/nvim-config";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.neovim-nightly-overlay.inputs.nixpkgs.follows = "nixpkgs";
+      inputs.neovim-nightly-overlay.inputs.flake-parts.follows = "flake-parts";
     };
 
     disko = {
@@ -134,11 +143,14 @@
     niri = {
       url = "github:amaanq/niri-flake/default-module";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs-stable.follows = "nixpkgs";
+      inputs.niri-unstable.follows = "niri-src";
     };
 
     niri-src = {
       url = "github:YaLTeR/niri";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.rust-overlay.follows = "rust-overlay";
     };
 
     dankMaterialShell = {
@@ -149,6 +161,7 @@
     nixpak = {
       url = "github:nixpak/nixpak";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
     };
 
     helium = {
@@ -164,6 +177,7 @@
     run0-sudo-shim = {
       url = "github:LordGrimmauld/run0-sudo-shim";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.rust-overlay.follows = "rust-overlay";
     };
 
     fcm2up-bridge = {
@@ -174,6 +188,7 @@
     xitter-notify-server = {
       url = "github:amaanq/xitter-notify-server";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.fenix.follows = "fenix";
     };
 
     qtengine = {
