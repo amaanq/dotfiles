@@ -11,6 +11,11 @@ let
     mkIf
     ;
 
+  ghConfig = {
+    git_protocol = "ssh";
+    version = "1"; # Prevents migration attempts
+  };
+
   iniFormat = pkgs.formats.gitIni { };
 
   gitConfig = {
@@ -109,9 +114,6 @@ let
     user.signingKey = "~/.ssh/id";
   };
 
-  ghConfig = {
-    git_protocol = "ssh";
-  };
 in
 merge {
   environment.systemPackages = [

@@ -160,6 +160,9 @@ let
           if ("${config.secrets.openai_api_key.path}" | path exists) {
             $env.OPENAI_API_KEY = (open ${config.secrets.openai_api_key.path} | str trim)
           }
+          if ("${config.secrets.githubToken.path}" | path exists) {
+            $env.GH_TOKEN = (open ${config.secrets.githubToken.path} | parse "access-tokens = github.com={token}" | get token.0)
+          }
         }
 
         # Rose Pine theme
