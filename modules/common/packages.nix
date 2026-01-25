@@ -8,10 +8,10 @@ let
   inherit (lib) optionals;
 
   claude-code = pkgs.claude-code.overrideAttrs (old: {
-    version = "2.1.17";
+    version = "2.1.19";
     src = pkgs.fetchzip {
-      url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.17.tgz";
-      hash = "sha256-cLJ8qKa8OhGpjdB7l1KAcG73EvH5T+OUww3flAKWihI=";
+      url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.19.tgz";
+      hash = "sha256-K2fJf1eRAyqmtAvKBzpAtMohQ4B1icwC9yf5zEf52C8=";
     };
   });
 in
