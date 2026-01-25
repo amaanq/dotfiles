@@ -1,12 +1,8 @@
 {
   homebrew.casks = [ "hammerspoon" ];
 
-  # Point Hammerspoon to XDG config location
+  # Point Hammerspoon directly to /etc/hammerspoon
   system.activationScripts.postActivation.text = ''
-    for user_home in /Users/*; do
-      if [ -d "$user_home" ]; then
-        /usr/bin/defaults write org.hammerspoon.Hammerspoon MJConfigFile "$user_home/.config/hammerspoon/init.lua"
-      fi
-    done
+    /usr/bin/defaults write org.hammerspoon.Hammerspoon MJConfigFile /etc/hammerspoon/init.lua
   '';
 }
