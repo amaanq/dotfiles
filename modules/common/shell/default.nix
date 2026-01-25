@@ -32,15 +32,11 @@ let
     }
 
     # Exec nushell
-    SHELL='${getExe pkgs.nushell}' exec "$SHELL"
+    exec ${getExe pkgs.nushell} --config /etc/nushell/config.nu
   '';
 in
 merge {
   environment.shells = [ pkgs.nushell ];
-
-  environment.systemPackages = [
-    pkgs.nu_scripts # Nushell scripts and completions.
-  ];
 }
 <| mkIf config.isDarwin {
   environment.systemPackages = [ pkgs.nushell ];
