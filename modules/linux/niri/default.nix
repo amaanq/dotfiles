@@ -95,7 +95,6 @@ in
       pkgs.lxqt.pavucontrol-qt
       pkgs.playerctl
       pkgs.satty
-      pkgs.swww
       pkgs.wf-recorder
       pkgs.wl-clipboard
       pkgs.wtype
@@ -204,21 +203,6 @@ in
 
       spawn-at-startup = [
         { command = [ "xwayland-satellite" ]; }
-        { command = [ "quickshell" ]; }
-        { command = [ "helium" ]; }
-        { command = [ "kitty" ]; }
-        { command = [ "spotify" ]; }
-        { command = [ "discord-web-app" ]; }
-        { command = [ "element-web-app" ]; }
-        { command = [ "cinny-web-app" ]; }
-        { command = [ "twitter-web-app" ]; }
-        { command = [ "swww-daemon" ]; }
-        {
-          command = [
-            "stash"
-            "watch"
-          ];
-        }
         { command = [ "${pkgs.mate.mate-polkit}/libexec/polkit-mate-authentication-agent-1" ]; }
         {
           command = [
