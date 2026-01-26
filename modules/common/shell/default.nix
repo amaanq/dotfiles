@@ -27,7 +27,7 @@ let
     # Export environment variables
     ${
       config.environment.variables
-      |> mapAttrsToList (name: value: "export ${name}='${value}'")
+      |> mapAttrsToList (name: value: "export ${name}=\"${value}\"")
       |> concatStringsSep "\n"
     }
 
