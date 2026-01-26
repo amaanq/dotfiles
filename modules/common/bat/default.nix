@@ -19,8 +19,9 @@ in
   };
 
   environment.variables = {
-    MANPAGER = "bat --plain";
+    MANPAGER = "bat -plman";
     PAGER = "bat --plain";
+    BAT_PAGER = "less -RFK";
   };
 
   environment.shellAliases = {
