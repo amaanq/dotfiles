@@ -2,27 +2,23 @@
 let
   colors = lib.theme.withHashtag;
 
-  btop-patched = pkgs.btop.overrideAttrs (oldAttrs: {
+  btopPatched = pkgs.btop.overrideAttrs (oldAttrs: {
     patches = (oldAttrs.patches or [ ]) ++ [
       ./cwd-detail.patch
     ];
   });
-
-  btop-wrapped = pkgs.symlinkJoin {
-    name = "btop";
-    paths = [ btop-patched ];
-    nativeBuildInputs = [ pkgs.makeWrapper ];
-    postBuild = ''
-      rm $out/bin/btop
-      makeWrapper ${btop-patched}/bin/btop $out/bin/btop \
-        --add-flags "--config /etc/btop/btop.conf" \
-        --add-flags "--themes-dir /etc/btop/themes"
-    '';
-    inherit (btop-patched) meta;
-  };
 in
 {
-  environment.systemPackages = [ btop-wrapped ];
+  wrappers.btop = {
+    basePackage = btopPatched;
+    systemWide = true;
+    executables.btop.args.suffix = [
+      "--config"
+      "/etc/btop/btop.conf"
+      "--themes-dir"
+      "/etc/btop/themes"
+    ];
+  };
 
   environment.etc."btop/themes/rose-pine.theme".text = ''
     theme[main_bg]="${colors.base00}"

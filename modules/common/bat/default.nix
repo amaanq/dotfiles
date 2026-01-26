@@ -1,28 +1,22 @@
 { pkgs, ... }:
 let
-  # Bat with rose-pine theme baked in
-  batWithTheme = pkgs.symlinkJoin {
-    name = "bat-with-theme";
-    paths = [ pkgs.bat ];
-    nativeBuildInputs = [ pkgs.makeWrapper ];
-    postBuild = ''
-      rm $out/bin/bat
-      mkdir -p $out/share/bat/themes
-      cp ${./rose-pine.tmTheme} $out/share/bat/themes/rose-pine.tmTheme
-
-      # Build cache with theme
-      mkdir -p $out/cache
-      XDG_CACHE_HOME=$out/cache ${pkgs.bat}/bin/bat cache --build --source $out/share/bat
-
-      makeWrapper ${pkgs.bat}/bin/bat $out/bin/bat \
-        --set BAT_CACHE_PATH $out/cache/bat \
-        --set BAT_THEME rose-pine
-    '';
-    inherit (pkgs.bat) meta;
-  };
+  batCache = pkgs.runCommand "bat-cache" { } ''
+    mkdir -p $out/themes
+    cp ${./rose-pine.tmTheme} $out/themes/rose-pine.tmTheme
+    mkdir -p $out/cache
+    XDG_CACHE_HOME=$out/cache ${pkgs.bat}/bin/bat cache --build --source $out
+    mv $out/cache/bat $out/bat-cache
+  '';
 in
 {
-  environment.systemPackages = [ batWithTheme ];
+  wrappers.bat = {
+    basePackage = pkgs.bat;
+    systemWide = true;
+    executables.bat.environment = {
+      BAT_CACHE_PATH.value = "${batCache}/bat-cache";
+      BAT_THEME.value = "rose-pine";
+    };
+  };
 
   environment.variables = {
     MANPAGER = "bat --plain";

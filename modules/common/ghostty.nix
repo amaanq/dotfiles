@@ -4,21 +4,12 @@
   pkgs,
   ...
 }:
-let
-  ghostty-wrapped = pkgs.symlinkJoin {
-    name = "ghostty";
-    paths = [ pkgs.ghostty ];
-    nativeBuildInputs = [ pkgs.makeWrapper ];
-    postBuild = ''
-      rm $out/bin/ghostty
-      makeWrapper ${pkgs.ghostty}/bin/ghostty $out/bin/ghostty \
-        --add-flags "--config-file=/etc/ghostty/config"
-    '';
-    inherit (pkgs.ghostty) meta;
-  };
-in
 lib.mkIf config.isDesktop {
-  environment.systemPackages = lib.mkIf config.isLinux [ ghostty-wrapped ];
+  wrappers.ghostty = {
+    basePackage = pkgs.ghostty;
+    systemWide = config.isLinux;
+    executables.ghostty.args.suffix = [ "--config-file=/etc/ghostty/config" ];
+  };
 
   environment.variables.TERM_PROGRAM = "ghostty";
 

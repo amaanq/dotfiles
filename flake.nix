@@ -196,6 +196,11 @@
       url = "github:kossLAN/qtengine";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nix-wrappers = {
+      url = "github:midischwarz12/nix-wrappers";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =

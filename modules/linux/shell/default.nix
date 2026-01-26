@@ -1,24 +1,24 @@
 {
+  config,
   lib,
   pkgs,
   ...
 }:
-let
-  inherit (lib) mkForce;
-
-  nushellWrapped =
-    (pkgs.writeShellScriptBin "nu" ''
-      exec ${pkgs.nushell}/bin/nu --config /etc/nushell/config.nu "$@"
-    '').overrideAttrs
-      { passthru.shellPath = "/bin/nu"; };
-in
 {
-  environment.shellAliases = {
-    ls = mkForce null;
-    l = mkForce null;
+  wrappers.nushell = {
+    basePackage = pkgs.nushell;
+    systemWide = true;
+    passthru.shellPath = "/bin/nu";
+    executables.nu.args.prefix = [
+      "--config"
+      "/etc/nushell/config.nu"
+    ];
   };
 
-  environment.systemPackages = [ nushellWrapped ];
+  users.defaultUserShell = config.wrappers.nushell.finalPackage;
 
-  users.defaultUserShell = nushellWrapped;
+  environment.shellAliases = {
+    ls = lib.mkForce null;
+    l = lib.mkForce null;
+  };
 }

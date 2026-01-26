@@ -67,40 +67,30 @@ let
 
   nh = pkgs.nh.override { inherit nix-output-monitor; };
 
-  statix =
+  statixConfig = pkgs.writeText "statix.toml" ''disabled = ["repeated_keys"]'';
+  statixPatched = pkgs.statix.overrideAttrs (
+    _o:
     let
-      statixConfig = pkgs.writeText "statix.toml" ''disabled = ["repeated_keys"]'';
-      statixBase = pkgs.statix.overrideAttrs (
-        _o:
-        let
-          src = pkgs.fetchFromGitHub {
-            owner = "oppiliappan";
-            repo = "statix";
-            rev = "43681f0da4bf1cc6ecd487ef0a5c6ad72e3397c7";
-            hash = "sha256-LXvbkO/H+xscQsyHIo/QbNPw2EKqheuNjphdLfIZUv4=";
-          };
-        in
-        {
-          inherit src;
-          cargoDeps = pkgs.rustPlatform.importCargoLock {
-            lockFile = src + "/Cargo.lock";
-            allowBuiltinFetchGit = true;
-          };
-          postPatch = ''
-            substituteInPlace bin/src/config.rs \
-              --replace-fail 'default_value = "."' 'default_value = ".", env = "STATIX_CONFIG"'
-          '';
-        }
-      );
+      src = pkgs.fetchFromGitHub {
+        owner = "oppiliappan";
+        repo = "statix";
+        rev = "43681f0da4bf1cc6ecd487ef0a5c6ad72e3397c7";
+        hash = "sha256-LXvbkO/H+xscQsyHIo/QbNPw2EKqheuNjphdLfIZUv4=";
+      };
     in
-    pkgs.symlinkJoin {
-      name = "statix";
-      paths = [ statixBase ];
-      nativeBuildInputs = [ pkgs.makeWrapper ];
-      postBuild = ''
-        wrapProgram $out/bin/statix --set STATIX_CONFIG ${statixConfig}
+    {
+      inherit src;
+      cargoDeps = pkgs.rustPlatform.importCargoLock {
+        lockFile = src + "/Cargo.lock";
+        allowBuiltinFetchGit = true;
+      };
+      postPatch = ''
+        substituteInPlace bin/src/config.rs \
+          --replace-fail 'default_value = "."' 'default_value = ".", env = "STATIX_CONFIG"'
       '';
-    };
+    }
+  );
+
   registryMap = inputs |> filterAttrs (const <| isType "flake");
 
   # Resolve hostname via tailscale, connect with netcat
@@ -211,11 +201,16 @@ in
 
   nix.optimise.automatic = !config.isDarwin;
 
+  wrappers.statix = {
+    basePackage = statixPatched;
+    systemWide = true;
+    executables.statix.environment.STATIX_CONFIG.value = "${statixConfig}";
+  };
+
   environment.systemPackages = [
     nh
     nix-output-monitor
     pkgs.nix-index
-    statix
   ];
 
   programs.ssh.extraConfig =

@@ -1,34 +1,24 @@
 {
   config,
   lib,
-  pkgs,
   helium,
   ...
 }:
 let
   inherit (lib)
-    merge
     mkIf
-    optional
+    optionals
     ;
 in
-merge
-<| mkIf config.isDesktop {
-  environment.variables = {
-    BROWSER = "helium";
+mkIf config.isDesktop {
+  wrappers.helium = {
+    basePackage = helium.packages.${config.hostSystem}.helium;
+    systemWide = true;
+    executables.helium.args.suffix = optionals config.isLinux [ "--use-angle=vulkan" ] ++ [
+      "--enable-quic"
+      "--quic-version=h3-29"
+    ];
   };
 
-  environment.systemPackages =
-    optional config.isLinux (
-      pkgs.symlinkJoin {
-        name = "helium";
-        paths = [ helium.packages.${config.hostSystem}.helium ];
-        buildInputs = [ pkgs.makeWrapper ];
-        postBuild = ''
-          wrapProgram $out/bin/helium \
-            --add-flags "--use-angle=vulkan --enable-quic --quic-version=h3-29"
-        '';
-      }
-    )
-    ++ optional config.isDarwin helium.packages.${config.hostSystem}.helium;
+  environment.variables.BROWSER = "helium";
 }
