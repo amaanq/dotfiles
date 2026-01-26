@@ -29,7 +29,7 @@ let
     color.ui = true;
     core = {
       attributesfile = "/etc/git/attributes";
-      pager = "delta";
+      pager = "delta --config /etc/git/config";
       preloadindex = true;
       untrackedcache = true;
     };
@@ -41,17 +41,17 @@ let
       side-by-side = false;
       line-numbers = true;
       # https://github.com/folke/tokyonight.nvim/blob/main/extras/delta/tokyonight_moon.gitconfig
-      minus-style = "syntax \"#3a273a\"";
-      minus-non-emph-style = "syntax \"#3a273a\"";
-      minus-emph-style = "syntax \"#6b2e43\"";
-      minus-empty-line-marker-style = "syntax \"#3a273a\"";
-      line-numbers-minus-style = "\"#e26a75\"";
-      plus-style = "syntax \"#273849\"";
-      plus-non-emph-style = "syntax \"#273849\"";
-      plus-emph-style = "syntax \"#305f6f\"";
-      plus-empty-line-marker-style = "syntax \"#273849\"";
-      line-numbers-plus-style = "\"#b8db87\"";
-      line-numbers-zero-style = "\"#3b4261\"";
+      minus-style = "syntax #3a273a";
+      minus-non-emph-style = "syntax #3a273a";
+      minus-emph-style = "syntax #6b2e43";
+      minus-empty-line-marker-style = "syntax #3a273a";
+      line-numbers-minus-style = "#e26a75";
+      plus-style = "syntax #273849";
+      plus-non-emph-style = "syntax #273849";
+      plus-emph-style = "syntax #305f6f";
+      plus-empty-line-marker-style = "syntax #273849";
+      line-numbers-plus-style = "#b8db87";
+      line-numbers-zero-style = "#3b4261";
     };
 
     diff = {
