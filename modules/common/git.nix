@@ -113,7 +113,6 @@ let
     };
     user.signingKey = "~/.ssh/id";
   };
-
 in
 merge {
   wrappers.delta = {
@@ -128,7 +127,6 @@ merge {
   environment.systemPackages = [
     pkgs.difftastic
     pkgs.git
-    pkgs.lazygit
     pkgs.mergiraf
   ];
 
