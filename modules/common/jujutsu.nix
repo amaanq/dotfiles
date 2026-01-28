@@ -195,7 +195,6 @@ in
 {
   environment.systemPackages = [
     pkgs.difftastic
-    pkgs.jjui
     pkgs.jujutsu
     pkgs.mergiraf
     pkgs.radicle-node
