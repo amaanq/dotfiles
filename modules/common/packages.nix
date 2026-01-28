@@ -7,13 +7,19 @@
 let
   inherit (lib) optionals;
 
-  claude-code = pkgs.claude-code.overrideAttrs (_: {
-    version = "2.1.19";
-    src = pkgs.fetchzip {
-      url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-2.1.19.tgz";
-      hash = "sha256-K2fJf1eRAyqmtAvKBzpAtMohQ4B1icwC9yf5zEf52C8=";
-    };
-  });
+  claude-code = pkgs.claude-code.overrideAttrs (
+    _:
+    let
+      version = "2.1.23";
+    in
+    {
+      inherit version;
+      src = pkgs.fetchzip {
+        url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${version}.tgz";
+        hash = "sha256-Cl/lwk1ffwrc+v1ncdShjeheNnkoocmXSDUDOCRHJgQ=";
+      };
+    }
+  );
 in
 {
   unfree.allowedNames = [
