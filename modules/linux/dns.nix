@@ -58,35 +58,36 @@ in
           zone_type = "External";
           stores = {
             type = "forward";
+            # Temporarily use Quad9 while I'm at FOSDEM cuz NextDNS + FiOS is retarded
             name_servers =
               let
-                mkNextDnsServer = ip: {
+                mkQuad9Server = ip: {
                   inherit ip;
                   trust_negative_responses = true;
                   connections = [
+                    # {
+                    #   protocol = {
+                    #     server_name = "dns.quad9.net";
+                    #     path = "/dns-query";
+                    #     type = "h3";
+                    #   };
+                    # }
                     {
                       protocol = {
-                        server_name = "dns.nextdns.io";
-                        path = "/9b2c13/${hostname}";
-                        type = "h3";
-                      };
-                    }
-                    {
-                      protocol = {
-                        server_name = "dns.nextdns.io";
-                        path = "/9b2c13/${hostname}";
+                        server_name = "dns.quad9.net";
+                        path = "/dns-query";
                         type = "https";
                       };
                     }
                     {
                       protocol = {
-                        server_name = "${hostname}-9b2c13.dns.nextdns.io";
+                        server_name = "dns.quad9.net";
                         type = "quic";
                       };
                     }
                     {
                       protocol = {
-                        server_name = "${hostname}-9b2c13.dns.nextdns.io";
+                        server_name = "dns.quad9.net";
                         type = "tls";
                       };
                     }
@@ -94,11 +95,11 @@ in
                 };
               in
               [
-                (mkNextDnsServer "2a07:a8c0::")
-                (mkNextDnsServer "2a07:a8c1::")
+                (mkQuad9Server "2620:fe::fe")
+                (mkQuad9Server "2620:fe::9")
                 # IPv4 fallback
-                (mkNextDnsServer "45.90.28.0")
-                (mkNextDnsServer "45.90.30.0")
+                (mkQuad9Server "9.9.9.9")
+                (mkQuad9Server "149.112.112.112")
               ];
           };
         }
