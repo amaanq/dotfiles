@@ -3,6 +3,17 @@ let
   inherit (lib) theme;
   tomlFormat = pkgs.formats.toml { };
 
+  # Build jjui from local source with diff-editor cycling feature
+  jjui = pkgs.jjui.overrideAttrs (old: {
+    src = pkgs.fetchFromGitHub {
+      owner = "idursun";
+      repo = "jjui";
+      rev = "0b4efd3"; # main branch
+      hash = "sha256-U4KLOGP2t1fXQmEEm+Tco6srubzNQVTS+k26Xo6UtcA=";
+    };
+    patches = (old.patches or [ ]) ++ [ ./diff.patch ];
+  });
+
   settings = {
     limit = 0;
 
@@ -59,6 +70,7 @@ let
       leader = [ "\\" ];
       suspend = [ "ctrl+z" ];
       set_parents = [ "M" ];
+      cycle_diff_editor = [ "ctrl+e" ];
 
       rebase = {
         mode = [ "r" ];
@@ -219,6 +231,7 @@ let
         "always"
         "-r"
         "$change_id"
+        "$diff_tool"
       ];
       evolog_command = [
         "show"
@@ -226,6 +239,7 @@ let
         "always"
         "-r"
         "$commit_id"
+        "$diff_tool"
       ];
       oplog_command = [
         "op"
@@ -241,10 +255,11 @@ let
         "-r"
         "$change_id"
         "$file"
+        "$diff_tool"
       ];
       position = "auto";
       show_at_start = true;
-      width_percentage = 50.0;
+      width_percentage = 67.0;
       width_increment_percentage = 5.0;
     };
 
@@ -259,10 +274,23 @@ let
     ssh = {
       hijack_askpass = false;
     };
+
+    diff_editor = {
+      tools = [
+        ":git"
+        "delta"
+        "difft"
+      ];
+      editors = [
+        ":builtin"
+        "meld"
+        "difft"
+      ];
+    };
   };
 in
 {
-  environment.systemPackages = [ pkgs.jjui ];
+  environment.systemPackages = [ jjui ];
 
   environment.shellAliases.jju = "jjui";
 
