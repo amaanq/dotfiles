@@ -130,13 +130,7 @@ let
     ui = {
       default-command = "ls";
       diff-editor = ":builtin";
-      diff-formatter = [
-        "difft"
-        "--color"
-        "always"
-        "$left"
-        "$right"
-      ];
+      diff-formatter = [ "delta" ];
       conflict-marker-style = "snapshot";
       graph = {
         style = graphStyle;

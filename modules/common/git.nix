@@ -29,7 +29,7 @@ let
     color.ui = true;
     core = {
       attributesfile = "/etc/git/attributes";
-      pager = "delta --config /etc/git/config";
+      pager = "delta";
       preloadindex = true;
       untrackedcache = true;
     };
@@ -116,8 +116,16 @@ let
 
 in
 merge {
+  wrappers.delta = {
+    basePackage = pkgs.delta;
+    systemWide = true;
+    executables.delta.args.suffix = [
+      "--config"
+      "/etc/git/config"
+    ];
+  };
+
   environment.systemPackages = [
-    pkgs.delta
     pkgs.difftastic
     pkgs.git
     pkgs.lazygit

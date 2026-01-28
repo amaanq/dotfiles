@@ -66,7 +66,7 @@ let
       pagers = [
         {
           colorArg = "always";
-          pager = "delta --config /etc/git/config --dark --paging=never";
+          pager = "delta --dark --paging=never";
           useConfig = false;
         }
       ];
