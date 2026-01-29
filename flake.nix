@@ -164,7 +164,7 @@
     };
 
     watt = {
-      url = "github:notashelf/watt/v1-dev";
+      url = "github:notashelf/watt";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
