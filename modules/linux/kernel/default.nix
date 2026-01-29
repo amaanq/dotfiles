@@ -198,6 +198,9 @@ in
     # Log packets with impossible addresses.
     "net.ipv4.conf.all.log_martians" = 1;
     "net.ipv4.conf.default.log_martians" = 1;
+
+    # TCP performance for long-lived streams (SSE, websockets).
+    "net.ipv4.tcp_slow_start_after_idle" = 0;
   };
 
   # https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html
