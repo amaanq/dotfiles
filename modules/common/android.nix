@@ -29,7 +29,7 @@ merge
     nixpkgs.config.android_sdk.accept_license = true;
 
     unfree.allowedNames = [
-      "android-studio-stable"
+      "android-studio"
       "android-sdk-ndk"
       "android-sdk-build-tools"
       "android-sdk-cmdline-tools"
