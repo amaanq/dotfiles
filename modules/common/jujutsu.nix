@@ -159,9 +159,13 @@ let
     };
 
     remotes = {
-      origin = {
+      "*" = {
         auto-track-bookmarks = "glob:*";
       };
+    };
+
+    snapshot = {
+      auto-update-stale = true;
     };
 
     git = {
