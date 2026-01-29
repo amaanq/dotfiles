@@ -10,13 +10,13 @@ let
   claude-code = pkgs.claude-code.overrideAttrs (
     _:
     let
-      version = "2.1.23";
+      version = "2.1.34";
     in
     {
       inherit version;
       src = pkgs.fetchzip {
         url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${version}.tgz";
-        hash = "sha256-Cl/lwk1ffwrc+v1ncdShjeheNnkoocmXSDUDOCRHJgQ=";
+        hash = "sha256-J3kltFY5nR3PsRWbW310VqD/6hhfMbVSvynv0eaIi3M=";
       };
     }
   );
