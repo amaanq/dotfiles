@@ -21,7 +21,6 @@
     builders-use-substitutes = true;
     flake-registry = "";
     http-connections = 50;
-    lazy-trees = true;
     show-trace = true;
     trusted-users = [
       "root"
@@ -35,10 +34,6 @@
   };
 
   inputs = {
-    nix = {
-      url = "github:DeterminateSystems/nix-src";
-    };
-
     # Unstable nixpkgs, using the new Lockable HTTP Tarball protocol
     # https://github.com/NixOS/infra/pull/562.
     # credits: @faukah

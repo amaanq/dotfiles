@@ -196,10 +196,11 @@ in
 
   nix.settings =
     (import (self + /flake.nix)).nixConfig
-    |> flip removeAttrs (optionals (config.isDarwin or false) [ "use-cgroups" ])
-    |> merge { eval-cores = 0; }; # parallel evaluation
+    |> flip removeAttrs (optionals (config.isDarwin or false) [ "use-cgroups" ]);
 
   nix.optimise.automatic = !config.isDarwin;
+
+  nix.package = pkgs.nixVersions.latest;
 
   wrappers.statix = {
     basePackage = statixPatched;
