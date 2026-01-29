@@ -1,4 +1,3 @@
-# On Darwin, XDG vars aren't set by default (no systemd/DM).
 {
   environment.variables = {
     XDG_CONFIG_HOME = "$HOME/.config";
