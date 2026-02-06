@@ -161,6 +161,7 @@ let
     remotes = {
       "*" = {
         auto-track-bookmarks = "glob:*";
+        push-new-bookmarks = true;
       };
     };
 
