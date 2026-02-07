@@ -102,6 +102,7 @@ let
   desktopGitConfig = {
     core.sshCommand = "ssh -i ~/.ssh/id";
     url."ssh://git@github.com/".insteadOf = "https://github.com/";
+    url."ssh://forgejo@scarp:6767/".insteadOf = "https://git.amaanq.com/";
 
     commit.gpgSign = true;
     tag.gpgSign = true;
@@ -115,6 +116,15 @@ let
   };
 in
 merge {
+  secrets.gitPrivate = {
+    file = ./git-private.age;
+    mode = "0444";
+  };
+  secrets.gitIdentity = {
+    file = ./git-identity.age;
+    mode = "0444";
+  };
+
   wrappers.delta = {
     basePackage = pkgs.delta;
     systemWide = true;
@@ -130,7 +140,12 @@ merge {
     pkgs.mergiraf
   ];
 
-  environment.etc."git/config".source = iniFormat.generate "gitconfig" gitConfig;
+  environment.etc."git/config".source = iniFormat.generate "gitconfig" (
+    gitConfig
+    // {
+      include.path = config.secrets.gitPrivate.path;
+    }
+  );
   environment.etc."git/attributes".text = "* merge=mergiraf\n";
   environment.etc."git/allowed_signers".text = ''
     git@amaanq.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID+36H8eD4p4waEpgPejhPCNGymi+OSN9fZ5LRUBcOnP
@@ -151,7 +166,10 @@ merge {
     iniFormat.generate "gitconfig" (
       gitConfig
       // {
-        include.path = "/etc/git/config-desktop";
+        include.path = [
+          "/etc/git/config-desktop"
+          config.secrets.gitPrivate.path
+        ];
       }
     )
   );
