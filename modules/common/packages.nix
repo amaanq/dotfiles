@@ -90,5 +90,6 @@ in
   environment.variables = {
     CLAUDE_CONFIG_DIR = "$XDG_CONFIG_HOME/claude";
     GOPATH = "$XDG_DATA_HOME/go";
+    GOTELEMETRY = "off";
   };
 }
