@@ -76,6 +76,7 @@ let
 
               # Control Flow Integrity (CFI) with Clang
               CFI = yes;
+              CFI_PERMISSIVE = no;
 
               # Wipe CPU registers on return (prevents ROP attacks)
               ZERO_CALL_USED_REGS = yes;
