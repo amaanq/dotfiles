@@ -1,21 +1,14 @@
-# config,
-{ lib, ... }:
+{ config, lib, ... }:
 let
   inherit (lib) mkConst;
-  # hostname = config.networking.hostName;
+  hostname = config.networking.hostName;
 in
 {
-  # Temporarily use Quad9 while I'm at FOSDEM cuz NextDNS + FiOS is retarded
-  # Original NextDNS:
-  #   "45.90.28.0#${hostname}-9b2c13.dns.nextdns.io"
-  #   "2a07:a8c0::#${hostname}-9b2c13.dns.nextdns.io"
-  #   "45.90.30.0#${hostname}-9b2c13.dns.nextdns.io"
-  #   "2a07:a8c1::#${hostname}-9b2c13.dns.nextdns.io"
   options.dns.servers = mkConst [
-    "9.9.9.9#dns.quad9.net"
-    "2620:fe::fe#dns.quad9.net"
-    "149.112.112.112#dns.quad9.net"
-    "2620:fe::9#dns.quad9.net"
+    "45.90.28.0#${hostname}-9b2c13.dns.nextdns.io"
+    "2a07:a8c0::#${hostname}-9b2c13.dns.nextdns.io"
+    "45.90.30.0#${hostname}-9b2c13.dns.nextdns.io"
+    "2a07:a8c1::#${hostname}-9b2c13.dns.nextdns.io"
   ];
 
   options.dns.serversFallback = mkConst [
