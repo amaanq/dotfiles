@@ -48,7 +48,9 @@ in
 {
   # Run shadow script for each configured user on activation
   # -H sets HOME to the target user's home directory
-  system.activationScripts.postActivation.text = users |> concatMapStringsSep "\n" (u: ''
-    sudo -H -u ${u.name} ${pkgs.nushell}/bin/nu ${shadowScript} || true
-  '');
+  system.activationScripts.postActivation.text =
+    users
+    |> concatMapStringsSep "\n" (u: ''
+      sudo -H -u ${u.name} ${pkgs.nushell}/bin/nu ${shadowScript} || true
+    '');
 }
