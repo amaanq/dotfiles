@@ -68,9 +68,19 @@ let
   configNu =
     pkgs.writeText "config.nu" # nu
       ''
-        # Environment variables
+        # Base variables first (XDG dirs, HOME, USER) so that subsequent
+        # variables can reference them over SSH where /etc/profile isn't sourced
         ${
           environmentVariables
+          |> filterAttrs (name: const <| baseVariablesMap ? ${name})
+          |> mapAttrsToList (name: value: "$env.${name} = $\"${value}\"")
+          |> concatStringsSep "\n"
+        }
+
+        # Remaining environment variables
+        ${
+          environmentVariables
+          |> filterAttrs (name: const <| !(baseVariablesMap ? ${name}))
           |> mapAttrsToList (name: value: "$env.${name} = $\"${value}\"")
           |> concatStringsSep "\n"
         }
