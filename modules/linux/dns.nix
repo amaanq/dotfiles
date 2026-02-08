@@ -50,6 +50,11 @@ in
                 protocol.type = "udp";
               };
             };
+            options = {
+              cache_size = 256;
+              positive_max_ttl = 300;
+              negative_max_ttl = 60;
+            };
           };
         }
         # DoH/DoQ for anything else
@@ -100,6 +105,13 @@ in
                 (mkNextDnsServer "45.90.28.0")
                 (mkNextDnsServer "45.90.30.0")
               ];
+            options = {
+              cache_size = 4096;
+              positive_min_ttl = 60;
+              positive_max_ttl = 86400;
+              negative_min_ttl = 30;
+              negative_max_ttl = 3600;
+            };
           };
         }
       ];
