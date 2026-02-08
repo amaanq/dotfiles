@@ -7,23 +7,62 @@
 let
   inherit (lib) optionals;
 
-  claude-code = pkgs.claude-code.overrideAttrs (
-    _:
+  claude-code =
     let
-      version = "2.1.34";
-    in
-    {
-      inherit version;
-      src = pkgs.fetchzip {
-        url = "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-${version}.tgz";
-        hash = "sha256-J3kltFY5nR3PsRWbW310VqD/6hhfMbVSvynv0eaIi3M=";
+      version = "2.1.37";
+      baseUrl = "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/${version}";
+      sources = {
+        x86_64-linux = {
+          url = "${baseUrl}/linux-x64/claude";
+          hash = "sha256-+Wek0G4WoyQ2tjKeLb7UWan6TTTwdjWh+ycbdPcGyR8=";
+        };
+        aarch64-linux = {
+          url = "${baseUrl}/linux-arm64/claude";
+          hash = "sha256-1yXMcwYPQAp6wDp2mWk5fa7J1BHb1bHHux+mBCe/ZX4=";
+        };
+        aarch64-darwin = {
+          url = "${baseUrl}/darwin-arm64/claude";
+          hash = "sha256-AO0Qr7elYkQHc94xKEVozpwzOF1506kSoSryYq79Ew4=";
+        };
       };
-    }
-  );
+    in
+    pkgs.stdenv.mkDerivation {
+      pname = "claude-code";
+      inherit version;
+      src = pkgs.fetchurl sources.${pkgs.stdenv.hostPlatform.system};
+      dontUnpack = true;
+      dontStrip = true;
+      nativeBuildInputs = [
+        pkgs.makeBinaryWrapper
+      ]
+      ++ optionals pkgs.stdenv.hostPlatform.isElf [ pkgs.autoPatchelfHook ];
+      installPhase = ''
+        install -Dm755 $src $out/bin/.claude-unwrapped
+        makeBinaryWrapper $out/bin/.claude-unwrapped $out/bin/claude \
+          --set DISABLE_AUTOUPDATER 1 \
+          --set DISABLE_INSTALLATION_CHECKS 1 \
+          --set USE_BUILTIN_RIPGREP 0 \
+          --prefix PATH : ${
+            lib.makeBinPath (
+              [
+                pkgs.procps
+                pkgs.ripgrep
+              ]
+              ++ optionals pkgs.stdenv.hostPlatform.isLinux [
+                pkgs.bubblewrap
+                pkgs.socat
+              ]
+            )
+          }
+      '';
+      meta = {
+        mainProgram = "claude";
+        platforms = builtins.attrNames sources;
+      };
+    };
 in
 {
   unfree.allowedNames = [
-    "claude-code"
     "megasync"
     "spotify"
   ];
