@@ -70,6 +70,7 @@ let
               (sloth.concat' sloth.homeDir "/.local/state/ida")
               (sloth.concat' sloth.homeDir "/.idapro")
             ]
+            (sloth.concat' sloth.homeDir "/.local/share/idapro")
             # Runtime directory for temp files
             (sloth.env "XDG_RUNTIME_DIR")
             # Work directory for analysis
@@ -105,6 +106,7 @@ let
           ];
 
           env = {
+            IDAUSR = sloth.concat' sloth.homeDir "/.local/share/idapro";
             LUMINA_HOST = "nunatak";
             LUMINA_PORT = "443";
             LUMINA_TLS = "YES";
