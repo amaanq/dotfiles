@@ -92,6 +92,13 @@ let
 
               # Reduce most of the exposure of a heap attack to a single cache.
               SLAB_MERGE_DEFAULT = no;
+
+              # Disable Kyber IO scheduler — NVMe drives have hardware scheduling
+              MQ_IOSCHED_KYBER = lib.mkForce no;
+
+              # Disable writeback throttling, it's designed for slow SATA but only adds overhead on NVMe
+              BLK_WBT = lib.mkForce no;
+              BLK_WBT_MQ = lib.mkForce (option no);
             };
           };
         }).overrideAttrs
@@ -202,6 +209,11 @@ in
 
     # TCP performance for long-lived streams (SSE, websockets).
     "net.ipv4.tcp_slow_start_after_idle" = 0;
+
+    # Buffer more dirty pages before flushing, which reduces write stalls during
+    # parallel builds
+    "vm.dirty_ratio" = 40;
+    "vm.dirty_background_ratio" = 20;
   };
 
   # https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html

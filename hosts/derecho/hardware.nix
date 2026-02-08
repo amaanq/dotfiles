@@ -49,6 +49,7 @@ in
   fileSystems."/" = {
     device = "UUID=fef71188-998b-4a00-a263-6b525fe9832b";
     fsType = "bcachefs";
+    options = [ "noatime" ];
   };
 
   fileSystems."/boot" = {
