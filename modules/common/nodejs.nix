@@ -10,5 +10,6 @@
     NPM_CONFIG_INIT_MODULE = "$XDG_CONFIG_HOME/npm/config/npm-init.js";
     NPM_CONFIG_TMP = "$XDG_RUNTIME_DIR/npm";
     NPM_CONFIG_UPDATE_NOTIFIER = "false";
+    NEXT_TELEMETRY_DISABLED = "1";
   };
 }

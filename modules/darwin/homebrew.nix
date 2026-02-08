@@ -9,7 +9,10 @@ let
   inherit (lib) enabled;
 in
 {
-  homebrew = enabled;
+  homebrew = enabled {
+    global.autoUpdate = false;
+    global.analytics = false;
+  };
 
   nix-homebrew = enabled {
     user = config.system.primaryUser;
