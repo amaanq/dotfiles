@@ -1,0 +1,229 @@
+diff --git a/packages/opencode/src/cli/cmd/tui/app.tsx b/packages/opencode/src/cli/cmd/tui/app.tsx
+index 0d5aefe7b..55ba7a06a 100644
+--- a/packages/opencode/src/cli/cmd/tui/app.tsx
++++ b/packages/opencode/src/cli/cmd/tui/app.tsx
+@@ -11,10 +11,11 @@ import { SDKProvider, useSDK } from "@tui/context/sdk"
+ import { SyncProvider, useSync } from "@tui/context/sync"
+ import { LocalProvider, useLocal } from "@tui/context/local"
+ import { DialogModel, useConnected } from "@tui/component/dialog-model"
+ import { DialogMcp } from "@tui/component/dialog-mcp"
+ import { DialogStatus } from "@tui/component/dialog-status"
++import { DialogUsage } from "@tui/component/dialog-usage"
+ import { DialogThemeList } from "@tui/component/dialog-theme-list"
+ import { DialogHelp } from "./ui/dialog-help"
+ import { CommandProvider, useCommandDialog } from "@tui/component/dialog-command"
+ import { DialogAgent } from "@tui/component/dialog-agent"
+ import { DialogSessionList } from "@tui/component/dialog-session-list"
+@@ -475,10 +476,21 @@ function App() {
+       onSelect: () => {
+         dialog.replace(() => <DialogStatus />)
+       },
+       category: "System",
+     },
++    {
++      title: "View usage",
++      value: "opencode.usage",
++      slash: {
++        name: "usage",
++      },
++      onSelect: () => {
++        dialog.replace(() => <DialogUsage />)
++      },
++      category: "System",
++    },
+     {
+       title: "Switch theme",
+       value: "theme.switch",
+       keybind: "theme_list",
+       slash: {
+diff --git a/packages/opencode/src/cli/cmd/tui/component/dialog-usage.tsx b/packages/opencode/src/cli/cmd/tui/component/dialog-usage.tsx
+new file mode 100644
+index 000000000..3dbc86c15
+--- /dev/null
++++ b/packages/opencode/src/cli/cmd/tui/component/dialog-usage.tsx
+@@ -0,0 +1,119 @@
++import { TextAttributes } from "@opentui/core"
++import { useTheme } from "../context/theme"
++import { useDialog } from "@tui/ui/dialog"
++import { useSDK } from "@tui/context/sdk"
++import { createResource, For, Show, createSignal } from "solid-js"
++
++type Bucket = { utilization: number; resets_at: string | null }
++
++function relative(iso: string) {
++  const diff = new Date(iso).getTime() - Date.now()
++  if (diff <= 0) return "now"
++  const mins = Math.floor(diff / 60000)
++  const hours = Math.floor(mins / 60)
++  const days = Math.floor(hours / 24)
++  const remaining = mins % 60
++  if (days > 0) return `${days}d ${hours % 24}h`
++  if (hours > 0) return `${hours}h ${remaining}m`
++  return `${mins}m`
++}
++
++function bar(pct: number) {
++  const width = 20
++  const filled = Math.round((pct / 100) * width)
++  const empty = width - filled
++  return "\u2588".repeat(filled) + "\u2591".repeat(empty)
++}
++
++export function DialogUsage() {
++  const { theme } = useTheme()
++  const dialog = useDialog()
++  const sdk = useSDK()
++  const [hover, setHover] = createSignal(false)
++
++  const [data] = createResource(async () => {
++    const response = await fetch(sdk.url + "/auth/usage")
++    if (!response.ok) return null
++    return response.json()
++  })
++
++  const buckets = () => {
++    const d = data()
++    if (!d) return []
++    return [
++      { name: "5-Hour Rolling", bucket: d.five_hour as Bucket | null },
++      { name: "7-Day (All Models)", bucket: d.seven_day as Bucket | null },
++      { name: "7-Day (Sonnet)", bucket: d.seven_day_sonnet as Bucket | null },
++      { name: "7-Day (Opus)", bucket: d.seven_day_opus as Bucket | null },
++    ].filter((x) => x.bucket)
++  }
++
++  return (
++    <box paddingLeft={2} paddingRight={2} gap={1} paddingBottom={1}>
++      <box flexDirection="row" justifyContent="space-between">
++        <text fg={theme.text} attributes={TextAttributes.BOLD}>
++          Claude Max Usage
++        </text>
++        <box
++          paddingLeft={1}
++          paddingRight={1}
++          backgroundColor={hover() ? theme.primary : undefined}
++          onMouseOver={() => setHover(true)}
++          onMouseOut={() => setHover(false)}
++          onMouseUp={() => dialog.clear()}
++        >
++          <text fg={hover() ? theme.selectedListItemText : theme.textMuted}>esc</text>
++        </box>
++      </box>
++      <Show when={!data.loading && data()} fallback={<text fg={theme.textMuted}>Loading usage data…</text>}>
++        <Show
++          when={buckets().length > 0}
++          fallback={<text fg={theme.textMuted}>No usage data available. Are you logged in with Claude Max?</text>}
++        >
++          <For each={buckets()}>
++            {(item) => {
++              const pct = Math.floor(item.bucket!.utilization)
++              const reset = item.bucket!.resets_at ? relative(item.bucket!.resets_at) : null
++              return (
++                <box>
++                  <text fg={theme.text}>
++                    <b>{item.name}</b>
++                  </text>
++                  <box flexDirection="row" gap={1}>
++                    <text fg={pct >= 90 ? theme.error : pct >= 70 ? theme.warning : theme.success}>{bar(pct)}</text>
++                    <text fg={theme.text}>{pct}%</text>
++                  </box>
++                  <Show when={reset}>
++                    <text fg={theme.textMuted}>Resets in {reset}</text>
++                  </Show>
++                </box>
++              )
++            }}
++          </For>
++        </Show>
++      </Show>
++      <Show when={!data.loading && data()?.extra_usage?.is_enabled}>
++        {(_) => {
++          const extra = data()!.extra_usage
++          const used = ((extra.used_credits ?? 0) / 100).toFixed(2)
++          const limit = ((extra.monthly_limit ?? 0) / 100).toFixed(2)
++          const pct = extra.utilization ? Math.round(extra.utilization) : 0
++          return (
++            <box>
++              <text fg={theme.text}>
++                <b>Extra Usage</b>
++              </text>
++              <box flexDirection="row" gap={1}>
++                <text fg={pct >= 90 ? theme.error : pct >= 70 ? theme.warning : theme.success}>{bar(pct)}</text>
++                <text fg={theme.text}>{pct}%</text>
++              </box>
++              <text fg={theme.textMuted}>
++                ${used} / ${limit}
++              </text>
++            </box>
++          )
++        }}
++      </Show>
++    </box>
++  )
++}
+diff --git a/packages/opencode/src/server/server.ts b/packages/opencode/src/server/server.ts
+index 015553802..183cbbdd1 100644
+--- a/packages/opencode/src/server/server.ts
++++ b/packages/opencode/src/server/server.ts
+@@ -182,10 +182,61 @@ export namespace Server {
+             const providerID = c.req.valid("param").providerID
+             await Auth.remove(providerID)
+             return c.json(true)
+           },
+         )
++        .get(
++          "/auth/usage",
++          describeRoute({
++            summary: "Get OAuth usage",
++            description: "Fetch Claude Max rate limit utilization from Anthropic's OAuth usage API.",
++            operationId: "auth.usage",
++            responses: {
++              200: {
++                description: "Usage data",
++                content: {
++                  "application/json": {
++                    schema: resolver(
++                      z.object({
++                        five_hour: z.object({ utilization: z.number(), resets_at: z.string().nullable() }).nullable(),
++                        seven_day: z.object({ utilization: z.number(), resets_at: z.string().nullable() }).nullable(),
++                        seven_day_sonnet: z
++                          .object({ utilization: z.number(), resets_at: z.string().nullable() })
++                          .nullable(),
++                        seven_day_opus: z
++                          .object({ utilization: z.number(), resets_at: z.string().nullable() })
++                          .nullable(),
++                        extra_usage: z
++                          .object({
++                            is_enabled: z.boolean(),
++                            monthly_limit: z.number().nullable(),
++                            used_credits: z.number().nullable(),
++                            utilization: z.number().nullable(),
++                          })
++                          .nullable(),
++                      }),
++                    ),
++                  },
++                },
++              },
++              ...errors(400, 401),
++            },
++          }),
++          async (c) => {
++            const entry = await Auth.get("anthropic")
++            if (!entry || entry.type !== "oauth") return c.json({ error: "No Anthropic OAuth credentials" }, 401)
++            const response = await fetch("https://api.anthropic.com/api/oauth/usage", {
++              headers: {
++                Authorization: `Bearer ${entry.access}`,
++                "anthropic-beta": "oauth-2025-04-20",
++              },
++            })
++            if (!response.ok)
++              return c.json({ error: `Anthropic API: ${response.status}` }, response.status as ContentfulStatusCode)
++            return c.json(await response.json())
++          },
++        )
+         .use(async (c, next) => {
+           if (c.req.path === "/log") return next()
+           const raw = c.req.query("directory") || c.req.header("x-opencode-directory") || process.cwd()
+           const directory = (() => {
+             try {
