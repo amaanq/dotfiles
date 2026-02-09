@@ -14,6 +14,7 @@ let
   opencodeConfig = builtins.toJSON {
     "$schema" = "https://opencode.ai/config.json";
     theme = "system";
+    instructions = [ "~/.config/claude/CLAUDE.md" ];
     mcp = {
       github = {
         type = "remote";
