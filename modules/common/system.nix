@@ -20,6 +20,8 @@ in
     isDesktop = mkConst <| config.type == "desktop";
     isServer = mkConst <| config.type == "server";
 
+    cpuArch = mkValue null;
+
     isLaptop = mkValue false;
     isVirtual = mkValue false;
 

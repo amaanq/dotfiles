@@ -14,6 +14,7 @@ lib.nixosSystem' (
     imports = collectNix ./. |> remove ./default.nix;
 
     type = "desktop";
+    cpuArch = "MZEN5";
     isBuilder = true;
     builderSpeedFactor = 4;
     builderMaxJobs = 32;

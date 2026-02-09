@@ -14,6 +14,7 @@ lib.nixosSystem' (
     imports = collectNix ./. |> remove ./default.nix;
 
     type = "desktop";
+    cpuArch = "MZEN5";
     isLaptop = true;
 
     networking.hostName = "esker";

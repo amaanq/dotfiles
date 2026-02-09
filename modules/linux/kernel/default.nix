@@ -20,17 +20,144 @@ let
     }
   );
 
-  # Kernel patches
-  zenPatches = {
-    # rwsem spin faster
-    rwsem = {
-      name = "rwsem-spin-faster";
-      patch = ./0001-rwsem-spin-faster.patch;
+  vanillaLinuxSrc = pkgs.fetchurl {
+    url = "https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.19.tar.xz";
+    hash = "sha256-MDB5qCULjzgfgrA/kEY9EqyY1PaxSbdh6nWvEyNSE1c=";
+  };
+
+  bunkerPatchesSrc = pkgs.fetchFromGitHub {
+    owner = "amaanq";
+    repo = "bunker-patches";
+    rev = "main";
+    hash = "sha256-B6116TASNV/9S1GpxO9KKUWCNXdvQLGnmf8/8wgRTg8=";
+  };
+
+  bunkerPatches =
+    let
+      patchDir = "${bunkerPatchesSrc}/patches/6.19";
+      patchNames = builtins.filter (n: lib.hasSuffix ".patch" n) (
+        builtins.attrNames (builtins.readDir patchDir)
+      );
+    in
+    map (name: {
+      inherit name;
+      patch = "${patchDir}/${name}";
+    }) (builtins.sort builtins.lessThan patchNames);
+
+  bunkernel = pkgs.linuxKernel.buildLinux {
+    pname = "linux-bunker";
+    stdenv = llvmStdenv;
+    src = vanillaLinuxSrc;
+    version = "6.19.0";
+    modDirVersion = "6.19.0-bunker";
+    kernelPatches = bunkerPatches;
+
+    structuredExtraConfig = {
+      BUNKERNEL = yes;
+      LOCALVERSION = freeform "-bunker";
+      SCHED_POC_SELECTOR = yes;
+
+      # Preempt (low-latency desktop)
+      PREEMPT = lib.mkOverride 90 yes;
+      PREEMPT_VOLUNTARY = lib.mkOverride 90 no;
+
+      # 1000Hz tick
+      HZ = freeform "1000";
+      HZ_1000 = yes;
+
+      # FQ-Codel packet scheduling
+      NET_SCH_DEFAULT = yes;
+      DEFAULT_FQ_CODEL = yes;
+
+      # BFQ I/O scheduler
+      IOSCHED_BFQ = lib.mkOverride 90 yes;
+
+      # BBRv3 as default TCP congestion control
+      TCP_CONG_BBR = yes;
+      DEFAULT_BBR = yes;
+
+      # Futex / NTSYNC for Wine/Proton
+      FUTEX = yes;
+      FUTEX_PI = yes;
+      NTSYNC = yes;
+
+      # Preemptible tree-based hierarchical RCU
+      TREE_RCU = yes;
+      PREEMPT_RCU = yes;
+      RCU_EXPERT = yes;
+      TREE_SRCU = yes;
+      TASKS_RCU_GENERIC = yes;
+      TASKS_RCU = yes;
+      TASKS_RUDE_RCU = yes;
+      TASKS_TRACE_RCU = yes;
+      RCU_STALL_COMMON = yes;
+      RCU_NEED_SEGCBLIST = yes;
+      RCU_FANOUT = freeform "64";
+      RCU_FANOUT_LEAF = freeform "16";
+      RCU_BOOST = yes;
+      RCU_BOOST_DELAY = option (freeform "500");
+      RCU_NOCB_CPU = yes;
+      RCU_LAZY = yes;
+      RCU_DOUBLE_CHECK_CB_TIME = yes;
+
+      # Disable BTF to allow RUST + LTO + CFI
+      # (BTF + LTO + RUST is blocked upstream due to pahole limitations)
+      DEBUG_INFO_BTF = lib.mkForce no;
+      # These may not exist depending on toolchain/BTF state — use option to suppress errors
+      NOVA_CORE = lib.mkForce (option no);
+      NET_SCH_BPF = lib.mkForce (option no);
+      SCHED_CLASS_EXT = lib.mkForce (option no);
+      MODULE_ALLOW_BTF_MISMATCH = lib.mkForce (option no);
+
+      # Full LTO with Clang
+      LTO_CLANG_FULL = yes;
+      LTO_CLANG_THIN = lib.mkForce no;
+
+      # Per-host micro-architecture target (reproducible, unlike -march=native)
+      ${config.cpuArch} = yes;
+
+      # Always use THP (zen defaults to madvise)
+      TRANSPARENT_HUGEPAGE_ALWAYS = lib.mkForce yes;
+      TRANSPARENT_HUGEPAGE_MADVISE = lib.mkForce no;
+
+      # AMD P-State EPP in active mode (mode 3)
+      X86_AMD_PSTATE = yes;
+      X86_AMD_PSTATE_DEFAULT_MODE = freeform "3";
+
+      # ZSTD for kernel modules
+      MODULE_COMPRESS_ZSTD = lib.mkForce yes;
+      MODULE_COMPRESS_XZ = lib.mkForce no;
+
+      # Control Flow Integrity (CFI) with Clang
+      CFI = yes;
+      CFI_PERMISSIVE = no;
+
+      # Wipe CPU registers on return (prevents ROP attacks)
+      ZERO_CALL_USED_REGS = yes;
+
+      # Restrict setuid operations
+      SECURITY_SAFESETID = yes;
+
+      # Controls the behavior of vsyscalls. This has been defaulted to none back in 2016 - break really old binaries for security.
+      LEGACY_VSYSCALL_NONE = yes;
+
+      # Make stack-based attacks on the kernel harder.
+      RANDOMIZE_KSTACK_OFFSET_DEFAULT = yes;
+
+      # Reduce most of the exposure of a heap attack to a single cache.
+      SLAB_MERGE_DEFAULT = no;
+
+      # Disable Kyber IO scheduler — NVMe drives have hardware scheduling
+      MQ_IOSCHED_KYBER = lib.mkForce no;
+
+      # Disable writeback throttling, it's designed for slow SATA but only adds overhead on NVMe
+      BLK_WBT = lib.mkForce no;
+      BLK_WBT_MQ = lib.mkForce (option no);
     };
-    # BFQ/mq-deadline lock contention reduction
-    block = {
-      name = "block-perf";
-      patch = ./0002-block.patch;
+
+    extraMeta = {
+      branch = "6.19";
+      description = "Bunkernel - custom kernel with zen/xanmod/cachyos patches";
     };
   };
 
@@ -39,97 +166,87 @@ let
       pkgs.linuxPackages_latest
     else
       pkgs.linuxKernel.packagesFor (
-        (pkgs.linuxKernel.kernels.linux_zen.override {
-          stdenv = llvmStdenv;
-          argsOverride = {
-            kernelPatches = with zenPatches; [
-              rwsem
-              block
-            ];
-            structuredExtraConfig = {
-              # Disable BTF to allow RUST + LTO + CFI
-              # (BTF + LTO + RUST is blocked upstream due to pahole limitations)
-              DEBUG_INFO_BTF = lib.mkForce no;
-              # These depend on BTF - use option to suppress errors when they don't exist
-              NET_SCH_BPF = lib.mkForce (option no);
-              SCHED_CLASS_EXT = lib.mkForce (option no);
-              MODULE_ALLOW_BTF_MISMATCH = lib.mkForce (option no);
+        bunkernel.overrideAttrs (old: {
+          # Fix rust/Makefile being stripped during kernel build
+          # This is needed for rust-analyzer support in out-of-tree Rust kernel modules
+          postInstall =
+            builtins.replaceStrings
+              [ "# Keep whole scripts dir" ]
+              [
+                ''
+                  # Keep rust Makefile and source files for rust-analyzer support
+                            [ -f rust/Makefile ] && chmod u-w rust/Makefile
+                            find rust -type f -name '*.rs' -print0 | xargs -0 -r chmod u-w
 
-              # Full LTO with Clang
-              LTO_CLANG_FULL = yes;
-              LTO_CLANG_THIN = lib.mkForce no;
+                            # Keep whole scripts dir''
+              ]
+              (old.postInstall or "");
 
-              # Use native CPU optimization
-              X86_NATIVE_CPU = yes;
-
-              # Always use THP (zen defaults to madvise)
-              TRANSPARENT_HUGEPAGE_ALWAYS = lib.mkForce yes;
-              TRANSPARENT_HUGEPAGE_MADVISE = lib.mkForce no;
-
-              # AMD P-State EPP in active mode (mode 3)
-              X86_AMD_PSTATE = yes;
-              X86_AMD_PSTATE_DEFAULT_MODE = freeform "3";
-
-              # ZSTD for kernel modules
-              MODULE_COMPRESS_ZSTD = lib.mkForce yes;
-              MODULE_COMPRESS_XZ = lib.mkForce no;
-
-              # Control Flow Integrity (CFI) with Clang
-              CFI = yes;
-              CFI_PERMISSIVE = no;
-
-              # Wipe CPU registers on return (prevents ROP attacks)
-              ZERO_CALL_USED_REGS = yes;
-
-              # Restrict setuid operations
-              SECURITY_SAFESETID = yes;
-
-              # Controls the behavior of vsyscalls. This has been defaulted to none back in 2016 - break really old binaries for security.
-              LEGACY_VSYSCALL_NONE = yes;
-
-              # Make stack-based attacks on the kernel harder.
-              RANDOMIZE_KSTACK_OFFSET_DEFAULT = yes;
-
-              # Reduce most of the exposure of a heap attack to a single cache.
-              SLAB_MERGE_DEFAULT = no;
-
-              # Disable Kyber IO scheduler — NVMe drives have hardware scheduling
-              MQ_IOSCHED_KYBER = lib.mkForce no;
-
-              # Disable writeback throttling, it's designed for slow SATA but only adds overhead on NVMe
-              BLK_WBT = lib.mkForce no;
-              BLK_WBT_MQ = lib.mkForce (option no);
-            };
-          };
-        }).overrideAttrs
-          (old: {
-            # Fix rust/Makefile being stripped during kernel build
-            # This is needed for rust-analyzer support in out-of-tree Rust kernel modules
-            postInstall =
-              builtins.replaceStrings
-                [ "# Keep whole scripts dir" ]
-                [
-                  ''
-                    # Keep rust Makefile and source files for rust-analyzer support
-                              [ -f rust/Makefile ] && chmod u-w rust/Makefile
-                              find rust -type f -name '*.rs' -print0 | xargs -0 -r chmod u-w
-
-                              # Keep whole scripts dir''
-                ]
-                (old.postInstall or "");
-
-            # Patch generate_rust_analyzer.py to work with Nix's separate sysroot/sysroot_src
-            postPatch = (old.postPatch or "") + ''
-              # Remove assertion that sysroot must be parent of sysroot_src
-              # In Nix, these are separate store paths
-              substituteInPlace scripts/generate_rust_analyzer.py \
-                --replace-fail "assert args.sysroot in args.sysroot_src.parents" "# assert disabled for Nix"
-            '';
-          })
+        })
       );
 in
 {
   disabledModules = [ "config/malloc.nix" ];
+
+  # Fix nuke-refs corrupting zstd-compressed kernel modules.
+  # nuke-refs replaces Nix store path hashes inside .ko.zst files. If the
+  # hash survives compression as literal bytes, the zstd stream is corrupted
+  # and the decompressed ELF gets truncated (ENOEXEC). The fix: decompress
+  # before nuke-refs, then recompress.
+  nixpkgs.overlays = [
+    (final: prev: {
+      # bcachefs-tools DKMS module supports 6.19 upstream but nixpkgs
+      # hasn't bumped the version cap yet.
+      bcachefs-tools = prev.bcachefs-tools.overrideAttrs (old: {
+        passthru = old.passthru // {
+          kernelModule =
+            let
+              origFn = old.passthru.kernelModule;
+              newFn =
+                args:
+                (origFn args).overrideAttrs (kold: {
+                  meta = kold.meta // {
+                    broken = false;
+                  };
+                });
+            in
+            lib.setFunctionArgs newFn (builtins.functionArgs origFn);
+        };
+      });
+
+      makeModulesClosure =
+        args:
+        (prev.makeModulesClosure args).overrideAttrs (old: {
+          nativeBuildInputs = old.nativeBuildInputs ++ [
+            final.zstd
+            final.xz
+          ];
+          builder = final.writeScript "modules-closure.sh" (
+            builtins.replaceStrings
+              [ ''nuke-refs "$target"'' ]
+              [
+                ''
+                  case "$target" in
+                    *.zst)
+                      ${final.zstd}/bin/zstd -d -q "$target"
+                      nuke-refs "''${target%.zst}"
+                      ${final.zstd}/bin/zstd -q --rm "''${target%.zst}" -o "$target"
+                      ;;
+                    *.xz)
+                      ${final.xz}/bin/xz -d "$target"
+                      nuke-refs "''${target%.xz}"
+                      ${final.xz}/bin/xz "''${target%.xz}"
+                      ;;
+                    *)
+                      nuke-refs "$target"
+                      ;;
+                  esac''
+              ]
+              (builtins.readFile old.builder)
+          );
+        });
+    })
+  ];
 
   boot.kernelPackages = kernelPackage;
 
