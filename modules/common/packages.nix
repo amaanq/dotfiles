@@ -86,6 +86,7 @@ in
     pkgs.jc
     pkgs.jq
     pkgs.moreutils
+    pkgs.opencode
     pkgs.openssl
     pkgs.p7zip
     pkgs.pstree
