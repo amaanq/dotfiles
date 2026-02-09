@@ -1,16 +1,17 @@
 {
   config,
   lib,
-  helium,
+  pkgs,
   ...
 }:
 let
   inherit (lib) merge mkIf;
+  heliumPackage = import ../../packages/helium-package.nix { inherit lib pkgs; };
 in
 merge
 <| mkIf config.isDesktop {
   environment.systemPackages = [
-    helium.packages.x86_64-linux.default
+    heliumPackage
   ];
 
   # Set as default browser

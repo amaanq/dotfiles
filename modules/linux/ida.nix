@@ -119,6 +119,25 @@ let
 in
 merge
 <| mkIf (config.isDesktop && !config.isVirtual) {
+  nixpkgs.overlays = [
+    (final: prev: {
+      xorg = (prev.xorg or { }) // {
+        libICE = prev.libice;
+        libSM = prev.libsm;
+        libX11 = prev.libx11;
+        libXau = prev.libxau;
+        libXext = prev.libxext;
+        libXi = prev.libxi;
+        libXrender = prev.libxrender;
+        libxcb = prev.libxcb;
+        xcbutilimage = prev.libxcb-image;
+        xcbutilkeysyms = prev.libxcb-keysyms;
+        xcbutilrenderutil = prev.libxcb-render-util;
+        xcbutilwm = prev.libxcb-wm;
+      };
+    })
+  ];
+
   unfree.allowedNames = [
     "ida-pro"
   ];

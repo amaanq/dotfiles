@@ -1,7 +1,7 @@
 {
   config,
   lib,
-  helium,
+  pkgs,
   ...
 }:
 let
@@ -9,10 +9,12 @@ let
     mkIf
     optionals
     ;
+
+  heliumPackage = import ../../packages/helium-package.nix { inherit lib pkgs; };
 in
 mkIf config.isDesktop {
   wrappers.helium = {
-    basePackage = helium.packages.${config.hostSystem}.helium;
+    basePackage = heliumPackage;
     systemWide = true;
     executables.helium.args.suffix = optionals config.isLinux [ "--use-angle=vulkan" ] ++ [
       "--enable-quic"

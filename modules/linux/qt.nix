@@ -148,7 +148,7 @@ merge
     pkgs.kdePackages.breeze
     pkgs.kdePackages.breeze.qt5
     pkgs.kdePackages.breeze-icons
-    qtengine.packages.${pkgs.system}.default
+    qtengine.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 
   programs.qtengine = enabled {

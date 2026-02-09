@@ -37,23 +37,37 @@ let
       ]
       ++ optionals pkgs.stdenv.hostPlatform.isElf [ pkgs.autoPatchelfHook ];
       installPhase = ''
-        install -Dm755 $src $out/bin/.claude-unwrapped
-        makeBinaryWrapper $out/bin/.claude-unwrapped $out/bin/claude \
-          --set DISABLE_AUTOUPDATER 1 \
-          --set DISABLE_INSTALLATION_CHECKS 1 \
-          --set USE_BUILTIN_RIPGREP 0 \
-          --prefix PATH : ${
-            lib.makeBinPath (
-              [
-                pkgs.procps
-                pkgs.ripgrep
-              ]
-              ++ optionals pkgs.stdenv.hostPlatform.isLinux [
-                pkgs.bubblewrap
-                pkgs.socat
-              ]
-            )
-          }
+                install -Dm755 $src $out/bin/.claude-unwrapped
+
+                # Patch spinner slug generator to always return "Redeeming"
+                ${pkgs.python3}/bin/python3 -c "
+        import sys
+        path = sys.argv[1]
+        data = open(path, 'rb').read()
+        old = b'function fF\x24(){let H=J7A(\x24RI),\x24=J7A(LRI),A=J7A(ARI);return\x60\x24{H}-\x24{\x24}-\x24{A}\x60}'
+        new = b'function fF\x24(){                                          return\x22Redeeming\x22}'
+        assert len(old) == len(new), f'len mismatch: {len(old)} vs {len(new)}'
+        assert data.count(old) > 0, 'spinner pattern not found in binary'
+        data = data.replace(old, new)
+        open(path, 'wb').write(data)
+        " $out/bin/.claude-unwrapped
+
+                makeBinaryWrapper $out/bin/.claude-unwrapped $out/bin/claude \
+                  --set DISABLE_AUTOUPDATER 1 \
+                  --set DISABLE_INSTALLATION_CHECKS 1 \
+                  --set USE_BUILTIN_RIPGREP 0 \
+                  --prefix PATH : ${
+                    lib.makeBinPath (
+                      [
+                        pkgs.procps
+                        pkgs.ripgrep
+                      ]
+                      ++ optionals pkgs.stdenv.hostPlatform.isLinux [
+                        pkgs.bubblewrap
+                        pkgs.socat
+                      ]
+                    )
+                  }
       '';
       meta = {
         mainProgram = "claude";
