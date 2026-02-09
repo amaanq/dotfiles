@@ -107,6 +107,7 @@ in
               ];
             options = {
               cache_size = 4096;
+              num_concurrent_reqs = 4;
               positive_min_ttl = 60;
               positive_max_ttl = 86400;
               negative_min_ttl = 30;
