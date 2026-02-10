@@ -26,7 +26,7 @@ let
       patches = (old.patches or [ ]) ++ [ ./sharp-0.35.patch ];
       pnpm = pkgs.pnpm_10;
       fetcherVersion = 2;
-      hash = "sha256-GnH5Go5o2eFIiphX99QI3ZLCGu8RoB9koYzD6x+1p6s=";
+      hash = "sha256-scudvSYrKUSdZcNCKpTihgI7e7S6VipdV5uSWuvXE8Q=";
     };
     # Install sharp prebuilt binary with symlinks to system libvips (has libultrahdr)
     postInstall = (old.postInstall or "") + ''
