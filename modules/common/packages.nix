@@ -52,6 +52,17 @@ let
         open(path, 'wb').write(data)
         " $out/bin/.claude-unwrapped
 
+                # Add AGENTS.md support alongside CLAUDE.md (whole-function replacement of zRI)
+                ${pkgs.python3}/bin/python3 -c "
+        import sys; path = sys.argv[1]; data = open(path, 'rb').read()
+        old = b'function zRI(H,\x24,A){let L=[];if(HF(\x22projectSettings\x22)){let B=Sf.join(H,\x22CLAUDE.md\x22);L.push(...jT(B,\x22Project\x22,A,!1));let f=Sf.join(H,\x22.claude\x22,\x22CLAUDE.md\x22);L.push(...jT(f,\x22Project\x22,A,!1))}if(HF(\x22localSettings\x22)){let B=Sf.join(H,\x22CLAUDE.local.md\x22);L.push(...jT(B,\x22Local\x22,A,!1))}let I=Sf.join(H,\x22.claude\x22,\x22rules\x22),D=new Set(A);L.push(...EBH({rulesDir:I,type:\x22Project\x22,processedPaths:D,includeExternal:!1,conditionalRule:!1})),L.push(...KF\x24(\x24,I,\x22Project\x22,A,!1));for(let B of D)A.add(B);return L}'
+        new = b'function zRI(H,\x24,A){let L=[];if(HF(\x22projectSettings\x22)){var B;for(B of[\x22CLAUDE.md\x22,\x22AGENTS.md\x22])L.push(...jT(Sf.join(H,B),\x22Project\x22,A,0));L.push(...jT(Sf.join(H,\x22.claude\x22,\x22CLAUDE.md\x22),\x22Project\x22,A,0))}if(HF(\x22localSettings\x22))L.push(...jT(Sf.join(H,\x22CLAUDE.local.md\x22),\x22Local\x22,A,0));let I=Sf.join(H,\x22.claude\x22,\x22rules\x22),D=new Set(A);L.push(...EBH({rulesDir:I,type:\x22Project\x22,processedPaths:D,includeExternal:0,conditionalRule:0})),L.push(...KF\x24(\x24,I,\x22Project\x22,A,0));D.forEach(B=>A.add(B));return L  }'
+        assert len(old) == len(new), f'len mismatch: {len(old)} vs {len(new)}'
+        assert data.count(old) > 0, 'zRI pattern not found in binary'
+        data = data.replace(old, new)
+        open(path, 'wb').write(data)
+        " $out/bin/.claude-unwrapped
+
                 makeBinaryWrapper $out/bin/.claude-unwrapped $out/bin/claude \
                   --set DISABLE_AUTOUPDATER 1 \
                   --set DISABLE_INSTALLATION_CHECKS 1 \
