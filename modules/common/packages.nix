@@ -39,26 +39,90 @@ let
       installPhase = ''
                 install -Dm755 $src $out/bin/.claude-unwrapped
 
-                # Patch thinking spinner to always say "Redeeming"
+                # Patch thinking spinner to always say "Redeeming" (version-agnostic)
                 ${pkgs.python3}/bin/python3 -c "
-        import sys
-        path = sys.argv[1]
-        data = open(path, 'rb').read()
-        old = b'function U4D(){let \x24=GB().spinnerVerbs;if(!\x24)return i0H;if(\x24.mode===\x22replace\x22)return \x24.verbs.length>0?\x24.verbs:i0H;return[...i0H,...\x24.verbs]}'
-        new = b'function U4D(){' + b' '*105 + b'return[\x22Redeeming\x22]}'
-        assert len(old) == len(new), f'len mismatch: {len(old)} vs {len(new)}'
-        assert data.count(old) > 0, 'spinner pattern not found in binary'
+        import re, sys; path = sys.argv[1]; data = open(path, 'rb').read()
+        m = re.search(rb'function ([\w\x24]+)\(\)\{[^}]*?\.spinnerVerbs[^}]*?\}', data)
+        assert m, 'spinner function not found'
+        old = m.group(0); fn = m.group(1)
+        new_s = b'function ' + fn + b'(){'
+        new_e = b'return[\x22Redeeming\x22]}'
+        pad = len(old) - len(new_s) - len(new_e)
+        assert pad >= 0, f'spinner: replacement too long by {-pad}'
+        new = new_s + b' ' * pad + new_e
+        assert len(old) == len(new)
         data = data.replace(old, new)
         open(path, 'wb').write(data)
         " $out/bin/.claude-unwrapped
 
-                # Add AGENTS.md support alongside CLAUDE.md (whole-function replacement of zRI)
+                # Add AGENTS.md support alongside CLAUDE.md (version-agnostic)
                 ${pkgs.python3}/bin/python3 -c "
-        import sys; path = sys.argv[1]; data = open(path, 'rb').read()
-        old = b'function zRI(H,\x24,A){let L=[];if(HF(\x22projectSettings\x22)){let B=Sf.join(H,\x22CLAUDE.md\x22);L.push(...jT(B,\x22Project\x22,A,!1));let f=Sf.join(H,\x22.claude\x22,\x22CLAUDE.md\x22);L.push(...jT(f,\x22Project\x22,A,!1))}if(HF(\x22localSettings\x22)){let B=Sf.join(H,\x22CLAUDE.local.md\x22);L.push(...jT(B,\x22Local\x22,A,!1))}let I=Sf.join(H,\x22.claude\x22,\x22rules\x22),D=new Set(A);L.push(...EBH({rulesDir:I,type:\x22Project\x22,processedPaths:D,includeExternal:!1,conditionalRule:!1})),L.push(...KF\x24(\x24,I,\x22Project\x22,A,!1));for(let B of D)A.add(B);return L}'
-        new = b'function zRI(H,\x24,A){let L=[];if(HF(\x22projectSettings\x22)){var B;for(B of[\x22CLAUDE.md\x22,\x22AGENTS.md\x22])L.push(...jT(Sf.join(H,B),\x22Project\x22,A,0));L.push(...jT(Sf.join(H,\x22.claude\x22,\x22CLAUDE.md\x22),\x22Project\x22,A,0))}if(HF(\x22localSettings\x22))L.push(...jT(Sf.join(H,\x22CLAUDE.local.md\x22),\x22Local\x22,A,0));let I=Sf.join(H,\x22.claude\x22,\x22rules\x22),D=new Set(A);L.push(...EBH({rulesDir:I,type:\x22Project\x22,processedPaths:D,includeExternal:0,conditionalRule:0})),L.push(...KF\x24(\x24,I,\x22Project\x22,A,0));D.forEach(B=>A.add(B));return L  }'
+        import re, sys; path = sys.argv[1]; data = open(path, 'rb').read()
+        if b'\x22AGENTS.md\x22' in data:
+            sys.stderr.write('AGENTS.md already supported natively, skipping\n'); sys.exit(0)
+        ID = rb'[\w\x24]+'
+        old = None
+        for m in re.finditer(rb'function (' + ID + rb')\((' + ID + rb'),(' + ID + rb'),(' + ID + rb')\)\{', data):
+            depth = 0; i = m.end() - 1; fe = None
+            while i < len(data) and i < m.start() + 2000:
+                if data[i:i+1] == b'{': depth += 1
+                elif data[i:i+1] == b'}':
+                    depth -= 1
+                    if depth == 0: fe = i + 1; break
+                i += 1
+            if fe is None: continue
+            body = data[m.start():fe]
+            if b'\x22projectSettings\x22' in body and b'\x22CLAUDE.md\x22' in body and b'\x22localSettings\x22' in body:
+                old = body; break
+        if old is None:
+            sys.stderr.write('WARNING: AGENTS.md function not found, skipping\n'); sys.exit(0)
+        fn, p1, p2, p3 = m.group(1), m.group(2), m.group(3), m.group(4)
+        arr = re.search(rb'let (' + ID + rb')=\[\]', old).group(1)
+        hf = re.search(rb'(' + ID + rb')\(\x22projectSettings\x22\)', old).group(1)
+        pm = re.search(rb'(' + ID + rb')\.join\(' + re.escape(p1) + rb',\x22CLAUDE\.md\x22\)', old).group(1)
+        lf = re.search(rb'\.\.\.(' + ID + rb')\([^,]+,\x22Project\x22,' + re.escape(p3) + rb',!1\)', old).group(1)
+        rf = re.search(rb'\.\.\.(' + ID + rb')\(\{rulesDir:', old).group(1)
+        kf = re.search(rb'\.\.\.(' + ID + rb')\(' + re.escape(p2) + rb',', old).group(1)
+        vv = re.search(rb'let (' + ID + rb')=' + re.escape(pm) + rb'\.join\(' + re.escape(p1) + rb',\x22\.claude\x22,\x22rules\x22\),(' + ID + rb')=new Set\(' + re.escape(p3) + rb'\)', old)
+        v4, v5 = vv.group(1), vv.group(2)
+        v1 = re.search(rb'let (' + ID + rb')=' + re.escape(pm) + rb'\.join\(' + re.escape(p1) + rb',\x22CLAUDE\.md\x22\)', old).group(1)
+        nb = (b'function ' + fn + b'(' + p1 + b',' + p2 + b',' + p3 + b'){let ' + arr + b'=[];if(' + hf + b'(\x22projectSettings\x22)){var ' + v1 + b';for(' + v1 + b' of[\x22CLAUDE.md\x22,\x22AGENTS.md\x22])' + arr + b'.push(...' + lf + b'(' + pm + b'.join(' + p1 + b',' + v1 + b'),\x22Project\x22,' + p3 + b',0));' + arr + b'.push(...' + lf + b'(' + pm + b'.join(' + p1 + b',\x22.claude\x22,\x22CLAUDE.md\x22),\x22Project\x22,' + p3 + b',0))}if(' + hf + b'(\x22localSettings\x22))' + arr + b'.push(...' + lf + b'(' + pm + b'.join(' + p1 + b',\x22CLAUDE.local.md\x22),\x22Local\x22,' + p3 + b',0));let ' + v4 + b'=' + pm + b'.join(' + p1 + b',\x22.claude\x22,\x22rules\x22),' + v5 + b'=new Set(' + p3 + b');' + arr + b'.push(...' + rf + b'({rulesDir:' + v4 + b',type:\x22Project\x22,processedPaths:' + v5 + b',includeExternal:0,conditionalRule:0})),' + arr + b'.push(...' + kf + b'(' + p2 + b',' + v4 + b',\x22Project\x22,' + p3 + b',0));' + v5 + b'.forEach(' + v1 + b'=>' + p3 + b'.add(' + v1 + b'));return ' + arr)
+        pad = len(old) - len(nb) - 1
+        assert pad >= 0, f'AGENTS.md: replacement too long by {-pad}'
+        new = nb + b' ' * pad + b'}'
         assert len(old) == len(new), f'len mismatch: {len(old)} vs {len(new)}'
-        assert data.count(old) > 0, 'zRI pattern not found in binary'
+        data = data.replace(old, new)
+        open(path, 'wb').write(data)
+        " $out/bin/.claude-unwrapped
+
+                # Fix status line: show current context tokens + rate limit state
+                ${pkgs.python3}/bin/python3 -c "
+        import re, sys; path = sys.argv[1]; data = open(path, 'rb').read()
+        I = rb'[\w\x24]+'
+        pat = (rb'context_window:\{total_input_tokens:(' + I + rb'\(\)),'
+            rb'total_output_tokens:(' + I + rb'\(\)),'
+            rb'context_window_size:(' + I + rb'),'
+            rb'current_usage:(' + I + rb'),'
+            rb'used_percentage:(' + I + rb')\.used,'
+            rb'remaining_percentage:\5\.remaining\}')
+        m = re.search(pat, data)
+        assert m, 'context_window pattern not found'
+        old = m.group(0)
+        ci, co, s, u, p = [m.group(i) for i in range(1,6)]
+        rl = re.search(rb'([\w\x24]+)=\{status:\x22allowed\x22,unifiedRateLimitFallbackAvailable:!1,isUsingOverage:!1\}', data)
+        assert rl, 'rate limit state var not found'
+        r = rl.group(1)
+        body = (b'context_window:{...(' + u + b'||{}),'
+            b'context_window_size:' + s + b','
+            b'current_usage:' + u + b','
+            b'used_percentage:' + p + b'.used,'
+            b'remaining_percentage:' + p + b'.remaining,'
+            b'rate_limit:' + r + b','
+            b's_in:' + ci + b',s_out:' + co)
+        pad = len(old) - len(body) - 1
+        assert pad >= 0, f'status line: replacement too long by {-pad}'
+        new = body + b' ' * pad + b'}'
+        assert len(old) == len(new)
         data = data.replace(old, new)
         open(path, 'wb').write(data)
         " $out/bin/.claude-unwrapped
