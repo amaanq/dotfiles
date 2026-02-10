@@ -65,6 +65,11 @@ let
         "--interactive"
       ];
       d = [ "diff" ];
+      rd = [
+        "diff"
+        "--from"
+        "nearest_remote(@)"
+      ];
       e = [ "edit" ];
       l = [ "log" ];
       la = [
@@ -121,6 +126,7 @@ let
     revset-aliases = {
       "closest(to)" = "heads(::to & bookmarks())";
       "closest_pushable(to)" = ''heads(::to & ~description(exact:"") & (~empty() | merges()))'';
+      "nearest_remote(to)" = "heads(::to & remote_bookmarks())";
     };
 
     revsets = {
