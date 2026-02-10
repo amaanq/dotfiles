@@ -594,7 +594,7 @@ def fg [id?: int] {
   if $id == null { job unfreeze } else { job unfreeze $id }
 }
 
-def --wrapped claude-work [...rest] {
+def --wrapped clod-work [...rest] {
   with-env { CLAUDE_CONFIG_DIR: $'($env.XDG_CONFIG_HOME)/claude-work' } {
     ^claude ...$rest
   }

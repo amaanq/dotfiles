@@ -26,5 +26,7 @@
 
     c = "clear";
     q = "exit";
+
+    clod = "claude";
   };
 }
