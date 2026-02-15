@@ -188,8 +188,12 @@ in
           inactive.color = "#${theme.base03}";
         };
         preset-column-widths = [
+          { proportion = 1. / 4.; }
           { proportion = 1. / 3.; }
+          { proportion = 1. / 2.; }
           { proportion = 2. / 3.; }
+          { proportion = 3. / 4.; }
+          { proportion = 1.; }
         ];
         background-color = "transparent";
       };
