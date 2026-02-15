@@ -9,20 +9,20 @@ let
 
   claude-code =
     let
-      version = "2.1.37";
+      version = "2.1.42";
       baseUrl = "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/${version}";
       sources = {
         x86_64-linux = {
           url = "${baseUrl}/linux-x64/claude";
-          hash = "sha256-+Wek0G4WoyQ2tjKeLb7UWan6TTTwdjWh+ycbdPcGyR8=";
+          hash = "sha256-UXhb0m0oljloGYMrwjoYpsDKObe3YRk/p7bpkKF/J9g=";
         };
         aarch64-linux = {
           url = "${baseUrl}/linux-arm64/claude";
-          hash = "sha256-1yXMcwYPQAp6wDp2mWk5fa7J1BHb1bHHux+mBCe/ZX4=";
+          hash = "sha256-WnXQcTKHtjZjagbOkQP/VPV4gXDy6TEvx1WRIfZJ028=";
         };
         aarch64-darwin = {
           url = "${baseUrl}/darwin-arm64/claude";
-          hash = "sha256-AO0Qr7elYkQHc94xKEVozpwzOF1506kSoSryYq79Ew4=";
+          hash = "sha256-aQgVK/GkursT3oZkDzeVNJAFBptUHUuKOZaAK4Y6Av0=";
         };
       };
     in
