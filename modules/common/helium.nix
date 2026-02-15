@@ -16,7 +16,10 @@ mkIf config.isDesktop {
   wrappers.helium = {
     basePackage = heliumPackage;
     systemWide = true;
-    executables.helium.args.suffix = optionals config.isLinux [ "--use-angle=vulkan" ] ++ [
+    executables.helium.args.suffix = optionals config.isLinux [
+      "--use-angle=vulkan"
+      "--ignore-gpu-blocklist"
+    ] ++ [
       "--enable-quic"
       "--quic-version=h3-29"
     ];
