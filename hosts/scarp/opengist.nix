@@ -11,55 +11,6 @@ let
 
   fqdn = "gist.${domain}";
   port = stringToPort "gist";
-
-  # Fix nixpkgs bug: stale npm-deps cache - rebuild from scratch
-  src = pkgs.fetchFromGitHub {
-    owner = "thomiceli";
-    repo = "opengist";
-    tag = "v1.11.1";
-    hash = "sha256-TlUaen8uCj4Ba2gOWG32Gk4KIDvitXai5qv4PTeizYo=";
-  };
-
-  frontend' = pkgs.buildNpmPackage {
-    pname = "opengist-frontend";
-    version = "1.11.1";
-    inherit src;
-    patches = [ ./opengist-lockfile.patch ];
-
-    postPatch = ''
-      ${pkgs.lib.getExe pkgs.jq} '.version = "1.11.1"' package.json | ${pkgs.lib.getExe' pkgs.moreutils "sponge"} package.json
-    '';
-
-    postBuild = ''
-      EMBED=1 npx postcss 'public/assets/embed-*.css' -c public/postcss.config.js --replace
-    '';
-
-    installPhase = ''
-      mkdir -p $out
-      cp -R public $out
-    '';
-
-    npmDepsHash = "sha256-6YLjhSOAJbowZOnfMCLEqW29NTSNqJRwGN/MJ1MpLjQ=";
-  };
-
-  opengist' = pkgs.buildGoModule {
-    pname = "opengist";
-    version = "1.11.1";
-    inherit src;
-
-    vendorHash = "sha256-NGRJuNSypmIc8G0wMW7HT+LkP5i5n/p3QH8FyU9pF5w=";
-    tags = [ "fs_embed" ];
-    ldflags = [
-      "-s"
-      "-X github.com/thomiceli/opengist/internal/config.OpengistVersion=v1.11.1"
-    ];
-
-    postPatch = ''
-      cp -R ${frontend'}/public/{manifest.json,assets} public/
-    '';
-
-    doCheck = false;
-  };
 in
 {
   imports = [
@@ -90,7 +41,7 @@ in
       User = "opengist";
       Group = "opengist";
       WorkingDirectory = "/var/lib/opengist";
-      ExecStart = "${opengist'}/bin/opengist";
+      ExecStart = "${pkgs.opengist}/bin/opengist";
       Restart = "always";
       RestartSec = "10s";
     };
