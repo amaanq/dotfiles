@@ -16,6 +16,10 @@ in
     owner = "root";
   };
 
+  systemd.tmpfiles.rules = [
+    "L+ /nix/var/nix/gcroots/nunatak-kernel - - - - ${self.nixosConfigurations.nunatak.config.boot.kernelPackages.kernel}"
+  ];
+
   services.nix-serve = enabled {
     package = pkgs.nix-serve-ng;
     secretKeyFile = config.secrets.nixServeKey.path;

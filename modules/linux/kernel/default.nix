@@ -10,13 +10,16 @@ in
 {
   disabledModules = [ "config/malloc.nix" ];
 
-  bunker.kernel = mkIf config.isDesktop {
+  bunker.kernel = mkIf pkgs.stdenv.hostPlatform.isx86_64 {
     enable = true;
     version = "6.19";
-    inherit (config) cpuArch;
+    cpuArch = mkIf config.isDesktop config.cpuArch;
+    interactive = mkIf config.isServer false;
+    drivers = mkIf config.isServer false;
+    extras = mkIf config.isServer false;
   };
 
-  boot.kernelPackages = mkIf config.isServer pkgs.linuxPackages_latest;
+  boot.kernelPackages = mkIf pkgs.stdenv.hostPlatform.isAarch64 pkgs.linuxPackages_latest;
 
   environment = {
     systemPackages = [ pkgs.perf ];

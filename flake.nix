@@ -2,7 +2,6 @@
   description = "Amaan's Nix Configuration";
   nixConfig = {
     extra-substituters = [
-      "https://cache.amaanq.com/"
       "https://cache.garnix.io/"
       "https://nix-community.cachix.org/"
       "https://cache.nixos.org/"
