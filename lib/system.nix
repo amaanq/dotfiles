@@ -51,6 +51,7 @@ in
       modules = [
         module
         overlayModule
+        inputs.nix-wrappers.nixosModules.system-wrappers
       ]
       ++ modulesCommon
       ++ modulesLinux
