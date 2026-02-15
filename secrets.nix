@@ -83,6 +83,7 @@ in
   "modules/common/git-private.age".publicKeys = all;
   "modules/common/github-token.age".publicKeys = all;
   "modules/common/shell/anthropic-key.age".publicKeys = all;
+  "modules/common/shell/glm-key.age".publicKeys = all;
   "modules/common/shell/openai-key.age".publicKeys = all;
   "modules/common/ssh/config.age".publicKeys = all;
   "modules/acme/environment.age".publicKeys = all;

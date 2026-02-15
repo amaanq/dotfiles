@@ -600,6 +600,19 @@ def --wrapped clod-work [...rest] {
   }
 }
 
+def --wrapped glm-code [...rest] {
+  with-env {
+    ANTHROPIC_AUTH_TOKEN: $env.GLM_API_KEY
+    ANTHROPIC_BASE_URL: 'https://open.bigmodel.cn/api/anthropic'
+    ANTHROPIC_DEFAULT_HAIKU_MODEL: 'glm-5'
+    ANTHROPIC_DEFAULT_SONNET_MODEL: 'glm-5'
+    ANTHROPIC_DEFAULT_OPUS_MODEL: 'glm-5'
+    API_TIMEOUT_MS: '3000000'
+  } {
+    ^claude ...$rest
+  }
+}
+
 def --wrapped nr [program: string = "", ...arguments] {
   if ($program | str contains "#") or ($program | str contains ":") {
     nix run $program -- ...$arguments

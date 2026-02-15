@@ -173,6 +173,9 @@ let
           if ("${config.secrets.githubToken.path}" | path exists) {
             $env.GH_TOKEN = (open ${config.secrets.githubToken.path} | parse "access-tokens = github.com={token}" | get token.0)
           }
+          if ("${config.secrets.glm_api_key.path}" | path exists) {
+            $env.GLM_API_KEY = (open ${config.secrets.glm_api_key.path} | str trim)
+          }
         }
 
         # Rose Pine theme

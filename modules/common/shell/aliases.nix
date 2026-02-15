@@ -9,6 +9,11 @@
     owner = "amaanq";
   };
 
+  secrets.glm_api_key = {
+    file = ./glm-key.age;
+    owner = "amaanq";
+  };
+
   environment.shellAliases = {
     la = "ls --all";
     l = "ls --long";
