@@ -2,11 +2,13 @@
   description = "Amaan's Nix Configuration";
   nixConfig = {
     extra-substituters = [
+      "https://cache.amaanq.com/"
       "https://cache.garnix.io/"
       "https://nix-community.cachix.org/"
       "https://cache.nixos.org/"
     ];
     extra-trusted-public-keys = [
+      "cache.amaanq.com:3qm0ZOxlHr7UQqj0G3MKlAn1votV9/3KjHGU2GQ9rEM="
       "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
       "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
@@ -124,6 +126,11 @@
       inputs.neovim-nightly-overlay.inputs.flake-parts.follows = "flake-parts";
     };
 
+    opencode = {
+      url = "github:anomalyco/opencode";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -193,6 +200,17 @@
     nix-wrappers = {
       url = "github:midischwarz12/nix-wrappers";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    bunker.url = "github:amaanq/bunker-patches";
+
+    # jj from source - tracking bare-colocate-fix branch on fork
+    # (upstream PRs #8667 + #8834 + bare repo gitlink fix).
+    # Switch to "github:jj-vcs/jj" after colocated workspaces land on main.
+    jj-src = {
+      url = "github:amaanq/jj/bare-colocate-fix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.rust-overlay.follows = "rust-overlay";
     };
   };
 
