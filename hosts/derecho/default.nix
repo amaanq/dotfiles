@@ -62,6 +62,7 @@ lib.nixosSystem' (
           "wheel"
         ];
         isNormalUser = true;
+        homeMode = "755";
         hashedPasswordFile = config.secrets.password.path;
         openssh.authorizedKeys.keys = keys.admins;
         shell = pkgs.nushell;

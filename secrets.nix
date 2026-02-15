@@ -24,6 +24,8 @@ in
 
   "hosts/scarp/headplane/cookie_secret.age".publicKeys = [ scarp ] ++ admins;
 
+  "hosts/scarp/cache/key.age".publicKeys = [ scarp ] ++ admins;
+
   "hosts/scarp/miniflux/credentials.age".publicKeys = [ scarp ] ++ admins;
 
   "hosts/scarp/mollysocket/vapid-key.age".publicKeys = [ scarp ] ++ admins;
