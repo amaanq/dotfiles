@@ -172,6 +172,12 @@ conditions:
     - 'path.startsWith("/avatar/")'
     - 'path.startsWith("/user/avatar/")'
     - 'path.startsWith("/attachments/")'
+    # Nitter static assets and media proxy
+    - 'path.startsWith("/css/")'
+    - 'path.startsWith("/js/")'
+    - 'path.startsWith("/fonts/")'
+    - 'path.startsWith("/pic/")'
+    - 'path.startsWith("/video/")'
 
   is-git-path:
     - 'path.matches("^/[^/]+/[^/]+/(git-upload-pack|git-receive-pack|HEAD|info/refs|info/lfs|objects)")'
