@@ -9,7 +9,9 @@ let
   inherit (lib.strings) toJSON;
 
   fqdn = "cinny.xeondev.com";
-  root = pkgs.cinny;
+  root = (pkgs.cinny-unwrapped.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [ ./fix-zwj-sequence-rendering.patch ];
+  }));
 
   cinnyConfig = {
     allowCustomHomeservers = false;
