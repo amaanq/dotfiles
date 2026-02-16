@@ -39,22 +39,6 @@ let
       installPhase = ''
                 install -Dm755 $src $out/bin/.claude-unwrapped
 
-                # Patch thinking spinner to always say "Redeeming" (version-agnostic)
-                ${pkgs.python3}/bin/python3 -c "
-        import re, sys; path = sys.argv[1]; data = open(path, 'rb').read()
-        m = re.search(rb'function ([\w\x24]+)\(\)\{[^}]*?\.spinnerVerbs[^}]*?\}', data)
-        assert m, 'spinner function not found'
-        old = m.group(0); fn = m.group(1)
-        new_s = b'function ' + fn + b'(){'
-        new_e = b'return[\x22Redeeming\x22]}'
-        pad = len(old) - len(new_s) - len(new_e)
-        assert pad >= 0, f'spinner: replacement too long by {-pad}'
-        new = new_s + b' ' * pad + new_e
-        assert len(old) == len(new)
-        data = data.replace(old, new)
-        open(path, 'wb').write(data)
-        " $out/bin/.claude-unwrapped
-
                 # Add AGENTS.md support alongside CLAUDE.md (version-agnostic)
                 ${pkgs.python3}/bin/python3 -c "
         import re, sys; path = sys.argv[1]; data = open(path, 'rb').read()
@@ -91,6 +75,19 @@ let
         assert pad >= 0, f'AGENTS.md: replacement too long by {-pad}'
         new = nb + b' ' * pad + b'}'
         assert len(old) == len(new), f'len mismatch: {len(old)} vs {len(new)}'
+        data = data.replace(old, new)
+        open(path, 'wb').write(data)
+        " $out/bin/.claude-unwrapped
+
+                # Patch managed settings path on macOS: /Library/Application Support/ClaudeCode -> /etc/claude-code
+                ${pkgs.python3}/bin/python3 -c "
+        import sys; path = sys.argv[1]; data = open(path, 'rb').read()
+        old = b'case\x22macos\x22:return\x22/Library/Application Support/ClaudeCode\x22'
+        new_val = b'case\x22macos\x22:return\x22/etc/claude-code\x22'
+        pad = len(old) - len(new_val)
+        assert pad >= 0, f'managed settings path: replacement too long by {-pad}'
+        new = new_val + b' ' * pad
+        assert len(old) == len(new)
         data = data.replace(old, new)
         open(path, 'wb').write(data)
         " $out/bin/.claude-unwrapped
