@@ -29,6 +29,7 @@ let
     color.ui = true;
     core = {
       attributesfile = "/etc/git/attributes";
+      excludesFile = "/etc/git/ignore";
       pager = "delta";
       preloadindex = true;
       untrackedcache = true;
@@ -147,6 +148,15 @@ merge {
     }
   );
   environment.etc."git/attributes".text = "* merge=mergiraf\n";
+  environment.etc."git/ignore".text = ''
+    .jj/
+    .claude/
+    CLAUDE.md
+    .cache/
+    .direnv/
+    result
+    result-*
+  '';
   environment.etc."git/allowed_signers".text = ''
     git@amaanq.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID+36H8eD4p4waEpgPejhPCNGymi+OSN9fZ5LRUBcOnP
     will.lillis24@gmail.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIYWWRfOsSpi7M6ejCEWHGTtsvOA8v7FiUOBR2If1nVa
