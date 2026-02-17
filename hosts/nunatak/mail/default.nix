@@ -82,7 +82,7 @@ in
         }
       );
 
-  services.stalwart-mail = enabled {
+  services.stalwart = enabled {
     dataDir = "/var/lib/stalwart-mail";
 
     openFirewall = true;
