@@ -25,6 +25,7 @@
   fastforward.id = "icallnadddjmdinamnolclfjanhfoafe";
   google-docs-offline.id = "ghbmnnjooekpmoecnnnilnnbdlolhkhi";
   kagi.id = "cdglnehniifkbagbbombnjghhcihifij";
+  kagi-translate.id = "alblebhaoakdgapamjdifdfnaicpnklm";
   metamask.id = "nkbihfbeogaeaoehlefnkodbefgpgknn";
   old-reddit-redirect.id = "dneaehbmnbhcippjikoajpoabadpodje";
   refined-github.id = "hlepfoohegkhhmjieoechaddaejaokhf";
