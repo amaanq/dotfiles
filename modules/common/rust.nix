@@ -24,24 +24,26 @@ in
     cx = "cargo xtask";
   };
 
-  environment.systemPackages = [
-    (pkgs.fenix.complete.withComponents [
-      "cargo"
-      "clippy"
-      "rust-src"
-      "rustc"
-      "rustfmt"
-    ])
+  environment.systemPackages = mkIf config.isDesktop (
+    [
+      (pkgs.fenix.complete.withComponents [
+        "cargo"
+        "clippy"
+        "rust-src"
+        "rustc"
+        "rustfmt"
+      ])
 
-    pkgs.rust-analyzer-nightly
+      pkgs.rust-analyzer-nightly
 
-    pkgs.cargo-deny
-    pkgs.cargo-expand
-    pkgs.cargo-nextest
-    pkgs.cargo-watch
-    pkgs.cargo-workspaces
-  ]
-  ++ lib.optionals config.isLinux [
-    pkgs.cargo-llvm-cov
-  ];
+      pkgs.cargo-deny
+      pkgs.cargo-expand
+      pkgs.cargo-nextest
+      pkgs.cargo-watch
+      pkgs.cargo-workspaces
+    ]
+    ++ lib.optionals config.isLinux [
+      pkgs.cargo-llvm-cov
+    ]
+  );
 }
