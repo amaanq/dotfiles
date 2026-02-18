@@ -10,7 +10,10 @@ let
 
   fqdn = "cinny.xeondev.com";
   root = (pkgs.cinny-unwrapped.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ./fix-zwj-sequence-rendering.patch ];
+    patches = (old.patches or [ ]) ++ [
+      ./fix-zwj-sequence-rendering.patch
+      ./fix-scroll-on-content-resize.patch
+    ];
   }));
 
   cinnyConfig = {
