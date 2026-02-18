@@ -1,0 +1,81 @@
+diff --git a/crates/nu-command/src/filesystem/ls.rs b/crates/nu-command/src/filesystem/ls.rs
+index 08f85265f9..7219609b2f 100644
+--- a/crates/nu-command/src/filesystem/ls.rs
++++ b/crates/nu-command/src/filesystem/ls.rs
+@@ -686,6 +686,52 @@
+     }
+ }
+
++/// Escape control characters in filenames so they are displayed visibly
++/// rather than being interpreted by the terminal.
++fn escape_filename_control_chars(name: &str) -> String {
++    if !name.chars().any(|c| c.is_control()) {
++        return name.to_string();
++    }
++
++    let mut buf = String::with_capacity(name.len());
++    for c in name.chars() {
++        if c.is_control() {
++            for ch in c.escape_unicode() {
++                buf.push(ch);
++            }
++        } else {
++            buf.push(c);
++        }
++    }
++    buf
++}
++
++#[cfg(test)]
++mod tests {
++    use super::escape_filename_control_chars;
++
++    #[test]
++    fn escape_filename_control_chars_renders_control_chars_visibly() {
++        // Normal filenames pass through unchanged
++        assert_eq!(escape_filename_control_chars("hello.txt"), "hello.txt");
++        // ESC (0x1b) is escaped to its unicode representation
++        assert_eq!(
++            escape_filename_control_chars("hooks\x1bE"),
++            "hooks\\u{1b}E"
++        );
++        // NUL byte
++        assert_eq!(
++            escape_filename_control_chars("file\x00name"),
++            "file\\u{0}name"
++        );
++        // Multiple control characters
++        assert_eq!(
++            escape_filename_control_chars("\x01a\x02b"),
++            "\\u{1}a\\u{2}b"
++        );
++    }
++}
++
+ #[allow(clippy::too_many_arguments)]
+ pub(crate) fn dir_entry_dict(
+     filename: &std::path::Path, // absolute path
+@@ -711,7 +757,10 @@
+     let mut record = Record::new();
+     let mut file_type = "unknown".to_string();
+
+-    record.push("name", Value::string(display_name, span));
++    record.push(
++        "name",
++        Value::string(escape_filename_control_chars(display_name), span),
++    );
+
+     if let Some(md) = metadata {
+         file_type = get_file_type(md, display_name, use_mime_type);
+@@ -936,7 +985,10 @@
+     ) -> Value {
+         let mut record = Record::new();
+
+-        record.push("name", Value::string(display_name, span));
++        record.push(
++            "name",
++            Value::string(escape_filename_control_chars(display_name), span),
++        );
+
+         let find_data = match find_first_file(filename, span) {
+             Ok(fd) => fd,

@@ -1,0 +1,17 @@
+diff --git a/crates/nu-system/src/foreground.rs b/crates/nu-system/src/foreground.rs
+index c600e82b55..321057ecc3 100644
+--- a/crates/nu-system/src/foreground.rs
++++ b/crates/nu-system/src/foreground.rs
+@@ -425,7 +425,11 @@
+     /// Reset the foreground process group to the shell
+     pub fn reset() {
+         if let Err(e) = unistd::tcsetpgrp(unsafe { stdin_fd() }, unistd::getpgrp()) {
+-            eprintln!("ERROR: reset foreground id failed, tcsetpgrp result: {e:?}");
++            // Use write_all instead of eprintln! to avoid panicking (and
++            // subsequently aborting due to a double-panic) when stderr is
++            // unavailable — e.g. the terminal has already been torn down.
++            let msg = format!("ERROR: reset foreground id failed, tcsetpgrp result: {e:?}\n");
++            let _ = std::io::Write::write_all(&mut std::io::stderr(), msg.as_bytes());
+         }
+     }
+ }
