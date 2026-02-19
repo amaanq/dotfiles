@@ -33,6 +33,7 @@
     use-cgroups = true;
     use-xdg-base-directories = true;
     warn-dirty = false;
+    netrc-file = "/run/agenix/nixNetrc";
   };
 
   inputs = {

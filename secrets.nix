@@ -87,6 +87,7 @@ in
   "modules/common/shell/anthropic-key.age".publicKeys = all;
   "modules/common/shell/glm-key.age".publicKeys = all;
   "modules/common/shell/openai-key.age".publicKeys = all;
+  "modules/common/ida/netrc.age".publicKeys = all;
   "modules/common/ssh/config.age".publicKeys = all;
   "modules/acme/environment.age".publicKeys = all;
   "modules/linux/tailscale/authkey.age".publicKeys = all;

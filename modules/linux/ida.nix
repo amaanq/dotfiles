@@ -1,4 +1,5 @@
 {
+  self,
   config,
   lib,
   nixpak,
@@ -20,22 +21,34 @@ let
     flakeIgnore = [
       "E501" # line too long (more than 79 characters)
     ];
-  } (builtins.readFile ./patch.py);
+  } (builtins.readFile (self + /modules/common/ida/patcher.py));
 
   patchedIdaPro = pkgs.ida-pro.overrideAttrs (old: {
     version = "9.3.0.260613";
-    src = pkgs.requireFile {
-      name = "ida-pro_93_x64linux.run";
-      url = "https://my.hex-rays.com/";
-      sha256 = "0vx2c0cwry36sbb6ynw0ykylzfaadlwhy8sxx4hxwbhrlmd2i060";
-    };
+    src =
+      let
+        base = "https://cloud.amaanq.com/public.php/webdav";
+        sources = {
+          x86_64-linux = {
+            url = "${base}/ida-pro_93_x64linux.run";
+            sha256 = "2ed43ae4bb84d74dcae6f0099210dfa8d61bfea4952f5f9a07a9aae16cb70f82";
+            name = "ida-pro_93_x64linux.run";
+          };
+          aarch64-linux = {
+            url = "${base}/ida-pro_93_armlinux.run";
+            sha256 = "7fc0f07c2bfb36d809b4838fade74b50310e9dc6d966ff5ce6ded7da898b1d0b";
+            name = "ida-pro_93_armlinux.run";
+          };
+        };
+      in
+      builtins.fetchurl sources.${pkgs.stdenv.hostPlatform.system};
+    buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.libinput ];
     nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ ida-patcher ];
     postInstall = (old.postInstall or "") + ''
       cd $out/opt
-      ${ida-patcher}/bin/ida-patcher $out
+      ${ida-patcher}/bin/ida-patcher --oneshot
       substituteInPlace cfg/hexrays.cfg \
         --replace "MAX_FUNCSIZE            = 64" "MAX_FUNCSIZE            = 1024"
-      cp *.hexlic $out/opt/ || true
     '';
   });
 
@@ -51,7 +64,6 @@ let
         app.package = patchedIdaPro;
         app.binPath = "opt/ida";
 
-        # D-Bus for GUI dialogs?
         dbus = enabled {
           policies = {
             "org.freedesktop.DBus" = "talk";
@@ -83,7 +95,6 @@ let
           ];
 
           bind.ro = [
-            # TODO: rw dir for databases
             # Nix store for accessing plugins and dependencies
             "/nix/store"
             # System binaries (for BinDiff spawning IDA)
