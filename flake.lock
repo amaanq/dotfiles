@@ -341,11 +341,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1770669955,
-        "narHash": "sha256-XvOeX2rSFZ6DizNH8blYC9DZNmbcdB3MVfPgbfyVsfY=",
+        "lastModified": 1771320802,
+        "narHash": "sha256-fVwjjcxivStYGSLOYJxtEISKXv/8/TxZI4EB+wqPBpc=",
         "owner": "amaanq",
         "repo": "helium-flake",
-        "rev": "d1b016ce89854e63bbed0fe62cbec08be0e58e64",
+        "rev": "e8c651bc6b16925b1f5ede3ca2e206f22d0eb96c",
         "type": "github"
       },
       "original": {
@@ -823,11 +823,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1771297284,
-        "narHash": "sha256-edzw9VHVG7FTn9ZKa45H+AfzUA3R6T4+qLyh09ZpHs8=",
+        "lastModified": 1771551492,
+        "narHash": "sha256-EVf53LLciHS3qyvBP6t5Dc+Kdp9XjqPCLx4tgFwZ4GE=",
         "owner": "amaanq",
         "repo": "nvim-config",
-        "rev": "e36553548bd46dc47b82877ed633a8bf1a104b3f",
+        "rev": "8d7649125f03bd7ad12b2f6967ff2d12fa89dbee",
         "type": "github"
       },
       "original": {
