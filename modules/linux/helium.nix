@@ -1,12 +1,13 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
 }:
 let
   inherit (lib) merge mkIf;
-  heliumPackage = import ../../packages/helium-package.nix { inherit lib pkgs; };
+  heliumPackage = inputs.helium.packages.${pkgs.system}.helium;
 in
 merge
 <| mkIf config.isDesktop {

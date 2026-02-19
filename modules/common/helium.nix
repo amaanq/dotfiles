@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
@@ -10,7 +11,7 @@ let
     optionals
     ;
 
-  heliumPackage = import ../../packages/helium-package.nix { inherit lib pkgs; };
+  heliumPackage = inputs.helium.packages.${pkgs.system}.helium;
 in
 mkIf config.isDesktop {
   wrappers.helium = {
