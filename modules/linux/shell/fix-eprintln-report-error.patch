@@ -1,0 +1,34 @@
+diff --git a/crates/nu-protocol/src/errors/report_error.rs b/crates/nu-protocol/src/errors/report_error.rs
+index b17440dc51..0635ba4df5 100644
+--- a/crates/nu-protocol/src/errors/report_error.rs
++++ b/crates/nu-protocol/src/errors/report_error.rs
+@@ -2,6 +2,7 @@
+ //!
+ //! Relies on the `miette` crate for pretty layout
+ use std::hash::{DefaultHasher, Hash, Hasher};
++use std::io::Write;
+
+ use crate::{
+     CompileError, Config, ErrorStyle, ParseError, ParseWarning, ShellError, ShellWarning,
+@@ -171,7 +172,10 @@
+     error: &dyn miette::Diagnostic,
+     default_code: &'static str,
+ ) {
+-    eprintln!(
++    // Avoid eprintln! since it panics on broken stderr, which double-panics
++    // through miette's panic hook and aborts.
++    let _ = writeln!(
++        std::io::stderr(),
+         "Error: {:?}",
+         CliError::new(stack, error, working_set, Some(default_code))
+     );
+@@ -188,7 +192,8 @@
+     warning: &dyn miette::Diagnostic,
+     default_code: &'static str,
+ ) {
+-    eprintln!(
++    let _ = writeln!(
++        std::io::stderr(),
+         "Warning: {:?}",
+         CliError::new(stack, warning, working_set, Some(default_code))
+     );
