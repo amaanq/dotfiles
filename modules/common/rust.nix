@@ -1,5 +1,6 @@
 {
   config,
+  fenix,
   lib,
   pkgs,
   ...
@@ -26,7 +27,7 @@ in
 
   environment.systemPackages = mkIf config.isDesktop (
     [
-      (pkgs.fenix.complete.withComponents [
+      (fenix.packages.${pkgs.system}.complete.withComponents [
         "cargo"
         "clippy"
         "rust-src"
@@ -34,7 +35,7 @@ in
         "rustfmt"
       ])
 
-      pkgs.rust-analyzer-nightly
+      fenix.packages.${pkgs.system}.rust-analyzer
 
       pkgs.cargo-deny
       pkgs.cargo-expand

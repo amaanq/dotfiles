@@ -27,14 +27,6 @@ let
     "default"
   ];
 
-  inputOverlays = collectInputs [
-    "overlays"
-    "default"
-  ];
-  overlayModule = {
-    nixpkgs.overlays = inputOverlays;
-  };
-
   specialArgs = inputs // {
     inherit inputs;
 
@@ -50,7 +42,6 @@ in
 
       modules = [
         module
-        overlayModule
         inputs.nix-wrappers.nixosModules.system-wrappers
       ]
       ++ modulesCommon
@@ -65,7 +56,6 @@ in
 
       modules = [
         module
-        overlayModule
       ]
       ++ modulesCommon
       ++ modulesDarwin

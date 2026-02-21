@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  run0-sudo-shim,
   ...
 }:
 let
@@ -11,7 +12,7 @@ let
     exec ${pkgs.systemd}/bin/run0 --background= "$@"
   '';
 
-  run0-sudo-shim' = pkgs.run0-sudo-shim.overrideAttrs (old: {
+  run0-sudo-shim' = run0-sudo-shim.packages.${pkgs.system}.default.overrideAttrs (old: {
     postInstall = (old.postInstall or "") + ''
       for bin in $out/bin/*; do
         wrapProgram "$bin" --prefix PATH : "${run0-no-bg}/bin"

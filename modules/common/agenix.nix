@@ -1,4 +1,5 @@
 {
+  agenix,
   config,
   lib,
   pkgs,
@@ -29,7 +30,7 @@ in
   environment = mkIf config.isDesktop {
     shellAliases.agenix = "agenix --identity ~/.ssh/id";
     systemPackages = [
-      pkgs.agenix
+      agenix.packages.${pkgs.system}.default
     ];
   };
 }

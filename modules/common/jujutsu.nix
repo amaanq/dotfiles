@@ -1,5 +1,6 @@
 {
   config,
+  jj-src,
   pkgs,
   ...
 }:
@@ -200,7 +201,7 @@ in
 {
   environment.systemPackages = [
     pkgs.difftastic
-    pkgs.jujutsu
+    jj-src.packages.${pkgs.system}.jujutsu
     pkgs.mergiraf
     pkgs.radicle-node
   ];

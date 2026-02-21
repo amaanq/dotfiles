@@ -1,6 +1,7 @@
 {
   self,
   config,
+  ida-pro-overlay,
   lib,
   nixpak,
   pkgs,
@@ -23,7 +24,7 @@ let
     ];
   } (builtins.readFile (self + /modules/common/ida/patcher.py));
 
-  patchedIdaPro = pkgs.ida-pro.overrideAttrs (old: {
+  patchedIdaPro = (ida-pro-overlay.overlays.default pkgs pkgs).ida-pro.overrideAttrs (old: {
     version = "9.3.0.260613";
     src =
       let
@@ -130,25 +131,6 @@ let
 in
 merge
 <| mkIf (config.isDesktop && !config.isVirtual) {
-  nixpkgs.overlays = [
-    (final: prev: {
-      xorg = (prev.xorg or { }) // {
-        libICE = prev.libice;
-        libSM = prev.libsm;
-        libX11 = prev.libx11;
-        libXau = prev.libxau;
-        libXext = prev.libxext;
-        libXi = prev.libxi;
-        libXrender = prev.libxrender;
-        libxcb = prev.libxcb;
-        xcbutilimage = prev.libxcb-image;
-        xcbutilkeysyms = prev.libxcb-keysyms;
-        xcbutilrenderutil = prev.libxcb-render-util;
-        xcbutilwm = prev.libxcb-wm;
-      };
-    })
-  ];
-
   unfree.allowedNames = [
     "ida-pro"
   ];

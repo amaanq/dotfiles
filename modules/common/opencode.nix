@@ -1,13 +1,14 @@
 {
   config,
   lib,
+  opencode,
   pkgs,
   ...
 }:
 let
   inherit (lib) merge mkIf;
 
-  opencode = pkgs.opencode.overrideAttrs (old: {
+  opencode' = opencode.packages.${pkgs.system}.default.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ./opencode-usage.patch ];
   });
 
@@ -84,6 +85,6 @@ merge
   };
 
   environment.systemPackages = [
-    opencode
+    opencode'
   ];
 }
