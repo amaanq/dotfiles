@@ -102,7 +102,7 @@ in
 
         # Setting the policy to 2 denies sites tracking the users' physical locationing.
         DefaultGeolocationSetting = 2;
-        DefaultNotificationsSetting = 2;
+        DefaultNotificationsSetting = 3;
         # Setting the policy to BlockLocalFonts (value 2) automatically denies the local fonts
         # permission to sites by default. This will limit the ability of sites to see
         # information about local fonts.
