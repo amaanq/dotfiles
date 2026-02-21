@@ -58,11 +58,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    headplane = {
-      url = "github:tale/headplane";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     nix-darwin = {
       url = "github:LnL7/nix-darwin";
       inputs.nixpkgs.follows = "nixpkgs";

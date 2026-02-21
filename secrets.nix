@@ -22,8 +22,6 @@ in
 
   "hosts/scarp/github2forgejo/environment.age".publicKeys = [ scarp ] ++ admins;
 
-  "hosts/scarp/headplane/cookie_secret.age".publicKeys = [ scarp ] ++ admins;
-
   "hosts/scarp/cache/key.age".publicKeys = [ scarp ] ++ admins;
 
   "hosts/scarp/miniflux/credentials.age".publicKeys = [ scarp ] ++ admins;
