@@ -600,6 +600,24 @@ def --wrapped clod-work [...rest] {
   }
 }
 
+def --wrapped clod2 [...rest] {
+  let second_dir = $'($env.XDG_CONFIG_HOME)/claude2'
+  let main_dir = $'($env.XDG_CONFIG_HOME)/claude'
+
+  # Bootstrap on first run: symlink everything except .credentials.json
+  if not ($second_dir | path exists) {
+    mkdir $second_dir
+    ls -a $main_dir
+      | where { |f| ($f.name | path basename) not-in [. .. .credentials.json .claude.json .claude.json.backup] }
+      | each { |f| ^ln -s $f.name $'($second_dir)/($f.name | path basename)' }
+    print "claude2 dir created. Run `clod2` again to sign in with your second account."
+  }
+
+  with-env { CLAUDE_CONFIG_DIR: $second_dir } {
+    ^claude ...$rest
+  }
+}
+
 def --wrapped glm-code [...rest] {
   with-env {
     ANTHROPIC_AUTH_TOKEN: $env.GLM_API_KEY
