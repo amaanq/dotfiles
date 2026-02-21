@@ -28,9 +28,7 @@ let
       chrome-devtools = {
         type = "local";
         command = [
-          "npx"
-          "-y"
-          "chrome-devtools-mcp@latest"
+          "chrome-devtools-mcp"
           "--browser-url"
           "http://127.0.0.1:9222"
         ];
