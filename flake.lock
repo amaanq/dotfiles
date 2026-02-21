@@ -321,15 +321,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1770567116,
-        "narHash": "sha256-jM6Y8cZJRE62YPekbWn92HJaPBW99ddOXsyaXiLEdxI=",
-        "owner": "tale",
+        "lastModified": 1771674194,
+        "narHash": "sha256-8KrJK5JoN1V+PiFuey2POlu7NbpeEs2QEqqy5qXCYWQ=",
+        "owner": "amaanq",
         "repo": "headplane",
-        "rev": "931a7f8d142655744087896dca1b0495a1f94379",
+        "rev": "2327dfef03c0adf6bf9a4f6325675f0bc79dbb55",
         "type": "github"
       },
       "original": {
-        "owner": "tale",
+        "owner": "amaanq",
         "repo": "headplane",
         "type": "github"
       }
@@ -823,11 +823,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1771551492,
-        "narHash": "sha256-EVf53LLciHS3qyvBP6t5Dc+Kdp9XjqPCLx4tgFwZ4GE=",
+        "lastModified": 1771669678,
+        "narHash": "sha256-JuDvRPZIGqmOl2p8h1b79f+NYgcEYYhk/MGkPvfBUG0=",
         "owner": "amaanq",
         "repo": "nvim-config",
-        "rev": "8d7649125f03bd7ad12b2f6967ff2d12fa89dbee",
+        "rev": "8202a6ed84344e48a19b9ba8d279bf513fd87c15",
         "type": "github"
       },
       "original": {
