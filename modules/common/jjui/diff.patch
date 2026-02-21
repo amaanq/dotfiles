@@ -1,34 +1,87 @@
+diff --git a/flake.lock b/flake.lock
+index 83716747ec..a029a37f06 100644
+--- a/flake.lock
++++ b/flake.lock
+@@ -5,11 +5,11 @@
+         "nixpkgs-lib": "nixpkgs-lib"
+       },
+       "locked": {
+-        "lastModified": 1768135262,
+-        "narHash": "sha256-PVvu7OqHBGWN16zSi6tEmPwwHQ4rLPU9Plvs8/1TUBY=",
++        "lastModified": 1769996383,
++        "narHash": "sha256-AnYjnFWgS49RlqX7LrC4uA+sCCDBj0Ry/WOJ5XWAsa0=",
+         "owner": "hercules-ci",
+         "repo": "flake-parts",
+-        "rev": "80daad04eddbbf5a4d883996a73f3f542fa437ac",
++        "rev": "57928607ea566b5db3ad13af0e57e921e6b12381",
+         "type": "github"
+       },
+       "original": {
+@@ -20,11 +20,11 @@
+     },
+     "nixpkgs": {
+       "locked": {
+-        "lastModified": 1768564909,
+-        "narHash": "sha256-Kell/SpJYVkHWMvnhqJz/8DqQg2b6PguxVWOuadbHCc=",
++        "lastModified": 1771848320,
++        "narHash": "sha256-0MAd+0mun3K/Ns8JATeHT1sX28faLII5hVLq0L3BdZU=",
+         "owner": "NixOS",
+         "repo": "nixpkgs",
+-        "rev": "e4bae1bd10c9c57b2cf517953ab70060a828ee6f",
++        "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+         "type": "github"
+       },
+       "original": {
+@@ -36,11 +36,11 @@
+     },
+     "nixpkgs-lib": {
+       "locked": {
+-        "lastModified": 1765674936,
+-        "narHash": "sha256-k00uTP4JNfmejrCLJOwdObYC9jHRrr/5M/a/8L2EIdo=",
++        "lastModified": 1769909678,
++        "narHash": "sha256-cBEymOf4/o3FD5AZnzC3J9hLbiZ+QDT/KDuyHXVJOpM=",
+         "owner": "nix-community",
+         "repo": "nixpkgs.lib",
+-        "rev": "2075416fcb47225d9b68ac469a5c4801a9c4dd85",
++        "rev": "72716169fe93074c333e8d0173151350670b824c",
+         "type": "github"
+       },
+       "original": {
 diff --git a/internal/config/config.go b/internal/config/config.go
-index 6c22f053c8..093cb515af 100644
+index 1d85680490..fcb9cf98f3 100644
 --- a/internal/config/config.go
 +++ b/internal/config/config.go
-@@ -17,15 +17,16 @@
+@@ -17,17 +17,18 @@
  var Current = loadDefaultConfig()
  
  type Config struct {
--	Keys      KeyMappings[keys] `toml:"keys"`
--	UI        UIConfig          `toml:"ui"`
--	Suggest   SuggestConfig     `toml:"suggest"`
--	Revisions RevisionsConfig   `toml:"revisions"`
--	Preview   PreviewConfig     `toml:"preview"`
--	OpLog     OpLogConfig       `toml:"oplog"`
--	Limit     int               `toml:"limit"`
--	Git       GitConfig         `toml:"git"`
--	Ssh       SshConfig         `toml:"ssh"`
-+	Keys       KeyMappings[keys]  `toml:"keys"`
-+	UI         UIConfig           `toml:"ui"`
-+	Suggest    SuggestConfig      `toml:"suggest"`
-+	Revisions  RevisionsConfig    `toml:"revisions"`
-+	Preview    PreviewConfig      `toml:"preview"`
-+	OpLog      OpLogConfig        `toml:"oplog"`
-+	Limit      int                `toml:"limit"`
-+	Git        GitConfig          `toml:"git"`
-+	Ssh        SshConfig          `toml:"ssh"`
-+	DiffEditor DiffEditorConfig   `toml:"diff_editor"`
+-	BindingsProfile string          `toml:"bindings_profile"`
+-	Actions         []ActionConfig  `toml:"actions"`
+-	Bindings        []BindingConfig `toml:"bindings"`
+-	UI              UIConfig        `toml:"ui"`
+-	Suggest         SuggestConfig   `toml:"suggest"`
+-	Revisions       RevisionsConfig `toml:"revisions"`
+-	Preview         PreviewConfig   `toml:"preview"`
+-	OpLog           OpLogConfig     `toml:"oplog"`
+-	Limit           int             `toml:"limit"`
+-	Git             GitConfig       `toml:"git"`
+-	Ssh             SshConfig       `toml:"ssh"`
++	BindingsProfile string           `toml:"bindings_profile"`
++	Actions         []ActionConfig   `toml:"actions"`
++	Bindings        []BindingConfig  `toml:"bindings"`
++	UI              UIConfig         `toml:"ui"`
++	Suggest         SuggestConfig    `toml:"suggest"`
++	Revisions       RevisionsConfig  `toml:"revisions"`
++	Preview         PreviewConfig    `toml:"preview"`
++	OpLog           OpLogConfig      `toml:"oplog"`
++	Limit           int              `toml:"limit"`
++	Git             GitConfig        `toml:"git"`
++	Ssh             SshConfig        `toml:"ssh"`
++	DiffEditor      DiffEditorConfig `toml:"diff_editor"`
  }
  
  type Color struct {
-@@ -295,3 +296,79 @@
+@@ -277,3 +278,79 @@
  type SshConfig struct {
  	HijackAskpass bool `toml:"hijack_askpass"`
  }
@@ -109,32 +162,24 @@ index 6c22f053c8..093cb515af 100644
 +	return tools[c.DiffEditor.selected]
 +}
 diff --git a/internal/config/default/config.toml b/internal/config/default/config.toml
-index b69536ae68..c1c8a44745 100644
+index e569f675c3..cfdd198eb8 100644
 --- a/internal/config/default/config.toml
 +++ b/internal/config/default/config.toml
-@@ -38,6 +38,7 @@
-   leader = ["\\"]
-   suspend = ["ctrl+z"]
-   set_parents = ["M"]
-+  cycle_diff_editor = ["ctrl+e"]
-   [keys.rebase]
-     mode = ["r"]
-     revision = ["r"]
-@@ -139,10 +140,10 @@
+@@ -19,10 +19,10 @@
    # revset = "zzzzzzz"               # overrides jj's revsets.log
  
  [preview]
 -  revision_command = ["show", "--color", "always", "-r", "$change_id"]
--  evolog_command = ["show", "--color", "always", "-r", "$commit_id"]
+-  evolog_command = ["evolog", "--color", "always", "-r", "$commit_id", "-p", "-n", "1"]
 +  revision_command = ["show", "--color", "always", "-r", "$change_id", "$diff_tool"]
-+  evolog_command = ["show", "--color", "always", "-r", "$commit_id", "$diff_tool"]
++  evolog_command = ["evolog", "--color", "always", "-r", "$commit_id", "-p", "-n", "1", "$diff_tool"]
    oplog_command = ["op", "show", "$operation_id", "--color", "always"]
 -  file_command = ["diff", "--color", "always", "-r", "$change_id", "$file"]
 +  file_command = ["diff", "--color", "always", "-r", "$change_id", "$file", "$diff_tool"]
    position = "auto"
    show_at_start = false
    width_percentage = 50.0
-@@ -156,3 +157,11 @@
+@@ -36,3 +36,11 @@
  
  [ssh]
    hijack_askpass = false
@@ -147,41 +192,28 @@ index b69536ae68..c1c8a44745 100644
 +  # Empty list uses defaults: [":builtin", "meld", "kdiff3", "vimdiff"]
 +  editors = []
 diff --git a/internal/config/keys.go b/internal/config/keys.go
-index 5102415671..597ec1fa47 100644
---- a/internal/config/keys.go
+new file mode 100644
+index 0000000000..d912156bec
+--- /dev/null
 +++ b/internal/config/keys.go
-@@ -48,6 +48,7 @@
- 		Leader:           key.NewBinding(key.WithKeys(m.Leader...), key.WithHelp(JoinKeys(m.Leader), "leader")),
- 		Suspend:          key.NewBinding(key.WithKeys(m.Suspend...), key.WithHelp(JoinKeys(m.Suspend), "suspend")),
- 		SetParents:       key.NewBinding(key.WithKeys(m.SetParents...), key.WithHelp(JoinKeys(m.SetParents), "set parents")),
-+		CycleDiffEditor:  key.NewBinding(key.WithKeys(m.CycleDiffEditor...), key.WithHelp(JoinKeys(m.CycleDiffEditor), "cycle diff editor")),
- 		ExecJJ:           key.NewBinding(key.WithKeys(m.ExecJJ...), key.WithHelp(JoinKeys(m.ExecJJ), "interactive jj")),
- 		ExecShell:        key.NewBinding(key.WithKeys(m.ExecShell...), key.WithHelp(JoinKeys(m.ExecShell), "interactive shell command")),
- 		Revert: revertModeKeys[key.Binding]{
-@@ -201,6 +202,7 @@
- 	Leader            T                         `toml:"leader"`
- 	Suspend           T                         `toml:"suspend"`
- 	SetParents        T                         `toml:"set_parents"`
-+	CycleDiffEditor   T                         `toml:"cycle_diff_editor"`
- 	Revert            revertModeKeys[T]         `toml:"revert"`
- 	Rebase            rebaseModeKeys[T]         `toml:"rebase"`
- 	Duplicate         duplicateModeKeys[T]      `toml:"duplicate"`
+@@ -0,0 +1,1 @@
++package config
 diff --git a/internal/config/loader.go b/internal/config/loader.go
-index 725f250791..006e35e326 100644
+index f18442b11c..55718d0aa2 100644
 --- a/internal/config/loader.go
 +++ b/internal/config/loader.go
-@@ -70,6 +70,9 @@
+@@ -96,6 +96,9 @@
  		return err
  	}
  
 +	// Initialize diff editor selection to -1 (use jj default)
 +	c.DiffEditor.selected = -1
 +
- 	return nil
- }
- 
+ 	// Decode only merge-managed array/table fields into a fresh struct so these
+ 	// collections are always read from file content, without carrying prior state.
+ 	// Keep this type explicit and extend it when new merge-managed arrays are added.
 diff --git a/internal/jj/commands.go b/internal/jj/commands.go
-index 6fcb52d6e7..940c38925b 100644
+index 342cb68dad..e0c23e2a74 100644
 --- a/internal/jj/commands.go
 +++ b/internal/jj/commands.go
 @@ -15,6 +15,7 @@
@@ -196,8 +228,8 @@ index 6fcb52d6e7..940c38925b 100644
  	return []string{"diffedit", "-r", changeId}
  }
  
--func Split(revision string, files []string, parallel bool) CommandArgs {
-+func Split(revision string, files []string, parallel bool, diffEditor string) CommandArgs {
+-func Split(revision string, files []string, parallel bool, interactive bool) CommandArgs {
++func Split(revision string, files []string, parallel bool, interactive bool, diffEditor string) CommandArgs {
  	args := []string{"split", "-r", revision}
 +	if diffEditor != "" {
 +		args = append(args, "--config", fmt.Sprintf("ui.diff-editor=%s", diffEditor))
@@ -205,20 +237,20 @@ index 6fcb52d6e7..940c38925b 100644
  	if parallel {
  		args = append(args, "--parallel")
  	}
-@@ -142,8 +146,11 @@
+@@ -135,8 +139,11 @@
  	return args
  }
  
--func RestoreInteractive(revision string, file string) CommandArgs {
-+func RestoreInteractive(revision string, file string, diffEditor string) CommandArgs {
- 	args := []string{"restore", "-c", revision, "--interactive"}
-+	if diffEditor != "" {
+-func Restore(revision string, files []string, interactive bool) CommandArgs {
++func Restore(revision string, files []string, interactive bool, diffEditor string) CommandArgs {
+ 	args := []string{"restore", "-c", revision}
++	if interactive && diffEditor != "" {
 +		args = append(args, "--config", fmt.Sprintf("ui.diff-editor=%s", diffEditor))
 +	}
- 	if file != "" {
- 		args = append(args, EscapeFileName(file))
+ 	if interactive {
+ 		args = append(args, "--interactive")
  	}
-@@ -208,10 +215,13 @@
+@@ -206,10 +213,13 @@
  	return args
  }
  
@@ -234,10 +266,10 @@ index 6fcb52d6e7..940c38925b 100644
  		args = append(args, "--keep-emptied")
  	}
 diff --git a/internal/ui/common/msgs.go b/internal/ui/common/msgs.go
-index 6fff9af487..98b62a6c1b 100644
+index c150b7c93e..6b98582920 100644
 --- a/internal/ui/common/msgs.go
 +++ b/internal/ui/common/msgs.go
-@@ -17,7 +17,11 @@
+@@ -16,7 +16,11 @@
  		SelectedRevision string
  		KeepSelections   bool
  	}
@@ -251,44 +283,36 @@ index 6fff9af487..98b62a6c1b 100644
  		Output string
  		Err    error
 diff --git a/internal/ui/context/custom_run_command.go b/internal/ui/context/custom_run_command.go
-index a3e6e7f67e..0c5b9c1932 100644
---- a/internal/ui/context/custom_run_command.go
+new file mode 100644
+index 0000000000..a03e1d1c44
+--- /dev/null
 +++ b/internal/ui/context/custom_run_command.go
-@@ -50,7 +50,8 @@
- 	case config.ShowOptionDiff:
- 		return func() tea.Msg {
- 			output, _ := ctx.RunCommandImmediate(jj.TemplatedArgs(c.Args, replacements))
--			return common.ShowDiffMsg(output)
-+			// custom commands don't support cycling since they use custom templates
-+			return common.ShowDiffMsg{Output: string(output)}
- 		}
- 	case config.ShowOptionInteractive:
- 		return ctx.RunInteractiveCommand(jj.TemplatedArgs(c.Args, replacements), common.Refresh)
+@@ -0,0 +1,1 @@
++package context
 diff --git a/internal/ui/diff/diff.go b/internal/ui/diff/diff.go
-index c146e6cc24..1673832891 100644
+index aa2aa5ae68..1150a13b41 100644
 --- a/internal/ui/diff/diff.go
 +++ b/internal/ui/diff/diff.go
-@@ -1,29 +1,46 @@
+@@ -1,17 +1,32 @@
  package diff
  
  import (
 +	"fmt"
  	"strings"
  
- 	"github.com/charmbracelet/bubbles/key"
  	"github.com/charmbracelet/bubbles/viewport"
  	tea "github.com/charmbracelet/bubbletea"
- 	"github.com/idursun/jjui/internal/config"
++	"github.com/idursun/jjui/internal/config"
 +	"github.com/idursun/jjui/internal/jj"
- 	"github.com/idursun/jjui/internal/ui/common"
++	"github.com/idursun/jjui/internal/ui/common"
 +	"github.com/idursun/jjui/internal/ui/context"
-+	"github.com/idursun/jjui/internal/ui/intents"
+ 	"github.com/idursun/jjui/internal/ui/intents"
  	"github.com/idursun/jjui/internal/ui/layout"
  	"github.com/idursun/jjui/internal/ui/render"
  )
  
- var _ common.ImmediateModel = (*Model)(nil)
- 
++var _ common.ImmediateModel = (*Model)(nil)
++
 +// DiffSource represents the source of the diff content for refreshing
 +type DiffSource struct {
 +	Revision string
@@ -297,44 +321,29 @@ index c146e6cc24..1673832891 100644
 +}
 +
  type Model struct {
- 	view   viewport.Model
- 	keymap config.KeyMappings[key.Binding]
+-	view viewport.Model
++	view   viewport.Model
 +	source *DiffSource
  }
  
- func (m *Model) ShortHelp() []key.Binding {
- 	vkm := m.view.KeyMap
--	return []key.Binding{
-+	bindings := []key.Binding{
- 		vkm.Up, vkm.Down, vkm.HalfPageDown, vkm.HalfPageUp, vkm.PageDown, vkm.PageUp,
--		m.keymap.Cancel}
-+		m.keymap.Quit, m.keymap.Cancel,
-+	}
-+	if m.source != nil {
-+		bindings = append(bindings, m.keymap.CycleDiffEditor)
-+	}
-+	return bindings
- }
- 
- func (m *Model) FullHelp() [][]key.Binding {
-@@ -62,9 +79,14 @@
- 	switch msg := msg.(type) {
- 	case tea.KeyMsg:
- 		switch {
--		case key.Matches(msg, m.keymap.Cancel):
-+		case key.Matches(msg, m.keymap.Cancel), key.Matches(msg, m.keymap.Quit):
- 			return common.Close
-+		case key.Matches(msg, m.keymap.CycleDiffEditor) && m.source != nil:
-+			return m.cycleDiffTool()
+ func (m *Model) Init() tea.Cmd {
+@@ -68,6 +83,14 @@
+ 			m.view.ScrollRight(1)
  		}
+ 		return nil
++	case tea.KeyMsg:
++		// Handle cycle diff editor directly (unmatched keys reach here)
++		if msg.String() == "ctrl+e" && m.source != nil {
++			return m.cycleDiffTool()
++		}
 +	case updateDiffContentMsg:
 +		m.setContent(msg.Content)
 +		return nil
  	case ScrollMsg:
  		if msg.Horizontal {
  			return nil
-@@ -76,6 +98,45 @@
- 	return cmd
+@@ -77,6 +100,53 @@
+ 	return nil
  }
  
 +func (m *Model) setContent(content string) {
@@ -353,6 +362,14 @@ index c146e6cc24..1673832891 100644
 +		},
 +		m.refreshDiff(),
 +	)
++}
++
++func (m *Model) HasSource() bool {
++	return m.source != nil
++}
++
++func (m *Model) RefreshDiff() tea.Cmd {
++	return m.refreshDiff()
 +}
 +
 +func (m *Model) refreshDiff() tea.Cmd {
@@ -379,7 +396,7 @@ index c146e6cc24..1673832891 100644
  func (m *Model) ViewRect(dl *render.DisplayContext, box layout.Box) {
  	m.view.Height = box.R.Dy()
  	m.view.Width = box.R.Dx()
-@@ -83,7 +144,7 @@
+@@ -84,7 +154,7 @@
  	dl.AddInteraction(box.R, ScrollMsg{}, render.InteractionScroll, 0)
  }
  
@@ -388,18 +405,20 @@ index c146e6cc24..1673832891 100644
  	view := viewport.New(0, 0)
  	content := strings.ReplaceAll(output, "\r", "")
  	if content == "" {
-@@ -93,5 +154,6 @@
+@@ -92,6 +162,7 @@
+ 	}
+ 	view.SetContent(content)
  	return &Model{
- 		view:   view,
- 		keymap: config.Current.GetKeyMap(),
+-		view: view,
++		view:   view,
 +		source: source,
  	}
  }
 diff --git a/internal/ui/diff/diff_test.go b/internal/ui/diff/diff_test.go
-index d12e6ec59f..8316d32a2d 100644
+index 8700eb3240..b8994a0a5b 100644
 --- a/internal/ui/diff/diff_test.go
 +++ b/internal/ui/diff/diff_test.go
-@@ -11,16 +11,16 @@
+@@ -9,16 +9,16 @@
  )
  
  func TestNew_TrimsCarriageReturnsAndHandlesEmpty(t *testing.T) {
@@ -419,20 +438,36 @@ index d12e6ec59f..8316d32a2d 100644
  
  	model.Scroll(2)
  	assert.Equal(t, 2, model.view.YOffset)
-@@ -30,7 +30,7 @@
+@@ -28,14 +28,14 @@
  }
  
- func TestUpdate_CancelReturnsClose(t *testing.T) {
--	model := New("content")
-+	model := New("content", nil)
- 	model.keymap.Cancel = key.NewBinding(key.WithKeys("q"))
+ func TestUpdate_ScrollMsgStillScrolls(t *testing.T) {
+-	model := New("1\n2\n3\n4\n5\n")
++	model := New("1\n2\n3\n4\n5\n", nil)
+ 	cmd := model.Update(ScrollMsg{Delta: 1})
+ 	assert.Nil(t, cmd)
+ 	assert.Equal(t, 1, model.view.YOffset)
+ }
  
- 	var msgs []tea.Msg
+ func TestUpdate_DiffScrollIntent(t *testing.T) {
+-	model := New("1\n2\n3\n4\n5\n")
++	model := New("1\n2\n3\n4\n5\n", nil)
+ 	model.view.Height = 3
+ 
+ 	cmd := model.Update(intents.DiffScroll{Kind: intents.DiffScrollDown})
 diff --git a/internal/ui/operations/details/details.go b/internal/ui/operations/details/details.go
-index 227b2584e5..40838f3258 100644
+index b47e7f7451..4754b78207 100644
 --- a/internal/ui/operations/details/details.go
 +++ b/internal/ui/operations/details/details.go
-@@ -190,9 +190,15 @@
+@@ -13,6 +13,7 @@
+ 	tea "github.com/charmbracelet/bubbletea"
+ 	"github.com/charmbracelet/lipgloss"
+ 	"github.com/charmbracelet/x/cellbuf"
++	"github.com/idursun/jjui/internal/config"
+ 	"github.com/idursun/jjui/internal/jj"
+ 	"github.com/idursun/jjui/internal/ui/actions"
+ 	keybindings "github.com/idursun/jjui/internal/ui/bindings"
+@@ -178,9 +179,15 @@
  		if selected == nil {
  			return nil
  		}
@@ -450,60 +485,104 @@ index 227b2584e5..40838f3258 100644
  		}
  	case intents.DetailsSplit:
  		selectedFiles := s.getSelectedFiles(true)
-@@ -202,7 +208,7 @@
+@@ -190,10 +197,10 @@
  			[]string{"Are you sure you want to split the selected files?"},
  			confirmation.WithStylePrefix("revisions"),
  			confirmation.WithOption("Yes",
--				tea.Batch(s.context.RunInteractiveCommand(jj.Split(s.revision.GetChangeId(), selectedFiles, intent.IsParallel), common.Refresh), common.Close),
-+				tea.Batch(s.context.RunInteractiveCommand(jj.Split(s.revision.GetChangeId(), selectedFiles, intent.IsParallel, config.GetCurrentDiffEditor(config.Current)), common.Refresh), common.Close),
- 				key.NewBinding(key.WithKeys("y"), key.WithHelp("y", "yes"))),
- 			confirmation.WithOption("No",
- 				confirmation.Close,
-@@ -229,7 +235,7 @@
- 				s.context.RunCommand(jj.Restore(s.revision.GetChangeId(), selectedFiles), common.Refresh, confirmation.Close),
+-				tea.Batch(s.context.RunInteractiveCommand(jj.Split(s.revision.GetChangeId(), selectedFiles, intent.IsParallel, false), common.Refresh), common.Close),
++				tea.Batch(s.context.RunInteractiveCommand(jj.Split(s.revision.GetChangeId(), selectedFiles, intent.IsParallel, false, config.GetCurrentDiffEditor(config.Current)), common.Refresh), common.Close),
  				key.NewBinding(key.WithKeys("y"), key.WithHelp("y", "yes"))),
  			confirmation.WithOption("Interactive",
--				tea.Batch(s.context.RunInteractiveCommand(jj.RestoreInteractive(s.revision.GetChangeId(), selected.fileName), common.Refresh), common.Close),
-+				tea.Batch(s.context.RunInteractiveCommand(jj.RestoreInteractive(s.revision.GetChangeId(), selected.fileName, config.GetCurrentDiffEditor(config.Current)), common.Refresh), common.Close),
+-				tea.Batch(s.context.RunInteractiveCommand(jj.Split(s.revision.GetChangeId(), selectedFiles, intent.IsParallel, true), common.Refresh), common.Close),
++				tea.Batch(s.context.RunInteractiveCommand(jj.Split(s.revision.GetChangeId(), selectedFiles, intent.IsParallel, true, config.GetCurrentDiffEditor(config.Current)), common.Refresh), common.Close),
+ 				key.NewBinding(key.WithKeys("i"), key.WithHelp("i", "interactive"))),
+ 			confirmation.WithOption("No",
+ 				confirmation.Close,
+@@ -216,10 +223,10 @@
+ 			[]string{"Are you sure you want to restore the selected files?"},
+ 			confirmation.WithStylePrefix("revisions"),
+ 			confirmation.WithOption("Yes",
+-				tea.Batch(s.context.RunCommand(jj.Restore(s.revision.GetChangeId(), selectedFiles, false), common.Refresh), confirmation.Close),
++				tea.Batch(s.context.RunCommand(jj.Restore(s.revision.GetChangeId(), selectedFiles, false, ""), common.Refresh), confirmation.Close),
+ 				key.NewBinding(key.WithKeys("y"), key.WithHelp("y", "yes"))),
+ 			confirmation.WithOption("Interactive",
+-				tea.Batch(s.context.RunInteractiveCommand(jj.Restore(s.revision.GetChangeId(), selectedFiles, true), common.Refresh), common.Close),
++				tea.Batch(s.context.RunInteractiveCommand(jj.Restore(s.revision.GetChangeId(), selectedFiles, true, config.GetCurrentDiffEditor(config.Current)), common.Refresh), common.Close),
  				key.NewBinding(key.WithKeys("i"), key.WithHelp("i", "interactive"))),
  			confirmation.WithOption("No",
  				confirmation.Close,
 diff --git a/internal/ui/operations/details/details_test.go b/internal/ui/operations/details/details_test.go
-index 86f3213a64..2136860c14 100644
+index 9508a6393d..59b482d829 100644
 --- a/internal/ui/operations/details/details_test.go
 +++ b/internal/ui/operations/details/details_test.go
-@@ -54,7 +54,7 @@
+@@ -39,7 +39,7 @@
  	commandRunner := test.NewTestCommandRunner(t)
  	commandRunner.Expect(jj.Snapshot())
  	commandRunner.Expect(jj.Status(Revision)).SetOutput([]byte(StatusOutput))
--	commandRunner.Expect(jj.RestoreInteractive(Revision, "file.txt"))
-+	commandRunner.Expect(jj.RestoreInteractive(Revision, "file.txt", ""))
+-	commandRunner.Expect(jj.Restore(Revision, []string{"file.txt"}, false))
++	commandRunner.Expect(jj.Restore(Revision, []string{"file.txt"}, false, ""))
  	defer commandRunner.Verify()
  
  	model := NewOperation(test.NewTestContext(commandRunner), Commit)
-@@ -67,7 +67,7 @@
+@@ -55,7 +55,7 @@
  	commandRunner := test.NewTestCommandRunner(t)
  	commandRunner.Expect(jj.Snapshot())
  	commandRunner.Expect(jj.Status(Revision)).SetOutput([]byte(StatusOutput))
--	commandRunner.Expect(jj.Split(Revision, []string{"file.txt"}, false))
-+	commandRunner.Expect(jj.Split(Revision, []string{"file.txt"}, false, ""))
+-	commandRunner.Expect(jj.Restore(Revision, []string{"file.txt"}, true))
++	commandRunner.Expect(jj.Restore(Revision, []string{"file.txt"}, true, ""))
  	defer commandRunner.Verify()
  
  	model := NewOperation(test.NewTestContext(commandRunner), Commit)
-@@ -83,7 +83,7 @@
+@@ -71,7 +71,7 @@
  	commandRunner := test.NewTestCommandRunner(t)
  	commandRunner.Expect(jj.Snapshot())
  	commandRunner.Expect(jj.Status(Revision)).SetOutput([]byte(StatusOutput))
--	commandRunner.Expect(jj.Split(Revision, []string{"file.txt"}, true))
-+	commandRunner.Expect(jj.Split(Revision, []string{"file.txt"}, true, ""))
+-	commandRunner.Expect(jj.Split(Revision, []string{"file.txt"}, false, false))
++	commandRunner.Expect(jj.Split(Revision, []string{"file.txt"}, false, false, ""))
+ 	defer commandRunner.Verify()
+ 
+ 	model := NewOperation(test.NewTestContext(commandRunner), Commit)
+@@ -87,7 +87,7 @@
+ 	commandRunner := test.NewTestCommandRunner(t)
+ 	commandRunner.Expect(jj.Snapshot())
+ 	commandRunner.Expect(jj.Status(Revision)).SetOutput([]byte(StatusOutput))
+-	commandRunner.Expect(jj.Split(Revision, []string{"file.txt"}, true, false))
++	commandRunner.Expect(jj.Split(Revision, []string{"file.txt"}, true, false, ""))
+ 	defer commandRunner.Verify()
+ 
+ 	model := NewOperation(test.NewTestContext(commandRunner), Commit)
+@@ -103,7 +103,7 @@
+ 	commandRunner := test.NewTestCommandRunner(t)
+ 	commandRunner.Expect(jj.Snapshot())
+ 	commandRunner.Expect(jj.Status(Revision)).SetOutput([]byte("false false $\nR internal/ui/{revisions => }/file.go\nR {file => sub/newfile}\n"))
+-	commandRunner.Expect(jj.Restore(Revision, []string{"internal/ui/file.go", "sub/newfile"}, false))
++	commandRunner.Expect(jj.Restore(Revision, []string{"internal/ui/file.go", "sub/newfile"}, false, ""))
+ 	defer commandRunner.Verify()
+ 
+ 	model := NewOperation(test.NewTestContext(commandRunner), Commit)
+@@ -120,7 +120,7 @@
+ 	commandRunner := test.NewTestCommandRunner(t)
+ 	commandRunner.Expect(jj.Snapshot())
+ 	commandRunner.Expect(jj.Status(Revision)).SetOutput([]byte("false false false $\nR {src/new_file_3.md => new_file.md}\nR src/{new_file.py => renamed_py.py}\nR {src1/to_be_renamed.md => src2/renamed.md}\n"))
+-	commandRunner.Expect(jj.Restore(Revision, []string{"new_file.md", "src/renamed_py.py", "src2/renamed.md"}, false))
++	commandRunner.Expect(jj.Restore(Revision, []string{"new_file.md", "src/renamed_py.py", "src2/renamed.md"}, false, ""))
+ 	defer commandRunner.Verify()
+ 
+ 	model := NewOperation(test.NewTestContext(commandRunner), Commit)
+@@ -138,7 +138,7 @@
+ 	commandRunner := test.NewTestCommandRunner(t)
+ 	commandRunner.Expect(jj.Snapshot())
+ 	commandRunner.Expect(jj.Status(Revision)).SetOutput([]byte("false false $\nM file{with}braces.txt\nA another{test}.go\n"))
+-	commandRunner.Expect(jj.Restore(Revision, []string{"file{with}braces.txt", "another{test}.go"}, false))
++	commandRunner.Expect(jj.Restore(Revision, []string{"file{with}braces.txt", "another{test}.go"}, false, ""))
  	defer commandRunner.Verify()
  
  	model := NewOperation(test.NewTestContext(commandRunner), Commit)
 diff --git a/internal/ui/operations/evolog/evolog_operation.go b/internal/ui/operations/evolog/evolog_operation.go
-index 482dc6bff6..4daf3ff422 100644
+index 451f2baa44..318de76f34 100644
 --- a/internal/ui/operations/evolog/evolog_operation.go
 +++ b/internal/ui/operations/evolog/evolog_operation.go
-@@ -180,10 +180,13 @@
+@@ -150,10 +150,13 @@
  		if o.mode != selectMode {
  			return nil
  		}
@@ -520,10 +599,18 @@ index 482dc6bff6..4daf3ff422 100644
  	case intents.EvologRestore:
  		if o.mode != selectMode {
 diff --git a/internal/ui/operations/squash/squash_operation.go b/internal/ui/operations/squash/squash_operation.go
-index 62134f302d..4a3a81433c 100644
+index 2ec1e68fea..c06b82fd8e 100644
 --- a/internal/ui/operations/squash/squash_operation.go
 +++ b/internal/ui/operations/squash/squash_operation.go
-@@ -92,7 +92,7 @@
+@@ -7,6 +7,7 @@
+ 	tea "github.com/charmbracelet/bubbletea"
+ 	"github.com/charmbracelet/lipgloss"
+ 	"github.com/charmbracelet/x/cellbuf"
++	"github.com/idursun/jjui/internal/config"
+ 	"github.com/idursun/jjui/internal/jj"
+ 	"github.com/idursun/jjui/internal/ui/actions"
+ 	keybindings "github.com/idursun/jjui/internal/ui/bindings"
+@@ -96,7 +97,7 @@
  	case intents.StartAceJump:
  		return common.StartAceJump()
  	case intents.Apply:
@@ -533,10 +620,10 @@ index 62134f302d..4a3a81433c 100644
  		if s.interactive || !s.useDestinationMessage {
  			return tea.Batch(common.Close, s.context.RunInteractiveCommand(args, continuation))
 diff --git a/internal/ui/oplog/operation_log.go b/internal/ui/oplog/operation_log.go
-index 096dc6f276..44b61e4d9c 100644
+index 3c8047b9d1..c4b575d30c 100644
 --- a/internal/ui/oplog/operation_log.go
 +++ b/internal/ui/oplog/operation_log.go
-@@ -209,7 +209,8 @@
+@@ -194,7 +194,8 @@
  	}
  	return func() tea.Msg {
  		output, _ := m.context.RunCommandImmediate(jj.OpShow(opId))
@@ -547,10 +634,24 @@ index 096dc6f276..44b61e4d9c 100644
  }
  
 diff --git a/internal/ui/preview/preview.go b/internal/ui/preview/preview.go
-index 5e7c9467aa..373673a531 100644
+index 7f04931f12..167af90cb9 100644
 --- a/internal/ui/preview/preview.go
 +++ b/internal/ui/preview/preview.go
-@@ -186,6 +186,11 @@
+@@ -169,8 +169,12 @@
+ }
+ 
+ func (m *Model) SetContent(content string) {
++	normalized := strings.ReplaceAll(content, "\r", "")
++	if normalized == m.content {
++		return
++	}
+ 	m.reset()
+-	m.content = strings.ReplaceAll(content, "\r", "")
++	m.content = normalized
+ 	m.view.SetContent(content)
+ }
+ 
+@@ -196,6 +200,11 @@
  	return common.Debounce(debounceId, debounceDuration, func() tea.Msg {
  		var args []string
  		previewWidth := strconv.Itoa(m.view.Width)
@@ -562,7 +663,7 @@ index 5e7c9467aa..373673a531 100644
  		switch sel := item.(type) {
  		case common.SelectedFile:
  			args = jj.TemplatedArgs(config.Current.Preview.FileCommand, map[string]string{
-@@ -194,6 +199,7 @@
+@@ -204,6 +213,7 @@
  				jj.CommitIdPlaceholder:     sel.CommitId,
  				jj.FilePlaceholder:         sel.File,
  				jj.PreviewWidthPlaceholder: previewWidth,
@@ -570,7 +671,7 @@ index 5e7c9467aa..373673a531 100644
  			})
  		case common.SelectedRevision:
  			args = jj.TemplatedArgs(config.Current.Preview.RevisionCommand, map[string]string{
-@@ -201,22 +207,33 @@
+@@ -211,22 +221,33 @@
  				jj.ChangeIdPlaceholder:     sel.ChangeId,
  				jj.CommitIdPlaceholder:     sel.CommitId,
  				jj.PreviewWidthPlaceholder: previewWidth,
@@ -606,25 +707,10 @@ index 5e7c9467aa..373673a531 100644
  			Content: string(output),
  		}
 diff --git a/internal/ui/revisions/revisions.go b/internal/ui/revisions/revisions.go
-index a5ea9ff3af..d937e1ff27 100644
+index bb9b74e3f3..1cbc726ce4 100644
 --- a/internal/ui/revisions/revisions.go
 +++ b/internal/ui/revisions/revisions.go
-@@ -445,6 +445,14 @@
- 				return m.handleIntent(intents.StartDuplicate{})
- 			case key.Matches(msg, m.keymap.SetParents):
- 				return m.handleIntent(intents.SetParents{})
-+			case key.Matches(msg, m.keymap.CycleDiffEditor):
-+				editor := config.Current.CycleDiffEditor()
-+				return tea.Batch(
-+					func() tea.Msg {
-+						return intents.AddMessage{Text: fmt.Sprintf("Diff tool: %s", editor)}
-+					},
-+					common.SelectionChanged(m.context.SelectedItem),
-+				)
- 			}
- 		}
- 	}
-@@ -859,7 +867,10 @@
+@@ -812,7 +812,10 @@
  	changeId := commit.GetChangeId()
  	return func() tea.Msg {
  		output, _ := m.context.RunCommandImmediate(jj.Diff(changeId, ""))
@@ -636,22 +722,22 @@ index a5ea9ff3af..d937e1ff27 100644
  	}
  }
  
-@@ -871,7 +882,7 @@
+@@ -824,7 +827,7 @@
  	if commit == nil {
  		return nil
  	}
--	return m.context.RunInteractiveCommand(jj.Split(commit.GetChangeId(), intent.Files, intent.IsParallel), common.Refresh)
-+	return m.context.RunInteractiveCommand(jj.Split(commit.GetChangeId(), intent.Files, intent.IsParallel, config.GetCurrentDiffEditor(config.Current)), common.Refresh)
+-	return m.context.RunInteractiveCommand(jj.Split(commit.GetChangeId(), intent.Files, intent.IsParallel, intent.IsInteractive), common.Refresh)
++	return m.context.RunInteractiveCommand(jj.Split(commit.GetChangeId(), intent.Files, intent.IsParallel, intent.IsInteractive, config.GetCurrentDiffEditor(config.Current)), common.Refresh)
  }
  
  func (m *Model) updateSelection() tea.Cmd {
 diff --git a/internal/ui/ui.go b/internal/ui/ui.go
-index a24da12dab..1bdc09b11d 100644
+index 01ab78a832..7ce4d09108 100644
 --- a/internal/ui/ui.go
 +++ b/internal/ui/ui.go
-@@ -295,7 +295,15 @@
- 		}
- 		return nil
+@@ -165,7 +165,15 @@
+ 	case common.ExecProcessCompletedMsg:
+ 		cmds = append(cmds, common.Refresh)
  	case common.ShowDiffMsg:
 -		m.diff = diff.New(string(msg))
 +		var source *diff.DiffSource
@@ -666,11 +752,36 @@ index a24da12dab..1bdc09b11d 100644
  		return m.diff.Init()
  	case common.UpdateRevisionsSuccessMsg:
  		m.state = common.Ready
-@@ -461,6 +469,7 @@
+@@ -743,6 +751,11 @@
+ }
  
- 	if m.diff != nil {
- 		m.renderDiffLayout(box)
-+		m.flash.ViewRect(m.displayContext, box)
- 		m.displayContext.Render(screenBuf)
- 		content := cellbuf.Render(screenBuf)
- 		return strings.ReplaceAll(content, "\r", "")
+ func (m *Model) handleUnmatched(msg tea.KeyMsg) tea.Cmd {
++	// Global cycle diff editor shortcut
++	if msg.String() == "ctrl+e" && !m.status.IsFocused() && !m.revsetModel.Editing {
++		return m.cycleDiffEditor()
++	}
++
+ 	if m.status.IsFocused() {
+ 		return m.status.Update(msg)
+ 	}
+@@ -764,6 +777,20 @@
+ 	return m.revisions.Update(msg)
+ }
+ 
++func (m *Model) cycleDiffEditor() tea.Cmd {
++	tool := config.Current.CycleDiffEditor()
++	cmds := []tea.Cmd{
++		func() tea.Msg {
++			return intents.AddMessage{Text: fmt.Sprintf("Diff tool: %s", tool)}
++		},
++	}
++	if m.diff != nil && m.diff.HasSource() {
++		cmds = append(cmds, m.diff.RefreshDiff())
++	}
++	cmds = append(cmds, common.SelectionChanged(m.context.SelectedItem))
++	return tea.Batch(cmds...)
++}
++
+ func (m *Model) primaryScope() keybindings.Scope {
+ 	if m.password != nil {
+ 		return scopePassword
