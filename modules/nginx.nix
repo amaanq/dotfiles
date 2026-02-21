@@ -76,6 +76,8 @@ in
     recommendedProxySettings = true;
     recommendedTlsSettings = true;
 
+    mapHashBucketSize = 128;
+
     commonHttpConfig = # nginx
       ''
         map $scheme $hsts_header {
