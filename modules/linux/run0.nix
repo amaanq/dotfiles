@@ -23,7 +23,9 @@ let
 in
 {
   # Only for sudoedit, see https://github.com/LordGrimmauld/run0-sudo-shim/issues/4
-  security.sudo = enabled;
+  security.sudo = enabled // {
+    wheelNeedsPassword = false;
+  };
 
   environment.systemPackages = [
     run0-sudo-shim'
