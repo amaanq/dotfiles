@@ -51,7 +51,13 @@ merge
       pkgs.avbroot
       pkgs.git-repo
       pkgs.gnirehtet
-      pkgs.jadx
+      (pkgs.jadx.override {
+        quark-engine = pkgs.quark-engine.override {
+          python3Packages = pkgs.python3Packages.overrideScope (
+            _: prev: { plotly = prev.plotly.overridePythonAttrs { doCheck = false; }; }
+          );
+        };
+      })
       pkgs.scrcpy
     ]
     ++ optionals config.isLinux [
