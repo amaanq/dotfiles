@@ -199,7 +199,7 @@ index 0000000000..d912156bec
 @@ -0,0 +1,1 @@
 +package config
 diff --git a/internal/config/loader.go b/internal/config/loader.go
-index f18442b11c..55718d0aa2 100644
+index 8e79162b5c..b8d70e8a3a 100644
 --- a/internal/config/loader.go
 +++ b/internal/config/loader.go
 @@ -96,6 +96,9 @@
@@ -213,7 +213,7 @@ index f18442b11c..55718d0aa2 100644
  	// collections are always read from file content, without carrying prior state.
  	// Keep this type explicit and extend it when new merge-managed arrays are added.
 diff --git a/internal/jj/commands.go b/internal/jj/commands.go
-index 342cb68dad..e0c23e2a74 100644
+index 2e504528ac..abdddc93d1 100644
 --- a/internal/jj/commands.go
 +++ b/internal/jj/commands.go
 @@ -15,6 +15,7 @@
@@ -265,6 +265,20 @@ index 342cb68dad..e0c23e2a74 100644
  	if keepEmptied {
  		args = append(args, "--keep-emptied")
  	}
+diff --git a/internal/parser/row.go b/internal/parser/row.go
+index c109eeb8df..00a579c030 100644
+--- a/internal/parser/row.go
++++ b/internal/parser/row.go
+@@ -163,7 +163,8 @@
+ 		line.Flags = Revision | Highlightable
+ 		row.Commit.IsWorkingCopy = line.containsRune('@')
+ 		for _, segment := range line.Segments {
+-			if strings.TrimSpace(segment.Text) == "hidden" {
++			trimmed := strings.TrimSpace(segment.Text)
++			if trimmed == "hidden" || trimmed == "(hidden)" {
+ 				row.Commit.Hidden = true
+ 			}
+ 		}
 diff --git a/internal/ui/common/msgs.go b/internal/ui/common/msgs.go
 index c150b7c93e..6b98582920 100644
 --- a/internal/ui/common/msgs.go
@@ -579,10 +593,10 @@ index 9508a6393d..59b482d829 100644
  
  	model := NewOperation(test.NewTestContext(commandRunner), Commit)
 diff --git a/internal/ui/operations/evolog/evolog_operation.go b/internal/ui/operations/evolog/evolog_operation.go
-index 451f2baa44..318de76f34 100644
+index ace0736098..6a0f421cf9 100644
 --- a/internal/ui/operations/evolog/evolog_operation.go
 +++ b/internal/ui/operations/evolog/evolog_operation.go
-@@ -150,10 +150,13 @@
+@@ -146,10 +146,13 @@
  		if o.mode != selectMode {
  			return nil
  		}
@@ -706,6 +720,30 @@ index 7f04931f12..167af90cb9 100644
  		return updatePreviewContentMsg{
  			Content: string(output),
  		}
+diff --git a/internal/ui/revisions/displaycontext_renderer.go b/internal/ui/revisions/displaycontext_renderer.go
+index ba2b255717..ed2710bab4 100644
+--- a/internal/ui/revisions/displaycontext_renderer.go
++++ b/internal/ui/revisions/displaycontext_renderer.go
+@@ -7,7 +7,6 @@
+ 	"github.com/charmbracelet/x/cellbuf"
+ 	"github.com/idursun/jjui/internal/parser"
+ 	"github.com/idursun/jjui/internal/screen"
+-	"github.com/idursun/jjui/internal/ui/common"
+ 	"github.com/idursun/jjui/internal/ui/layout"
+ 	"github.com/idursun/jjui/internal/ui/operations"
+ 	"github.com/idursun/jjui/internal/ui/render"
+@@ -158,10 +157,7 @@
+ 		clickMsg,
+ 	)
+ 
+-	// Register scroll only when no overlay operation is active
+-	if overlay, ok := operation.(common.Overlay); !ok || !overlay.IsOverlay() {
+-		r.listRenderer.RegisterScroll(dl, viewRect)
+-	}
++	r.listRenderer.RegisterScroll(dl, viewRect)
+ }
+ 
+ // addHighlights adds highlight effects for lines with Highlightable flag
 diff --git a/internal/ui/revisions/revisions.go b/internal/ui/revisions/revisions.go
 index bb9b74e3f3..1cbc726ce4 100644
 --- a/internal/ui/revisions/revisions.go
