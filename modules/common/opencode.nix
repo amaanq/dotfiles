@@ -8,9 +8,29 @@
 let
   inherit (lib) merge mkIf;
 
-  opencode' = opencode.packages.${pkgs.system}.default.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ./opencode-usage.patch ];
+  bun_1_3_10 = pkgs.bun.overrideAttrs (_: {
+    version = "1.3.10";
+    src = pkgs.fetchurl {
+      url = "https://github.com/oven-sh/bun/releases/download/bun-v1.3.10/bun-linux-x64.zip";
+      hash = "sha256-9XvAGH45Yj3nFro6OJ/aVIay175xMamAulTce3M9Lgg=";
+    };
   });
+
+  opencodePkgs = pkgs.extend (
+    _: prev: {
+      bun = bun_1_3_10;
+    }
+  );
+
+  opencode' =
+    (opencodePkgs.callPackage "${opencode}/nix/opencode.nix" {
+      node_modules = opencodePkgs.callPackage "${opencode}/nix/node_modules.nix" {
+        rev = opencode.shortRev or opencode.dirtyShortRev or "dirty";
+      };
+    }).overrideAttrs
+      (old: {
+        patches = (old.patches or [ ]) ++ [ ./opencode-usage.patch ];
+      });
 
   opencodeConfig = builtins.toJSON {
     "$schema" = "https://opencode.ai/config.json";
