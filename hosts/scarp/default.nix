@@ -1,5 +1,5 @@
 lib:
-lib.nixosSystem' (
+lib.nixosSystem' "server" (
   {
     config,
     keys,
@@ -54,6 +54,8 @@ lib.nixosSystem' (
         isNormalUser = true;
       };
     };
+
+    boot.tmp.cleanOnBoot = true;
 
     system.stateVersion = "25.11";
 

@@ -1,5 +1,5 @@
 lib:
-lib.nixosSystem' (
+lib.nixosSystem' "desktop" (
   {
     config,
     keys,
@@ -48,6 +48,8 @@ lib.nixosSystem' (
         shell = pkgs.nushell;
       };
     };
+
+    boot.tmp.cleanOnBoot = true;
 
     system.stateVersion = "25.11";
 

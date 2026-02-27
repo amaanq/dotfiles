@@ -1,5 +1,5 @@
 lib:
-lib.nixosSystem' (
+lib.nixosSystem' "desktop" (
   {
     config,
     keys,
@@ -67,6 +67,11 @@ lib.nixosSystem' (
         openssh.authorizedKeys.keys = keys.admins;
         shell = pkgs.nushell;
       };
+    };
+
+    boot.tmp = {
+      useTmpfs = true;
+      tmpfsSize = "16G";
     };
 
     system.stateVersion = "25.11";
