@@ -31,6 +31,10 @@ in
     file = ../mail/password.plain.age;
     owner = "grafana";
   };
+  secrets.grafanaSecretKey = {
+    file = ./password.age;
+    owner = "grafana";
+  };
 
   services.postgresql.ensure = [ "grafana" ];
 
@@ -71,6 +75,7 @@ in
       disable_gravatar = true;
 
       disable_initial_admin_creation = false;
+      secret_key = "$__file{${config.secrets.grafanaSecretKey.path}}";
     };
 
     settings.smtp = {

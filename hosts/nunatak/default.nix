@@ -1,5 +1,5 @@
 lib:
-lib.nixosSystem' (
+lib.nixosSystem' "server" (
   {
     config,
     keys,
@@ -98,6 +98,8 @@ lib.nixosSystem' (
           address = "fe80::1";
         };
       };
+
+    boot.tmp.cleanOnBoot = true;
 
     system.stateVersion = "25.11";
 

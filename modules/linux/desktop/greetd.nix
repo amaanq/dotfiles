@@ -1,0 +1,36 @@
+{
+  lib,
+  pkgs,
+  ...
+}:
+let
+  inherit (lib) enabled;
+in
+{
+  services.speechd.enable = false;
+
+  # Display manager
+  services.greetd =
+    let
+      tuigreet = "${pkgs.tuigreet}/bin/tuigreet";
+      niri-session = "${pkgs.niri}/share/wayland-sessions";
+    in
+    enabled {
+      settings = {
+        default_session = {
+          command = "${tuigreet} --time --remember --remember-session --sessions ${niri-session}";
+          user = "greeter";
+        };
+      };
+    };
+
+  systemd.services.greetd.serviceConfig = {
+    Type = "idle";
+    StandardInput = "tty";
+    StandardOutput = "tty";
+    StandardError = "journal";
+    TTYReset = true;
+    TTYVHangup = true;
+    TTYVTDisallocate = true;
+  };
+}

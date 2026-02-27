@@ -78,7 +78,7 @@ in
   "modules/common/graphene/komodo/keys.tar.gz.age".publicKeys = admins;
 
   # shared
-  "modules/linux/niri/zipline-token.age".publicKeys = admins;
+  "modules/linux/desktop/niri/zipline-token.age".publicKeys = admins;
   "modules/common/atuin/key.age".publicKeys = all;
   "modules/common/builder-key.age".publicKeys = all;
   "modules/common/git-identity.age".publicKeys = all;
@@ -87,9 +87,9 @@ in
   "modules/common/shell/anthropic-key.age".publicKeys = all;
   "modules/common/shell/glm-key.age".publicKeys = all;
   "modules/common/shell/openai-key.age".publicKeys = all;
-  "modules/common/ida/netrc.age".publicKeys = all;
+  "modules/common/desktop/ida/netrc.age".publicKeys = all;
   "modules/common/ssh/config.age".publicKeys = all;
   "modules/acme/environment.age".publicKeys = all;
   "modules/linux/tailscale/authkey.age".publicKeys = all;
-  "modules/linux/restic/password.age".publicKeys = all;
+  "modules/linux/server/restic/password.age".publicKeys = all;
 }

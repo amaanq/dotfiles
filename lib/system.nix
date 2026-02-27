@@ -5,11 +5,17 @@ let
     filter
     getAttrFromPath
     hasAttrByPath
+    hasInfix
     collectNix
     ;
 
-  modulesCommon = collectNix ../modules/common;
-  modulesLinux = collectNix ../modules/linux;
+  excludeRoleDirs = paths: filter (p: !(hasInfix "/desktop/" (toString p)) && !(hasInfix "/server/" (toString p))) paths;
+
+  modulesCommon = collectNix ../modules/common |> excludeRoleDirs;
+  modulesCommonDesktop = collectNix ../modules/common/desktop;
+  modulesLinux = collectNix ../modules/linux |> excludeRoleDirs;
+  modulesLinuxDesktop = collectNix ../modules/linux/desktop;
+  modulesLinuxServer = collectNix ../modules/linux/server;
   modulesDarwin = collectNix ../modules/darwin;
 
   collectInputs =
@@ -36,7 +42,7 @@ let
 in
 {
   nixosSystem' =
-    module:
+    type: module:
     super.nixosSystem {
       inherit specialArgs;
 
@@ -46,6 +52,14 @@ in
       ]
       ++ modulesCommon
       ++ modulesLinux
+      ++ (
+        if type == "desktop" then
+          modulesLinuxDesktop ++ modulesCommonDesktop
+        else if type == "server" then
+          modulesLinuxServer
+        else
+          [ ]
+      )
       ++ inputModulesLinux;
     };
 
@@ -58,6 +72,7 @@ in
         module
       ]
       ++ modulesCommon
+      ++ modulesCommonDesktop
       ++ modulesDarwin
       ++ inputModulesDarwin;
     };
