@@ -45,7 +45,6 @@ in
 {
   imports = [ niri.lib.internal.settings-module ];
 
-
   secrets.ziplineToken = {
     file = ./zipline-token.age;
     owner = "amaanq";
@@ -87,7 +86,7 @@ in
       pkgs.gnome-keyring
       pkgs.gifski
       pkgs.inotify-tools
-      pkgs.mate.mate-polkit # dms 🦼
+      pkgs.mate-polkit # dms 🦼
       pkgs.nautilus
       pkgs.lxqt.pavucontrol-qt
       pkgs.playerctl
