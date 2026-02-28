@@ -1,0 +1,25 @@
+diff --git a/synapse/handlers/profile.py b/synapse/handlers/profile.py
+index 8f16ae6dec..62b93148e5 100644
+--- a/synapse/handlers/profile.py
++++ b/synapse/handlers/profile.py
+@@ -42,7 +42,7 @@
+ 
+ logger = logging.getLogger(__name__)
+ 
+-MAX_DISPLAYNAME_LEN = 256
++MAX_DISPLAYNAME_LEN = 6767676767676
+ MAX_AVATAR_URL_LEN = 1000
+ # Field name length is specced at 255 bytes.
+ MAX_CUSTOM_FIELD_LEN = 255
+@@ -207,11 +207,6 @@
+                 400, "'displayname' must be a string", errcode=Codes.INVALID_PARAM
+             )
+ 
+-        if len(new_displayname) > MAX_DISPLAYNAME_LEN:
+-            raise SynapseError(
+-                400, "Displayname is too long (max %i)" % (MAX_DISPLAYNAME_LEN,)
+-            )
+-
+         displayname_to_set: str | None = new_displayname.strip()
+         if new_displayname == "":
+             displayname_to_set = None

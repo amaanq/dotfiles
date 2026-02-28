@@ -5,6 +5,7 @@
   self,
   config,
   lib,
+  pkgs,
   ...
 }:
 let
@@ -66,6 +67,18 @@ in
   services.prometheus.exporters.redis = enabled {
     listenAddress = "[::]";
   };
+
+  nixpkgs.overlays = [
+    (final: prev: {
+      matrix-synapse-unwrapped = prev.matrix-synapse-unwrapped.overrideAttrs (old: {
+        doCheck = false;
+        doInstallCheck = false;
+        patches = (old.patches or [ ]) ++ [
+          ./remove-displayname-limit.patch
+        ];
+      });
+    })
+  ];
 
   services.matrix-synapse = enabled {
     withJemalloc = true;
