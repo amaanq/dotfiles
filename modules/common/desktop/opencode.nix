@@ -27,6 +27,11 @@ let
     }).overrideAttrs
       (old: {
         patches = (old.patches or [ ]) ++ [ ../opencode-usage.patch ];
+        # node_modules.nix fileset excludes .github/ but build.ts reads TEAM_MEMBERS
+        postPatch = (old.postPatch or "") + ''
+          mkdir -p .github
+          touch .github/TEAM_MEMBERS
+        '';
       });
 
   opencodeConfig = builtins.toJSON {
