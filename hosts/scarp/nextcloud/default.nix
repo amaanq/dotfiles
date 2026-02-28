@@ -9,7 +9,7 @@ let
   inherit (config.networking) domain;
   inherit (lib) enabled merge;
   fqdn = "cloud.${domain}";
-  packageNextcloud = pkgs.nextcloud32;
+  packageNextcloud = pkgs.nextcloud33;
 in
 {
   imports = [
