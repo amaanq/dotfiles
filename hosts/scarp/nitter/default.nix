@@ -25,12 +25,12 @@ in
 
   services.nitter = enabled {
     package = pkgs.nitter.overrideAttrs {
-      version = "0-unstable-2025-12-05";
+      version = "0-unstable-2026-02-22";
       src = pkgs.fetchFromGitHub {
         owner = "zedeus";
         repo = "nitter";
-        rev = "17fc2628f91f70b9bfda1915c76e94708a5197bf";
-        hash = "sha256-yl1ge/Vm5+gkbEl73B7n3Ooh3Rpn4f1lyq0RU4VQRRI=";
+        rev = "d187b1cc3f61f3046f4c6464a80ad705ea670c29";
+        hash = "sha256-W0bx+p7Sr3iuhvg1ZenD0CPI3cHRnE3DpKDjEu2t0aI=";
       };
     };
     preferences = {
