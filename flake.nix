@@ -182,6 +182,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    teapot = {
+      url = "github:amaanq/teapot";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.fenix.follows = "fenix";
+    };
+
     xitter-notify-server = {
       url = "github:amaanq/xitter-notify-server";
       inputs.nixpkgs.follows = "nixpkgs";

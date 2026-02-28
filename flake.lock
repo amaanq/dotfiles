@@ -762,11 +762,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1772349395,
-        "narHash": "sha256-pJwNYsxASI56k4PaUpCAZGrUsZRmLSBJ0NSaKlJAj0A=",
+        "lastModified": 1772570995,
+        "narHash": "sha256-RoPpTraysMguhZ2hggM6Ht2acZM80B55tDnmebDxb2E=",
         "owner": "amaanq",
         "repo": "nvim-config",
-        "rev": "6956d66c297498469b9e5810046eaeb06f74ace2",
+        "rev": "0d48f06602f4516ddddebafd9024d3fd074a3743",
         "type": "github"
       },
       "original": {
@@ -895,6 +895,7 @@
         "run0-sudo-shim": "run0-sudo-shim",
         "rust-overlay": "rust-overlay",
         "spicetify": "spicetify",
+        "teapot": "teapot",
         "watt": "watt",
         "xitter-notify-server": "xitter-notify-server"
       }
@@ -1070,6 +1071,29 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "teapot": {
+      "inputs": {
+        "fenix": [
+          "fenix"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1772601484,
+        "narHash": "sha256-80GtlgNaKlEuipEF3woIgqzF3x2bYw7VrzTFBTcPGWs=",
+        "owner": "amaanq",
+        "repo": "teapot",
+        "rev": "878c9e43377bdb547f27f1b883de50efbf904a4b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "amaanq",
+        "repo": "teapot",
         "type": "github"
       }
     },
