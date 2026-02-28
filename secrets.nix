@@ -34,6 +34,8 @@ in
 
   "hosts/scarp/nitter/sessions.age".publicKeys = [ scarp ] ++ admins;
 
+  "hosts/scarp/teapot/sessions.age".publicKeys = [ scarp ] ++ admins;
+
   "hosts/scarp/plausible/key.age".publicKeys = [ scarp ] ++ admins;
 
   "hosts/scarp/vaultwarden/env.age".publicKeys = [ scarp ] ++ admins;

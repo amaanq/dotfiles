@@ -895,6 +895,7 @@
         "run0-sudo-shim": "run0-sudo-shim",
         "rust-overlay": "rust-overlay",
         "spicetify": "spicetify",
+        "teapot": "teapot",
         "watt": "watt",
         "xitter-notify-server": "xitter-notify-server"
       }
@@ -1070,6 +1071,29 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "teapot": {
+      "inputs": {
+        "fenix": [
+          "fenix"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1772367534,
+        "narHash": "sha256-Rp14jEbC5cthGZltW4n56xsJ3I45t6SmrCECu/M3SAY=",
+        "owner": "amaanq",
+        "repo": "teapot",
+        "rev": "0f2a2d4b6bc12e95dfbc94f41d50b21417b7e0f6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "amaanq",
+        "repo": "teapot",
         "type": "github"
       }
     },
