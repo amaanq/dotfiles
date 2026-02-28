@@ -25,9 +25,9 @@ in
     initialize = true;
 
     pruneOpts = [
-      "--keep-daily 7"
-      "--keep-weekly 4"
-      "--keep-monthly 3"
+      "--keep-daily 1"
+      "--keep-weekly 1"
+      "--keep-monthly 1"
     ];
 
     extraBackupArgs = [
