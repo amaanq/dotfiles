@@ -77,6 +77,14 @@ let
     )
     sys.stderr.write(f"remote-control: {n} site(s)\n")
 
+    # Also bypass async remote control gate (server-side flag check)
+    data, n = re.subn(
+        rb"async function (" + W + rb")\(\)\{return " + W + rb'\("tengu_ccr_bridge"\)\}',
+        lambda m: b"async function " + m.group(1) + b"(){return!0}",
+        data,
+    )
+    sys.stderr.write(f"remote-control-async: {n} site(s)\n")
+
     # Fix Deno-compile bridge spawn: Deno compiled binaries intercept --flags
     # as V8 flags. Rewrite spawn to go through env(1) which breaks the Deno
     # runtime's flag parsing.
