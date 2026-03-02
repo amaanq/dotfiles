@@ -122,11 +122,6 @@
       inputs.neovim-nightly-overlay.inputs.flake-parts.follows = "flake-parts";
     };
 
-    opencode = {
-      url = "github:anomalyco/opencode";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
