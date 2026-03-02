@@ -120,6 +120,7 @@ let
         "--to"
         "closest_pushable(@)"
       ];
+      gc = [ "git" "clone" ];
       t = [ "tug" ];
       u = [ "undo" ];
     };
