@@ -34,7 +34,6 @@ in
     metricsAddress = "[::]:9099";
     backends = {
       ${fqdn} = "http://[::1]:${toString port}";
-      "nitter.${domain}" = "http://127.0.0.1:${toString (stringToPort "nitter")}";
     };
     challengeTemplate = "forgejo";
     challengeTemplateTheme = "forgejo-auto";
