@@ -152,13 +152,6 @@ in
           action = "pass";
         }
         {
-          name = "embed-bots";
-          conditions = [
-            ''userAgent.contains("Discordbot/") || userAgent.contains("Slackbot") || userAgent.contains("TelegramBot") || userAgent.contains("WhatsApp")''
-          ];
-          action = "pass";
-        }
-        {
           name = "homesite";
           conditions = [
             ''path == "/"''

@@ -269,6 +269,14 @@
           action = "pass";
         }
         {
+          name = "embed-bots";
+          conditions = [
+            ''userAgent.contains("Discordbot/") || userAgent.contains("Slackbot") || userAgent.contains("TelegramBot") || userAgent.contains("WhatsApp")''
+            ''userAgent.contains("facebookexternalhit/") || userAgent.contains("Twitterbot/")''
+          ];
+          action = "pass";
+        }
+        {
           name = "undesired-networks";
           conditions = [
             ''remoteAddress.network("huawei-cloud") || remoteAddress.network("alibaba-cloud") || remoteAddress.network("zenlayer-inc") || remoteAddress.network("aws-cloud") || remoteAddress.network("google-cloud")''

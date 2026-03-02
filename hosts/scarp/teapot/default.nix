@@ -66,14 +66,6 @@ in
           action = "pass";
         }
         {
-          name = "embed-bots";
-          conditions = [
-            ''userAgent.contains("Discordbot/") || userAgent.contains("Slackbot") || userAgent.contains("TelegramBot") || userAgent.contains("WhatsApp")''
-            ''userAgent.contains("facebookexternalhit/") || userAgent.contains("Twitterbot/")''
-          ];
-          action = "pass";
-        }
-        {
           name = "media-proxy";
           conditions = [
             ''path.startsWith("/pic/")''
