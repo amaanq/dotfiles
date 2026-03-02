@@ -16,9 +16,11 @@ let
 
   fqdn = "git.${domain}";
   port = stringToPort "git";
-  goAwayPort = stringToPort "go-away";
+  goAwayPort = stringToPort "go-away:forgejo";
 
   forgejo' = pkgs.callPackage (self + /packages/forgejo.nix) { };
+
+  goAwayPolicy = import (self + /modules/go-away/policy.nix);
 in
 {
   networking.firewall.allowedTCPPorts = [ 6767 ];
@@ -26,10 +28,10 @@ in
   imports = [
     (self + /modules/nginx.nix)
     (self + /modules/postgresql.nix)
-    (self + /modules/go-away.nix)
+    (self + /modules/go-away)
   ];
 
-  services.go-away = enabled {
+  services.go-away.instances.forgejo = enabled {
     bindAddress = "[::1]:${toString goAwayPort}";
     metricsAddress = "[::]:9099";
     backends = {
@@ -37,7 +39,154 @@ in
     };
     challengeTemplate = "forgejo";
     challengeTemplateTheme = "forgejo-auto";
-    policyFile = self + /modules/go-away/forgejo.yml;
+    policy = goAwayPolicy.mkPolicy {
+      extraChallenges = [ "http-cookie-check" ];
+      extraChallengeDefs = {
+        http-cookie-check = {
+          runtime = "http";
+          parameters = {
+            http-url = "http://[::1]:${toString port}/user/stopwatches";
+            http-method = "GET";
+            http-cookie = "i_like_gitea";
+            http-code = 200;
+            verify-probability = 0.1;
+          };
+        };
+      };
+      wellKnownExtras = [
+        ''path == "/app-ads.txt" || path == "/ads.txt"''
+        ''path == "/crossdomain.xml"''
+      ];
+      staticAssets = [
+        ''path == "/apple-touch-icon.png"''
+        ''path == "/apple-touch-icon-precomposed.png"''
+        ''path.startsWith("/assets/")''
+        ''path.startsWith("/repo-avatars/")''
+        ''path.startsWith("/avatars/")''
+        ''path.startsWith("/avatar/")''
+        ''path.startsWith("/user/avatar/")''
+        ''path.startsWith("/attachments/")''
+      ];
+      extraConditions = {
+        is-git-path = [
+          ''path.matches("^/[^/]+/[^/]+/(git-upload-pack|git-receive-pack|HEAD|info/refs|info/lfs|objects)")''
+        ];
+        is-git-ua = [
+          ''userAgent.startsWith("git/") || userAgent.contains("libgit")''
+          ''userAgent.startsWith("go-git")''
+          ''userAgent.startsWith("JGit/") || userAgent.startsWith("JGit-")''
+          ''userAgent.startsWith("GoModuleMirror/")''
+          ''userAgent.startsWith("Go-http-client/") && "go-get" in query && query["go-get"] == "1"''
+          ''"Git-Protocol" in headers && headers["Git-Protocol"] == "version=2"''
+        ];
+        is-heavy-resource = [
+          ''path.startsWith("/explore/")''
+          ''path.matches("^/[^/]+/[^/]+/src/commit/")''
+          ''path.matches("^/[^/]+/[^/]+/compare/")''
+          ''path.matches("^/[^/]+/[^/]+/commits/commit/")''
+          ''path.matches("^/[^/]+/[^/]+/blame/")''
+          ''path.matches("^/[^/]+/[^/]+/search/")''
+          ''path.matches("^/[^/]+/[^/]+/find/")''
+          ''path.matches("^/[^/]+/[^/]+/activity")''
+          ''path.matches("^/[^/]+/[^/]+/graph$")''
+          ''"q" in query && query.q != ""''
+          ''path.matches("^/[^/]+$") && "tab" in query && query.tab == "activity"''
+        ];
+      };
+      serviceRules = [
+        {
+          name = "always-pow-challenge";
+          conditions = [
+            ''path.startsWith("/user/sign_up")''
+            ''path.startsWith("/user/login") || path.startsWith("/user/oauth2/")''
+            ''path.startsWith("/user/activate")''
+            ''path == "/repo/create" || path == "/repo/migrate" || path == "/org/create"''
+            ''path == "/user/settings" || path.startsWith("/user/settings/hooks/")''
+            ''path.matches("^/[^/]+/[^/]+/issues/new")''
+            ''path.matches("^/[^/]+/[^/]+/archive/.*\\.(bundle|zip|tar\\.gz)") && ($is-generic-browser)''
+          ];
+          action = "challenge";
+          settings.challenges = [ "js-refresh" ];
+        }
+        {
+          name = "allow-git-operations";
+          conditions = [
+            "($is-git-path)"
+            ''path.matches("^/[^/]+/[^/]+\\.git")''
+            ''path.matches("^/[^/]+/[^/]+/") && ($is-git-ua)''
+          ];
+          action = "pass";
+        }
+        {
+          name = "sitemap";
+          conditions = [
+            ''path == "/sitemap.xml" || path.matches("^/explore/(users|repos)/sitemap-[0-9]+\\.xml$")''
+          ];
+          action = "pass";
+        }
+        {
+          name = "api-call";
+          conditions = [
+            ''path.startsWith("/api/v1/") || path.startsWith("/api/forgejo/v1/")''
+            ''path.startsWith("/login/oauth/")''
+            ''path.startsWith("/captcha/")''
+            ''path.startsWith("/metrics/")''
+            ''path == "/-/markup"''
+            ''path == "/user/events"''
+            ''path == "/ssh_info"''
+            ''path == "/api/healthz"''
+            ''path.startsWith("/api/actions/") || path.startsWith("/api/actions_pipeline/")''
+            ''path.matches("^/[^/]+\\.keys$")''
+            ''path.matches("^/[^/]+\\.gpg")''
+            ''path.startsWith("/api/packages/") || path == "/api/packages"''
+            ''path.startsWith("/v2/") || path == "/v2"''
+            ''path.endsWith("/branches/list") || path.endsWith("/tags/list")''
+          ];
+          action = "pass";
+        }
+        {
+          name = "preview-fetchers";
+          conditions = [
+            ''path.endsWith("/-/summary-card") || path.matches("^/[^/]+/[^/]+/releases/summary-card/[^/]+$")''
+          ];
+          action = "pass";
+        }
+        {
+          name = "embed-bots";
+          conditions = [
+            ''userAgent.contains("Discordbot/") || userAgent.contains("Slackbot") || userAgent.contains("TelegramBot") || userAgent.contains("WhatsApp")''
+          ];
+          action = "pass";
+        }
+        {
+          name = "homesite";
+          conditions = [
+            ''path == "/"''
+            ''(path.matches("^/[^/]+/[^/]+/?$") || path.matches("^/[^/]+/[^/]+/badges/") || path.matches("^/[^/]+/[^/]+/(issues|pulls)/[0-9]+$") || (path.matches("^/[^/]+/?$") && size(query) == 0)) && !path.matches("(?i)^/(api|metrics|v2|assets|attachments|avatar|avatars|repo-avatars|captcha|login|org|repo|user|admin|devtest|explore|issues|pulls|milestones|notifications|ghost)(/|$)")''
+          ];
+          action = "pass";
+        }
+        {
+          name = "heavy-operations";
+          conditions = [ "($is-heavy-resource)" ];
+          action = "none";
+          children = [
+            { name = "0"; action = "check"; settings.challenges = [ "preload-link" "header-refresh" "js-refresh" "http-cookie-check" ]; }
+            { name = "1"; action = "check"; settings.challenges = [ "resource-load" "js-refresh" "http-cookie-check" ]; }
+          ];
+        }
+        {
+          name = "source-download";
+          conditions = [
+            ''path.matches("^/[^/]+/[^/]+/raw/branch/")''
+            ''path.matches("^/[^/]+/[^/]+/archive/")''
+            ''path.matches("^/[^/]+/[^/]+/releases/download/")''
+            ''path.matches("^/[^/]+/[^/]+/media/") && ($is-generic-browser)''
+          ];
+          action = "pass";
+        }
+      ];
+    };
   };
 
   secrets.forgejoRunnerToken = {

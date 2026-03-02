@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+{{$logo := print .Path "/assets/static/logo.png?cacheBust=" .Random }}{{ if .Logo }}{{$logo = .Logo}}{{ end }}
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1F1F1F">
+    <meta name="referrer" content="origin">
+    <title>{{ .Title }}</title>
+    {{ range .MetaTags }}
+    <meta {{ range $key, $value := . }}{{ $key | attr }}="{{ $value }}" {{end}}/>
+    {{ end }}
+    {{ range .LinkTags }}
+    <link {{ range $key, $value := . }}{{ $key | attr }}="{{ $value }}" {{end}}/>
+    {{ end }}
+    {{ range .HeaderTags }}
+    {{ . }}
+    {{ end }}
+    <style>
+        :root {
+            --bg_color: #0f0f0f;
+            --fg_color: #f8f8f2;
+            --fg_faded: #f8f8f2cf;
+            --bg_panel: #161616;
+            --bg_elements: #121212;
+            --bg_overlays: #1f1f1f;
+            --accent: #ff6c60;
+            --accent_light: #ffaca0;
+            --accent_border: #ff6c6091;
+            --border_grey: #3e3e35;
+            --grey: #888889;
+            --dark_grey: #404040;
+        }
+        * { margin: 0; box-sizing: border-box; }
+        body {
+            background-color: var(--bg_color);
+            color: var(--fg_color);
+            font-family: sans-serif;
+            font-size: 15px;
+            line-height: 1.3;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        nav {
+            display: flex;
+            align-items: center;
+            background-color: var(--bg_overlays);
+            box-shadow: 0 0 4px rgba(0,0,0,0.6);
+            height: 50px;
+            width: 100%;
+            z-index: 1000;
+        }
+        .inner-nav {
+            margin: auto;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            max-width: 920px;
+            width: 100%;
+            height: 50px;
+        }
+        .site-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+        .site-name:hover { color: var(--accent_light); text-decoration: none; }
+        .main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background-color: var(--bg_panel);
+            border-radius: 8px;
+            padding: 32px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+        }
+        .card img {
+            width: 100%;
+            max-width: 128px;
+            margin-bottom: 16px;
+        }
+        .card h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        #status {
+            color: var(--fg_faded);
+            margin-bottom: 16px;
+        }
+        #status em { color: var(--accent); }
+        details {
+            text-align: left;
+            margin: 16px 0;
+            background-color: var(--bg_elements);
+            border-radius: 4px;
+            padding: 10px 14px;
+        }
+        summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--fg_color);
+        }
+        details p {
+            margin-top: 8px;
+            color: var(--fg_faded);
+            line-height: 1.6;
+        }
+        .refresh-btn {
+            display: inline-block;
+            background-color: var(--bg_elements);
+            color: var(--fg_color);
+            border: 1px solid var(--accent_border);
+            padding: 6px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 12px 0;
+            text-decoration: none;
+        }
+        .refresh-btn:hover { border-color: var(--accent); text-decoration: none; }
+        .request-id {
+            color: var(--grey);
+            font-size: 13px;
+            margin-top: 12px;
+        }
+        .request-id em { color: var(--fg_faded); }
+        footer {
+            background-color: var(--bg_overlays);
+            text-align: center;
+            padding: 10px;
+            font-size: 13px;
+            color: var(--grey);
+        }
+        footer a { color: var(--fg_faded); }
+        noscript p { color: var(--accent); margin-top: 12px; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="inner-nav">
+        <a class="site-name" href="/">teapot</a>
+    </div>
+</nav>
+
+<div class="main">
+    <div class="card">
+        <img id="image" src="{{ $logo }}" alt="Logo">
+        <h1 id="title">{{ .Title }}</h1>
+
+        {{if .Challenge }}
+        <p id="status">{{ .Strings.Get "status_loading_challenge" }} <em>{{ .Challenge }}</em>...</p>
+        {{else if .Error}}
+        <p id="status">{{ .Strings.Get "status_error" }} {{ .Error }}</p>
+        {{else}}
+        <p id="status">{{ .Strings.Get "status_loading" }}</p>
+        {{end}}
+
+        <details>
+            <summary>{{ .Strings.Get "details_title" }}</summary>
+            {{.Strings.Get "details_text"}}
+        </details>
+
+        {{if .Redirect }}
+            <a class="refresh-btn" role="button" href="{{ .Redirect }}">{{ .Strings.Get "button_refresh_page" }}</a>
+        {{end}}
+
+        {{if .EndTags }}
+            <noscript>
+                {{ .Strings.Get "noscript_warning" }}
+            </noscript>
+        {{end}}
+
+        <p class="request-id"><small>{{ .Strings.Get "details_contact_admin_with_request_id" }}: <em>{{ .Id }}</em></small></p>
+    </div>
+</div>
+
+<footer>
+    Protected by <a href="https://git.gammaspectra.live/git/go-away">go-away</a> :: Request Id <em>{{ .Id }}</em>
+    {{ range .Links }}
+        :: <a href="{{ .URL }}">{{ .Name }}</a>
+    {{ end }}
+</footer>
+
+{{ range .EndTags }}
+    {{ . }}
+{{ end }}
+
+</body>
+</html>
