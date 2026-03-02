@@ -4,18 +4,9 @@
   pkgs,
   ...
 }:
-let
-  nushellPatched = pkgs.nushell.overrideAttrs (oldAttrs: {
-    patches = (oldAttrs.patches or [ ]) ++ [
-      ./fix-eprintln-double-panic.patch
-      ./fix-eprintln-report-error.patch
-      ./fix-ls-control-chars.patch
-    ];
-  });
-in
 {
   wrappers.nushell = {
-    basePackage = nushellPatched;
+    basePackage = pkgs.nushell;
     systemWide = true;
     passthru.shellPath = "/bin/nu";
     executables.nu.args.prefix = [
