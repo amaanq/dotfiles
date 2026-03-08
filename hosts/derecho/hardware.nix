@@ -42,6 +42,7 @@ in
   # See: https://github.com/ROCm/ROCm/issues/3207
   boot.kernelParams = [
     "boot.shell_on_fail"
+    "efi=disable_early_pci_dma" # opt-in only; kills iGPU DMA on laptops. safe with dGPU
     "amdgpu.mcbp=0" # Disable mid-command buffer preemption (primary MES fix)
     "amdgpu.sg_display=0" # Disable scatter-gather display (reduces TLB pressure)
     "amdgpu.gpu_recovery=1" # Auto-recover from hangs if they still occur
