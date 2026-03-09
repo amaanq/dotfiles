@@ -122,7 +122,7 @@ let
     }:
     let
       cleanName = replaceStrings [ " " "\n" "\t" ] [ "-" "-" "-" ] name |> toLower;
-      pname = "${cleanName}-webapp";
+      pname = "${cleanName}-web-app";
     in
     pkgs.stdenv.mkDerivation {
       inherit pname;
@@ -268,9 +268,9 @@ in
     environment.systemPackages = mapAttrsToList (_: v: v.package) config.programs.pwas;
 
     xdg.mime.defaultApplications = {
-      "x-scheme-handler/matrix" = "element-webapp.desktop";
-      "x-scheme-handler/tg" = "telegram-webapp.desktop";
-      "x-scheme-handler/tonsite" = "telegram-webapp.desktop";
+      "x-scheme-handler/matrix" = "element-web-app.desktop";
+      "x-scheme-handler/tg" = "telegram-web-app.desktop";
+      "x-scheme-handler/tonsite" = "telegram-web-app.desktop";
     };
   };
 }
