@@ -7,9 +7,7 @@ let
   inherit (lib) enabled;
 in
 {
-  services.asusd = enabled {
-    enableUserService = true;
-  };
+  services.asusd = enabled;
 
   # supergfxctl needs pciutils to detect graphics cards
   systemd.services.supergfxd.path = [ pkgs.pciutils ];
