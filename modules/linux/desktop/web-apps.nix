@@ -5,6 +5,28 @@
   ...
 }:
 let
+  inherit (lib)
+    mkOption
+    mkAliasOptionModule
+    types
+    mapAttrsToList
+    attrNames
+    filterAttrs
+    replaceStrings
+    toLower
+    ;
+  inherit (types)
+    str
+    strMatching
+    package
+    path
+    nullOr
+    listOf
+    attrsOf
+    submodule
+    either
+    ;
+
   papirusIcon =
     name: sha256:
     builtins.fetchurl {
@@ -57,7 +79,7 @@ let
     browser="helium"
 
     browser_exec=""
-    for path in ~/.local ~/.nix-profile /usr; do
+    for path in ~/.local ~/.nix-profile /usr /nix/var/nix/profiles/system/etc/profiles/per-user/$USER; do
       if [ -f "$path/share/applications/$browser.desktop" ]; then
         browser_exec=$(sed -n 's/^Exec=\([^ ]*\).*/\1/p' "$path/share/applications/$browser.desktop" 2>/dev/null | head -1)
         break
@@ -90,83 +112,136 @@ let
       "$@"
   '';
 
-  # Create web app package
-  createWebApp =
+  mkWebApp =
     {
       name,
       url,
       icon,
-      description ? "",
-      categories ? [
-        "Network"
-        "Chat"
-        "InstantMessaging"
-      ],
+      description,
+      categories,
     }:
     let
-      pkgName = "${lib.replaceStrings [ " " ] [ "-" ] (lib.toLower name)}-web-app";
+      cleanName = replaceStrings [ " " "\n" "\t" ] [ "-" "-" "-" ] name |> toLower;
+      pname = "${cleanName}-webapp";
     in
-    {
-      name = pkgName;
-      value = pkgs.stdenv.mkDerivation {
-        pname = pkgName;
-        version = "1.0";
-        dontUnpack = true;
+    pkgs.stdenv.mkDerivation {
+      inherit pname;
+      version = "1.0";
+      dontUnpack = true;
 
-        nativeBuildInputs = [
-          pkgs.copyDesktopItems
-          pkgs.makeWrapper
-        ];
+      nativeBuildInputs = [
+        pkgs.copyDesktopItems
+        pkgs.makeWrapper
+      ];
 
-        installPhase = ''
-          runHook preInstall
-          makeWrapper ${webAppLauncher} $out/bin/${pkgName} \
-            --add-flags "${url}" \
-            --add-flags "${pkgName}"
-          runHook postInstall
-        '';
+      installPhase = ''
+        runHook preInstall
+        makeWrapper ${webAppLauncher} $out/bin/${pname} \
+          --add-flags "${url}" \
+          --add-flags "${pname}"
+        runHook postInstall
+      '';
 
-        desktopItems = [
-          (pkgs.makeDesktopItem {
-            inherit icon categories;
-            name = pkgName;
-            exec = "${pkgName} %U";
+      desktopItems = [
+        (pkgs.makeDesktopItem (
+          {
+            name = pname;
+            exec = "${pname} %U";
             desktopName = name;
-            comment = description;
             startupNotify = true;
-            startupWMClass = pkgName;
-          })
-        ];
-      };
+            startupWMClass = pname;
+          }
+          // filterAttrs (_: v: v != null) {
+            inherit icon categories;
+            comment = description;
+          }
+        ))
+      ];
+
+      meta.mainProgram = pname;
     };
 
-  apps = builtins.listToAttrs (
-    map createWebApp [
-      {
+  innerOpts = {
+    options = {
+      name = mkOption {
+        type = str;
+      };
+      url = mkOption {
+        type = strMatching "[hH][tT][tT][pP][sS]?://[^\n\r[:space:]]+";
+      };
+      icon = mkOption {
+        type = nullOr (either str path);
+        default = null;
+      };
+      description = mkOption {
+        type = nullOr str;
+        default = null;
+      };
+      categories = mkOption {
+        type = nullOr (listOf str);
+        default = null;
+      };
+    };
+  };
+
+  pwaModule = submodule (
+    { config, ... }:
+    {
+      imports =
+        let
+          names = innerOpts.options |> attrNames;
+        in
+        map (optName: mkAliasOptionModule [ optName ] [ "settings" optName ]) names;
+      options = {
+        settings = mkOption {
+          type = submodule innerOpts;
+          default = { };
+        };
+        package = mkOption {
+          type = package;
+          readOnly = true;
+          default = mkWebApp config.settings;
+        };
+      };
+    }
+  );
+in
+{
+  options = {
+    programs.pwas = mkOption {
+      description = "PWA Applications";
+      type = attrsOf pwaModule;
+      default = { };
+    };
+  };
+
+  config = {
+    programs.pwas = {
+      cinny = {
         name = "Cinny";
         url = "https://cinny.amaanq.com";
         icon = icons.cinny;
         description = "Cinny, a Matrix client";
-      }
-      {
+      };
+      discord = {
         name = "Discord";
         url = "https://discord.com/app";
         icon = icons.discord;
         description = "Discord Web";
-      }
-      {
+      };
+      element = {
         name = "Element";
         url = "https://app.element.io";
         icon = icons.element;
         description = "Element, a Matrix client";
-      }
-      {
+      };
+      telegram = {
         name = "Telegram";
         url = "https://web.telegram.org/a";
         icon = icons.telegram;
         description = "Telegram Web";
-      }
-      {
+      };
+      twitter = {
         name = "Twitter";
         url = "https://twitter.com";
         icon = icons.twitter;
@@ -175,32 +250,27 @@ let
           "Network"
           "News"
         ];
-      }
-      {
+      };
+      gather-town = {
         name = "Gather Town";
         url = "https://app.v2.gather.town";
         icon = icons.gather-town;
         description = "Gather Town virtual office";
-      }
-      {
+      };
+      slack = {
         name = "Slack";
         url = "https://app.slack.com";
         icon = icons.slack;
         description = "Slack Web";
-      }
-    ]
-  );
-in
-{
-  environment.systemPackages = builtins.attrValues apps;
+      };
+    };
 
-  xdg.mime.defaultApplications = {
-    "x-scheme-handler/matrix" = "element-web-app.desktop";
-    "x-scheme-handler/tg" = "telegram-web-app.desktop";
-    "x-scheme-handler/tonsite" = "telegram-web-app.desktop";
+    environment.systemPackages = mapAttrsToList (_: v: v.package) config.programs.pwas;
+
+    xdg.mime.defaultApplications = {
+      "x-scheme-handler/matrix" = "element-webapp.desktop";
+      "x-scheme-handler/tg" = "telegram-webapp.desktop";
+      "x-scheme-handler/tonsite" = "telegram-webapp.desktop";
+    };
   };
-
-  environment.etc."web-apps-setup".text = ''
-    mkdir -p /home/*/.local/share/web-apps
-  '';
 }
