@@ -64,11 +64,11 @@
     },
     "bunker": {
       "locked": {
-        "lastModified": 1773021861,
-        "narHash": "sha256-BzIt7y7B77ZhJHHmr0teimd+zlOTrRXQ5oy3lwax2SA=",
+        "lastModified": 1773031770,
+        "narHash": "sha256-+b+mePGcD+2T5je5omrEAQKht2SmykPINkzg/c5lmy4=",
         "owner": "amaanq",
         "repo": "bunker-patches",
-        "rev": "3b7b708fc9969f5dae274447584e2d9e74275db2",
+        "rev": "e44bbf145c078e5894e13acf797d426c56c7008c",
         "type": "github"
       },
       "original": {
@@ -1048,11 +1048,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1773017381,
-        "narHash": "sha256-ZUKG2CGrI1ZglOJltrHEjBG1QeXqyVKsoZYom1b1XU4=",
+        "lastModified": 1773032775,
+        "narHash": "sha256-5AJ5/UacncqWTlywdDDETQpLnbP4jta2rdAK534A+0Q=",
         "owner": "amaanq",
         "repo": "teapot",
-        "rev": "7448622bb75a83e91d68782e345e7a2288899595",
+        "rev": "37dc1a16212a07ab36fad9d5c2abd1753d34e792",
         "type": "github"
       },
       "original": {
