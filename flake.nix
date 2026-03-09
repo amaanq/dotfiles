@@ -167,7 +167,7 @@
     };
 
     run0-sudo-shim = {
-      url = "github:LordGrimmauld/run0-sudo-shim";
+      url = "github:amaanq/run0-sudo-shim/sudoedit";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.rust-overlay.follows = "rust-overlay";
     };

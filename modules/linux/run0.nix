@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (lib) enabled mkIf;
+  inherit (lib) mkIf;
 
   run0-no-bg = pkgs.writeShellScriptBin "run0" ''
     exec ${pkgs.systemd}/bin/run0 --background= "$@"
@@ -22,17 +22,15 @@ let
   });
 in
 {
-  # Only for sudoedit, see https://github.com/LordGrimmauld/run0-sudo-shim/issues/4
-  security.sudo = enabled // {
-    wheelNeedsPassword = false;
-  };
-
   environment.systemPackages = [
     run0-sudo-shim'
   ];
 
-  # Alias sudo to run0-sudo-shim so it takes precedence over SUID wrapper.
+  security.sudo.wheelNeedsPassword = false;
+
+  # Alias sudo/sudoedit to run0-sudo-shim so it takes precedence over SUID wrapper.
   environment.shellAliases.sudo = "${run0-sudo-shim'}/bin/sudo";
+  environment.shellAliases.sudoedit = "${run0-sudo-shim'}/bin/sudo -e";
 
   # Polkit rule for passwordless run0 on desktops.
   security.polkit.extraConfig = mkIf config.isDesktop ''
