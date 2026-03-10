@@ -368,6 +368,26 @@ def --env mcg [path: path]: nothing -> nothing {
   jj git init --colocate
 }
 
+# Diff local changes against the pushed version of the current branch.
+def --wrapped "jj rd" [...rest] {
+  # Look for a local bookmark on @, then descendants, then ancestors
+  mut bookmark = (^jj log -r '@' --no-graph -T 'local_bookmarks.map(|b| b.name()).join("\n")' | str trim)
+  if ($bookmark | is-empty) {
+    $bookmark = (^jj log -r 'latest(@:: & bookmarks())' --no-graph -T 'local_bookmarks.map(|b| b.name()).join("\n")' | str trim)
+  }
+  if ($bookmark | is-empty) {
+    error make {msg: "no local bookmark found on @ or its descendants"}
+  }
+  let bookmark = $bookmark | lines | first
+  let remote = $"($bookmark)@origin"
+  try {
+    ^jj log -r $remote --no-graph -T '' | ignore
+  } catch {
+    error make {msg: $"no remote bookmark '($remote)' found"}
+  }
+  ^jj diff --from $remote --to $bookmark ...$rest
+}
+
 def --env "nu-complete jc" [commandline: string] {
   let stor = stor open
 

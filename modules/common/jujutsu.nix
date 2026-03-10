@@ -15,6 +15,7 @@ let
     };
 
     aliases = {
+      # navigation
       ".." = [
         "edit"
         "@-"
@@ -23,68 +24,19 @@ let
         "edit"
         "@+"
       ];
-      fetch = [
-        "git"
-        "fetch"
-      ];
-      f = [
-        "git"
-        "fetch"
-      ];
-      push = [
-        "git"
-        "push"
-      ];
-      p = [
-        "git"
-        "push"
-      ];
-      clone = [
-        "git"
-        "clone"
-        "--colocate"
-      ];
-      cl = [
-        "git"
-        "clone"
-        "--colocate"
-      ];
-      init = [
-        "git"
-        "init"
-        "--colocate"
-      ];
-      i = [
-        "git"
-        "init"
-        "--colocate"
-      ];
-      a = [ "abandon" ];
-      c = [ "commit" ];
-      ci = [
-        "commit"
-        "--interactive"
-      ];
-      d = [ "diff" ];
-      rd = [
-        "diff"
-        "--from"
-        "nearest_remote(@)"
-      ];
       e = [ "edit" ];
+      n = [ "new" ];
+
+      # info
+      d = [ "diff" ];
+      ds = [
+        "diff"
+        "--stat"
+      ];
+      id = [ "interdiff" ];
       l = [ "log" ];
       la = [
         "log"
-        "--revisions"
-        "::"
-      ];
-      ls = [
-        "log"
-        "--summary"
-      ];
-      lsa = [
-        "log"
-        "--summary"
         "--revisions"
         "::"
       ];
@@ -98,20 +50,51 @@ let
         "--revisions"
         "::"
       ];
-      r = [ "rebase" ];
-      res = [ "resolve" ];
-      resolve-ast = [
-        "resolve"
-        "--tool"
-        "mergiraf"
+      ls = [
+        "log"
+        "--summary"
       ];
-      resa = [ "resolve-ast" ];
+      lsa = [
+        "log"
+        "--summary"
+        "--revisions"
+        "::"
+      ];
+      ol = [
+        "op"
+        "log"
+      ];
+      sh = [ "show" ];
+      st = [ "status" ];
+
+      # rewriting
+      a = [ "abandon" ];
+      ab = [ "absorb" ];
+      c = [ "commit" ];
+      ci = [
+        "commit"
+        "--interactive"
+      ];
+      de = [ "describe" ];
+      r = [ "rebase" ];
       s = [ "squash" ];
       si = [
         "squash"
         "--interactive"
       ];
-      sh = [ "show" ];
+      sp = [ "split" ];
+      u = [ "undo" ];
+
+      # bookmarks
+      bl = [
+        "bookmark"
+        "list"
+      ];
+      bs = [
+        "bookmark"
+        "set"
+      ];
+      t = [ "tug" ];
       tug = [
         "bookmark"
         "move"
@@ -120,15 +103,73 @@ let
         "--to"
         "closest_pushable(@)"
       ];
-      gc = [ "git" "clone" ];
-      t = [ "tug" ];
-      u = [ "undo" ];
+
+      # conflicts
+      res = [ "resolve" ];
+      resa = [ "resolve-ast" ];
+      resolve-ast = [
+        "resolve"
+        "--tool"
+        "mergiraf"
+      ];
+
+      # git
+      cl = [
+        "git"
+        "clone"
+      ];
+      clone = [
+        "git"
+        "clone"
+      ];
+      f = [
+        "git"
+        "fetch"
+      ];
+      fa = [
+        "git"
+        "fetch"
+        "--all-remotes"
+      ];
+      fetch = [
+        "git"
+        "fetch"
+      ];
+      i = [
+        "git"
+        "init"
+      ];
+      init = [
+        "git"
+        "init"
+      ];
+      p = [
+        "git"
+        "push"
+      ];
+      push = [
+        "git"
+        "push"
+      ];
+
+      # workspaces
+      wa = [
+        "workspace"
+        "add"
+      ];
+      wf = [
+        "workspace"
+        "forget"
+      ];
+      wl = [
+        "workspace"
+        "list"
+      ];
     };
 
     revset-aliases = {
       "closest(to)" = "heads(::to & bookmarks())";
       "closest_pushable(to)" = ''heads(::to & ~description(exact:"") & (~empty() | merges()))'';
-      "nearest_remote(to)" = "heads(::to & remote_bookmarks())";
     };
 
     revsets = {
