@@ -293,7 +293,7 @@ in
 {
   environment.systemPackages = [ jjui ];
 
-  environment.shellAliases.jju = "jjui";
+  environment.shellAliases.ju = "jjui";
 
   environment.etc."jjui/config.toml".source = tomlFormat.generate "jjui-config" settings;
 
