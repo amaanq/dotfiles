@@ -6,7 +6,7 @@
 let
   inherit (lib) optionals;
 
-  version = "2.1.71";
+  version = "2.1.72";
   runtimeDeps = lib.makeBinPath (
     [
       pkgs.procps
