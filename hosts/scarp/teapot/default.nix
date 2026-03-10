@@ -6,10 +6,9 @@
   ...
 }:
 let
-  inherit (config.networking) domain;
-  inherit (lib) enabled merge stringToPort;
+  inherit (lib) enabled stringToPort;
 
-  fqdn = "teapot.${domain}";
+  fqdn = "goyimx.com";
   port = stringToPort "teapot";
   goAwayPort = stringToPort "go-away:teapot";
 
@@ -30,11 +29,10 @@ in
     bindAddress = "[::1]:${toString goAwayPort}";
     backends = {
       ${fqdn} = "http://[::1]:${toString port}";
-      "nitter.${domain}" = "http://[::1]:${toString port}";
-      "tpot.${domain}" = "http://[::1]:${toString port}";
     };
-    challengeTemplateFile = pkgs.writeText "challenge-teapot.gohtml"
-      (builtins.readFile (self + /modules/go-away/challenge-teapot.gohtml));
+    challengeTemplateFile = pkgs.writeText "challenge-teapot.gohtml" (
+      builtins.readFile (self + /modules/go-away/challenge-teapot.gohtml)
+    );
     policy = goAwayPolicy.mkPolicy {
       staticAssets = [
         ''path == "/apple-touch-icon.png"''
@@ -78,8 +76,23 @@ in
           conditions = [ "($is-heavy-resource)" ];
           action = "none";
           children = [
-            { name = "0"; action = "check"; settings.challenges = [ "preload-link" "header-refresh" "js-refresh" ]; }
-            { name = "1"; action = "check"; settings.challenges = [ "resource-load" "js-refresh" ]; }
+            {
+              name = "0";
+              action = "check";
+              settings.challenges = [
+                "preload-link"
+                "header-refresh"
+                "js-refresh"
+              ];
+            }
+            {
+              name = "1";
+              action = "check";
+              settings.challenges = [
+                "resource-load"
+                "js-refresh"
+              ];
+            }
           ];
         }
         {
@@ -90,7 +103,10 @@ in
             ''path.matches("^/[^/]+/status/[0-9]+$")''
           ];
           action = "challenge";
-          settings.challenges = [ "preload-link" "meta-refresh" ];
+          settings.challenges = [
+            "preload-link"
+            "meta-refresh"
+          ];
         }
         {
           name = "settings-page";
@@ -105,10 +121,11 @@ in
     preferences.infiniteScroll = true;
     server = {
       inherit port;
+      publicPort = 443;
       address = "::1";
       hostname = fqdn;
       https = true;
-      title = "teapot";
+      title = "dykwabi";
     };
     config = {
       paidEmoji = "✡️";
@@ -118,15 +135,15 @@ in
     sessionsFile = config.secrets.teapotSessions.path;
   };
 
-  services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
-    locations."/".proxyPass = "http://[::1]:${toString goAwayPort}";
+  security.acme.certs.${fqdn} = {
+    extraDomainNames = [ "*.${fqdn}" ];
+    group = "acme";
   };
 
-  services.nginx.virtualHosts."nitter.${domain}" = merge config.services.nginx.sslTemplate {
-    locations."/".proxyPass = "http://[::1]:${toString goAwayPort}";
-  };
-
-  services.nginx.virtualHosts."tpot.${domain}" = merge config.services.nginx.sslTemplate {
+  services.nginx.virtualHosts.${fqdn} = {
+    forceSSL = true;
+    quic = true;
+    useACMEHost = fqdn;
     locations."/".proxyPass = "http://[::1]:${toString goAwayPort}";
   };
 }

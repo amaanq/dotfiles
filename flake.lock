@@ -1048,11 +1048,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1773032775,
-        "narHash": "sha256-5AJ5/UacncqWTlywdDDETQpLnbP4jta2rdAK534A+0Q=",
+        "lastModified": 1773220980,
+        "narHash": "sha256-WL7iDByrpKbWPiRe/4kc7B2ATNF8N5gvtWMZ7NL8aww=",
         "owner": "amaanq",
         "repo": "teapot",
-        "rev": "37dc1a16212a07ab36fad9d5c2abd1753d34e792",
+        "rev": "9652cbea0d2b92165a6689a9f634a53bc5e4774b",
         "type": "github"
       },
       "original": {

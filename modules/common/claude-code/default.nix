@@ -6,7 +6,6 @@
 let
   inherit (lib) optionals;
 
-  version = "2.1.72";
   runtimeDeps = lib.makeBinPath (
     [
       pkgs.procps
@@ -137,15 +136,48 @@ in
       export PATH="${runtimeDeps}:${pkgs.deno}/bin:$PATH"
 
       CACHE="''${XDG_CACHE_HOME:-$HOME/.cache}/claude-code"
-      BIN="$CACHE/claude-${version}"
+      VERSION_FILE="$CACHE/.latest-version"
+      TTL=21600 # 6 hours
+
+      fetch_version() {
+        local v
+        v=$(${pkgs.curl}/bin/curl -sf --max-time 5 https://registry.npmjs.org/@anthropic-ai/claude-code/latest | ${pkgs.jq}/bin/jq -r .version)
+        if [ -n "$v" ]; then
+          mkdir -p "$CACHE"
+          echo "$v" > "$VERSION_FILE"
+          echo "$v"
+        fi
+      }
+
+      VERSION=""
+      if [ -f "$VERSION_FILE" ]; then
+        AGE=$(( $(date +%s) - $(stat -c %Y "$VERSION_FILE") ))
+        VERSION=$(cat "$VERSION_FILE")
+        if [ "$AGE" -ge "$TTL" ]; then
+          # stale — try to refresh, but keep old value as fallback
+          VERSION=$(fetch_version || true)
+          [ -z "$VERSION" ] && VERSION=$(cat "$VERSION_FILE")
+        fi
+      else
+        VERSION=$(fetch_version)
+      fi
+
+      if [ -z "$VERSION" ]; then
+        echo "failed to determine claude-code version" >&2
+        BIN=$(ls -v "$CACHE"/claude-* 2>/dev/null | tail -1)
+        if [ -z "$BIN" ]; then exit 1; fi
+        exec "$BIN" "$@"
+      fi
+
+      BIN="$CACHE/claude-$VERSION"
 
       if [ ! -x "$BIN" ]; then
         mkdir -p "$CACHE"
         DENO_DIR="$CACHE/.deno"
         export DENO_DIR
-        deno cache "npm:@anthropic-ai/claude-code@${version}"
-        ${patchScript} "$DENO_DIR/npm/registry.npmjs.org/@anthropic-ai/claude-code/${version}/cli.js"
-        deno compile --allow-all --output "$BIN" "npm:@anthropic-ai/claude-code@${version}" 2>&1
+        deno cache "npm:@anthropic-ai/claude-code@$VERSION"
+        ${patchScript} "$DENO_DIR/npm/registry.npmjs.org/@anthropic-ai/claude-code/$VERSION/cli.js"
+        deno compile --allow-all --output "$BIN" "npm:@anthropic-ai/claude-code@$VERSION" 2>&1
         rm -rf "$DENO_DIR"
       fi
 
