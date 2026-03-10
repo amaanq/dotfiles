@@ -90,6 +90,15 @@ let
     receive.fsckObjects = true;
     transfer.fsckobjects = true;
 
+    sendemail = {
+      smtpServer = "mail.amaanq.com";
+      smtpServerPort = 587;
+      smtpEncryption = "tls";
+      smtpUser = "contact@amaanq.com";
+      confirm = "auto";
+    };
+
+
     alias = {
       st = "status -sb";
       co = "checkout";
