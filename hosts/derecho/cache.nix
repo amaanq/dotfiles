@@ -1,6 +1,7 @@
 {
   self,
   config,
+  inputs,
   lib,
   pkgs,
   ...
@@ -9,6 +10,8 @@ let
   inherit (lib) enabled stringToPort;
 
   port = stringToPort "nix-serve";
+
+  ppc64Pkgs = import inputs.nixpkgs { system = "powerpc64-linux"; };
 in
 {
   secrets.nixServeKey = {
@@ -18,6 +21,7 @@ in
 
   systemd.tmpfiles.rules = [
     "L+ /nix/var/nix/gcroots/nunatak-kernel - - - - ${self.nixosConfigurations.nunatak.config.boot.kernelPackages.kernel}"
+    "L+ /nix/var/nix/gcroots/ppc64-stdenv - - - - ${ppc64Pkgs.stdenv}"
   ];
 
   services.nix-serve = enabled {
