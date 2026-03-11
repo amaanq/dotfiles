@@ -41,6 +41,7 @@ in
         ''path.startsWith("/fonts/")''
         ''path.startsWith("/pic/")''
         ''path.startsWith("/video/")''
+        ''path.startsWith("/gif/")''
         ''path == "/logo.svg"''
         ''path == "/site.webmanifest"''
         ''path.matches("\\.(png|ico|svg|woff2|css|js)$")''
@@ -68,6 +69,7 @@ in
           conditions = [
             ''path.startsWith("/pic/")''
             ''path.startsWith("/video/")''
+            ''path.startsWith("/gif/")''
           ];
           action = "pass";
         }
@@ -99,7 +101,7 @@ in
           name = "homesite";
           conditions = [
             ''path == "/" || path == "/about"''
-            ''path.matches("^/[^/]+/?$") && !path.matches("^/(css|js|fonts|pic|video|settings|opensearch|oembed|search)(/|$)")''
+            ''path.matches("^/[^/]+/?$") && !path.matches("^/(css|js|fonts|pic|video|gif|settings|opensearch|oembed|search)(/|$)")''
             ''path.matches("^/[^/]+/status/[0-9]+$")''
           ];
           action = "challenge";
@@ -130,6 +132,9 @@ in
     config = {
       paidEmoji = "✡️";
       aiEmoji = "🦼";
+    };
+    gifTranscoding = {
+      mode = "local";
     };
     cache.listMinutes = 240;
     sessionsFile = config.secrets.teapotSessions.path;
