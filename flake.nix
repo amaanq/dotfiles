@@ -199,6 +199,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nix-src = {
+      url = "github:NixOS/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     bunker.url = "github:amaanq/bunker-patches";
 
     # jj from source - tracking bare-colocate-fix branch on fork

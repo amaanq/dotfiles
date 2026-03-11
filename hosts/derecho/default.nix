@@ -74,6 +74,8 @@ lib.nixosSystem' "desktop" (
       tmpfsSize = "16G";
     };
 
+    nix.package = inputs.nix-src.packages.${pkgs.system}.nix;
+
     system.stateVersion = "25.11";
 
     time.timeZone = "America/New_York";
