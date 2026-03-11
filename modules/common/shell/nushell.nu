@@ -379,12 +379,12 @@ def --wrapped "jj rd" [...rest] {
     error make {msg: "no local bookmark found on @ or its descendants"}
   }
   let bookmark = $bookmark | lines | first
-  let remote = (^jj bookmark list $bookmark --all-remotes -T 'remote ++ "\n"'
-    | lines | where {|r| $r != "" and $r != "git"} | first?)
-  if ($remote == null) {
+  let remotes = (^jj bookmark list $bookmark --all-remotes -T 'remote ++ "\n"'
+    | lines | where {|r| $r != "" and $r != "git"})
+  if ($remotes | is-empty) {
     error make {msg: $"bookmark '($bookmark)' has not been pushed to any remote"}
   }
-  ^jj diff --from $"($bookmark)@($remote)" --to $bookmark ...$rest
+  ^jj diff --from $"($bookmark)@($remotes.0)" --to $bookmark ...$rest
 }
 
 def --env "nu-complete jc" [commandline: string] {
