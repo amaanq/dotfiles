@@ -5,6 +5,7 @@ lib.nixosSystem' "desktop" (
     keys,
     lib,
     pkgs,
+    nix-src,
     ...
   }:
   let
@@ -73,6 +74,8 @@ lib.nixosSystem' "desktop" (
       useTmpfs = true;
       tmpfsSize = "16G";
     };
+
+    nix.package = lib.mkForce nix-src.packages.${pkgs.system}.nix;
 
     system.stateVersion = "25.11";
 
