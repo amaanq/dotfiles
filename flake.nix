@@ -161,6 +161,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    tuigreet = {
+      url = "github:notashelf/tuigreet";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     watt = {
       url = "github:notashelf/watt";
       inputs.nixpkgs.follows = "nixpkgs";
