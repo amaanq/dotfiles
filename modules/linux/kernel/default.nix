@@ -29,10 +29,9 @@ in
     # TCP performance for long-lived streams (SSE, websockets).
     "net.ipv4.tcp_slow_start_after_idle" = 0;
 
-    # Buffer more dirty pages before flushing, which reduces write stalls during
-    # parallel builds.
-    "vm.dirty_ratio" = 40;
-    "vm.dirty_background_ratio" = 20;
+    # Fixed byte caps so syncfs() doesn't stall on high-RAM machines.
+    "vm.dirty_bytes" = lib.mkDefault (2 * 1024 * 1024 * 1024);
+    "vm.dirty_background_bytes" = lib.mkDefault (512 * 1024 * 1024);
   };
 
   boot.kernelParams = [

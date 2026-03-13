@@ -90,6 +90,10 @@ in
     };
   };
 
+  # 8GB dirty page cap for Android builds.
+  boot.kernel.sysctl."vm.dirty_bytes" = 8 * 1024 * 1024 * 1024;
+  boot.kernel.sysctl."vm.dirty_background_bytes" = 2 * 1024 * 1024 * 1024;
+
   environment.systemPackages = [
     pkgs.sbctl
   ];
