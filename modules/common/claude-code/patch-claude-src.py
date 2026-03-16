@@ -107,6 +107,17 @@ for anchor, label in slash_commands:
 
 patch("thinkback gate", W + rb'\("tengu_thinkback"\)', b'!0||"tengu_thinkback"')
 
+# --- Bypass telemetry gate in feature flag checker ---
+# _n6 has `if(!pi())return!1` before checking cachedGrowthBookFeatures.
+# With telemetry off, pi() returns false and cached flags are never read.
+# Remove that early return so the cache is always consulted.
+
+patch(
+   "feature flag telemetry gate",
+   rb"if\(!" + W + rb"\(\)\)return!1;if\(" + W + rb"\(\)\." + W + rb"\?\.\[",
+   lambda m: m[0].replace(b"return!1;", b"", 1),
+)
+
 # --- Fix Deno-compile bridge spawn ---
 # Deno-compiled binaries eat --flags as V8 args, so we route spawns through
 # env(1) to pass them as normal CLI flags instead.

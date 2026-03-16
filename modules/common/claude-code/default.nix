@@ -105,6 +105,7 @@ let
     };
 
     alwaysThinkingEnabled = true;
+    remoteControlAtStartup = true;
     skipDangerousModePermissionPrompt = true;
   };
 
