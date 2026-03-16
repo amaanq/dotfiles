@@ -376,7 +376,10 @@ def --wrapped "jj rd" [...rest] {
     $bookmark = (^jj log -r 'latest(@:: & bookmarks())' --no-graph -T 'local_bookmarks.map(|b| b.name()).join("\n")' | str trim)
   }
   if ($bookmark | is-empty) {
-    error make {msg: "no local bookmark found on @ or its descendants"}
+    $bookmark = (^jj log -r 'latest(::@ & bookmarks())' --no-graph -T 'local_bookmarks.map(|b| b.name()).join("\n")' | str trim)
+  }
+  if ($bookmark | is-empty) {
+    error make {msg: "no local bookmark found on @, its descendants, or its ancestors"}
   }
   let bookmark = $bookmark | lines | first
   let remotes = (^jj bookmark list $bookmark --all-remotes -T 'remote ++ "\n"'
