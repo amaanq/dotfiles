@@ -220,4 +220,11 @@ let
 in
 {
   environment.etc."nushell/config.nu".source = configNu;
+  environment.etc."nufmt/nufmt.nuon".text = ''
+    {
+        indent: 4
+        line_length: 100
+        margin: 1
+    }
+  '';
 }
