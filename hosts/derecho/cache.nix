@@ -1,9 +1,9 @@
 {
   self,
   config,
-  inputs,
   lib,
   pkgs,
+  nixpkgs,
   ...
 }:
 let
@@ -11,7 +11,7 @@ let
 
   port = stringToPort "nix-serve";
 
-  ppc64Pkgs = import inputs.nixpkgs { system = "powerpc64-linux"; };
+  ppc64Pkgs = import nixpkgs { system = "powerpc64-linux"; };
 in
 {
   secrets.nixServeKey = {

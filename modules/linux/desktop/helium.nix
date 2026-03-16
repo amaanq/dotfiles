@@ -1,10 +1,10 @@
 {
-  inputs,
   pkgs,
+  helium,
   ...
 }:
 let
-  heliumPackage = inputs.helium.packages.${pkgs.system}.helium;
+  heliumPackage = helium.packages.${pkgs.system}.helium;
 in
 {
   environment.systemPackages = [
