@@ -19,7 +19,8 @@ let
 
   ida-patcher = pkgs.writers.writePython3Bin "ida-patcher" {
     flakeIgnore = [
-      "E501" # line too long (more than 79 characters)
+      "E1"   # all indentation rules
+      "E501" # line too long
     ];
   } (builtins.readFile (self + /modules/common/desktop/ida/patcher.py));
 

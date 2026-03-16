@@ -11,6 +11,13 @@ in
     UV_PYTHON = "${package}";
   };
 
+  environment.etc."ruff/ruff.toml".text = ''
+    indent-width = 3
+
+    [lint]
+    ignore = ["E1"]
+  '';
+
   environment.shellAliases = {
     py = "python";
   };
