@@ -70,6 +70,26 @@ lib.nixosSystem' "desktop" (
       };
     };
 
+    boot.binfmt.preferStaticEmulators = true;
+    boot.binfmt.emulatedSystems = [
+      "powerpc64le-linux"
+      "powerpc64-linux"
+      "riscv64-linux"
+      "s390x-linux"
+      "mips64el-linux"
+    ];
+
+    # Manual registration for aarch64_be — nixpkgs has a bug where
+    # qemuArch returns "aarch64" instead of "aarch64_be" for big-endian
+    boot.binfmt.registrations."aarch64_be-linux" = {
+      interpreter = "${pkgs.pkgsStatic.qemu-user}/bin/qemu-aarch64_be";
+      magicOrExtension = ''\x7fELF\x02\x02\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\xb7'';
+      mask = ''\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff'';
+      preserveArgvZero = true;
+      fixBinary = true;
+      wrapInterpreterInShell = false;
+    };
+
     boot.tmp = {
       useTmpfs = true;
       tmpfsSize = "16G";
