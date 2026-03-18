@@ -19,7 +19,7 @@ let
 
   ida-patcher = pkgs.writers.writePython3Bin "ida-patcher" {
     flakeIgnore = [
-      "E1"   # all indentation rules
+      "E1" # all indentation rules
       "E501" # line too long
     ];
   } (builtins.readFile (self + /modules/common/desktop/ida/patcher.py));
@@ -103,7 +103,7 @@ let
             # Fonts
             "/run/current-system/sw/share/fonts"
             "${pkgs.freetype}/lib"
-            # User fonts (TX-02, Berkeley Mono, etc.)
+            # User fonts
             (sloth.concat' sloth.homeDir "/.local/share/fonts")
             # CA certificates
             "/etc/ssl/certs"

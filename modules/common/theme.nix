@@ -22,7 +22,7 @@ in
       font.sans.name = "DejaVu Sans";
       font.sans.package = pkgs.dejavu_fonts;
 
-      font.mono.name = "TX-02 Book";
+      font.mono.name = "Berkeley Mono Book";
 
       icons.name = "rose-pine";
       icons.package = pkgs.rose-pine-icon-theme;

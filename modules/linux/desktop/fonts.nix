@@ -42,4 +42,23 @@ in
     pkgs.noto-fonts-color-emoji
     pkgs.nerd-fonts.symbols-only
   ];
+
+  # Berkeley Mono Condensed fonts are missing the monospace spacing flag,
+  # which causes kitty (and other apps that filter for monospace) to not
+  # see them. This rule forces all Berkeley Mono variants to be tagged
+  # as monospace.
+  fonts.fontconfig.localConf = ''
+    <?xml version="1.0"?>
+    <!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+    <fontconfig>
+      <match target="scan">
+        <test name="family" compare="contains">
+          <string>Berkeley Mono</string>
+        </test>
+        <edit name="spacing" mode="assign">
+          <const>mono</const>
+        </edit>
+      </match>
+    </fontconfig>
+  '';
 }
