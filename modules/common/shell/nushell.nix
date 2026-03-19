@@ -178,6 +178,30 @@ let
           }
         }
 
+        # OSUOSL OpenStack
+        def --env os-load [auth_url: string, project_id: string, password_path: string] {
+          $env.OS_AUTH_URL = $auth_url
+          $env.OS_PROJECT_ID = $project_id
+          $env.OS_PROJECT_NAME = "Nix/NixOS Tree-sitter"
+          $env.OS_USER_DOMAIN_NAME = "Default"
+          $env.OS_PROJECT_DOMAIN_ID = "default"
+          $env.OS_USERNAME = "amaanq"
+          $env.OS_REGION_NAME = "RegionOne"
+          $env.OS_INTERFACE = "public"
+          $env.OS_IDENTITY_API_VERSION = "3"
+          $env.OS_PASSWORD = (open $password_path | str trim)
+          hide-env -i OS_TENANT_ID
+          hide-env -i OS_TENANT_NAME
+        }
+
+        def --env os-arm [] {
+          os-load "https://arm-openstack.osuosl.org:5000/v3/" "06f88dbf8ad94705aaa966ad43540501" "${config.secrets.openstack_aarch64_password.path}"
+        }
+
+        def --env os-ppc64 [] {
+          os-load "https://openpower-openstack.osuosl.org:5000/v3/" "aab72902cacf4645a458036486a6b072" "${config.secrets.openstack_powerpc64_password.path}"
+        }
+
         # Rose Pine theme
         $env.config.color_config = {
           separator: "${colors.base03}"
@@ -219,6 +243,17 @@ let
 
 in
 {
+  secrets.openstack_aarch64_password = {
+    file = ./openstack-aarch64-password.age;
+    owner = "amaanq";
+  };
+
+  secrets.openstack_powerpc64_password = {
+    file = ./openstack-powerpc64-password.age;
+    owner = "amaanq";
+  };
+
+  environment.systemPackages = [ pkgs.openstackclient ];
   environment.etc."nushell/config.nu".source = configNu;
   environment.etc."nufmt/nufmt.nuon".text = ''
     {

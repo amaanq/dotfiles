@@ -87,6 +87,8 @@ in
   "modules/common/shell/anthropic-key.age".publicKeys = all;
   "modules/common/shell/glm-key.age".publicKeys = all;
   "modules/common/shell/openai-key.age".publicKeys = all;
+  "modules/common/shell/openstack-aarch64-password.age".publicKeys = all;
+  "modules/common/shell/openstack-powerpc64-password.age".publicKeys = all;
   "modules/common/desktop/ida/netrc.age".publicKeys = all;
   "modules/common/ssh/config.age".publicKeys = all;
   "modules/acme/environment.age".publicKeys = all;
