@@ -248,9 +248,7 @@
 
       hostConfigs =
         hostsByType.darwinConfigurations or { } // hostsByType.nixosConfigurations or { }
-        |> attrsToList
-        |> map ({ name, value }: nameValuePair name value.config)
-        |> listToAttrs;
+        |> mapAttrs (_: value: value.config);
     in
     hostsByType
     // hostConfigs
