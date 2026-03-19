@@ -25,16 +25,9 @@ def color-for-pct [pct: number] {
     }
 }
 
-def read-usage [] {
-    # Reads from the shared cache file written by the patched cli.js oauth/usage
-    # fetch function. No direct API calls — cli.js is the single writer.
-    let cache_file = "/tmp/.claude-usage.json"
-    if not ($cache_file | path exists) { return "" }
-
-    let usage_json = try { open $cache_file } catch { return "" }
-
-    let session_pct = try { $usage_json | get five_hour.utilization } catch { null }
-    let week_pct = try { $usage_json | get seven_day.utilization } catch { null }
+def format-rate-limits [input: record] {
+    let session_pct = try { $input | get rate_limits.five_hour.used_percentage } catch { null }
+    let week_pct = try { $input | get rate_limits.seven_day.used_percentage } catch { null }
 
     let session_part = if $session_pct != null {
         let c = color-for-pct $session_pct
@@ -73,8 +66,7 @@ def get-jj-info [] {
 # --- Main ---
 let input = (^cat | from json)
 
-# Usage quota (reads shared cache written by cli.js)
-let usage_info = read-usage
+let usage_info = format-rate-limits $input
 
 let model_name = ($input | get model?.display_name? | default ($input | get model?.id? | default "unknown"))
 let used_pct = ($input | get context_window?.used_percentage? | default null)

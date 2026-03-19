@@ -44,45 +44,35 @@ def flip_gates(gates: list[tuple[bytes, str]]) -> None:
       log(f"  {labels[key]} [{status}]")
 
 
-# --- AGENTS.md support: claude can now load AGENTS.md alongside CLAUDE.md for project configs ---
+# --- AGENTS.md support ---
+# The CLAUDE.md loader only reads CLAUDE.md. Patch it to also load AGENTS.md
+# from the same directories. Pattern: let VAR=ME(DIR,"CLAUDE.md");ARR.push(...await XE(VAR,"Project",ARG,BOOL))
 
 agents_pat: bytes = (
    rb"let (" + W + rb")=(" + W + rb")\((" + W + rb'),"CLAUDE\.md"\);'
-   rb"(" + W + rb")\.push\(\.\.\.(" + W + rb')\(\1,"Project",([^)]+)\)\)'
+   rb"(" + W + rb")\.push\(\.\.\.await (" + W + rb")\(\1,\"Project\",(" + W + rb"),(" + W + rb")\)\)"
 )
 
 
 def agents_repl(m: re.Match[bytes]) -> bytes:
-   var, path_join, dir_, arr, load_fn, tail = [m.group(i) for i in range(1, 7)]
+   var, join_fn, dir_, arr, load_fn, arg, flag = [m.group(i) for i in range(1, 8)]
    return (
       b'for(let _f of["CLAUDE.md","AGENTS.md"]){let '
-      + var
-      + b"="
-      + path_join
-      + b"("
-      + dir_
-      + b",_f);"
-      + arr
-      + b".push(..."
-      + load_fn
-      + b"("
-      + var
-      + b',"Project",'
-      + tail
-      + b"))}"
+      + var + b"=" + join_fn + b"(" + dir_ + b",_f);"
+      + arr + b".push(...await " + load_fn + b"(" + var + b',"Project",' + arg + b"," + flag + b"))}"
    )
 
 
 patch("agents.md loader", agents_pat, agents_repl)
 
-# --- macOS config path: use /etc/claude-code instead of ~/Library/Application Support because the latter is retarded for cli tools ---
+# --- macOS config path ---
 
 data = data.replace(
    b'case"macos":return"/Library/Application Support/ClaudeCode"',
    b'case"macos":return"/etc/claude-code"',
 )
 
-# --- Enable hard-disabled slash commands: /btw, /files, /tag ---
+# --- Enable hard-disabled slash commands ---
 
 slash_commands: list[tuple[bytes, str]] = [
    (b'name:"btw",description:"Ask a quick side question', "/btw"),
@@ -104,19 +94,20 @@ for anchor, label in slash_commands:
    data = data[:pos] + patched + data[pos + SEARCH_WINDOW :]
    log(f"slash command {label}: enabled")
 
-# --- Bypass thinkback gate (no default arg, different replacement strategy) ---
+# --- Bypass thinkback gate ---
 
 patch("thinkback gate", W + rb'\("tengu_thinkback"\)', b'!0||"tengu_thinkback"')
 
 # --- Bypass telemetry gate in feature flag checker ---
-# _n6 has `if(!pi())return!1` before checking cachedGrowthBookFeatures.
-# With telemetry off, pi() returns false and cached flags are never read.
-# Remove that early return so the cache is always consulted.
+# With telemetry off, ed() returns false and all 9 call sites bail out,
+# blocking feature flags, GrowthBook refresh, and the async qc() path
+# used by remote control. Make ed() always return true so the flag
+# infrastructure works even with DISABLE_TELEMETRY=1.
 
 patch(
-   "feature flag telemetry gate",
-   rb"if\(!" + W + rb"\(\)\)return!1;if\(" + W + rb"\(\)\." + W + rb"\?\.\[",
-   lambda m: m[0].replace(b"return!1;", b"", 1),
+   "telemetry gate (ed → true)",
+   rb"function ed\(\)\{return " + W + rb"\(\)\}",
+   lambda m: m[0].replace(b"return ", b"return!0||"),
 )
 
 # --- Fix Deno-compile bridge spawn ---
@@ -195,9 +186,6 @@ tool_gates: list[Gate] = [
    (b"tengu_plum_vx3", "web search reranking"),
    (b"tengu_quartz_lantern", "remote tool use diff"),
    (b"tengu_marble_anvil", "thinking edits"),
-   (b"tengu_marble_whisper2", "inline annotations"),
-   (b"tengu_orchid_trellis", "plugin marketplace"),
-   (b"tengu_pewter_gull", "PDF line limiting"),
    (b"tengu_moth_copse", "relevant memory recall"),
    (b"tengu_cork_m4q", "batch command processing"),
 ]
@@ -212,7 +200,7 @@ patch(
    lambda m: m[0].replace(b"120000", b"240000"),
 )
 
-# --- Kill claude-developer-platform bundled skill (this uses ~400 tokens per turn, it's dead weight) ---
+# --- Kill claude-developer-platform bundled skill ---
 
 data = data.replace(
    b'name:"claude-developer-platform",description:`',
@@ -220,58 +208,26 @@ data = data.replace(
 )
 log("killed claude-developer-platform skill")
 
-# --- Enrich context_window status line data ---
-
-ctx_pat: bytes = (
-   rb"context_window:\{total_input_tokens:(" + W + rb"\(\)),"
-   rb"total_output_tokens:(" + W + rb"\(\)),"
-   rb"context_window_size:(" + W + rb"),"
-   rb"current_usage:(" + W + rb"),"
-   rb"used_percentage:(" + W + rb")\.used,"
-   rb"remaining_percentage:\5\.remaining\}"
-)
-rl_pat: bytes = (
-   rb"("
-   + W
-   + rb')=\{status:"allowed",unifiedRateLimitFallbackAvailable:!1,isUsingOverage:!1\}'
-)
-
-rl_match: re.Match[bytes] | None = re.search(rl_pat, data)
-ctx_match: re.Match[bytes] | None = re.search(ctx_pat, data)
-
-if ctx_match and rl_match:
-   inp_tok, out_tok, win_size, usage, pct = [ctx_match.group(i) for i in range(1, 6)]
-   rate_limit: bytes = rl_match.group(1)
-   data = data.replace(
-      ctx_match[0],
-      b"context_window:{...(" + usage + b"||{}),"
-      b"context_window_size:" + win_size + b",current_usage:" + usage + b","
-      b"used_percentage:" + pct + b".used,remaining_percentage:" + pct + b".remaining,"
-      b"rate_limit:" + rate_limit + b",s_in:" + inp_tok + b",s_out:" + out_tok + b"}",
-   )
-   log("context window statusline: patched")
-else:
-   log(
-      f"context window statusline: NOT FOUND (ctx={'yes' if ctx_match else 'no'}, rl={'yes' if rl_match else 'no'})"
-   )
-
 # --- Replace usage fetch with self-contained OAuth implementation ---
-# The original d3q has auth guards (dA/kG) that fail with DISABLE_TELEMETRY,
-# and uses FO() which falls back to x-api-key. Replace the entire function
-# body with a direct OAuth implementation that reads credentials from disk.
+# FO()/eO() falls back to x-api-key when dA()/nA() returns false (telemetry off),
+# but /api/oauth/usage requires Bearer + oauth beta header. Replace the entire
+# function with a Deno-native implementation that reads credentials directly.
 
 usage_fn_pat: bytes = (
    rb"async function (" + W + rb")\(\)\{"
-   rb"if\(!" + W + rb"\(\)\|\|!" + W + rb"\(\)\)return\{\};"
+   rb"(?:if\(!" + W + rb"\(\)\|\|!" + W + rb"\(\)\)return\{\};)?"
    rb"let " + W + rb"=" + W + rb"\(\);if\(" + W + rb"&&" + W + rb"\(" + W + rb"\." + W + rb"\)\)return null;"
-   rb"let " + W + rb"=" + W + rb"\(\);if\(" + W + rb"\.error\)throw Error\(`Auth error: \$\{" + W + rb"\.error\}`\);"
-   rb"let " + W + rb"=\{[^}]+\}," + W + rb"=`\$\{" + W + rb"\(\)\." + W + rb"\}/api/oauth/usage`;"
-   rb"return\(await " + W + rb"\.get\(" + W + rb",\{headers:" + W + rb",timeout:5000\}\)\)\.data\}"
+   rb"let " + W + rb"=" + W + rb"\(\);if\(" + W + rb"\.error\)throw Error\(\x60Auth error: \x24\{" + W + rb"\.error\}\x60\);"
+   rb"let " + W + rb"=\{[^}]+\}," + W + rb"=\x60\x24\{(" + W + rb")\(\)\.(" + W + rb")\}/api/oauth/usage\x60;"
+   rb"return\(await (" + W + rb")\.get\(" + W + rb",\{headers:" + W + rb",timeout:5000\}\)\)\.data\}"
 )
 
 usage_fn_match: re.Match[bytes] | None = re.search(usage_fn_pat, data)
 if usage_fn_match:
    fn_name: bytes = usage_fn_match.group(1)
+   config_fn: bytes = usage_fn_match.group(2)
+   base_url_key: bytes = usage_fn_match.group(3)
+   http_client: bytes = usage_fn_match.group(4)
    replacement: bytes = (
       b"async function " + fn_name + b"(){"
       b"const _cd=(process.env.CLAUDE_CONFIG_DIR||"
@@ -280,27 +236,22 @@ if usage_fn_match:
       b'try{const _cr=JSON.parse(new TextDecoder().decode('
       b'Deno.readFileSync(_cd+"/.credentials.json")));'
       b"_tk=_cr?.claudeAiOauth?.accessToken}catch{return{}}"
+      b"if(!_tk)return{};"
       b'const _cp="/tmp/.claude-usage-"+_tk.slice(-8)+".json";'
       b"try{const _s=Deno.statSync(_cp);"
       b"if(Date.now()-_s.mtime.getTime()<60000)"
       b'return JSON.parse(new TextDecoder().decode(Deno.readFileSync(_cp)))}catch{}'
-      b"if(!_tk)return{};"
       b"const _h={" + b'"Content-Type":"application/json",'
       b'"Authorization":"Bearer "+_tk,'
       b'"anthropic-beta":"oauth-2025-04-20"};'
-      b"const _u=`${" + b"G7().BASE_API_URL}/api/oauth/usage`;"
-      b"const _r=(await H8.get(_u,{headers:_h,timeout:5000})).data;"
+      b"const _u=`${" + config_fn + b"()." + base_url_key + b"}/api/oauth/usage`;"
+      b"const _r=(await " + http_client + b".get(_u,{headers:_h,timeout:5000})).data;"
       b'try{Deno.writeTextFileSync(_cp,JSON.stringify(_r))}catch{}'
       b"return _r}"
    )
    data = data.replace(usage_fn_match[0], replacement)
    log("usage fetch: replaced")
 else:
-   log("usage fetch: pattern NOT FOUND — falling back to simple auth guard removal")
-   patch(
-      "usage auth guard (fallback)",
-      rb"if\(!" + W + rb"\(\)\|\|!" + W + rb"\(\)\)return\{\}",
-      b"if(!1)return{}",
-   )
+   log("usage fetch: pattern NOT FOUND")
 
 Path(sys.argv[1]).write_bytes(data)
