@@ -20,10 +20,10 @@ let
       owner = "naim94a";
       repo = "lumen";
       rev = "master";
-      hash = "sha256-2oHD+Znpm+/gJdQrnIEQ+QHIR8kwvNjE6VT+Vgxs5B4=";
+      hash = "sha256-bnCZRpjT7VrHMbuZ/eIVRs4fxm9V8eVUlWj9cQmZAu4=";
     };
 
-    cargoHash = "sha256-oN6ijJivBmzrxQIF33fO/d83ngzNxFOmZ3KYfDQhocQ=";
+    cargoHash = "sha256-VNNjoZtAMtJIfxczMBPXa7q1DlBIk1w55KU87RGmZtM=";
 
     nativeBuildInputs = [
       pkgs.pkg-config
