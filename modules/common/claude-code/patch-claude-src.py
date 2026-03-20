@@ -94,10 +94,6 @@ for anchor, label in slash_commands:
    data = data[:pos] + patched + data[pos + SEARCH_WINDOW :]
    log(f"slash command {label}: enabled")
 
-# --- Bypass thinkback gate ---
-
-patch("thinkback gate", W + rb'\("tengu_thinkback"\)', b'!0||"tengu_thinkback"')
-
 # --- Bypass telemetry gate in feature flag checker ---
 # With telemetry off, ed() returns false and all 9 call sites bail out,
 # blocking feature flags, GrowthBook refresh, and the async qc() path
@@ -139,6 +135,7 @@ Gate = tuple[bytes, str]
 core_gates: list[Gate] = [
    (b"tengu_ccr_bridge", "remote control"),
    (b"tengu_bridge_repl_v2", "remote control v2 (envless)"),
+   (b"tengu_bridge_system_init", "bridge SDK init on connect"),
    (b"tengu_remote_backend", "remote backend"),
    (b"tengu_keybinding_customization_release", "custom keybindings"),
    (b"tengu_immediate_model_command", "instant /model switching"),
@@ -146,17 +143,18 @@ core_gates: list[Gate] = [
    (b"tengu_auto_background_agents", "background agent timeout"),
    (b"tengu_pid_based_version_locking", "PID version locking"),
    (b"tengu_plan_mode_interview_phase", "plan mode interview"),
+   (b"tengu_surreal_dali", "scheduled agents/cron"),
 ]
 
 memory_gates: list[Gate] = [
-   (b"tengu_session_memory", "session memory"),
+   # (b"tengu_session_memory", "session memory"),  # auto-memory; pollutes unrelated convos
    (b"tengu_sm_compact", "memory survives compaction"),
    (b"tengu_compact_cache_prefix", "cache-aware compaction"),
    (b"tengu_compact_streaming_retry", "compact stream retry"),
    (b"tengu_pebble_leaf_prune", "message pruning"),
    (b"tengu_herring_clock", "team memory directory"),
    (b"tengu_passport_quail", "typed combined memory prompts"),
-   (b"tengu_swinburne_dune", "new memory extraction prompts"),
+   # (b"tengu_swinburne_dune", "new memory extraction prompts"),  # auto-extraction
 ]
 
 ux_gates: list[Gate] = [
@@ -168,6 +166,8 @@ ux_gates: list[Gate] = [
    (b"tengu_quiet_hollow", "thinking summaries"),
    (b"tengu_lean_cast", "lean system prompt"),
    (b"tengu_amber_prism", "permission denial context"),
+   (b"tengu_sepia_heron", "token saver (compress tool output)"),
+   (b"tengu_hawthorn_steeple", "context windowing"),
 ]
 
 tool_gates: list[Gate] = [
@@ -179,6 +179,7 @@ tool_gates: list[Gate] = [
    (b"tengu_tst_hint_m7r", "tool search hints"),
    (b"tengu_tst_kx7", "auto tool search"),
    (b"tengu_glacier_2xr", "deferred tool improvements"),
+   (b"tengu_defer_caveat_m9k", "deferred tool hint in prompt"),
    (b"tengu_basalt_3kr", "MCP instruction delta"),
    (b"tengu_cobalt_frost", "voice conversation engine"),
    (b"tengu_scarf_coffee", "API context management"),
@@ -186,7 +187,7 @@ tool_gates: list[Gate] = [
    (b"tengu_plum_vx3", "web search reranking"),
    (b"tengu_quartz_lantern", "remote tool use diff"),
    (b"tengu_marble_anvil", "thinking edits"),
-   (b"tengu_moth_copse", "relevant memory recall"),
+   # (b"tengu_moth_copse", "relevant memory recall"),  # auto-recall; pollutes unrelated convos
    (b"tengu_cork_m4q", "batch command processing"),
 ]
 

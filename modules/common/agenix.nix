@@ -16,16 +16,13 @@ in
 {
   imports = [ (mkAliasOptionModule [ "secrets" ] [ "age" "secrets" ]) ];
 
-  age.identityPaths = [
-    (
-      if config.isServer then
-        "/root/.ssh/id"
-      else if config.isLinux then
-        "/home/${head <| attrNames <| config.users.users}/.ssh/id"
-      else
-        "/Users/${head <| attrNames <| config.users.users}/.ssh/id"
-    )
-  ];
+  age.identityPaths =
+    if config.isServer then
+      [ "/etc/ssh/ssh_host_ed25519_key" ]
+    else if config.isLinux then
+      [ "/home/${head <| attrNames <| config.users.users}/.ssh/id" ]
+    else
+      [ "/Users/${head <| attrNames <| config.users.users}/.ssh/id" ];
 
   environment = mkIf config.isDesktop {
     shellAliases.agenix = "agenix --identity ~/.ssh/id";
