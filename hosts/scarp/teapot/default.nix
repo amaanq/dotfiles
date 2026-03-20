@@ -45,6 +45,7 @@ in
         ''path == "/logo.svg"''
         ''path == "/site.webmanifest"''
         ''path.matches("\\.(png|ico|svg|woff2|css|js)$")''
+        ''path.startsWith("/translate/")''
       ];
       extraConditions = {
         is-heavy-resource = [
