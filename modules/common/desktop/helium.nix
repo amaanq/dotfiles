@@ -16,6 +16,7 @@ in
     systemWide = true;
     executables.helium.args.suffix = optionals config.isLinux [
       "--ignore-gpu-blocklist"
+      "--disable-vulkan"
     ] ++ [
       "--enable-quic"
       "--quic-version=h3-29"
