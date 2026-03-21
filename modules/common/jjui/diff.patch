@@ -1,3 +1,52 @@
+diff --git a/flake.lock b/flake.lock
+index 83716747ec..a029a37f06 100644
+--- a/flake.lock
++++ b/flake.lock
+@@ -5,11 +5,11 @@
+         "nixpkgs-lib": "nixpkgs-lib"
+       },
+       "locked": {
+-        "lastModified": 1768135262,
+-        "narHash": "sha256-PVvu7OqHBGWN16zSi6tEmPwwHQ4rLPU9Plvs8/1TUBY=",
++        "lastModified": 1769996383,
++        "narHash": "sha256-AnYjnFWgS49RlqX7LrC4uA+sCCDBj0Ry/WOJ5XWAsa0=",
+         "owner": "hercules-ci",
+         "repo": "flake-parts",
+-        "rev": "80daad04eddbbf5a4d883996a73f3f542fa437ac",
++        "rev": "57928607ea566b5db3ad13af0e57e921e6b12381",
+         "type": "github"
+       },
+       "original": {
+@@ -20,11 +20,11 @@
+     },
+     "nixpkgs": {
+       "locked": {
+-        "lastModified": 1768564909,
+-        "narHash": "sha256-Kell/SpJYVkHWMvnhqJz/8DqQg2b6PguxVWOuadbHCc=",
++        "lastModified": 1771848320,
++        "narHash": "sha256-0MAd+0mun3K/Ns8JATeHT1sX28faLII5hVLq0L3BdZU=",
+         "owner": "NixOS",
+         "repo": "nixpkgs",
+-        "rev": "e4bae1bd10c9c57b2cf517953ab70060a828ee6f",
++        "rev": "2fc6539b481e1d2569f25f8799236694180c0993",
+         "type": "github"
+       },
+       "original": {
+@@ -36,11 +36,11 @@
+     },
+     "nixpkgs-lib": {
+       "locked": {
+-        "lastModified": 1765674936,
+-        "narHash": "sha256-k00uTP4JNfmejrCLJOwdObYC9jHRrr/5M/a/8L2EIdo=",
++        "lastModified": 1769909678,
++        "narHash": "sha256-cBEymOf4/o3FD5AZnzC3J9hLbiZ+QDT/KDuyHXVJOpM=",
+         "owner": "nix-community",
+         "repo": "nixpkgs.lib",
+-        "rev": "2075416fcb47225d9b68ac469a5c4801a9c4dd85",
++        "rev": "72716169fe93074c333e8d0173151350670b824c",
+         "type": "github"
+       },
+       "original": {
 diff --git a/internal/config/config.go b/internal/config/config.go
 index 87a5b08283..0abc4a2f52 100644
 --- a/internal/config/config.go
@@ -150,10 +199,10 @@ index 0000000000..d912156bec
 @@ -0,0 +1,1 @@
 +package config
 diff --git a/internal/config/loader.go b/internal/config/loader.go
-index ef73b432c5..36baf0cb98 100644
+index 3cbb75bcbd..3725c8eb57 100644
 --- a/internal/config/loader.go
 +++ b/internal/config/loader.go
-@@ -97,6 +97,9 @@
+@@ -108,6 +108,9 @@
  		return err
  	}
  
@@ -164,7 +213,7 @@ index ef73b432c5..36baf0cb98 100644
  	// collections are always read from file content, without carrying prior state.
  	// Keep this type explicit and extend it when new merge-managed arrays are added.
 diff --git a/internal/jj/commands.go b/internal/jj/commands.go
-index 78db61a64b..1171f93d1b 100644
+index 8406ff0787..d2b79ae975 100644
 --- a/internal/jj/commands.go
 +++ b/internal/jj/commands.go
 @@ -15,6 +15,7 @@
@@ -226,7 +275,7 @@ index 78db61a64b..1171f93d1b 100644
  		args = append(args, "--keep-emptied")
  	}
 diff --git a/internal/parser/row.go b/internal/parser/row.go
-index c109eeb8df..00a579c030 100644
+index 4d52be8d8b..212e62db8c 100644
 --- a/internal/parser/row.go
 +++ b/internal/parser/row.go
 @@ -163,7 +163,8 @@
@@ -240,19 +289,14 @@ index c109eeb8df..00a579c030 100644
  			}
  		}
 diff --git a/internal/ui/common/msgs.go b/internal/ui/common/msgs.go
-index 37984f1af1..b4ec1bc17d 100644
+index bf37539bec..37984f1af1 100644
 --- a/internal/ui/common/msgs.go
 +++ b/internal/ui/common/msgs.go
-@@ -14,7 +14,11 @@
+@@ -14,6 +14,7 @@
  		SelectedRevision string
  		KeepSelections   bool
  	}
--	ShowDiffMsg              string
-+	ShowDiffMsg struct {
-+		Output   string
-+		Revision string // optional: for refresh support
-+		FileName string // optional: for refresh support
-+	}
++	ShowDiffMsg              string
  	UpdateRevisionsFailedMsg struct {
  		Output string
  		Err    error
@@ -264,10 +308,10 @@ index 0000000000..a03e1d1c44
 @@ -0,0 +1,1 @@
 +package context
 diff --git a/internal/ui/diff/diff.go b/internal/ui/diff/diff.go
-index 37beb8144a..73adb19d90 100644
+index 7433168773..c5cb9ec2af 100644
 --- a/internal/ui/diff/diff.go
 +++ b/internal/ui/diff/diff.go
-@@ -1,11 +1,16 @@
+@@ -1,10 +1,13 @@
  package diff
  
  import (
@@ -275,217 +319,66 @@ index 37beb8144a..73adb19d90 100644
  	"strings"
  
  	tea "charm.land/bubbletea/v2"
- 	"charm.land/lipgloss/v2"
  	uv "github.com/charmbracelet/ultraviolet"
 +	"github.com/idursun/jjui/internal/config"
-+	"github.com/idursun/jjui/internal/jj"
 +	"github.com/idursun/jjui/internal/ui/common"
-+	"github.com/idursun/jjui/internal/ui/context"
  	"github.com/idursun/jjui/internal/ui/intents"
  	"github.com/idursun/jjui/internal/ui/layout"
  	"github.com/idursun/jjui/internal/ui/render"
-@@ -142,6 +147,15 @@
+@@ -141,6 +144,8 @@
  	dl.AddDraw(box.R, buf.Render(), 0)
  }
  
 +var _ common.ImmediateModel = (*Model)(nil)
 +
-+// DiffSource represents the source of the diff content for refreshing
-+type DiffSource struct {
-+	Revision string
-+	FileName string
-+	Context  *context.MainContext
-+}
-+
  type Model struct {
  	lines        []string
  	maxLineWidth int
-@@ -150,7 +164,8 @@
- 	viewportWidth  int
- 	viewportHeight int
- 
--	mode viewMode
-+	mode   viewMode
-+	source *DiffSource
- }
- 
- func (m *Model) Init() tea.Cmd {
-@@ -213,7 +228,14 @@
+@@ -249,7 +254,11 @@
  			m.mode.scrollHorizontal(1, m.viewportWidth)
  		}
  		return nil
 -
 +	case tea.KeyMsg:
-+		// Handle cycle diff editor directly (unmatched keys reach here)
-+		if msg.String() == "ctrl+e" && m.source != nil {
++		// Handle cycle diff editor directly (unmatched keys reach here from ui.go)
++		if msg.String() == "ctrl+e" {
 +			return m.cycleDiffTool()
 +		}
-+	case updateDiffContentMsg:
-+		m.setContent(msg.Content)
-+		return nil
  	case ScrollMsg:
  		if !msg.Horizontal {
  			m.scrollY += msg.Delta
-@@ -225,6 +247,63 @@
+@@ -261,6 +270,14 @@
  	return nil
  }
  
-+func (m *Model) setContent(content string) {
-+	content = strings.ReplaceAll(content, "\r", "")
-+	if content == "" {
-+		content = "(empty)"
-+	}
-+	lines := strings.Split(content, "\n")
-+	maxWidth := 0
-+	for _, line := range lines {
-+		if w := lipgloss.Width(line); w > maxWidth {
-+			maxWidth = w
-+		}
-+	}
-+	m.lines = lines
-+	m.maxLineWidth = maxWidth
-+	m.mode = newDefaultView(lines, maxWidth)
-+	m.scrollY = 0
-+}
 +
 +func (m *Model) cycleDiffTool() tea.Cmd {
 +	tool := config.Current.CycleDiffEditor()
-+	return tea.Batch(
-+		func() tea.Msg {
-+			return intents.AddMessage{Text: fmt.Sprintf("Diff tool: %s", tool)}
-+		},
-+		m.refreshDiff(),
-+	)
-+}
-+
-+func (m *Model) HasSource() bool {
-+	return m.source != nil
-+}
-+
-+func (m *Model) RefreshDiff() tea.Cmd {
-+	return m.refreshDiff()
-+}
-+
-+func (m *Model) refreshDiff() tea.Cmd {
-+	if m.source == nil {
-+		return nil
-+	}
 +	return func() tea.Msg {
-+		diffTool := config.GetCurrentDiffTool(config.Current)
-+		var args jj.CommandArgs
-+		if diffTool != "" {
-+			args = jj.Diff(m.source.Revision, m.source.FileName, "--config=ui.diff-formatter="+diffTool)
-+		} else {
-+			args = jj.Diff(m.source.Revision, m.source.FileName)
-+		}
-+		output, _ := m.source.Context.RunCommandImmediate(args)
-+		return updateDiffContentMsg{Content: string(output)}
++		return intents.AddMessage{Text: fmt.Sprintf("Diff tool: %s", tool)}
 +	}
-+}
-+
-+type updateDiffContentMsg struct {
-+	Content string
 +}
 +
  func (m *Model) ViewRect(dl *render.DisplayContext, box layout.Box) {
  	width := box.R.Dx()
  	height := box.R.Dy()
-@@ -236,7 +315,7 @@
- 	dl.AddInteraction(box.R, ScrollMsg{}, render.InteractionScroll, 0)
+diff --git a/internal/ui/intents/diff_intents.go b/internal/ui/intents/diff_intents.go
+index 39f7c64ca4..48fe8c32fe 100644
+--- a/internal/ui/intents/diff_intents.go
++++ b/internal/ui/intents/diff_intents.go
+@@ -49,7 +49,9 @@
+ 
+ //jjui:bind scope=diff action=show set=Content:$string(content)
+ type DiffShow struct {
+-	Content string
++	Content  string
++	Revision string // optional: for diff tool cycling refresh
++	FileName string // optional: for diff tool cycling refresh
  }
  
--func New(output string) *Model {
-+func New(output string, source *DiffSource) *Model {
- 	content := strings.ReplaceAll(output, "\r", "")
- 	if content == "" {
- 		content = "(empty)"
-@@ -253,6 +332,7 @@
- 		lines:        lines,
- 		maxLineWidth: maxWidth,
- 		mode:         newDefaultView(lines, maxWidth),
-+		source:       source,
- 	}
- 	return model
- }
-diff --git a/internal/ui/diff/diff_test.go b/internal/ui/diff/diff_test.go
-index bdac19c12c..cd400a08a3 100644
---- a/internal/ui/diff/diff_test.go
-+++ b/internal/ui/diff/diff_test.go
-@@ -10,15 +10,15 @@
- )
- 
- func TestNew_TrimsCarriageReturnsAndHandlesEmpty(t *testing.T) {
--	model := New("line1\r\nline2\r\n")
-+	model := New("line1\r\nline2\r\n", nil)
- 	assert.Equal(t, "line1\nline2", test.Stripped(test.RenderImmediate(model, 20, 5)))
- 
--	emptyModel := New("")
-+	emptyModel := New("", nil)
- 	assert.Equal(t, "(empty)", test.Stripped(test.RenderImmediate(emptyModel, 10, 3)))
- }
- 
- func TestScroll_ChangesVisibleContent(t *testing.T) {
--	model := New("1\n2\n3\n4\n5")
-+	model := New("1\n2\n3\n4\n5", nil)
- 
- 	// Initially line 1 should be visible
- 	before := test.Stripped(test.RenderImmediate(model, 10, 2))
-@@ -33,7 +33,7 @@
- }
- 
- func TestUpdate_ScrollMsgScrollsContent(t *testing.T) {
--	model := New("a\nb\nc\nd\ne")
-+	model := New("a\nb\nc\nd\ne", nil)
- 
- 	// Line "a" should be visible before scroll
- 	before := test.Stripped(test.RenderImmediate(model, 10, 2))
-@@ -46,7 +46,7 @@
- }
- 
- func TestUpdate_DiffScrollIntentChangesContent(t *testing.T) {
--	model := New("1\n2\n3\n4\n5")
-+	model := New("1\n2\n3\n4\n5", nil)
- 
- 	first := test.Stripped(test.RenderImmediate(model, 10, 2))
- 	assert.Contains(t, first, "1")
-@@ -63,7 +63,7 @@
- 
- func TestWrap_LongLinesWrapAtViewportWidth(t *testing.T) {
- 	// 20-character line rendered in a 10-wide viewport should produce 2 visual rows
--	model := New("12345678901234567890")
-+	model := New("12345678901234567890", nil)
- 	model.Update(intents.DiffToggleWrap{})
- 
- 	rendered := test.Stripped(test.RenderImmediate(model, 10, 3))
-@@ -75,7 +75,7 @@
- 
- func TestWrap_ResizeRecomputes(t *testing.T) {
- 	// Line of 20 chars
--	model := New("12345678901234567890")
-+	model := New("12345678901234567890", nil)
- 	model.Update(intents.DiffToggleWrap{})
- 
- 	// At width 10, line occupies 2 visual rows.
-@@ -89,7 +89,7 @@
- 
- func TestNoWrap_HorizontalScroll(t *testing.T) {
- 	// 20-character line rendered in a 10-wide viewport
--	model := New("abcdefghijklmnopqrst")
-+	model := New("abcdefghijklmnopqrst", nil)
- 
- 	// Without horizontal scroll, first 10 chars visible
- 	rendered := test.Stripped(test.RenderImmediate(model, 10, 1))
-@@ -104,7 +104,7 @@
- }
- 
- func TestWrap_HorizontalScrollIsNoop(t *testing.T) {
--	model := New("abcdefghijklmnopqrst")
-+	model := New("abcdefghijklmnopqrst", nil)
- 	model.Update(intents.DiffToggleWrap{})
- 	before := test.Stripped(test.RenderImmediate(model, 10, 2))
- 
+ func (DiffShow) isIntent() {}
 diff --git a/internal/ui/operations/details/details.go b/internal/ui/operations/details/details.go
-index daefaf5331..ebf35b5081 100644
+index 7bcd4de30f..9187b61675 100644
 --- a/internal/ui/operations/details/details.go
 +++ b/internal/ui/operations/details/details.go
 @@ -12,6 +12,7 @@
@@ -527,7 +420,7 @@ index daefaf5331..ebf35b5081 100644
  		items := s.createListItems(msg.summary, msg.selectedFiles)
  		s.context.ClearCheckedItems(reflect.TypeFor[context.SelectedFile]())
  
-@@ -196,9 +205,15 @@
+@@ -196,9 +205,11 @@
  		if selected == nil {
  			return nil
  		}
@@ -535,17 +428,13 @@ index daefaf5331..ebf35b5081 100644
 +		fileName := selected.fileName
  		return func() tea.Msg {
 -			output, _ := s.context.RunCommandImmediate(jj.Diff(s.revision.GetChangeId(), selected.fileName))
--			return common.ShowDiffMsg(output)
+-			return intents.DiffShow{Content: string(output)}
 +			output, _ := s.context.RunCommandImmediate(jj.Diff(changeId, fileName))
-+			return common.ShowDiffMsg{
-+				Output:   string(output),
-+				Revision: changeId,
-+				FileName: fileName,
-+			}
++			return intents.DiffShow{Content: string(output), Revision: changeId, FileName: fileName}
  		}
  	case intents.DetailsSplit:
  		selectedFiles := s.getSelectedFiles(true)
-@@ -208,10 +223,10 @@
+@@ -208,10 +219,10 @@
  			[]string{"Are you sure you want to split the selected files?"},
  			confirmation.WithStylePrefix("revisions"),
  			confirmation.WithOption("Yes",
@@ -558,7 +447,7 @@ index daefaf5331..ebf35b5081 100644
  				key.NewBinding(key.WithKeys("i"), key.WithHelp("i", "interactive"))),
  			confirmation.WithOption("No",
  				confirmation.Close,
-@@ -234,10 +249,10 @@
+@@ -234,10 +245,10 @@
  			[]string{"Are you sure you want to restore the selected files?"},
  			confirmation.WithStylePrefix("revisions"),
  			confirmation.WithOption("Yes",
@@ -571,7 +460,7 @@ index daefaf5331..ebf35b5081 100644
  				key.NewBinding(key.WithKeys("i"), key.WithHelp("i", "interactive"))),
  			confirmation.WithOption("No",
  				confirmation.Close,
-@@ -348,6 +363,9 @@
+@@ -344,6 +355,9 @@
  		return 0
  	}
  	if s.Len() == 0 {
@@ -581,7 +470,7 @@ index daefaf5331..ebf35b5081 100644
  		return 1 // "No changes" message
  	}
  	confirmationHeight := 0
-@@ -365,6 +383,9 @@
+@@ -361,6 +375,9 @@
  	}
  
  	if s.Len() == 0 {
@@ -591,7 +480,7 @@ index daefaf5331..ebf35b5081 100644
  		// Render "No changes" message
  		content := s.styles.Dimmed.Render("No changes")
  		dl.AddDraw(layout.Rect(rect.Min.X, rect.Min.Y, rect.Dx(), 1), content, 0)
-@@ -490,18 +511,31 @@
+@@ -486,18 +503,31 @@
  }
  
  func (s *Operation) load(revision string) tea.Cmd {
@@ -630,7 +519,7 @@ index daefaf5331..ebf35b5081 100644
  		return common.CommandCompletedMsg{
  			Output: string(output),
  			Err:    err,
-@@ -540,6 +574,9 @@
+@@ -536,6 +566,9 @@
  		ch = lipgloss.Height(confirmationView)
  	}
  	if s.Len() == 0 {
@@ -799,10 +688,10 @@ index 35daf8c8cc..cc38140b82 100644
  	test.SimulateModel(model, func() tea.Msg { return intents.Quit{} }, func(msg tea.Msg) {
  		msgs = append(msgs, msg)
 diff --git a/internal/ui/operations/evolog/evolog_operation.go b/internal/ui/operations/evolog/evolog_operation.go
-index 8c442e2a08..5b5f70ff59 100644
+index 5a1aea2926..feec07e8f8 100644
 --- a/internal/ui/operations/evolog/evolog_operation.go
 +++ b/internal/ui/operations/evolog/evolog_operation.go
-@@ -149,10 +149,13 @@
+@@ -149,8 +149,8 @@
  		if o.mode != selectMode {
  			return nil
  		}
@@ -810,16 +699,10 @@ index 8c442e2a08..5b5f70ff59 100644
  		return func() tea.Msg {
 -			selectedCommitId := o.getSelectedEvolog().CommitId
  			output, _ := o.context.RunCommandImmediate(jj.Diff(selectedCommitId, ""))
--			return common.ShowDiffMsg(output)
-+			return common.ShowDiffMsg{
-+				Output:   string(output),
-+				Revision: selectedCommitId,
-+			}
+ 			return intents.DiffShow{Content: string(output)}
  		}
- 	case intents.EvologRestore:
- 		if o.mode != selectMode {
 diff --git a/internal/ui/operations/squash/squash_operation.go b/internal/ui/operations/squash/squash_operation.go
-index fac1fa4db0..c833f7018b 100644
+index 2c96cdb8b6..a287bc8aa9 100644
 --- a/internal/ui/operations/squash/squash_operation.go
 +++ b/internal/ui/operations/squash/squash_operation.go
 @@ -6,6 +6,7 @@
@@ -839,22 +722,8 @@ index fac1fa4db0..c833f7018b 100644
  		continuation := common.RefreshAndSelect(s.current.GetChangeId())
  		if s.interactive || !s.useDestinationMessage {
  			return tea.Batch(common.CloseApplied, s.context.RunInteractiveCommand(args, continuation))
-diff --git a/internal/ui/oplog/operation_log.go b/internal/ui/oplog/operation_log.go
-index f91c59954f..f14b5ed083 100644
---- a/internal/ui/oplog/operation_log.go
-+++ b/internal/ui/oplog/operation_log.go
-@@ -193,7 +193,8 @@
- 	}
- 	return func() tea.Msg {
- 		output, _ := m.context.RunCommandImmediate(jj.OpShow(opId))
--		return common.ShowDiffMsg(output)
-+		// oplog diffs don't support cycling since they use jj op show
-+		return common.ShowDiffMsg{Output: string(output)}
- 	}
- }
- 
 diff --git a/internal/ui/preview/preview.go b/internal/ui/preview/preview.go
-index 834d8cec5c..eb2fdabd15 100644
+index 340221c3cc..4cc5a933fc 100644
 --- a/internal/ui/preview/preview.go
 +++ b/internal/ui/preview/preview.go
 @@ -2,6 +2,7 @@
@@ -865,21 +734,17 @@ index 834d8cec5c..eb2fdabd15 100644
  	"strconv"
  	"strings"
  	"time"
-@@ -168,8 +169,12 @@
- }
- 
- func (m *Model) SetContent(content string) {
-+	normalized := strings.ReplaceAll(content, "\r", "")
-+	if normalized == m.content {
+@@ -169,6 +170,9 @@
+ 		}
+ 		content = strings.Join(lines, "\n")
+ 	}
++	if content == m.content {
 +		return
 +	}
  	m.reset()
--	m.content = strings.ReplaceAll(content, "\r", "")
-+	m.content = normalized
+ 	m.content = content
  	m.view.SetContent(content)
- }
- 
-@@ -195,6 +200,11 @@
+@@ -196,6 +200,11 @@
  	return common.Debounce(debounceId, debounceDuration, func() tea.Msg {
  		var args []string
  		previewWidth := strconv.Itoa(m.view.Width())
@@ -891,7 +756,7 @@ index 834d8cec5c..eb2fdabd15 100644
  		switch sel := item.(type) {
  		case common.SelectedFile:
  			args = jj.TemplatedArgs(config.Current.Preview.FileCommand, map[string]string{
-@@ -203,6 +213,7 @@
+@@ -204,6 +213,7 @@
  				jj.CommitIdPlaceholder:     sel.CommitId,
  				jj.FilePlaceholder:         sel.File,
  				jj.PreviewWidthPlaceholder: previewWidth,
@@ -899,7 +764,7 @@ index 834d8cec5c..eb2fdabd15 100644
  			})
  		case common.SelectedRevision:
  			args = jj.TemplatedArgs(config.Current.Preview.RevisionCommand, map[string]string{
-@@ -210,22 +221,39 @@
+@@ -211,29 +221,43 @@
  				jj.ChangeIdPlaceholder:     sel.ChangeId,
  				jj.CommitIdPlaceholder:     sel.CommitId,
  				jj.PreviewWidthPlaceholder: previewWidth,
@@ -921,7 +786,6 @@ index 834d8cec5c..eb2fdabd15 100644
  			})
  		}
  
--		output, _ := m.context.RunCommandImmediate(args)
 +		// Filter out empty args (e.g., when $diff_tool is not set)
 +		filteredArgs := args[:0]
 +		for _, arg := range args {
@@ -936,12 +800,43 @@ index 834d8cec5c..eb2fdabd15 100644
 +			filteredArgs = append(filteredArgs, "--ignore-working-copy")
 +		}
 +
-+		output, _ := m.context.RunCommandImmediate(filteredArgs)
+ 		env := []string{
+-			// The preview subprocess does not run in a pane-sized PTY, so let
+-			// width-sensitive tools like `jj diff` see the preview size via the
+-			// conventional terminal size environment variables.
+ 			"COLUMNS=" + strconv.Itoa(m.view.Width()),
+ 			"LINES=" + strconv.Itoa(m.view.Height()),
+ 		}
+-		output, _ := m.context.RunCommandImmediateWithEnv(args, env)
++		output, _ := m.context.RunCommandImmediateWithEnv(filteredArgs, env)
  		return updatePreviewContentMsg{
  			Content: string(output),
  		}
+diff --git a/internal/ui/preview/preview_test.go b/internal/ui/preview/preview_test.go
+index ddf2949a9a..4f98234953 100644
+--- a/internal/ui/preview/preview_test.go
++++ b/internal/ui/preview/preview_test.go
+@@ -166,8 +166,17 @@
+ 		jj.ChangeIdPlaceholder:     selected.ChangeId,
+ 		jj.CommitIdPlaceholder:     selected.CommitId,
+ 		jj.PreviewWidthPlaceholder: "0",
++		jj.DiffToolPlaceholder:     "",
+ 	})
+-	commandRunner.Expect(args).SetOutput([]byte("auto preview"))
++	// Filter empty args (from $diff_tool) and add --ignore-working-copy like the real code does
++	var filteredArgs []string
++	for _, arg := range args {
++		if arg != "" {
++			filteredArgs = append(filteredArgs, arg)
++		}
++	}
++	filteredArgs = append(filteredArgs, "--ignore-working-copy")
++	commandRunner.Expect(filteredArgs).SetOutput([]byte("auto preview"))
+ 
+ 	model.Update(intents.PreviewShow{Content: "manual"})
+ 	cmd := model.Update(common.SelectionChangedMsg{Item: selected})
 diff --git a/internal/ui/revisions/dispatch_actions_test.go b/internal/ui/revisions/dispatch_actions_test.go
-index 42b2e8cec7..5e29e45088 100644
+index dec3cc4c2d..3e68a32c92 100644
 --- a/internal/ui/revisions/dispatch_actions_test.go
 +++ b/internal/ui/revisions/dispatch_actions_test.go
 @@ -18,7 +18,6 @@
@@ -956,8 +851,8 @@ index 42b2e8cec7..5e29e45088 100644
  	model := New(ctx)
  	model.updateGraphRows(rows, "a")
  
--	_, handled := model.HandleDispatchedAction(actions.RevisionsOpenDetails, nil)
-+	cmd, handled := model.HandleDispatchedAction(actions.RevisionsOpenDetails, nil)
+-	_, handled := model.HandleDispatchedAction(keybindings.Action("revisions.open_details"), nil)
++	cmd, handled := model.HandleDispatchedAction(keybindings.Action("revisions.open_details"), nil)
  	assert.True(t, handled, "open_details should be handled by revisions dispatcher")
  	assert.Equal(t, "details", model.CurrentOperation().Name())
 +	test.SimulateModel(model, cmd)
@@ -965,7 +860,7 @@ index 42b2e8cec7..5e29e45088 100644
  	model.Update(intents.Cancel{})
  	model.updateGraphRows(rows, "a")
 diff --git a/internal/ui/revisions/displaycontext_renderer.go b/internal/ui/revisions/displaycontext_renderer.go
-index 6dec1a8871..d5bf0f036e 100644
+index 7ba991b3b3..1cbaf52ca5 100644
 --- a/internal/ui/revisions/displaycontext_renderer.go
 +++ b/internal/ui/revisions/displaycontext_renderer.go
 @@ -7,7 +7,6 @@
@@ -989,10 +884,10 @@ index 6dec1a8871..d5bf0f036e 100644
  
  // addHighlights adds highlight effects for lines with Highlightable flag
 diff --git a/internal/ui/revisions/displaycontext_renderer_test.go b/internal/ui/revisions/displaycontext_renderer_test.go
-index e79c416698..d11c538652 100644
+index 2729f57dfd..c019373cac 100644
 --- a/internal/ui/revisions/displaycontext_renderer_test.go
 +++ b/internal/ui/revisions/displaycontext_renderer_test.go
-@@ -33,7 +33,6 @@
+@@ -34,7 +34,6 @@
  	// Prepare details operation with a file list.
  	const statusOutput = "false $\nM file.txt\n"
  	commandRunner := test.NewTestCommandRunner(t)
@@ -1001,22 +896,19 @@ index e79c416698..d11c538652 100644
  	defer commandRunner.Verify()
  
 diff --git a/internal/ui/revisions/revisions.go b/internal/ui/revisions/revisions.go
-index 5edd794dfb..2313de1b1f 100644
+index f1409c579f..01e5e7dc71 100644
 --- a/internal/ui/revisions/revisions.go
 +++ b/internal/ui/revisions/revisions.go
-@@ -796,7 +796,10 @@
+@@ -796,7 +796,7 @@
  	changeId := commit.GetChangeId()
  	return func() tea.Msg {
  		output, _ := m.context.RunCommandImmediate(jj.Diff(changeId, ""))
--		return common.ShowDiffMsg(output)
-+		return common.ShowDiffMsg{
-+			Output:   string(output),
-+			Revision: changeId,
-+		}
+-		return intents.DiffShow{Content: string(output)}
++		return intents.DiffShow{Content: string(output), Revision: changeId}
  	}
  }
  
-@@ -808,7 +811,7 @@
+@@ -808,7 +808,7 @@
  	if commit == nil {
  		return nil
  	}
@@ -1026,27 +918,28 @@ index 5edd794dfb..2313de1b1f 100644
  
  func (m *Model) updateSelection() tea.Cmd {
 diff --git a/internal/ui/ui.go b/internal/ui/ui.go
-index f0b46b1655..abaddcd841 100644
+index 6f360e337c..6bba076955 100644
 --- a/internal/ui/ui.go
 +++ b/internal/ui/ui.go
-@@ -166,7 +166,15 @@
- 	case common.ExecProcessCompletedMsg:
- 		cmds = append(cmds, common.Refresh)
- 	case common.ShowDiffMsg:
--		m.diff = diff.New(string(msg))
-+		var source *diff.DiffSource
-+		if msg.Revision != "" {
-+			source = &diff.DiffSource{
-+				Revision: msg.Revision,
-+				FileName: msg.FileName,
-+				Context:  m.context,
-+			}
-+		}
-+		m.diff = diff.New(msg.Output, source)
- 		return m.diff.Init()
- 	case common.UpdateRevisionsSuccessMsg:
- 		m.state = common.Ready
-@@ -760,6 +768,11 @@
+@@ -66,6 +66,8 @@
+ 	height            int
+ 	revisionsSplit    *split
+ 	activeSplit       *split
++	lastDiffRevision  string
++	lastDiffFileName  string
+ 	splitActive       bool
+ }
+ 
+@@ -493,6 +495,8 @@
+ 		if m.diff == nil {
+ 			m.diff = diff.New("")
+ 		}
++		m.lastDiffRevision = intent.Revision
++		m.lastDiffFileName = intent.FileName
+ 		return m.diff.Update(intent), true
+ 	case intents.PreviewShow:
+ 		if !m.previewModel.Visible() {
+@@ -759,6 +763,11 @@
  		return nil
  	}
  
@@ -1058,7 +951,7 @@ index f0b46b1655..abaddcd841 100644
  	if m.status.IsFocused() {
  		return m.status.Update(msg)
  	}
-@@ -781,6 +794,20 @@
+@@ -780,6 +789,32 @@
  	return m.revisions.Update(msg)
  }
  
@@ -1069,8 +962,20 @@ index f0b46b1655..abaddcd841 100644
 +			return intents.AddMessage{Text: fmt.Sprintf("Diff tool: %s", tool)}
 +		},
 +	}
-+	if m.diff != nil && m.diff.HasSource() {
-+		cmds = append(cmds, m.diff.RefreshDiff())
++	if m.diff != nil && m.lastDiffRevision != "" {
++		revision := m.lastDiffRevision
++		fileName := m.lastDiffFileName
++		cmds = append(cmds, func() tea.Msg {
++			diffTool := config.GetCurrentDiffTool(config.Current)
++			var args jj.CommandArgs
++			if diffTool != "" {
++				args = jj.Diff(revision, fileName, "--config=ui.diff-formatter="+diffTool)
++			} else {
++				args = jj.Diff(revision, fileName)
++			}
++			output, _ := m.context.RunCommandImmediate(args)
++			return intents.DiffShow{Content: string(output), Revision: revision, FileName: fileName}
++		})
 +	}
 +	cmds = append(cmds, common.SelectionChanged(m.context.SelectedItem))
 +	return tea.Batch(cmds...)
