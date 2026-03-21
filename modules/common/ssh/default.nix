@@ -62,7 +62,8 @@ in
 merge {
   secrets.sshConfig = {
     file = ./config.age;
-    mode = "444";
+    mode = "0400";
+    owner = "amaanq";
   };
 
   programs.ssh.extraConfig = sshConfig;

@@ -128,11 +128,13 @@ in
 merge {
   secrets.gitPrivate = {
     file = ./git-private.age;
-    mode = "0444";
+    mode = "0400";
+    owner = "amaanq";
   };
   secrets.gitIdentity = {
     file = ./git-identity.age;
-    mode = "0444";
+    mode = "0400";
+    owner = "amaanq";
   };
 
   wrappers.delta = {
