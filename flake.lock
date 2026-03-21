@@ -90,11 +90,11 @@
     },
     "bunker": {
       "locked": {
-        "lastModified": 1773958473,
-        "narHash": "sha256-UpMI1PZo6sZ7TEJ8yhotGKL0T1dKcO1SDIjsvOrojH4=",
+        "lastModified": 1774155802,
+        "narHash": "sha256-W8QitI0AoI9CgRzNKoAwrGQTekhF45a0G9YeG3JLXck=",
         "owner": "amaanq",
         "repo": "bunker-patches",
-        "rev": "3994962b78f4ba71f87c338e682380b64765c025",
+        "rev": "1d6c5b0102797e6281e24311181781323b64c01d",
         "type": "github"
       },
       "original": {
