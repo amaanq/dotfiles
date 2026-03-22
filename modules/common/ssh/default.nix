@@ -34,16 +34,24 @@ let
           |> remove "build"
           |> remove "root"
           |> head;
+        port = value.config.services.openssh.ports or [ 22 ] |> builtins.head;
       in
       ''
         Host ${name}
-          User ${user}
+          User ${user}${lib.optionalString (port != 22) "\n    Port ${toString port}"}
+          StrictHostKeyChecking accept-new
       ''
     );
 
   sshConfig = ''
     # Include secrets
     Include ${config.secrets.sshConfig.path}
+
+    Host github.com
+      User git
+
+    Host gitlab.com
+      User git
 
     # Hosts from nixosConfigurations
     ${concatStringsSep "\n" hosts}
