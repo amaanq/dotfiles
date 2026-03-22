@@ -79,6 +79,19 @@ lib.nixosSystem' "desktop" (
       "mips64el-linux"
     ];
 
+    # Manual registration for e2k — standard qemu lacks e2k support;
+    # uses OpenE2K's qemu-e2k fork for user-mode emulation
+    boot.binfmt.registrations."e2k-linux" = let
+      qemu-e2k = pkgs.callPackage ../../pkgs/qemu-e2k/package.nix { };
+    in {
+      interpreter = "${qemu-e2k}/bin/qemu-e2k";
+      magicOrExtension = ''\x7fELF\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\xaf\x00'';
+      mask = ''\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff'';
+      preserveArgvZero = true;
+      fixBinary = true;
+      wrapInterpreterInShell = false;
+    };
+
     # Manual registration for aarch64_be — nixpkgs has a bug where
     # qemuArch returns "aarch64" instead of "aarch64_be" for big-endian
     boot.binfmt.registrations."aarch64_be-linux" = {
