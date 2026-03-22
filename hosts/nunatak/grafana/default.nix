@@ -24,15 +24,15 @@ in
   ];
 
   secrets.grafanaPassword = {
-    file = ./password.age;
+    rekeyFile = ./password.age;
     owner = "grafana";
   };
   secrets.grafanaPasswordMail = {
-    file = ../mail/password.plain.age;
+    rekeyFile = ../mail/password.plain.age;
     owner = "grafana";
   };
   secrets.grafanaSecretKey = {
-    file = ./password.age;
+    rekeyFile = ./password.age;
     owner = "grafana";
   };
 

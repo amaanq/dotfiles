@@ -18,7 +18,7 @@ in
   ];
 
   secrets.nixServeKey = {
-    file = ./key.age;
+    rekeyFile = ./key.age;
     owner = "root";
   };
 

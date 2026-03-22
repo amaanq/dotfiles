@@ -23,7 +23,7 @@ lib.nixosSystem' "server" (
     };
     nixpkgs.config.allowUnfree = true;
 
-    secrets.id.file = ./id.age;
+    secrets.id.rekeyFile = ./id.age;
     services.openssh.hostKeys = [
       {
         type = "ed25519";
@@ -31,7 +31,7 @@ lib.nixosSystem' "server" (
       }
     ];
 
-    secrets.password.file = ./password.age;
+    secrets.password.rekeyFile = ./password.age;
     users.users = {
       root = {
         openssh.authorizedKeys.keys = keys.admins;

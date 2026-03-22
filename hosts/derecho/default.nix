@@ -49,7 +49,7 @@ lib.nixosSystem' "desktop" (
       };
     };
 
-    secrets.password.file = ./password.age;
+    secrets.password.rekeyFile = ./password.age;
     users.users = {
       root = {
         openssh.authorizedKeys.keys = keys.admins;

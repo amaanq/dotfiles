@@ -21,7 +21,7 @@ in
   ];
 
   secrets.teapotSessions = {
-    file = ./sessions.age;
+    rekeyFile = ./sessions.age;
     mode = "0444";
   };
 

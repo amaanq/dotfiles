@@ -4,7 +4,7 @@
 }:
 {
   secrets.nixNetrc = {
-    file = ./netrc.age;
+    rekeyFile = ./netrc.age;
     mode = "0444";
   };
 

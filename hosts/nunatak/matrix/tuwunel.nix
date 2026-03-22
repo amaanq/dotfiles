@@ -43,7 +43,7 @@ in
   ];
 
   secrets.tuwunelToken = {
-    file = ./tuwunel-token.age;
+    rekeyFile = ./tuwunel-token.age;
     owner = "tuwunel";
   };
 

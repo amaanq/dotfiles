@@ -123,9 +123,9 @@ let
     );
 in
 {
-  secrets.builderKey.file = ./builder-key.age;
+  secrets.builderKey.rekeyFile = ./builder-key.age;
   secrets.githubToken = {
-    file = ./github-token.age;
+    rekeyFile = ./github-token.age;
     mode = "0444";
   };
 

@@ -1,7 +1,7 @@
 { pkgs, ... }:
 {
   age.secrets.atuin-key = {
-    file = ./key.age;
+    rekeyFile = ./key.age;
     owner = "amaanq";
   };
 

@@ -48,11 +48,11 @@ in
   ];
 
   secrets.matrixKey = {
-    file = ./key.age;
+    rekeyFile = ./key.age;
     owner = "matrix-synapse";
   };
   secrets.matrixSecret = {
-    file = ./secret.age;
+    rekeyFile = ./secret.age;
     owner = "matrix-synapse";
   };
 

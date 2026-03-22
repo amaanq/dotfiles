@@ -6,7 +6,7 @@ in
 {
   options.security.acme.users = mkValue [ ];
 
-  config.secrets.acmeEnvironment.file = ./environment.age;
+  config.secrets.acmeEnvironment.rekeyFile = ./environment.age;
 
   config.users.groups.acme.members = config.security.acme.users;
 

@@ -1,16 +1,16 @@
 {
   secrets.openai_api_key = {
-    file = ./openai-key.age;
+    rekeyFile = ./openai-key.age;
     owner = "amaanq";
   };
 
   secrets.anthropic_api_key = {
-    file = ./anthropic-key.age;
+    rekeyFile = ./anthropic-key.age;
     owner = "amaanq";
   };
 
   secrets.glm_api_key = {
-    file = ./glm-key.age;
+    rekeyFile = ./glm-key.age;
     owner = "amaanq";
   };
 

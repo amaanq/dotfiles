@@ -244,12 +244,12 @@ let
 in
 {
   secrets.openstack_aarch64_password = {
-    file = ./openstack-aarch64-password.age;
+    rekeyFile = ./openstack-aarch64-password.age;
     owner = "amaanq";
   };
 
   secrets.openstack_powerpc64_password = {
-    file = ./openstack-powerpc64-password.age;
+    rekeyFile = ./openstack-powerpc64-password.age;
     owner = "amaanq";
   };
 

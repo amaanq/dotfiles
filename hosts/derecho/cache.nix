@@ -15,7 +15,7 @@ let
 in
 {
   secrets.nixServeKey = {
-    file = self + /hosts/scarp/cache/key.age;
+    rekeyFile = self + /hosts/scarp/cache/key.age;
     owner = "root";
   };
 

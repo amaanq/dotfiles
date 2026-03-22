@@ -35,10 +35,10 @@ in
 {
   imports = [ (self + /modules/acme) ];
 
-  secrets.stalwartPassword.file = ./password.plain.age;
-  secrets.stalwartAmeerqPassword.file = ./ameerq-password.plain.age;
-  secrets.stalwartHkPassword.file = ./hk-password.plain.age;
-  secrets.stalwartDkimKey.file = ./dkim-stalwart.key.age;
+  secrets.stalwartPassword.rekeyFile = ./password.plain.age;
+  secrets.stalwartAmeerqPassword.rekeyFile = ./ameerq-password.plain.age;
+  secrets.stalwartHkPassword.rekeyFile = ./hk-password.plain.age;
+  secrets.stalwartDkimKey.rekeyFile = ./dkim-stalwart.key.age;
 
   services.postgresql.ensure = [ "stalwart-mail" ];
 

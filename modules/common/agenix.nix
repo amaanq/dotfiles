@@ -25,7 +25,6 @@ in
       [ "/Users/${head <| attrNames <| config.users.users}/.ssh/id" ];
 
   environment = mkIf config.isDesktop {
-    shellAliases.agenix = "agenix --identity ~/.ssh/id";
     systemPackages = [
       agenix.packages.${pkgs.system}.default
     ];

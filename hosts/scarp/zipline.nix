@@ -55,7 +55,7 @@ in
     (self + /modules/postgresql.nix)
   ];
 
-  secrets.ziplineSecret.file = ./zipline/secret.age;
+  secrets.ziplineSecret.rekeyFile = ./zipline/secret.age;
 
   services.postgresql.ensure = [ "zipline" ];
 

@@ -46,7 +46,7 @@ in
   imports = [ niri.lib.internal.settings-module ];
 
   secrets.ziplineToken = {
-    file = ./zipline-token.age;
+    rekeyFile = ./zipline-token.age;
     owner = "amaanq";
   };
   hardware.graphics = enabled;

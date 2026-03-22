@@ -82,6 +82,12 @@
       inputs.darwin.follows = "nix-darwin";
     };
 
+    agenix-rekey = {
+      url = "github:oddlama/agenix-rekey";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
+
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
@@ -228,6 +234,7 @@
       inherit (nixpkgs.lib)
         attrsToList
         const
+        genAttrs
         groupBy
         listToAttrs
         mapAttrs
@@ -235,6 +242,13 @@
         ;
       lib' = nixpkgs.lib.extend (_: _: nix-darwin.lib);
       lib = lib'.extend <| import ./lib inputs;
+
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
 
       hostsByType =
         readDir ./hosts
@@ -254,5 +268,29 @@
     // hostConfigs
     // {
       inherit lib;
+
+      apps =
+        let
+          rekeyApps = inputs.agenix-rekey.configure {
+            userFlake = inputs.self;
+            nixosConfigurations = hostsByType.nixosConfigurations or { };
+            darwinConfigurations = hostsByType.darwinConfigurations or { };
+          };
+        in
+        mapAttrs (
+          _system:
+          mapAttrs (_name: drv: {
+            type = "app";
+            program = "${drv}/bin/agenix-rekey";
+          })
+        ) rekeyApps;
+
+      devShells = genAttrs systems (
+        system: {
+          default = (import nixpkgs { inherit system; }).mkShell {
+            packages = [ inputs.agenix-rekey.packages.${system}.default ];
+          };
+        }
+      );
     };
 }

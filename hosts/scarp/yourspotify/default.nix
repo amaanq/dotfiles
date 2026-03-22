@@ -16,7 +16,7 @@ in
   ];
 
   secrets.yourspotifySecret = {
-    file = ./secret.age;
+    rekeyFile = ./secret.age;
     owner = "your_spotify";
   };
 

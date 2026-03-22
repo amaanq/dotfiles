@@ -21,7 +21,7 @@ in
   ];
 
   secrets.u2f = {
-    file = ./u2f.age;
+    rekeyFile = ./u2f.age;
     owner = user;
   };
   security.pam = {

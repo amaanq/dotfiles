@@ -15,7 +15,7 @@ in
   imports = [ (self + /modules/nginx.nix) ];
 
   secrets.bazelRemoteToken = {
-    file = ./token.age;
+    rekeyFile = ./token.age;
     owner = "nginx";
   };
 

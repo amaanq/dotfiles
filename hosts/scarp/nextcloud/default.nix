@@ -18,11 +18,11 @@ in
   ];
 
   secrets.nextcloudPassword = {
-    file = ./password.age;
+    rekeyFile = ./password.age;
     owner = "nextcloud";
   };
   secrets.nextcloudPasswordExporter = {
-    file = ./password.age;
+    rekeyFile = ./password.age;
     owner = "nextcloud-exporter";
   };
 

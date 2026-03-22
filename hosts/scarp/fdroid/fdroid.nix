@@ -68,13 +68,13 @@ in
   users.groups.fdroid = { };
 
   secrets.upload-token = {
-    file = ./upload-token.age;
+    rekeyFile = ./upload-token.age;
     mode = "0440";
     group = "fdroid";
   };
 
   secrets.fdroid-keystore = {
-    file = ./keystore.p12.age;
+    rekeyFile = ./keystore.p12.age;
     path = "${fdroidDir}/keystore.p12";
     mode = "0400";
     owner = "fdroid";
@@ -82,7 +82,7 @@ in
   };
 
   secrets.fdroid-keystore-password = {
-    file = ./keystore-password.age;
+    rekeyFile = ./keystore-password.age;
     mode = "0400";
     owner = "fdroid";
     group = "fdroid";

@@ -24,7 +24,7 @@ in
   ];
 
   config.secrets.plausibleKey = {
-    file = ./key.age;
+    rekeyFile = ./key.age;
     owner = "plausible";
   };
 

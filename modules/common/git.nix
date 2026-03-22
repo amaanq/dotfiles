@@ -127,12 +127,12 @@ let
 in
 merge {
   secrets.gitPrivate = {
-    file = ./git-private.age;
+    rekeyFile = ./git-private.age;
     mode = "0400";
     owner = "amaanq";
   };
   secrets.gitIdentity = {
-    file = ./git-identity.age;
+    rekeyFile = ./git-identity.age;
     mode = "0400";
     owner = "amaanq";
   };

@@ -69,7 +69,7 @@ let
 in
 merge {
   secrets.sshConfig = {
-    file = ./config.age;
+    rekeyFile = ./config.age;
     mode = "0400";
     owner = "amaanq";
   };

@@ -23,7 +23,7 @@ in
   ];
 
   secrets.vaultwardenEnv = {
-    file = ./env.age;
+    rekeyFile = ./env.age;
     owner = "vaultwarden";
     group = "vaultwarden";
   };

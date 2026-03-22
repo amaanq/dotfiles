@@ -187,7 +187,7 @@ in
   '';
 
   secrets.forgejoRunnerToken = {
-    file = ./runner.age;
+    rekeyFile = ./runner.age;
     owner = "gitea-runner";
   };
 

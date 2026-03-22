@@ -9,7 +9,7 @@ let
   inherit (lib) enabled;
 in
 {
-  secrets.github2forgejoEnvironment.file = ./environment.age;
+  secrets.github2forgejoEnvironment.rekeyFile = ./environment.age;
 
   services.github2forgejo = enabled {
     package = github2forgejo.packages.${pkgs.system}.default;

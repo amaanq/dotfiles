@@ -17,7 +17,7 @@ in
     (self + /modules/postgresql.nix)
   ];
 
-  secrets.minifluxCredentials.file = ./credentials.age;
+  secrets.minifluxCredentials.rekeyFile = ./credentials.age;
 
   services.postgresql.ensure = [ "miniflux" ];
 

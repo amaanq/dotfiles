@@ -11,7 +11,7 @@ let
   interface = "ts0";
 in
 {
-  secrets.tailscaleAuthKey.file = ./authkey.age;
+  secrets.tailscaleAuthKey.rekeyFile = ./authkey.age;
 
   services.tailscale = enabled {
     interfaceName = interface;
