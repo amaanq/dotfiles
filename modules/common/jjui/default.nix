@@ -258,7 +258,7 @@ let
         "$file"
         "$diff_tool"
       ];
-      position = "auto";
+      position = "right";
       show_at_start = true;
       width_percentage = 67.0;
       width_increment_percentage = 5.0;
