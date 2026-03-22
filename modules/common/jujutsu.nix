@@ -170,6 +170,7 @@ let
     revset-aliases = {
       "closest(to)" = "heads(::to & bookmarks())";
       "closest_pushable(to)" = ''heads(::to & ~description(exact:"") & (~empty() | merges()))'';
+      "immutable_heads()" = "trunk() & ~mine()";
     };
 
     revsets = {
