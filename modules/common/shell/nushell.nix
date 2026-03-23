@@ -108,13 +108,14 @@ let
           "npm"
           # "rg" - breaks with the alias
           "rustup"
-          "ssh"
           "tar"
           "typst"
           "uv"
           "virsh"
         ]}
         ${readFile ./nushell.nu}
+
+        source ${./ssh-completions.nu}
 
         use ${pkgs.nu_scripts}/share/nu_scripts/modules/capture-foreign-env
         source ${pkgs.nu_scripts}/share/nu_scripts/modules/formats/from-env.nu
