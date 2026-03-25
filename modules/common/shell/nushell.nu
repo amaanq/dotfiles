@@ -618,7 +618,7 @@ def fg [id?: int] {
 
 def --wrapped clod-work [...rest] {
   with-env { CLAUDE_CONFIG_DIR: $'($env.XDG_CONFIG_HOME)/claude-work' } {
-    ^claude --effort high ...$rest
+    ^claude ...$rest
   }
 }
 
