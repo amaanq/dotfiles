@@ -1,4 +1,5 @@
 {
+
   lib,
   pkgs,
   ...
@@ -49,6 +50,29 @@ let
         }
       );
 
+  rtk = pkgs.rustPlatform.buildRustPackage {
+    pname = "rtk";
+    version = "0.34.1";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "rtk-ai";
+      repo = "rtk";
+      tag = "v0.34.1";
+      hash = "sha256-f9bhFkJ1d4S791iouIqyz0wOyghScvdpHpQKLC+UxJM=";
+    };
+
+    cargoHash = "sha256-DCVYkznC91OP50FxaigW0q/mVLclYLTy7nAShnK11yE=";
+
+    doCheck = false;
+
+    meta = {
+      description = "CLI proxy that reduces LLM token consumption by filtering command output";
+      homepage = "https://github.com/rtk-ai/rtk";
+      license = lib.licenses.mit;
+      mainProgram = "rtk";
+    };
+  };
+
   settings = {
     "$schema" = "https://json.schemastore.org/claude-code-settings.json";
 
@@ -74,6 +98,7 @@ let
       ENABLE_TOOL_SEARCH = "auto:5";
       MAX_THINKING_TOKENS = "31999";
       MCP_CONNECTION_NONBLOCKING = "1";
+      RTK_TELEMETRY_DISABLED = "1";
       UV_THREADPOOL_SIZE = "16";
     };
 
@@ -92,6 +117,17 @@ let
     };
 
     hooks = {
+      PreToolUse = [
+        {
+          matcher = "Bash";
+          hooks = [
+            {
+              type = "command";
+              command = "/home/amaanq/.claude/hooks/rtk-rewrite.sh";
+            }
+          ];
+        }
+      ];
       WorktreeCreate = [
         {
           hooks = [
@@ -173,6 +209,7 @@ let
 in
 {
   environment.systemPackages = [
+    rtk
     (pkgs.writeScriptBin "claude" ''
       #!${pkgs.nushell}/bin/nu --no-config-file
 
