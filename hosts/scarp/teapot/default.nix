@@ -25,6 +25,11 @@ in
     mode = "0444";
   };
 
+  secrets.teapotKagiToken = {
+    rekeyFile = ./kagi-token.age;
+    mode = "0444";
+  };
+
   services.go-away.instances.teapot = enabled {
     bindAddress = "[::1]:${toString goAwayPort}";
     backends = {
@@ -139,6 +144,7 @@ in
     };
     cache.listMinutes = 240;
     sessionsFile = config.secrets.teapotSessions.path;
+    kagiTokenFile = config.secrets.teapotKagiToken.path;
   };
 
   security.acme.certs.${fqdn} = {
