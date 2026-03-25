@@ -1302,11 +1302,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1774164923,
-        "narHash": "sha256-yLs9IEeg/nUh+7HpktpCl2OmZKnBoZtUFYfDn7k8Ag0=",
+        "lastModified": 1774473707,
+        "narHash": "sha256-0Xbzd9i8UvGEJ6KHAfo4ONUOzO9ArpacmkEVzvl5jHM=",
         "owner": "amaanq",
         "repo": "teapot",
-        "rev": "48d61ddac672966259674d17ca58cd43a2331611",
+        "rev": "86723c232a68300c51430a88a09f0a86b5ac31e6",
         "type": "github"
       },
       "original": {
