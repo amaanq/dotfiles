@@ -29,7 +29,19 @@ in
     pkgs.hyperfine
     pkgs.jc
     pkgs.jq
-    pkgs.moreutils
+    # perl-free moreutils, which drops chronic, combine, ts, vidir, vipe, zrun (all perl)
+    (pkgs.moreutils.overrideAttrs (old: {
+      postFixup = (old.postFixup or "") + ''
+        rm -f $out/bin/{chronic,combine,ts,vidir,vipe,zrun}
+        rm -f $out/share/man/man1/{chronic,combine,ts,vidir,vipe,zrun}.1*
+      '';
+      buildInputs = builtins.filter (p: !(builtins.match "perl.*" (p.pname or "") != null)) (
+        old.buildInputs or [ ]
+      );
+      propagatedBuildInputs = builtins.filter (p: !(builtins.match "perl.*" (p.pname or "") != null)) (
+        old.propagatedBuildInputs or [ ]
+      );
+    }))
     pkgs.openssl
     pkgs.p7zip
     pkgs.pstree

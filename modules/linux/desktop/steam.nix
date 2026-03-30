@@ -37,6 +37,6 @@ in
   # Nope
   hardware.graphics.enable32Bit = mkForce false;
   environment.systemPackages = [
-    pkgs.mangohud
+    (pkgs.mangohud.override { lowerBitnessSupport = false; }) # no 32-bit mangohud
   ];
 }

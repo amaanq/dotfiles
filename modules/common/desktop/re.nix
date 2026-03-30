@@ -10,7 +10,6 @@ in
 {
   environment.systemPackages = [
     pkgs.apktool
-    pkgs.binwalk
     pkgs.gef
     pkgs.imhex
     pkgs.patchelf
