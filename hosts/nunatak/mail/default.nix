@@ -83,6 +83,7 @@ in
       );
 
   services.stalwart = enabled {
+    stateVersion = "25.11";
     dataDir = "/var/lib/stalwart-mail";
 
     openFirewall = true;
