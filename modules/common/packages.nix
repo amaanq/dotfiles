@@ -15,7 +15,6 @@ in
 
   environment.systemPackages = [
     pkgs.asciinema
-    pkgs.cowsay
     pkgs.curl
     pkgs.dig
     pkgs.doggo

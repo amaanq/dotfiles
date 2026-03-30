@@ -101,7 +101,3 @@ merge {
 
   programs.ssh.extraConfig = sshConfig;
 }
-<| mkIf config.isDesktop {
-  environment.systemPackages = [ pkgs.mosh ];
-  environment.shellAliases.mosh = "mosh --no-init --no-ssh-pty";
-}
