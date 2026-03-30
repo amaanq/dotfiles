@@ -7,49 +7,6 @@
 let
   inherit (lib) optionals;
 
-  # TODO: remove once nixpkgs-unstable catches up to 2.7.7
-  deno =
-    (pkgs.deno.override {
-      librusty_v8 = pkgs.fetchurl {
-        name = "librusty_v8-146.8.0";
-        url = "https://github.com/denoland/rusty_v8/releases/download/v146.8.0/librusty_v8_release_${pkgs.stdenv.hostPlatform.rust.rustcTarget}.a.gz";
-        hash =
-          {
-            x86_64-linux = "sha256-deV+2rJD9EstgAtaFRk+z1Wk/l+j5yF9lxlLGHoCbII=";
-            aarch64-linux = "sha256-zkzEqNmYuJhxXC+nYvbdKaZCGhPLONxvQ5X8u9S7/M4=";
-            x86_64-darwin = "sha256-8HbKFjFm5F/+hb5lViPWok0b0NIkYXoR6RXQgHAroVo=";
-            aarch64-darwin = "sha256-1AXPak0YGf53zRyPUtfPgvAn0Z03oIB9zEFbc+laAFY=";
-          }
-          .${pkgs.stdenv.hostPlatform.system};
-        meta.sourceProvenance = with lib.sourceTypes; [ binaryNativeCode ];
-      };
-    }).overrideAttrs
-      (
-        old:
-        let
-          version = "2.7.7";
-          src = pkgs.fetchFromGitHub {
-            owner = "denoland";
-            repo = "deno";
-            tag = "v${version}";
-            fetchSubmodules = true;
-            hash = "sha256-+RjLvdIHCSMsm/j430c3D/MuG8FdxomblkXLTsPf22I=";
-          };
-        in
-        {
-          inherit version src;
-          cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
-            name = "deno-${version}-vendor.tar.gz";
-            inherit src;
-            hash = "sha256-ny5tV7/yG06M8DJwOZJNeZ1exemY6wyKNgXLqUixzWU=";
-          };
-          patches = [ ];
-          buildNoDefaultFeatures = true;
-          buildFeatures = [ "__vendored_zlib_ng" ];
-          cargoTestFlags = [ "--test=integration_test" ];
-        }
-      );
-
   rtk = pkgs.rustPlatform.buildRustPackage {
     pname = "rtk";
     version = "0.34.1";
@@ -215,7 +172,7 @@ in
       #!${pkgs.nushell}/bin/nu --no-config-file
 
       $env._SETTINGS_JSON = "${settingsJson}"
-      $env._DENO = "${deno}/bin/deno"
+      $env._DENO = "${pkgs.deno}/bin/deno"
       $env._PATCH_SCRIPT = "${patchScript}"
       $env._RUNTIME_DEPS = "${runtimeDeps}"
       $env._ENV_JSON = ${lib.strings.toJSON settings.env}
