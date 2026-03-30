@@ -7,6 +7,33 @@
 let
   inherit (lib) optionals;
 
+  chrome-devtools-mcp =
+    let
+      version = "0.17.3";
+    in
+    pkgs.writeShellScriptBin "chrome-devtools-mcp" ''
+      set -euo pipefail
+      export PATH="${pkgs.deno}/bin:$PATH"
+
+      CACHE="''${XDG_CACHE_HOME:-$HOME/.cache}/chrome-devtools-mcp"
+      BIN="$CACHE/chrome-devtools-mcp-${version}"
+
+      if [ ! -x "$BIN" ]; then
+        mkdir -p "$CACHE"
+        DENO_DIR="$CACHE/.deno"
+        export DENO_DIR
+        deno cache "npm:chrome-devtools-mcp@${version}"
+        # Kill Clearcut telemetry watchdog — stub out WatchdogClient
+        cat > "$DENO_DIR/npm/registry.npmjs.org/chrome-devtools-mcp/${version}/build/src/telemetry/WatchdogClient.js" <<'STUB'
+      export class WatchdogClient { constructor() {} send() {} }
+      STUB
+        deno compile --allow-all --output "$BIN" "npm:chrome-devtools-mcp@${version}" 2>&1
+        rm -rf "$DENO_DIR"
+      fi
+
+      exec "$BIN" --no-usage-statistics "$@"
+    '';
+
   rtk = pkgs.rustPlatform.buildRustPackage {
     pname = "rtk";
     version = "0.34.1";
@@ -167,6 +194,7 @@ let
 in
 {
   environment.systemPackages = [
+    chrome-devtools-mcp
     rtk
     (pkgs.writeScriptBin "claude" ''
       #!${pkgs.nushell}/bin/nu --no-config-file
