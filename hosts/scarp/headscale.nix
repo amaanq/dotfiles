@@ -14,7 +14,7 @@ let
 
   derpMapRaw = pkgs.fetchurl {
     url = "https://controlplane.tailscale.com/derpmap/default";
-    sha256 = "sha256-vUDPx6n2KfkpQ3whonBJEEbEgIKfSL/1naxOXBULpF4=";
+    sha256 = "sha256-lNgopFjULfxFZ7FYIQKBps8IFvsSoGHWFX8xl7Ay+kE=";
   };
 
   derpMap = pkgs.runCommand "derp-yaml" { } ''
