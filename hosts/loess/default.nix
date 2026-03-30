@@ -51,6 +51,7 @@ lib.nixosSystem' "server" (
     networking = {
       hostName = "loess";
       useDHCP = true;
+      enableIPv6 = false;
     };
 
     boot.loader.systemd-boot.enable = true;
