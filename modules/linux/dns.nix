@@ -22,8 +22,9 @@ in
       in
       pkgs.hickory-dns.overrideAttrs (old: {
         inherit version src;
-        cargoDeps = pkgs.rustPlatform.importCargoLock {
-          lockFile = "${src}/Cargo.lock";
+        cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
+          inherit src;
+          hash = "sha256-pVuCZjKzQlN36oBDs2CJtRN6DWxOp2iQkyGC/06gG1Y=";
         };
         cargoBuildFeatures = old.cargoBuildFeatures or [ ] ++ [
           "h3-aws-lc-rs"
@@ -51,9 +52,9 @@ in
               };
             };
             options = {
-              cache_size = 256;
+              cache_size = 1024;
               positive_max_ttl = 300;
-              negative_max_ttl = 60;
+              negative_max_ttl = 300;
             };
           };
         }

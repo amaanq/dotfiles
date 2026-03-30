@@ -80,9 +80,9 @@ let
     in
     {
       inherit src;
-      cargoDeps = pkgs.rustPlatform.importCargoLock {
-        lockFile = src + "/Cargo.lock";
-        allowBuiltinFetchGit = true;
+      cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
+        inherit src;
+        hash = "sha256-m4XvzHhbFm3rPEO6KgS7dAvJHV4B4qvmPxdBM5zJGNw=";
       };
       postPatch = ''
         substituteInPlace bin/src/config.rs \

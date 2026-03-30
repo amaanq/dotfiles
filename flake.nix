@@ -1,6 +1,7 @@
 {
   description = "Amaan's Nix Configuration";
   nixConfig = {
+    allow-import-from-derivation = false;
     extra-substituters = [
       "https://cache.amaanq.com/"
       "https://cache.garnix.io/"
@@ -279,18 +280,18 @@
         in
         mapAttrs (
           _system:
-          mapAttrs (_name: drv: {
-            type = "app";
-            program = "${drv}/bin/agenix-rekey";
-          })
+          mapAttrs (
+            _name: drv: {
+              type = "app";
+              program = "${drv}/bin/agenix-rekey";
+            }
+          )
         ) rekeyApps;
 
-      devShells = genAttrs systems (
-        system: {
-          default = (import nixpkgs { inherit system; }).mkShell {
-            packages = [ inputs.agenix-rekey.packages.${system}.default ];
-          };
-        }
-      );
+      devShells = genAttrs systems (system: {
+        default = (import nixpkgs { inherit system; }).mkShell {
+          packages = [ inputs.agenix-rekey.packages.${system}.default ];
+        };
+      });
     };
 }
