@@ -1,6 +1,7 @@
 {
   lib,
   buildGoModule,
+  go_1_25,
   fetchFromGitea,
 
   # asset compression
@@ -12,7 +13,7 @@
   tinygo,
 }:
 
-buildGoModule {
+buildGoModule.override { go = go_1_25; } {
   pname = "go-away";
   version = "0-unstable-2025-09-04";
 
