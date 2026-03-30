@@ -27,7 +27,7 @@
     rm = "rm --recursive --verbose";
 
     pstree = "pstree -g 3";
-    tree = "eza --tree --git-ignore --group-directories-first";
+    tree = "tree --gitignore --dirsfirst -C";
 
     c = "clear";
     q = "exit";

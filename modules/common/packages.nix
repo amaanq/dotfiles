@@ -20,7 +20,6 @@ in
     pkgs.doggo
     pkgs.dust
     pkgs.dwt1-shell-color-scripts
-    pkgs.eza
     pkgs.fastfetch
     pkgs.fd
     pkgs.file
@@ -50,6 +49,7 @@ in
     pkgs.sd
     pkgs.timg
     pkgs.tokei
+    pkgs.tree
     pkgs.unzip
     pkgs.uutils-coreutils-noprefix
     pkgs.watchman
