@@ -9,6 +9,9 @@ from typing import Union
 type Replacement = Union[bytes, Callable[[re.Match[bytes]], bytes]]
 
 W: bytes = rb"[\w$]+"
+# Qualified name: matches `FN` and also `NS.FN` (e.g. `Lf.join`, `Oc7.spawn`).
+# Since 2.1.113 bun's bundler emits more member-style calls for path/spawn helpers.
+Q: bytes = rb"[\w$]+(?:\.[\w$]+)*"
 data: bytes = Path(sys.argv[1]).read_bytes()
 
 SEARCH_WINDOW: int = 500
@@ -59,7 +62,7 @@ def flip_gates(gates: list[tuple[bytes, str]]) -> None:
 # from the same directories. Pattern: let VAR=ME(DIR,"CLAUDE.md");ARR.push(...await XE(VAR,"Project",ARG,BOOL))
 
 agents_pat: bytes = (
-   rb"let (" + W + rb")=(" + W + rb")\((" + W + rb'),"CLAUDE\.md"\);'
+   rb"let (" + W + rb")=(" + Q + rb")\((" + W + rb'),"CLAUDE\.md"\);'
    rb"(" + W + rb")\.push\(\.\.\.await (" + W + rb")\(\1,\"Project\",(" + W + rb"),(" + W + rb")\)\)"
 )
 
@@ -116,27 +119,51 @@ for anchor, label in slash_commands:
 patch(
    "telemetry gate (drop telemetry-disabled check)",
    (
-      rb"function (" + W + rb")\(\)\{return F6\(process\.env\.CLAUDE_CODE_USE_BEDROCK\)"
-      rb"\|\|F6\(process\.env\.CLAUDE_CODE_USE_VERTEX\)"
-      rb"\|\|F6\(process\.env\.CLAUDE_CODE_USE_FOUNDRY\)"
+      rb"function (" + W + rb")\(\)\{return (" + W + rb")\(process\.env\.CLAUDE_CODE_USE_BEDROCK\)"
+      rb"\|\|\2\(process\.env\.CLAUDE_CODE_USE_VERTEX\)"
+      rb"\|\|\2\(process\.env\.CLAUDE_CODE_USE_FOUNDRY\)"
       rb"\|\|" + W + rb"\(\)\}"
    ),
    lambda m: re.sub(rb"\|\|" + W + rb"\(\)\}$", b"||!1}", m[0]),
 )
 
+# --- Force Av() async-gate to always resolve true ---
+# Av(flag) is the ASYNC feature-gate resolver. It short-circuits to its default
+# in two places when telemetry is off: an inline `if(!va())return!1;` AND the
+# same check inside Irq() which it delegates to. Since Av() hardcodes !1 as the
+# default passed to Irq, dropping only the inline guard leaves Irq returning
+# false anyway.
+#
+# Every Av() call-site in 2.1.113 targets a gate we intentionally want enabled:
+#   - tengu_ccr_bridge              → Qr8() → initReplBridge() auto-connect
+#   - tengu_ccr_bridge_multi_session → multi-session remote control
+#   - tengu_ccr_bundle_seed_enabled  → CCR bundle seed
+#   - tengu_harbor                   → plugin marketplace
+# None of these are things we want off. Replace the whole body to return !0.
+# Safe because Av() never writes telemetry — it only reads cached flag state.
+
+patch(
+   "Av() force-true for telemetry-off builds",
+   # Negative lookahead keeps the body match from extending past the end of Av
+   # into the next function definition (a previous version matched `async
+   # function Bb8(...)` and spanned through Av's tail, obliterating both).
+   rb"async function (" + W + rb")\(H\)\{(?:(?!async function ).){60,400}?return Irq\(H,!1,!0\)\}",
+   lambda m: b"async function " + m[1] + b"(H){return !0}",
+)
+
 # --- Restore 1h prompt cache TTL when telemetry is off ---
 # https://github.com/anthropics/claude-code/issues/45381
-# maY() gates the "ttl":"1h" cache_control on a GrowthBook allowlist
-# (tengu_prompt_cache_1h_config). With telemetry off the lookup falls
-# through to the {} default, so .allowlist is undefined and the ??[]
-# fallback produces an empty array — every querySource fails the .some()
-# match and falls back to 5min TTL. Replace the empty fallback with ["*"]
-# so any defined querySource matches.
+# The GrowthBook allowlist for "ttl":"1h" cache_control falls back to the
+# default object when telemetry is off. Anthropic now ships
+# {allowlist:["repl_main_thread*","sdk","auto_mode"]} as the default (up
+# from the broken {} in earlier versions), so the TUI and SDK already get
+# 1h TTL — but batch agents and less-common query sources still miss.
+# Widen the default to ["*"] so everything matches.
 
 patch(
    "1h prompt cache TTL fallback",
-   rb'h8\("tengu_prompt_cache_1h_config",\{\}\)\.allowlist\?\?\[\]',
-   b'h8("tengu_prompt_cache_1h_config",{}).allowlist??["*"]',
+   rb'(' + W + rb')\("tengu_prompt_cache_1h_config",\{allowlist:\[[^\]]+\]\}\)\.allowlist\?\?\[\]',
+   lambda m: m[1] + b'("tengu_prompt_cache_1h_config",{allowlist:["*"]}).allowlist??[]',
 )
 
 # --- Fix Deno-compile bridge spawn ---
@@ -145,7 +172,7 @@ patch(
 
 patch(
    "deno bridge spawn fix",
-   rb"let (" + W + rb")=(" + W + rb")\((" + W + rb")\.execPath,(" + W + rb"),",
+   rb"let (" + W + rb")=(" + Q + rb")\((" + W + rb")\.execPath,(" + W + rb"),",
    lambda m: (
       b"let "
       + m[1]
@@ -168,6 +195,8 @@ Gate = tuple[bytes, str]
 core_gates: list[Gate] = [
    (b"tengu_ccr_bridge", "remote control"),
    (b"tengu_bridge_system_init", "bridge SDK init on connect"),
+   (b"tengu_bridge_client_presence_enabled", "bridge presence heartbeats"),
+   (b"tengu_bridge_requires_action_details", "bridge rich tool-use payloads"),
    (b"tengu_remote_backend", "remote backend"),
    (b"tengu_immediate_model_command", "instant /model switching"),
    (b"tengu_fgts", "fine-grained tool streaming"),
@@ -181,6 +210,7 @@ memory_gates: list[Gate] = [
    (b"tengu_pebble_leaf_prune", "message pruning"),
    (b"tengu_herring_clock", "team memory directory"),
    (b"tengu_passport_quail", "typed combined memory prompts"),
+   (b"tengu_paper_halyard", "memory dedup in nested dirs"),
 ]
 
 ux_gates: list[Gate] = [
@@ -189,14 +219,31 @@ ux_gates: list[Gate] = [
    (b"tengu_destructive_command_warning", "destructive command warnings"),
    (b"tengu_amber_prism", "permission denial context"),
    (b"tengu_hawthorn_steeple", "context windowing"),
+   (b"tengu_loud_sugary_rock", "Opus 4.7 terse output guidance"),
+   (b"tengu_verified_vs_assumed", "verified-vs-assumed reporting"),
+   (b"tengu_birch_compass", "/usage 'What's contributing' breakdown block"),
+   # tengu_pewter_brook (fullscreen TUI default) disabled — Ink fullscreen
+   # rendering drops memoized Text children in nested Box columns (/usage
+   # loses its "What's contributing..." bold header, big vertical gaps).
+   # Re-enable by setting `tui: "fullscreen"` in settings.json if desired.
 ]
 
 tool_gates: list[Gate] = [
    (b"tengu_chrome_auto_enable", "auto-enable chrome devtools"),
-   (b"tengu_glacier_2xr", "deferred tool improvements"),
    (b"tengu_plum_vx3", "web search reranking"),
    # (b"tengu_moth_copse", "relevant memory recall"),  # auto-recall; pollutes unrelated convos
    (b"tengu_cork_m4q", "batch command processing"),
+   (b"tengu_harbor", "plugin marketplace"),
+   (b"tengu_harbor_permissions", "plugin permissions"),
+   (b"tengu_relay_chain_v1", "parallel command chaining guidance"),
+   (b"tengu_edit_minimalanchor_jrn", "Edit tool minimal-anchor instructions"),
+   (b"tengu_slate_reef", "Read tool clearer offset/limit docs"),
+   (b"tengu_otk_slot_v1", "output-token escalation for complex tasks"),
+   (b"tengu_onyx_basin_m1k", "subagent tool-result truncation"),
+   (b"tengu_sub_nomdrep_q7k", "block subagent report .md writes"),
+   (b"tengu_amber_sentinel", "Monitor tool for streaming bg scripts"),
+   (b"tengu_miraculo_the_bard", "skip penguin-mode startup prefetch"),
+   (b"tengu_noreread_q7m_velvet", "sharper 'wasted read' feedback"),
 ]
 
 flip_gates(core_gates + memory_gates + ux_gates + tool_gates)
@@ -207,6 +254,19 @@ patch(
    "background agent timeout",
    rb'"tengu_auto_background_agents",![01]\)\)return 120000',
    lambda m: m[0].replace(b"120000", b"240000"),
+)
+
+# --- Disable the claude-api bundled skill ---
+# Registered via vA({name:"claude-api",description:v4_,...}) at bundle-load
+# time. The description (v4_) is a ~200-token SDK/Bedrock usage matrix with
+# TRIGGER/SKIP rules that gets injected into every system prompt. We don't
+# write Anthropic SDK code in this environment, so cut it. Renamed from
+# `claude-developer-platform` in an earlier release — match on current name.
+
+replace(
+   "disable claude-api skill",
+   b'vA({name:"claude-api",description:',
+   b'vA({name:"claude-api",isEnabled:()=>!1,description:',
 )
 
 # --- Replace usage fetch with self-contained OAuth implementation ---

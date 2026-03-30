@@ -191,6 +191,27 @@ let
     #!${pkgs.python3}/bin/python3
     ${builtins.readFile ./patch-claude-src.py}
   '';
+
+  liftScript = pkgs.writeScript "lift-claude-bun" ''
+    #!${pkgs.python3}/bin/python3
+    ${builtins.readFile ./lift-claude-bun.py}
+  '';
+
+  # Packages that bun's --compile leaves as runtime-external. Bun's runtime
+  # supplies them natively; deno has no such provision, so we must declare
+  # them as real deps and bundle a node_modules/ tree into the executable.
+  externalPackageJson = pkgs.writeText "claude-code-external-package.json" (builtins.toJSON {
+    name = "claude-code-lifted";
+    type = "commonjs";
+    dependencies = {
+      ws = "^8";
+      undici = "^6";
+      node-fetch = "^3";
+      ajv = "^8";
+      ajv-formats = "^3";
+      yaml = "^2";
+    };
+  });
 in
 {
   environment.systemPackages = [
@@ -202,6 +223,9 @@ in
       $env._SETTINGS_JSON = "${settingsJson}"
       $env._DENO = "${pkgs.deno}/bin/deno"
       $env._PATCH_SCRIPT = "${patchScript}"
+      $env._LIFT_SCRIPT = "${liftScript}"
+      $env._EXTERNAL_PACKAGE_JSON = "${externalPackageJson}"
+      $env._TAR = "${pkgs.gnutar}/bin/tar"
       $env._RUNTIME_DEPS = "${runtimeDeps}"
       $env._ENV_JSON = ${lib.strings.toJSON settings.env}
 
