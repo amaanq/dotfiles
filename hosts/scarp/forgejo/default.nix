@@ -164,8 +164,25 @@ in
           conditions = [ "($is-heavy-resource)" ];
           action = "none";
           children = [
-            { name = "0"; action = "check"; settings.challenges = [ "preload-link" "header-refresh" "js-refresh" "http-cookie-check" ]; }
-            { name = "1"; action = "check"; settings.challenges = [ "resource-load" "js-refresh" "http-cookie-check" ]; }
+            {
+              name = "0";
+              action = "check";
+              settings.challenges = [
+                "preload-link"
+                "header-refresh"
+                "js-refresh"
+                "http-cookie-check"
+              ];
+            }
+            {
+              name = "1";
+              action = "check";
+              settings.challenges = [
+                "resource-load"
+                "js-refresh"
+                "http-cookie-check"
+              ];
+            }
           ];
         }
         {

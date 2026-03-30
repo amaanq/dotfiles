@@ -159,9 +159,7 @@ in
             ++ optional (icfg.metricsAddress != null) "--metrics-bind ${icfg.metricsAddress}"
             ++ [
               "--challenge-template ${
-                if icfg.challengeTemplateFile != null
-                then icfg.challengeTemplateFile
-                else icfg.challengeTemplate
+                if icfg.challengeTemplateFile != null then icfg.challengeTemplateFile else icfg.challengeTemplate
               }"
             ]
             ++ optional (

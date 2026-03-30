@@ -14,7 +14,10 @@ in
       KbdInteractiveAuthentication = false;
       PasswordAuthentication = false;
 
-      AcceptEnv = [ "SHELLS" "COLORTERM" ];
+      AcceptEnv = [
+        "SHELLS"
+        "COLORTERM"
+      ];
     };
   };
 }

@@ -26,12 +26,12 @@ let
 
   cfarmConfig =
     cfarmHosts
-    |> map (
-      h: ''
-        # @desc ${h.desc}
-        Host ${h.host}${lib.optionalString (h ? port) "\n    Port ${toString h.port}"}${lib.optionalString (h ? extra) "\n    ${h.extra}"}
-      ''
-    )
+    |> map (h: ''
+      # @desc ${h.desc}
+      Host ${h.host}${lib.optionalString (h ? port) "\n    Port ${toString h.port}"}${
+        lib.optionalString (h ? extra) "\n    ${h.extra}"
+      }
+    '')
     |> concatStringsSep "\n";
 
   # Generate host blocks from nixosConfigurations

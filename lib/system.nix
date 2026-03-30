@@ -9,7 +9,9 @@ let
     collectNix
     ;
 
-  excludeRoleDirs = paths: filter (p: !(hasInfix "/desktop/" (toString p)) && !(hasInfix "/server/" (toString p))) paths;
+  excludeRoleDirs =
+    paths:
+    filter (p: !(hasInfix "/desktop/" (toString p)) && !(hasInfix "/server/" (toString p))) paths;
 
   modulesCommon = collectNix ../modules/common |> excludeRoleDirs;
   modulesCommonDesktop = collectNix ../modules/common/desktop;

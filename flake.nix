@@ -274,7 +274,10 @@
         let
           rekeyApps = inputs.agenix-rekey.configure {
             userFlake = inputs.self;
-            nixosConfigurations = hostsByType.nixosConfigurations or { };
+            nixosConfigurations = removeAttrs (hostsByType.nixosConfigurations or { }) [
+              "moraine"
+              "tarn"
+            ];
             darwinConfigurations = hostsByType.darwinConfigurations or { };
           };
         in

@@ -98,7 +98,6 @@ let
       confirm = "auto";
     };
 
-
     alias = {
       st = "status -sb";
       co = "checkout";

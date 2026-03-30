@@ -11,16 +11,19 @@
         patches = (old.patches or [ ]) ++ [ ./patches/rust-ppc64-elfv2-target.patch ];
         configureFlags = map (
           f:
-          builtins.replaceStrings
-            [ "powerpc64-unknown-linux-gnu" ]
-            [ "powerpc64-unknown-linux-gnuelfv2" ]
-            (toString f)
+          builtins.replaceStrings [ "powerpc64-unknown-linux-gnu" ] [ "powerpc64-unknown-linux-gnuelfv2" ] (
+            toString f
+          )
         ) (old.configureFlags or [ ]);
       });
 
       # Non-EFI grub can't build for ppc64 ELFv2
-      grub2 = prev.grub2.overrideAttrs (_: { meta = { }; });
-      grub2_efi = prev.grub2.overrideAttrs (_: { meta = { }; });
+      grub2 = prev.grub2.overrideAttrs (_: {
+        meta = { };
+      });
+      grub2_efi = prev.grub2.overrideAttrs (_: {
+        meta = { };
+      });
 
       # openssl asm broken on BE
       openssl = prev.openssl.overrideAttrs (old: {
@@ -36,11 +39,21 @@
         doInstallCheck = false;
         rustSupport = false;
       };
-      coreutils = prev.coreutils.overrideAttrs (_: { doCheck = false; });
-      coreutils-full = prev.coreutils-full.overrideAttrs (_: { doCheck = false; });
-      findutils = prev.findutils.overrideAttrs (_: { doCheck = false; });
-      byacc = prev.byacc.overrideAttrs (_: { doCheck = false; });
-      bmake = prev.bmake.overrideAttrs (_: { doCheck = false; });
+      coreutils = prev.coreutils.overrideAttrs (_: {
+        doCheck = false;
+      });
+      coreutils-full = prev.coreutils-full.overrideAttrs (_: {
+        doCheck = false;
+      });
+      findutils = prev.findutils.overrideAttrs (_: {
+        doCheck = false;
+      });
+      byacc = prev.byacc.overrideAttrs (_: {
+        doCheck = false;
+      });
+      bmake = prev.bmake.overrideAttrs (_: {
+        doCheck = false;
+      });
 
       # Perl cross-compilation: Alien-Build's devdoc output never created because
       # cross-compiled perl can't run File::Temp/IPC::Cmd. perl.override{overrides}
@@ -55,14 +68,18 @@
       # Python test/build fixes
       python313 = prev.python313.override {
         packageOverrides = _: pyprev: {
-          filelock = pyprev.filelock.overrideAttrs (_: { doInstallCheck = false; });
+          filelock = pyprev.filelock.overrideAttrs (_: {
+            doInstallCheck = false;
+          });
           cryptography-vectors = pyprev.cryptography-vectors.overrideAttrs (_: {
             nativeBuildInputs = [ ];
             buildPhase = "mkdir -p $out $dist";
             installPhase = "true";
             dontUsePypaInstall = true;
           });
-          cryptography = pyprev.cryptography.overrideAttrs (_: { doInstallCheck = false; });
+          cryptography = pyprev.cryptography.overrideAttrs (_: {
+            doInstallCheck = false;
+          });
         };
       };
 
@@ -93,7 +110,10 @@
 
       # jemalloc needs autotools for ppc64
       jemalloc = prev.jemalloc.overrideAttrs (_: {
-        nativeBuildInputs = [ prev.autoconf prev.automake ];
+        nativeBuildInputs = [
+          prev.autoconf
+          prev.automake
+        ];
       });
 
       # newt: configure picks up host Debian tclConfig.sh causing segfault
@@ -119,11 +139,17 @@
       });
 
       # ppc64 isn't EFI — stub out EFI packages
-      gnu-efi = prev.emptyDirectory // { dev = prev.emptyDirectory; };
+      gnu-efi = prev.emptyDirectory // {
+        dev = prev.emptyDirectory;
+      };
       fwupd-efi = prev.emptyDirectory;
 
       # deno doesn't support ppc64
-      deno = prev.emptyDirectory // { meta = { mainProgram = "deno"; }; };
+      deno = prev.emptyDirectory // {
+        meta = {
+          mainProgram = "deno";
+        };
+      };
 
       # openstackclient pulls in reno which breaks cross-compilation
       openstackclient = prev.emptyDirectory;

@@ -14,13 +14,15 @@ in
   wrappers.helium = {
     basePackage = heliumPackage;
     systemWide = true;
-    executables.helium.args.suffix = optionals config.isLinux [
-      "--ignore-gpu-blocklist"
-      "--disable-vulkan"
-    ] ++ [
-      "--enable-quic"
-      "--quic-version=h3-29"
-    ];
+    executables.helium.args.suffix =
+      optionals config.isLinux [
+        "--ignore-gpu-blocklist"
+        "--disable-vulkan"
+      ]
+      ++ [
+        "--enable-quic"
+        "--quic-version=h3-29"
+      ];
   };
 
   environment.variables.BROWSER = "helium";

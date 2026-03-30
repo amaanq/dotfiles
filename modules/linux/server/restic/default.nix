@@ -17,7 +17,9 @@ in
       [ ]
   );
 
-  config.secrets.resticPassword = { rekeyFile = ./password.age; };
+  config.secrets.resticPassword = {
+    rekeyFile = ./password.age;
+  };
 
   config.services.restic.backups = genAttrs config.services.restic.hosts (host: {
     repository = "sftp:backup@${host}:${config.networking.hostName}-backup";
