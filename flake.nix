@@ -107,6 +107,11 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
+    nixos-core = {
+      url = "github:feel-co/nixos-core/notashelf/push-trvqyswxlpww";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -153,7 +158,8 @@
     };
 
     dankMaterialShell = {
-      url = "github:AvengeMedia/DankMaterialShell";
+      # TODO: drop branch once upstream merges overlay-passthrough PR
+      url = "github:amaanq/DankMaterialShell/overlay-passthrough";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

@@ -147,7 +147,7 @@ merge {
 
   environment.systemPackages = [
     pkgs.difftastic
-    pkgs.git
+    pkgs.gitMinimal
     pkgs.mergiraf
   ];
 
