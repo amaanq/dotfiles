@@ -1,14 +1,7 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ pkgs, ... }:
 {
   environment.systemPackages = [
     pkgs.nodejs
-  ]
-  ++ lib.optionals config.isDesktop [
     pkgs.deno
   ];
 
