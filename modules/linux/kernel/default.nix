@@ -49,6 +49,7 @@ in
     ];
 
     excludedPackages = [
+      config.nix.package
       config.programs.spicetify.spicedSpotify
       pkgs.android-studio
     ];
