@@ -15,6 +15,11 @@ lib.nixosSystem' "server" (
 
     type = "server";
 
+    # Stock kernel for initial cross-compile bring-up. Rebuild bunker kernel
+    # natively on the nunatak hardware after first boot.
+    bunker.kernel.enable = lib.mkForce false;
+    boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
+
     secrets.id.rekeyFile = ./id.age;
     services.openssh.settings = {
       PermitRootLogin = "yes";
@@ -83,13 +88,13 @@ lib.nixosSystem' "server" (
 
         hostName = "nunatak";
 
-        ipv4.address = "152.53.225.105";
-        ipv6.address = "2a0a:4cc0:c0:7892::105";
+        ipv4.address = "152.53.83.122";
+        ipv6.address = "2a0a:4cc0:2000:3f59::1";
 
         defaultGateway = {
           inherit interface;
 
-          address = "152.53.224.1";
+          address = "152.53.80.1";
         };
 
         defaultGateway6 = {
@@ -106,12 +111,5 @@ lib.nixosSystem' "server" (
     time.timeZone = "Europe/Berlin";
 
     services.qemuGuest = enabled;
-
-    swapDevices = [
-      {
-        device = "/var/swapfile";
-        size = 8192;
-      }
-    ];
   }
 )

@@ -20,7 +20,7 @@ let
     name = "rsa-${domain}";
     value = {
       inherit domain;
-      private-key = "%{file:/run/credentials/stalwart-mail.service/dkim_key}%";
+      private-key = "%{file:/run/credentials/stalwart.service/dkim_key}%";
       selector = "stalwart";
       algorithm = "rsa-sha256";
       canonicalization = "relaxed/relaxed";
@@ -44,7 +44,7 @@ in
 
   users.users.stalwart-mail.extraGroups = [ "acme" ];
 
-  security.acme.certs.${domain}.reloadServices = [ "stalwart-mail.service" ];
+  security.acme.certs.${domain}.reloadServices = [ "stalwart.service" ];
 
   services.nginx.virtualHosts =
     lib.genAttrs
@@ -160,7 +160,7 @@ in
 
       authentication.fallback-admin = {
         user = "admin";
-        secret = "%{file:/run/credentials/stalwart-mail.service/password}%";
+        secret = "%{file:/run/credentials/stalwart.service/password}%";
       };
 
       session.auth = {
