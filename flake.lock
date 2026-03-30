@@ -973,11 +973,11 @@
         "taplo-src": "taplo-src"
       },
       "locked": {
-        "lastModified": 1773651931,
-        "narHash": "sha256-fSmU4ocFtx41J/LsIc7iGrCFmS+2hYBC0UW/PDrC6Wk=",
+        "lastModified": 1776312796,
+        "narHash": "sha256-yCGY372BhDwGNi1xEHI98rbJVkcZ0z/EuRQno5mbVrk=",
         "owner": "amaanq",
         "repo": "nvim-config",
-        "rev": "71e04c82e89bf4c9ce79d0c769de522e7f6db6da",
+        "rev": "c8cf53331840fc5a4da46731aadc9313278a4876",
         "type": "github"
       },
       "original": {
