@@ -65,7 +65,29 @@ let
       '';
     });
 
-  nh = pkgs.nh.override { inherit nix-output-monitor; };
+  nh =
+    let
+      src = pkgs.fetchFromGitHub {
+        owner = "nix-community";
+        repo = "nh";
+        rev = "1341576fa14f8a00361a10934340fd482bc7b844";
+        hash = "sha256-T8tWn103cEg9Fkd42l0MPLsj6+/ot8qmequ4/yzbsKg=";
+      };
+      unwrapped = pkgs.nh-unwrapped.overrideAttrs (old: {
+        inherit src;
+        cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
+          inherit src;
+          hash = "sha256-ZV5Z3rR7hcbEjtviCFbbWrhjwEBZWzqC1UhO5zKdui4=";
+        };
+        env = (old.env or { }) // {
+          NH_REV = src.rev;
+        };
+      });
+    in
+    pkgs.nh.override {
+      inherit nix-output-monitor;
+      nh-unwrapped = unwrapped;
+    };
 
   statixConfig = pkgs.writeText "statix.toml" ''disabled = ["repeated_keys"]'';
   statixPatched = pkgs.statix.overrideAttrs (
