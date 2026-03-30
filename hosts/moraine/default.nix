@@ -3,6 +3,7 @@ lib.nixosSystem' "server" (
   {
     keys,
     pkgs,
+    lib,
     ...
   }:
   let
@@ -10,6 +11,10 @@ lib.nixosSystem' "server" (
   in
   {
     imports = collectNix ./. |> remove ./default.nix;
+
+    # Use stock kernel — bunker kernel patches are x86-specific
+    bunker.kernel.enable = lib.mkForce false;
+    boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
 
     type = "server";
 
@@ -53,6 +58,8 @@ lib.nixosSystem' "server" (
       useDHCP = true;
     };
 
+    boot.loader.systemd-boot.enable = lib.mkForce false;
+    boot.loader.efi.canTouchEfiVariables = lib.mkForce false;
     boot.loader.grub = {
       enable = true;
       device = "nodev";

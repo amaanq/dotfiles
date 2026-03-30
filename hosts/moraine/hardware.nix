@@ -18,5 +18,9 @@
     ACTION=="add|change", KERNEL=="vd[a-z]", ATTR{queue/rotational}="0", ATTR{queue/read_ahead_kb}="32768"
   '';
 
-  nixpkgs.hostPlatform = "powerpc64-linux";
+  nixpkgs.hostPlatform = {
+    config = "powerpc64-unknown-linux-gnuabielfv2";
+    rust.rustcTarget = "powerpc64-unknown-linux-gnuelfv2";
+  };
+  nixpkgs.buildPlatform = "x86_64-linux";
 }

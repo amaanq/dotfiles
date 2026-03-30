@@ -3,6 +3,7 @@ lib.nixosSystem' "server" (
   {
     keys,
     pkgs,
+    lib,
     ...
   }:
   let
@@ -10,6 +11,10 @@ lib.nixosSystem' "server" (
   in
   {
     imports = collectNix ./. |> remove ./default.nix;
+
+    # Use stock kernel — bunker kernel patches are x86-specific
+    bunker.kernel.enable = lib.mkForce false;
+    boot.kernelPackages = lib.mkDefault pkgs.linuxPackages_latest;
 
     type = "server";
 
@@ -53,10 +58,11 @@ lib.nixosSystem' "server" (
       useDHCP = true;
     };
 
-    boot.loader.grub = {
-      enable = true;
-      device = "nodev";
-    };
+    boot.loader.systemd-boot.enable = lib.mkForce false;
+    boot.loader.efi.canTouchEfiVariables = lib.mkForce false;
+    # GRUB managed manually on PReP partition — disable NixOS installer
+    # (install-grub.sh requires perl XML-LibXML which breaks in cross-compilation)
+    boot.loader.grub.enable = lib.mkForce false;
     boot.supportedFilesystems = [ "bcachefs" ];
     boot.tmp.cleanOnBoot = true;
 
