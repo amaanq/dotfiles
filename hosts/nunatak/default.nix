@@ -83,13 +83,13 @@ lib.nixosSystem' "server" (
 
         hostName = "nunatak";
 
-        ipv4.address = "152.53.225.105";
-        ipv6.address = "2a0a:4cc0:c0:7892::105";
+        ipv4.address = "152.53.83.122";
+        ipv6.address = "2a0a:4cc0:2000:3f59::1";
 
         defaultGateway = {
           inherit interface;
 
-          address = "152.53.224.1";
+          address = "152.53.80.1";
         };
 
         defaultGateway6 = {
@@ -105,13 +105,10 @@ lib.nixosSystem' "server" (
 
     time.timeZone = "Europe/Berlin";
 
-    services.qemuGuest = enabled;
-
-    swapDevices = [
-      {
-        device = "/var/swapfile";
-        size = 8192;
-      }
-    ];
+    services.qemuGuest = enabled {
+      # qemu-utils is a minimal working qemu, but it disables guestAgentSupport.
+      # Force it back on to get the .ga output.
+      package = (pkgs.qemu-utils.override { guestAgentSupport = true; }).ga;
+    };
   }
 )
