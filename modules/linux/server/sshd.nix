@@ -4,10 +4,6 @@ let
   port = 2001;
 in
 {
-  programs.mosh = enabled {
-    openFirewall = true;
-  };
-
   services.openssh = enabled {
     ports = [ port ];
     settings = {
