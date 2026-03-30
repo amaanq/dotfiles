@@ -616,28 +616,29 @@ def fg [id?: int] {
   if $id == null { job unfreeze } else { job unfreeze $id }
 }
 
-def --wrapped clod-work [...rest] {
-  with-env { CLAUDE_CONFIG_DIR: $'($env.XDG_CONFIG_HOME)/claude-work' } {
+def _claude_alt_account [account_dir: string, label: string, ...rest] {
+  let main_dir = $'($env.XDG_CONFIG_HOME)/claude'
+
+  # Bootstrap on first run: symlink everything except per-account files
+  if not ($account_dir | path exists) {
+    mkdir $account_dir
+    ls -a $main_dir
+      | where { |f| ($f.name | path basename) not-in [. .. .credentials.json .claude.json .claude.json.backup] }
+      | each { |f| ^ln -s $f.name $'($account_dir)/($f.name | path basename)' }
+    print $"($label) dir created. Run `($label)` again to sign in."
+  }
+
+  with-env { CLAUDE_CONFIG_DIR: $account_dir } {
     ^claude ...$rest
   }
 }
 
+def --wrapped clod-work [...rest] {
+  _claude_alt_account $'($env.XDG_CONFIG_HOME)/claude-work' 'clod-work' ...$rest
+}
+
 def --wrapped clod2 [...rest] {
-  let second_dir = $'($env.XDG_CONFIG_HOME)/claude2'
-  let main_dir = $'($env.XDG_CONFIG_HOME)/claude'
-
-  # Bootstrap on first run: symlink everything except .credentials.json
-  if not ($second_dir | path exists) {
-    mkdir $second_dir
-    ls -a $main_dir
-      | where { |f| ($f.name | path basename) not-in [. .. .credentials.json .claude.json .claude.json.backup] }
-      | each { |f| ^ln -s $f.name $'($second_dir)/($f.name | path basename)' }
-    print "claude2 dir created. Run `clod2` again to sign in with your second account."
-  }
-
-  with-env { CLAUDE_CONFIG_DIR: $second_dir } {
-    ^claude ...$rest
-  }
+  _claude_alt_account $'($env.XDG_CONFIG_HOME)/claude2' 'clod2' ...$rest
 }
 
 def --wrapped glm-code [...rest] {
