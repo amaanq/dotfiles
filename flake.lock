@@ -1012,11 +1012,11 @@
         "taplo-src": "taplo-src"
       },
       "locked": {
-        "lastModified": 1776312796,
-        "narHash": "sha256-yCGY372BhDwGNi1xEHI98rbJVkcZ0z/EuRQno5mbVrk=",
+        "lastModified": 1776730245,
+        "narHash": "sha256-UbnCBdDY3+9yfboJfctEceaXmc3Tq0X9sj2EPKhdsiI=",
         "owner": "amaanq",
         "repo": "nvim-config",
-        "rev": "c8cf53331840fc5a4da46731aadc9313278a4876",
+        "rev": "d82f2b9bb271b038565abee7b7ab726ca43457d4",
         "type": "github"
       },
       "original": {
