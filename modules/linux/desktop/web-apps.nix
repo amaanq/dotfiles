@@ -35,6 +35,11 @@ let
     };
 
   icons = {
+    bulwark = builtins.fetchurl {
+      name = "bulwark.svg";
+      url = "https://raw.githubusercontent.com/bulwarkmail/webmail/main/public/branding/Bulwark_Icon_App.svg";
+      sha256 = "0w54484d77s30znp9pshh8gqh5g58yiw3i5qq3wip6wbr3jvg07n";
+    };
     cinny = builtins.fetchurl {
       name = "cinny.svg";
       url = "https://raw.githubusercontent.com/cinnyapp/cinny/dev/public/res/svg/cinny.svg";
@@ -217,6 +222,12 @@ in
 
   config = {
     programs.pwas = {
+      bulwark = {
+        name = "Bulwark";
+        url = "https://inbox.amaanq.com";
+        icon = icons.bulwark;
+        description = "Bulwark webmail";
+      };
       cinny = {
         name = "Cinny";
         url = "https://cinny.amaanq.com";
