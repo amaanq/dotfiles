@@ -1,22 +1,15 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }:
-{
-  wrappers.ghostty = {
-    basePackage = pkgs.ghostty;
-    systemWide = config.isLinux;
-    executables.ghostty.args.suffix = [ "--config-file=/etc/ghostty/config" ];
-  };
-
+lib.mkIf config.isDarwin {
   environment.variables.TERM_PROGRAM = "ghostty";
 
   environment.etc."ghostty/config".text = ''
     # Font configuration
     font-family = Berkeley Mono Book
-    font-size = ${toString (if config.isDarwin then 13 else 11)}
+    font-size = 13
     font-thicken = true
     font-codepoint-map = U+23FB-U+23FE,U+2665,U+26A1,U+2B58,U+E000-U+E00A,U+E0A0-U+E0A3,U+E0B0-U+E0D4,U+E200-U+E2A9,U+E300-U+E3E3,U+E5FA-U+E6AA,U+E6B2,U+E700-U+E7C5,U+EA60-U+EBEB,U+F000-U+F2E0,U+F300-U+F32F,U+F400-U+F4A9,U+F500-U+F8FF,U+F0001-U+F1AF0= Symbols Nerd Font Mono
 
@@ -27,7 +20,7 @@
     window-theme = dark
     mouse-hide-while-typing = true
     mouse-shift-capture = true
-    mouse-scroll-multiplier = ${toString (if config.isDarwin then 5 else 1)}
+    mouse-scroll-multiplier = 5
 
     # Cursor configuration
     cursor-style = bar

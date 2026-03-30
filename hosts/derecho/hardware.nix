@@ -35,7 +35,18 @@ in
   boot.lanzaboote = enabled {
     pkiBundle = "/var/lib/sbctl";
   };
-  boot.plymouth = enabled;
+  boot.plymouth = enabled {
+    # drop the X11 ply-gtk-renderer. NixOS's plymouth module unconditionally
+    # `rm`s renderers/x11.so to slim the initrd, so leave a stub behind to keep
+    # that step happy.
+    package = pkgs.plymouth.overrideAttrs (old: {
+      buildInputs = lib.filter (p: p.pname or "" != "gtk+3") old.buildInputs;
+      mesonFlags = (old.mesonFlags or [ ]) ++ [ "-Dgtk=disabled" ];
+      postInstall = (old.postInstall or "") + ''
+        touch $out/lib/plymouth/renderers/x11.so
+      '';
+    });
+  };
   boot.supportedFilesystems = [ "bcachefs" ];
 
   # RDNA 4 (RX 9070) MES scheduler hang workaround
