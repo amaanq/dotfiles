@@ -55,7 +55,10 @@ in
     };
 
     extraConfig = ''
-      ${config.services.plausible.extraNginxConfigFor domain}
+      proxy_set_header Accept-Encoding ""; # Substitution won't work if it is compressed.
+      sub_filter "</head>" '<script defer data-domain="${domain}" src="https://data.libg.so/js/script.js"></script></head>';
+      sub_filter_last_modified on;
+      sub_filter_once on;
 
       error_page 404 /404.html;
 

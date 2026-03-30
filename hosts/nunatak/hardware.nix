@@ -10,6 +10,7 @@
     "sr_mod"
   ];
   boot.initrd.kernelModules = [ "nvme" ];
+  boot.supportedFilesystems = [ "bcachefs" ];
 
   nixpkgs.hostPlatform = "aarch64-linux";
 

@@ -24,8 +24,14 @@
               size = "100%";
               content = {
                 type = "filesystem";
-                format = "ext4";
+                format = "bcachefs";
                 mountpoint = "/";
+                mountOptions = [ "noatime" ];
+                extraArgs = [
+                  "--block_size=16384"
+                  "--compression=zstd:9"
+                  "--background_compression=zstd:9"
+                ];
               };
             };
           };
