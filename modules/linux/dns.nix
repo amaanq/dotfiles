@@ -106,12 +106,12 @@ in
                 (mkNextDnsServer "45.90.30.0")
               ];
             options = {
-              cache_size = 4096;
+              cache_size = 32768;
               num_concurrent_reqs = 4;
               positive_min_ttl = 60;
               positive_max_ttl = 86400;
-              negative_min_ttl = 30;
-              negative_max_ttl = 3600;
+              negative_min_ttl = 900;
+              negative_max_ttl = 86400;
             };
           };
         }
