@@ -147,8 +147,8 @@ merge {
 
   environment.systemPackages = [
     pkgs.difftastic
-    pkgs.git
-    pkgs.mergiraf
+    pkgs.gitMinimal
+    (pkgs.mergiraf.override { git = pkgs.gitMinimal; })
   ];
 
   environment.etc."git/config".source = iniFormat.generate "gitconfig" (
