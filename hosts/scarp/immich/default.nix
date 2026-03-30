@@ -26,7 +26,7 @@ let
       patches = (old.patches or [ ]) ++ [ ./sharp-0.35.patch ];
       pnpm = pkgs.pnpm_10;
       fetcherVersion = 2;
-      hash = "sha256-cLfW0C0BdgtiJdwy5ZpjTYmsWlTgqqvkveC5Qf9PV0M=";
+      hash = "sha256-BM47u88sy8Y9AJ/mT0AapZscQv9m7j5KbDgsWB8thf8=";
     };
     # Install sharp prebuilt binary with symlinks to system libvips (has libultrahdr)
     postInstall = (old.postInstall or "") + ''
@@ -37,8 +37,8 @@ let
       # Create fake libvips dir with symlinks to system libvips 8.18 (with libultrahdr)
       libvipsDir="$out/lib/node_modules/immich/node_modules/.pnpm/sharp@0.35.0-rc.0/node_modules/@img/sharp-libvips-linux-x64/lib"
       mkdir -p "$libvipsDir"
-      ln -s ${pkgs.vips.out}/lib/libvips.so.42.20.0 "$libvipsDir/libvips.so.8.18.0"
-      ln -s ${pkgs.vips.out}/lib/libvips-cpp.so.42.20.0 "$libvipsDir/libvips-cpp.so.8.18.0"
+      ln -s ${pkgs.vips.out}/lib/libvips.so.42 "$libvipsDir/libvips.so.8.18.0"
+      ln -s ${pkgs.vips.out}/lib/libvips-cpp.so.42 "$libvipsDir/libvips-cpp.so.8.18.0"
     '';
     passthru = old.passthru // {
       web = old.passthru.web.overrideAttrs (w: {
