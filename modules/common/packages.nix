@@ -44,8 +44,10 @@ in
     pkgs.watchman
     pkgs.xh
     pkgs.xxd
-    pkgs.yt-dlp
     pkgs.zoxide
+  ]
+  ++ optionals config.isDesktop [
+    pkgs.yt-dlp
   ]
   ++ optionals config.isLinux [
     pkgs.strace
