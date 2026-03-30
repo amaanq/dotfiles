@@ -23,7 +23,6 @@ in
     pkgs.fastfetch
     pkgs.fd
     pkgs.file
-    pkgs.gitui
     pkgs.graphviz
     pkgs.hyperfine
     pkgs.jc
