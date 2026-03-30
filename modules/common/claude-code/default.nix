@@ -186,6 +186,7 @@ let
     cleanupPeriodDays = 90;
     alwaysThinkingEnabled = true;
     remoteControlAtStartup = true;
+    showClearContextOnPlanAccept = true;
     skipDangerousModePermissionPrompt = true;
   };
 
