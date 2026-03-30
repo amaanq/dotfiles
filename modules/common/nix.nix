@@ -25,6 +25,7 @@ let
     mapAttrs
     mapAttrsToList
     merge
+    mkIf
     optionalAttrs
     optionals
     zipListsWith
@@ -208,10 +209,13 @@ in
       persistent = true;
     };
 
-  nix.nixPath =
+  # NIX_PATH embeds every flake input's store path → ~500 MiB of source trees
+  # in the closure. Servers always use flakes, never `<nixpkgs>`, so skip it.
+  nix.nixPath = mkIf (!config.isServer) (
     registryMap
     |> mapAttrsToList (name: value: "${name}=${value}")
-    |> (if config.isDarwin or false then concatStringsSep ":" else id);
+    |> (if config.isDarwin or false then concatStringsSep ":" else id)
+  );
 
   nix.registry =
     registryMap // { default = inputs.nixpkgs; } |> mapAttrs (_: flake: { inherit flake; });
