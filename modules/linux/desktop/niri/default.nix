@@ -87,7 +87,6 @@ in
       pkgs.gifski
       pkgs.inotify-tools
       pkgs.mate-polkit # dms 🦼
-      pkgs.nautilus
       pkgs.lxqt.pavucontrol-qt
       pkgs.playerctl
       pkgs.satty
