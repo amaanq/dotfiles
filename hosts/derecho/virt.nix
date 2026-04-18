@@ -9,14 +9,6 @@ let
 in
 merge
 <| mkIf config.isDesktop {
-  environment.systemPackages = [
-    pkgs.virt-viewer
-  ];
-
-  programs.virt-manager = enabled;
-
-  services.spice-vdagentd = enabled;
-
   users.users.amaanq = {
     extraGroups = [
       "libvirtd"
@@ -24,17 +16,13 @@ merge
     ];
   };
 
-  virtualisation = {
-    libvirtd = enabled {
-      qemu = {
-        package = pkgs.qemu;
-        swtpm = enabled;
-        vhostUserPackages = [ pkgs.virtiofsd ];
-      };
-      onBoot = "ignore";
-      onShutdown = "shutdown";
+  virtualisation.libvirtd = enabled {
+    qemu = {
+      package = pkgs.qemu;
+      swtpm = enabled;
+      vhostUserPackages = [ pkgs.virtiofsd ];
     };
-
-    spiceUSBRedirection = enabled;
+    onBoot = "ignore";
+    onShutdown = "shutdown";
   };
 }
