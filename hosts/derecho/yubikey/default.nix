@@ -16,7 +16,6 @@ in
   environment.systemPackages = [
     pkgs.yubikey-manager
     pkgs.yubikey-personalization
-    pkgs.yubioath-flutter
     pkgs.pam_u2f
   ];
 
