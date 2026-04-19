@@ -1,12 +1,8 @@
 {
-  config,
-  lib,
   pkgs,
   ...
 }:
 let
-  inherit (lib) optionals;
-
   androidComposition = pkgs.androidenv.composeAndroidPackages {
     buildToolsVersions = [ "35.0.0" ];
     includeNDK = true;
@@ -22,7 +18,6 @@ in
   nixpkgs.config.android_sdk.accept_license = true;
 
   unfree.allowedNames = [
-    "android-studio"
     "android-sdk-ndk"
     "android-sdk-build-tools"
     "android-sdk-cmdline-tools"
@@ -52,9 +47,6 @@ in
       };
     })
     pkgs.scrcpy
-  ]
-  ++ optionals config.isLinux [
-    pkgs.android-studio
   ];
 
   environment.variables = {
