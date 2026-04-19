@@ -142,7 +142,6 @@ in
 {
   environment.systemPackages = [
     pkgs.kdePackages.breeze
-    pkgs.kdePackages.breeze.qt5
     pkgs.kdePackages.breeze-icons
     qtengine.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
