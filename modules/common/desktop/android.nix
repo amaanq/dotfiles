@@ -39,13 +39,7 @@ in
     pkgs.avbroot
     pkgs.git-repo
     pkgs.gnirehtet
-    (pkgs.jadx.override {
-      quark-engine = pkgs.quark-engine.override {
-        python3Packages = pkgs.python3Packages.overrideScope (
-          _: prev: { plotly = prev.plotly.overridePythonAttrs { doCheck = false; }; }
-        );
-      };
-    })
+    (pkgs.jadx.override { quark-engine = pkgs.emptyDirectory; })
     pkgs.scrcpy
   ];
 
