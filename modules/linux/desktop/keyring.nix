@@ -1,11 +1,9 @@
-{ lib, ... }:
-let
-  inherit (lib) enabled;
-in
+{ pkgs, ... }:
 {
-  programs.seahorse = enabled;
+  environment.systemPackages = with pkgs.kdePackages; [
+    kwallet
+    kwalletmanager
+  ];
 
-  security.pam.services.login.enableGnomeKeyring = true;
-
-  services.gnome.gnome-keyring = enabled;
+  security.pam.services.login.enableKwallet = true;
 }

@@ -82,8 +82,6 @@ in
     systemPackages = [
       pkgs.brightnessctl
       pkgs.ddcutil
-      # Needed for xdg-desktop-portal-gnome 🦼.
-      pkgs.gnome-keyring
       pkgs.gifski
       pkgs.inotify-tools
       pkgs.mate-polkit # dms 🦼
@@ -128,7 +126,6 @@ in
     xdgOpenUsePortal = true;
 
     extraPortals = mkForce [
-      pkgs.gnome-keyring
       xdg-desktop-portal-gnome'
       pkgs.xdg-desktop-portal-gtk
     ];
