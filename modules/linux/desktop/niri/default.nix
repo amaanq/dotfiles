@@ -62,6 +62,7 @@ in
 
   services.power-profiles-daemon.enable = mkForce false;
   services.accounts-daemon.enable = mkForce false;
+  services.geoclue2.enable = mkForce false;
 
   services.nirinit = enabled {
     settings = {
