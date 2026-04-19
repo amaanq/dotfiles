@@ -18,7 +18,11 @@ merge
 
   virtualisation.libvirtd = enabled {
     qemu = {
-      package = pkgs.qemu;
+      package = pkgs.qemu.override {
+        gtkSupport = false;
+        sdlSupport = false;
+        smartcardSupport = false;
+      };
       swtpm = enabled;
       vhostUserPackages = [ pkgs.virtiofsd ];
     };
