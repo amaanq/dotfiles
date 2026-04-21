@@ -29,7 +29,7 @@
                 mountOptions = [ "noatime" ];
                 extraArgs = [
                   "--block_size=16384"
-                  "--compression=zstd:9"
+                  "--compression=lz4"
                   "--background_compression=zstd:9"
                 ];
               };
