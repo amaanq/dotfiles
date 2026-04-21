@@ -224,6 +224,11 @@
 
     bunker.url = "github:amaanq/bunker-patches";
 
+    harmonia = {
+      url = "github:nix-community/harmonia";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # jj from source - tracking bare-colocate-fix branch on fork
     # (upstream PRs #8667 + #8834 + bare repo gitlink fix).
     # Switch to "github:jj-vcs/jj" after colocated workspaces land on main.
