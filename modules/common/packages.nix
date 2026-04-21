@@ -49,13 +49,13 @@ in
     pkgs.tree
     pkgs.unzip
     pkgs.uutils-coreutils-noprefix
-    pkgs.watchman
     pkgs.xh
     pkgs.xxd
     pkgs.zoxide
   ]
   ++ optionals config.isDesktop [
     pkgs.timg
+    pkgs.watchman
     pkgs.yt-dlp
   ]
   ++ optionals config.isLinux [
