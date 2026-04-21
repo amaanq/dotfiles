@@ -208,6 +208,7 @@ in
             "run"
           ];
         }
+        { command = [ "${pkgs.keepassxc}/bin/keepassxc" ]; }
       ];
 
       window-rules = [

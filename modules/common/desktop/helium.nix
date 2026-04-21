@@ -18,6 +18,7 @@ in
       optionals config.isLinux [
         "--ignore-gpu-blocklist"
         "--disable-vulkan"
+        "--password-store=gnome-libsecret"
       ]
       ++ [
         "--enable-quic"
