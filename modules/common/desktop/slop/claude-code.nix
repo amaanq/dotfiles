@@ -707,16 +707,16 @@ let
   # CLI proxy that trims command output before it reaches the LLM.
   rtk = pkgs.rustPlatform.buildRustPackage {
     pname = "rtk";
-    version = "0.34.1";
+    version = "0.37.2";
 
     src = pkgs.fetchFromGitHub {
       owner = "rtk-ai";
       repo = "rtk";
-      tag = "v0.34.1";
-      hash = "sha256-f9bhFkJ1d4S791iouIqyz0wOyghScvdpHpQKLC+UxJM=";
+      tag = "v0.37.2";
+      hash = "sha256-rNuu8B5TnKZHrbVSV8HkcTeTdcol26259GGJEPEMPZY=";
     };
 
-    cargoHash = "sha256-DCVYkznC91OP50FxaigW0q/mVLclYLTy7nAShnK11yE=";
+    cargoHash = "sha256-61+PNuVF8H5+9PHc3MBt8V80ieBBi8HzSC9Gc/WUSzM=";
 
     doCheck = false;
 
