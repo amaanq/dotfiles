@@ -1,0 +1,93 @@
+From 3933efe99f0f28138ead6da7a887cbd81d0225a0 Mon Sep 17 00:00:00 2001
+From: Amaan Qureshi <git@amaanq.com>
+Date: Mon, 4 May 2026 17:48:01 -0400
+Subject: [PATCH] wrappers: encode BLKGETSIZE64 per-arch (ppc/mips/sparc)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The hardcoded BLKGETSIZE64 value 0x80081272 corresponds to the asm-generic
+ioctl layout (_IOC_DIRBITS=2, _IOC_SIZEBITS=14, _IOC_DIRSHIFT=30). PowerPC,
+MIPS, SPARC and Alpha override these in arch/<arch>/include/uapi/asm/ioctl.h
+to use _IOC_DIRBITS=3, _IOC_SIZEBITS=13, _IOC_DIRSHIFT=29 — so the encoded
+value of _IOR(0x12, 114, size_t) on those architectures is 0x40081272, not
+0x80081272.
+
+Sending the wrong number meant the kernel did not recognise the ioctl,
+BLKGETSIZE64 silently returned 0, and `mkfs.bcachefs` aborted with
+`cannot format /dev/sdX, too small (0 bytes, min 262144)` on devices of
+any real size.
+
+Reproduced on a POWER10 ppc64 BE (ELFv2) box, NixOS 26.05, kernel 7.0.3,
+bcachefs-tools 1.38.0:
+
+  $ blockdev --getsize64 /dev/sdb3
+  535786684416
+  $ mkfs.bcachefs --force /dev/sdb3
+  cannot format /dev/sdb3, too small (0 bytes, min 262144)
+
+With this patch, the ioctl returns the correct device size and mkfs
+succeeds on ppc64.
+
+Signed-off-by: Amaan Qureshi <git@amaanq.com>
+---
+ src/wrappers/bdev.rs | 39 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 38 insertions(+), 1 deletion(-)
+
+diff --git a/src/wrappers/bdev.rs b/src/wrappers/bdev.rs
+index 2fd0b9c..3823549 100644
+--- a/src/wrappers/bdev.rs
++++ b/src/wrappers/bdev.rs
+@@ -10,11 +10,48 @@ use std::os::unix::io::RawFd;
+ use libc::{
+     BLKPBSZGET,
+     BLKSSZGET,
+ };
+ 
+-// linux/fs.h ioctl constants not exposed by libc crate
++// linux/fs.h ioctl constants not exposed by libc crate.
++//
++// `BLKGETSIZE64` is encoded as `_IOR(0x12, 114, size_t)`. The numeric value
++// of the encoded ioctl depends on the architecture's `_IOC_DIRBITS` /
++// `_IOC_SIZEBITS` layout in `arch/<arch>/include/uapi/asm/ioctl.h`:
++//
++//   - asm-generic (x86, x86_64, arm, aarch64, riscv, s390x, loongarch, …):
++//       2 dir bits, 14 size bits  ⇒  `(2<<30) | (8<<16) | (0x12<<8) | 114`
++//                                  = `0x80081272`
++//   - powerpc / powerpc64, mips*, sparc / sparc64, alpha:
++//       3 dir bits, 13 size bits  ⇒  `(2<<29) | (8<<16) | (0x12<<8) | 114`
++//                                  = `0x40081272`
++//
++// Hardcoding the asm-generic value broke ppc64 / mips64 / sparc64: the kernel
++// did not recognise the ioctl, `BLKGETSIZE64` silently returned 0, and
++// `mkfs.bcachefs` aborted with `cannot format /dev/sdX, too small (0 bytes,
++// min 262144)` on devices of any real size.
++#[cfg(any(
++    target_arch = "powerpc",
++    target_arch = "powerpc64",
++    target_arch = "mips",
++    target_arch = "mips32r6",
++    target_arch = "mips64",
++    target_arch = "mips64r6",
++    target_arch = "sparc",
++    target_arch = "sparc64",
++))]
++const BLKGETSIZE64: libc::Ioctl = 0x40081272u32 as libc::Ioctl;
++#[cfg(not(any(
++    target_arch = "powerpc",
++    target_arch = "powerpc64",
++    target_arch = "mips",
++    target_arch = "mips32r6",
++    target_arch = "mips64",
++    target_arch = "mips64r6",
++    target_arch = "sparc",
++    target_arch = "sparc64",
++)))]
+ const BLKGETSIZE64: libc::Ioctl = 0x80081272u32 as libc::Ioctl;
+ 
+ /// Returns the size of a file or block device in bytes.
+ ///
+ /// For block devices, uses BLKGETSIZE64 ioctl.
+-- 
+2.53.0
+

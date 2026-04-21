@@ -24,7 +24,7 @@ index 0000000000000..daaa8eb87bd96
 +use rustc_abi::Endian;
 +
 +use crate::spec::{
-+    Cc, LinkerFlavor, Lld, StackProbeType, Target, TargetMetadata, TargetOptions, base,
++    Abi, Arch, Cc, LinkerFlavor, Lld, StackProbeType, Target, TargetMetadata, TargetOptions, base,
 +};
 +
 +pub(crate) fn target() -> Target {
@@ -33,11 +33,11 @@ index 0000000000000..daaa8eb87bd96
 +    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["-m64"]);
 +    base.max_atomic_width = Some(64);
 +    base.stack_probes = StackProbeType::Inline;
-+    base.abi = "elfv2".into();
++    base.abi = Abi::ElfV2;
 +    base.llvm_abiname = "elfv2".into();
 +
 +    Target {
-+        llvm_target: "powerpc64-unknown-linux-gnu".into(),
++        llvm_target: "powerpc64-unknown-linux-musl".into(),
 +        metadata: TargetMetadata {
 +            description: Some("PPC64 Linux (ELFv2 ABI, kernel 3.2, glibc 2.17)".into()),
 +            tier: Some(3),
@@ -46,7 +46,7 @@ index 0000000000000..daaa8eb87bd96
 +        },
 +        pointer_width: 64,
 +        data_layout: "E-m:e-Fn32-i64:64-i128:128-n32:64-S128-v256:256:256-v512:512:512".into(),
-+        arch: "powerpc64".into(),
++        arch: Arch::PowerPC64,
 +        options: TargetOptions { endian: Endian::Big, mcount: "_mcount".into(), ..base },
 +    }
 +}
@@ -54,11 +54,13 @@ diff --git a/src/bootstrap/src/core/sanity.rs b/src/bootstrap/src/core/sanity.rs
 index b39d464493e..2359dbd51493 100644
 --- a/src/bootstrap/src/core/sanity.rs
 +++ b/src/bootstrap/src/core/sanity.rs
-@@ -34,6 +34,7 @@ pub struct Finder {
- // Targets can be removed from this list once they are present in the stage0 compiler (usually by updating the beta compiler of the bootstrap).
+@@ -38,6 +38,7 @@
  const STAGE0_MISSING_TARGETS: &[&str] = &[
      // just a dummy comment so the list doesn't get onelined
+     "x86_64-unknown-linux-gnuasan",
 +    "powerpc64-unknown-linux-gnuelfv2",
- ];
+     "thumbv7a-none-eabi",
+     "thumbv7a-none-eabihf",
+     "thumbv7r-none-eabi",
 
  /// Minimum version threshold for libstdc++ required when using prebuilt LLVM

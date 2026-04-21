@@ -126,6 +126,111 @@
  #endif // defined(VGP_ppc64be_linux)
  
 
+--- a/coregrind/m_libcsetjmp.c	2026-04-15 20:59:02.185339523 -0400
++++ b/coregrind/m_libcsetjmp.c	2026-04-16 02:54:30.324374528 -0400
+@@ -158,6 +158,10 @@
+ ".align 2"                          "\n"
+ ".p2align 4,,15"                    "\n"
+ ".globl VG_MINIMAL_SETJMP"          "\n"
++#if _CALL_ELF == 2
++".type VG_MINIMAL_SETJMP, @function"   "\n"
++"VG_MINIMAL_SETJMP:"                "\n"
++#else
+ ".section \".opd\",\"aw\""          "\n"
+ ".align 3"                          "\n"
+ "VG_MINIMAL_SETJMP:"                "\n"
+@@ -166,6 +170,7 @@
+ 
+ ".type VG_MINIMAL_SETJMP, @function"   "\n"
+ ".L.VG_MINIMAL_SETJMP:"   "\n"
++#endif
+ "        std     0, 0(3)"  "\n"
+ "        std     1, 8(3)"  "\n"
+ "        std     2, 16(3)"  "\n"
+@@ -209,7 +214,10 @@
+ 
+ 
+ ".globl VG_MINIMAL_LONGJMP"         "\n"
+-
++#if _CALL_ELF == 2
++".type   VG_MINIMAL_LONGJMP, @function"    "\n"
++"VG_MINIMAL_LONGJMP:"               "\n"
++#else
+ ".section \".opd\",\"aw\""          "\n"
+ ".align 3"                          "\n"
+ "VG_MINIMAL_LONGJMP:"               "\n"
+@@ -218,6 +226,7 @@
+ 
+ ".type   VG_MINIMAL_LONGJMP, @function"    "\n"
+ ".L.VG_MINIMAL_LONGJMP:"            "\n"
++#endif
+          // do r4 = 1
+          // and park it in the restore slot for r3 (the ret reg)
+ "        li      4, 1"  "\n"
+
+--- a/coregrind/m_main.c	2026-04-15 20:59:02.185362395 -0400
++++ b/coregrind/m_main.c	2026-04-16 02:54:11.875835980 -0400
+@@ -2829,6 +2829,40 @@
+     ".previous\n"
+ );
+ #elif defined(VGP_ppc64be_linux)
++#if _CALL_ELF == 2
++asm("\n"
++    "\t.align 2\n"
++    "\t.global _start\n"
++    "\t.type _start,@function\n"
++    "_start:\n"
++    /* set up the new stack in r16 */
++    "\tlis  16,   vgPlain_interim_stack@highest\n"
++    "\tori  16,16,vgPlain_interim_stack@higher\n"
++    "\tsldi 16,16,32\n"
++    "\toris 16,16,vgPlain_interim_stack@h\n"
++    "\tori  16,16,vgPlain_interim_stack@l\n"
++    "\txor  17,17,17\n"
++    "\tlis    17,("VG_STRINGIFY(VG_STACK_GUARD_SZB)" >> 16)\n"
++    "\tori 17,17,("VG_STRINGIFY(VG_STACK_GUARD_SZB)" & 0xFFFF)\n"
++    "\txor 18,18,18\n"
++    "\tlis    18,("VG_STRINGIFY(VG_DEFAULT_STACK_ACTIVE_SZB)" >> 16)\n"
++    "\tori 18,18,("VG_STRINGIFY(VG_DEFAULT_STACK_ACTIVE_SZB)" & 0xFFFF)\n"
++    "\tadd 16,17,16\n"
++    "\tadd 16,18,16\n"
++    "\trldicr 16,16,0,59\n"
++    "\tmr 3,1\n"
++    "\tmr 1,16\n"
++    "\tlis  14,   _start_in_C_linux@highest\n"
++    "\tori  14,14,_start_in_C_linux@higher\n"
++    "\tsldi 14,14,32\n"
++    "\toris 14,14,_start_in_C_linux@h\n"
++    "\tori  14,14,_start_in_C_linux@l\n"
++    "\tmtctr 14\n"
++    "\tbctrl\n"
++    "\tnop\n"
++    "\ttrap\n"
++);
++#else
+ asm("\n"
+     /* PPC64 ELF ABI says '_start' points to a function descriptor.
+        So we must have one, and that is what goes into the .opd section. */
+@@ -2857,10 +2891,6 @@
+     "\tadd 16,17,16\n"
+     "\tadd 16,18,16\n"
+     "\trldicr 16,16,0,59\n"
+-    /* now r16 = &vgPlain_interim_stack + VG_STACK_GUARD_SZB +
+-       VG_DEFAULT_STACK_ACTIVE_SZB rounded down to the nearest 16-byte
+-       boundary.  And r1 is the original SP.  Set the SP to r16 and
+-       call _start_in_C_linux, passing it the initial SP. */
+     "\tmr 3,1\n"
+     "\tmr 1,16\n"
+     "\tlis  14,   _start_in_C_linux@highest\n"
+@@ -2874,6 +2904,7 @@
+     "\tnop\n"
+     "\ttrap\n"
+ );
++#endif
+ #elif defined(VGP_ppc64le_linux)
+ /* Little Endian uses ELF version 2 but in the future may also
+  * support other ELF versions.
+
 --- a/coregrind/m_signals.c	2026-04-15 20:59:02.184808289 -0400
 +++ b/coregrind/m_signals.c	2026-04-15 21:01:00.019460468 -0400
 @@ -987,6 +987,15 @@
@@ -152,6 +257,28 @@
  
  #elif defined(VGP_ppc64le_linux)
  /* Little Endian supports ELF version 2.  In the future, it may
+
+--- a/coregrind/m_syscall.c	2026-04-15 20:59:02.184886473 -0400
++++ b/coregrind/m_syscall.c	2026-04-16 02:52:53.265541190 -0400
+@@ -568,6 +568,10 @@
+ asm(
+ ".align   2\n"
+ ".globl   do_syscall_WRK\n"
++#if _CALL_ELF == 2
++".type    do_syscall_WRK,@function\n"
++"do_syscall_WRK:\n"
++#else
+ ".section \".opd\",\"aw\"\n"
+ ".align   3\n"
+ "do_syscall_WRK:\n"
+@@ -576,6 +580,7 @@
+ ".type    .do_syscall_WRK,@function\n"
+ ".globl   .do_syscall_WRK\n"
+ ".do_syscall_WRK:\n"
++#endif
+ "        std  3,-16(1)\n"  /* stash arg */
+ "        ld   8, 48(3)\n"  /* sc arg 6 */
+ "        ld   7, 40(3)\n"  /* sc arg 5 */
 
 --- a/coregrind/m_syswrap/syscall-ppc64be-linux.S	2026-04-15 20:59:02.181736368 -0400
 +++ b/coregrind/m_syswrap/syscall-ppc64be-linux.S	2026-04-15 21:00:15.817178906 -0400
