@@ -47,7 +47,7 @@ in
     };
 
     path = [
-      pkgs.git
+      pkgs.gitMinimal
       pkgs.openssh
     ];
   };
