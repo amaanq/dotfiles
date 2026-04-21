@@ -20,7 +20,6 @@ in
     pkgs.doggo
     pkgs.dust
     pkgs.dwt1-shell-color-scripts
-    pkgs.fastfetch
     pkgs.fd
     pkgs.file
     pkgs.graphviz
