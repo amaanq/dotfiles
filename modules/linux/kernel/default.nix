@@ -12,7 +12,7 @@ in
 
   bunker.kernel = {
     enable = true;
-    version = "6.19";
+    version = lib.mkDefault "7.0";
     cpuArch = mkIf config.isDesktop config.cpuArch;
     interactive = mkIf config.isServer false;
     drivers = mkIf config.isServer false;
@@ -20,7 +20,7 @@ in
   };
 
   environment = {
-    systemPackages = [ pkgs.perf ];
+    systemPackages = lib.optional config.isDesktop pkgs.perf;
   };
 
   boot.kernel.sysctl = {
