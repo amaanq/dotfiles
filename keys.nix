@@ -7,6 +7,7 @@ let
     yardang = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPQQBN06V58ll+e2+t4X9qq/foFY+Hsx9DVQtEoGKz+R root@yardang";
     scarp = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHpGaxgsOi5dIbFMVqA90Gy5tvhLNn4ggLDdnPl3KuW3 root@scarp";
     simoom = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF2VD1i3vLpEmlN1nYMSn4KyxKf7nt/ekP3+YGxH772I contact@amaanq.com";
+    tarn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGzYVqYdTPBp3h8dMTGxBNLtrziqDgZ4Z9q7GZoOnjq7 root@tarn";
   };
   builder = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOW26rsiPa44dsoItJtB+Ngt7VeW702CDQR+3fYMkcQk nix-builder";
 in

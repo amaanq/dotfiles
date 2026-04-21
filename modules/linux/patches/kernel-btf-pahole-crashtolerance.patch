@@ -1,0 +1,40 @@
+Skip BTF generation for a module if pahole segfaults
+
+pahole 1.31 segfaults on some ppc64 kernel modules (observed on
+drivers/hwmon/ads7828.ko). Default set -e kills the build.
+
+Wrap the pahole invocation: on failure, log a warning and return 0
+from gen_btf_data. Also skip embed_btf_data for modules when no
+.BTF file exists. BTF is lost only for the specific modules pahole
+crashes on — everything else keeps its BTF.
+
+--- a/scripts/gen-btf.sh	2026-04-24 09:25:34.083504504 -0400
++++ b/scripts/gen-btf.sh	2026-04-24 09:25:34.101855449 -0400
+@@ -69,10 +69,14 @@
+ gen_btf_data()
+ {
+ 	btf1="${ELF_FILE}.BTF.1"
+-	${PAHOLE} -J ${PAHOLE_FLAGS}			\
++	if ! ${PAHOLE} -J ${PAHOLE_FLAGS}		\
+ 		${BTF_BASE:+--btf_base ${BTF_BASE}}	\
+ 		--btf_encode_detached=${btf1}		\
+-		"${ELF_FILE}"
++		"${ELF_FILE}"; then
++		echo "WARNING: pahole failed on ${ELF_FILE}; skipping BTF" >&2
++		rm -f "${btf1}"
++		return 0
++	fi
+ 
+ 	${RESOLVE_BTFIDS} ${RESOLVE_BTFIDS_FLAGS}	\
+ 		${BTF_BASE:+--btf_base ${BTF_BASE}}	\
+@@ -140,7 +144,9 @@
+ 	gen_btf_o
+ 	;;
+ module)
+-	embed_btf_data
++	if [ -f "${ELF_FILE}.BTF" ]; then
++		embed_btf_data
++	fi
+ 	;;
+ esac
+ 

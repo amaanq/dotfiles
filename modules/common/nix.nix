@@ -90,6 +90,10 @@ let
       nh-unwrapped = unwrapped;
     };
 
+  # nh + nom fail to cross-build on ppc64 (nom's Haskell cross via GHC
+  # doesn't work; nh pulls nom). Gate both behind this.
+  isPpc64 = pkgs.stdenv.hostPlatform.system == "powerpc64-linux";
+
   statixConfig = pkgs.writeText "statix.toml" ''disabled = ["repeated_keys"]'';
   statixPatched = pkgs.statix.overrideAttrs (
     _o:
@@ -235,10 +239,8 @@ in
   };
 
   environment.systemPackages = [
-    nh
-    nix-output-monitor
     pkgs.nix-index
-  ];
+  ] ++ lib.optionals (!isPpc64) [ nh nix-output-monitor ];
 
   programs.ssh.extraConfig =
     builderHosts
