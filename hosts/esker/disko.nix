@@ -29,7 +29,7 @@
                 format = "bcachefs";
                 mountpoint = "/";
                 extraArgs = [
-                  "--compression=zstd:9"
+                  "--compression=lz4"
                   "--background_compression=zstd:9"
                 ];
               };
