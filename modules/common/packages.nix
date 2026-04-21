@@ -14,17 +14,13 @@ in
   ];
 
   environment.systemPackages = [
-    pkgs.asciinema
     pkgs.curl
     pkgs.dig
     pkgs.doggo
     pkgs.dust
-    pkgs.dwt1-shell-color-scripts
     pkgs.fd
     pkgs.file
-    pkgs.graphviz
     pkgs.hyperfine
-    pkgs.jc
     pkgs.jq
     # perl-free moreutils, which drops chronic, combine, ts, vidir, vipe, zrun (all perl)
     (pkgs.moreutils.overrideAttrs (old: {
@@ -42,10 +38,8 @@ in
     pkgs.openssl
     pkgs.p7zip
     pkgs.pstree
-    pkgs.rbw
     pkgs.rsync
     pkgs.sd
-    pkgs.tokei
     pkgs.tree
     pkgs.unzip
     pkgs.uutils-coreutils-noprefix
@@ -54,7 +48,13 @@ in
     pkgs.zoxide
   ]
   ++ optionals config.isDesktop [
+    pkgs.asciinema_3
+    pkgs.dwt1-shell-color-scripts
+    pkgs.graphviz
+    pkgs.jc
+    pkgs.rbw
     pkgs.timg
+    pkgs.tokei
     pkgs.watchman
     pkgs.yt-dlp
   ]
