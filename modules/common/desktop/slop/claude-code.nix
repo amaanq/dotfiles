@@ -1,0 +1,1016 @@
+{
+  lib,
+  pkgs,
+  ...
+}:
+let
+  inherit (lib) optionals;
+  inherit (lib.lists) singleton;
+  inherit (lib.meta) getExe getExe';
+  inherit (lib.strings) toJSON;
+
+  # Statusline: model, ctx %, in/out tokens, cache %, cost, timing, churn,
+  # jj info, cwd, usage quotas. Reads the harness JSON blob on stdin.
+  statusLine = pkgs.writeScriptBin "claude-code-statusline" /* nu */ ''
+    #!${getExe pkgs.nushell}
+
+    def format-duration [ms: int] {
+        let total_s = $ms // 1000
+        let h = $total_s // 3600
+        let m = ($total_s mod 3600) // 60
+        let s = $total_s mod 60
+        if $h > 0 {
+            $"($h)h($m | fill -a r -w 2 -c '0')m($s | fill -a r -w 2 -c '0')s"
+        } else if $m > 0 {
+            $"($m)m($s | fill -a r -w 2 -c '0')s"
+        } else {
+            $"($s)s"
+        }
+    }
+
+    def color-for-pct [pct: number] {
+        let pct_int = $pct | math floor | into int
+        if $pct_int >= 80 {
+            "\e[31m"
+        } else if $pct_int >= 50 {
+            "\e[33m"
+        } else {
+            "\e[32m"
+        }
+    }
+
+    def format-rate-limits [input: record] {
+        let session_pct = try { $input | get rate_limits.five_hour.used_percentage } catch { null }
+        let week_pct = try { $input | get rate_limits.seven_day.used_percentage } catch { null }
+
+        let session_part = if $session_pct != null {
+            let c = color-for-pct $session_pct
+            let v = $session_pct | math round --precision 0 | into int
+            $"session: ($c)($v)%\e[0m"
+        } else { "" }
+        let week_part = if $week_pct != null {
+            let c = color-for-pct $week_pct
+            let v = $week_pct | math round --precision 0 | into int
+            $"week: ($c)($v)%\e[0m"
+        } else { "" }
+
+        [$session_part $week_part] | where {|x| $x | is-not-empty} | str join " "
+    }
+
+    def get-jj-info [] {
+        let root_result = do { jj root } | complete
+        if $root_result.exit_code != 0 { return "" }
+
+        let bookmark = (do { jj log -r @ --no-graph -T 'bookmarks.map(|b| b.name()).join(", ")' } | complete | get stdout | str trim)
+        let change = (do { jj log -r @ --no-graph -T 'change_id.shortest(8)' } | complete | get stdout | str trim)
+        let is_empty_str = (do { jj log -r @ --no-graph -T 'empty' } | complete | get stdout | str trim)
+        let dirty = if $is_empty_str == "false" { "*" } else { "" }
+        let has_conflict = (do { jj log -r @ --no-graph -T 'conflict' } | complete | get stdout | str trim)
+        let conflict_marker = if $has_conflict == "true" { " \e[31m!conflict\e[0m" } else { "" }
+
+        let ref_part = if ($bookmark | is-not-empty) {
+            $" | \e[36m($bookmark)($dirty)\e[0m"
+        } else if ($change | is-not-empty) {
+            $" | \e[35m($change)($dirty)\e[0m"
+        } else { "" }
+
+        $"($ref_part)($conflict_marker)"
+    }
+
+    # --- Main ---
+    let input = (^cat | from json)
+
+    let usage_info = format-rate-limits $input
+
+    let model_name = ($input | get model?.display_name? | default ($input | get model?.id? | default "unknown"))
+    let used_pct = ($input | get context_window?.used_percentage? | default null)
+    let total_cost = ($input | get cost?.total_cost_usd? | default 0)
+    let total_input = ($input | get context_window?.s_in? | default ($input | get context_window?.total_input_tokens? | default 0))
+    let total_output = ($input | get context_window?.s_out? | default ($input | get context_window?.total_output_tokens? | default 0))
+    let duration_ms = ($input | get cost?.total_duration_ms? | default 0)
+    let api_duration_ms = ($input | get cost?.total_api_duration_ms? | default 0)
+    let lines_added = ($input | get cost?.total_lines_added? | default 0)
+    let lines_removed = ($input | get cost?.total_lines_removed? | default 0)
+    let exceeds_200k = ($input | get exceeds_200k_tokens? | default false)
+
+    let cache_read = ($input | get context_window?.cache_read_tokens? | default 0)
+    let cache_create = ($input | get context_window?.cache_creation_tokens? | default 0)
+
+    let total_tokens = $total_input + $total_output
+
+    def format-tokens [n: int] {
+        if $n >= 1_000_000 {
+            $"($n / 1_000_000.0 | math round --precision 1)M"
+        } else if $n >= 1_000 {
+            $"($n / 1_000.0 | math round --precision 1)k"
+        } else {
+            $"($n)"
+        }
+    }
+
+    let in_display = (format-tokens ($total_input | into int))
+    let out_display = (format-tokens ($total_output | into int))
+    let tok_display = $"($in_display)/($out_display)"
+
+    let cache_total = $cache_read + $cache_create
+    let cache_display = if $cache_total > 0 {
+        let cache_pct = ($cache_read * 100 / $cache_total | math round --precision 0 | into int)
+        let cache_color = if $cache_pct >= 70 {
+            "\e[32m"
+        } else if $cache_pct >= 40 {
+            "\e[33m"
+        } else {
+            "\e[31m"
+        }
+        $" cache:($cache_color)($cache_pct)%\e[0m"
+    } else { "" }
+
+    let context_display = if $used_pct != null {
+        let color = color-for-pct $used_pct
+        let pct_str = $used_pct | math round --precision 1
+        $"($color)($pct_str)%\e[0m"
+    } else { "--" }
+
+    let cost_cents = ($total_cost * 100 | math round | into int)
+    let cost_dollars = $cost_cents // 100
+    let cost_frac = ($cost_cents mod 100 | math abs | into string | fill -a r -w 2 -c '0')
+    let cost_display = $"$($cost_dollars).($cost_frac)"
+    let elapsed_display = (format-duration ($duration_ms | into int))
+    let wait_display = (format-duration ($api_duration_ms | into int))
+    let churn_display = $"\e[32m+($lines_added)\e[0m/\e[31m-($lines_removed)\e[0m"
+    let marker_200k = if $exceeds_200k { " | \e[31m!200k\e[0m" } else { "" }
+    def format-cwd [dir: string] {
+        if ($dir | is-empty) { return "" }
+        let jj_root = try { do { cd $dir; jj workspace root } | complete } catch { {exit_code: 1, stdout: ""} }
+        if $jj_root.exit_code == 0 {
+            let root = ($jj_root.stdout | str trim)
+            let home = ($env.HOME? | default "")
+            let root_display = if ($home | is-not-empty) and ($root | str starts-with $home) {
+                let rel = ($root | str replace $home "" | str trim -l -c '/')
+                $"~/($rel)"
+            } else {
+                $root
+            }
+            let root_parts = ($root_display | split row "/")
+            let base = if ($root_parts | length) <= 5 {
+                $root_display
+            } else {
+                let tail = ($root_parts | last 5 | str join "/")
+                $"…/($tail)"
+            }
+            let subpath = if ($dir | str starts-with $root) {
+                $dir | str replace $root "" | str trim -l -c '/'
+            } else { "" }
+            if ($subpath | is-not-empty) {
+                $"\e[36m($base)\e[0m → \e[34m($subpath)\e[0m"
+            } else {
+                $"\e[36m($base)\e[0m"
+            }
+        } else {
+            let home = ($env.HOME? | default "")
+            let display = if ($home | is-not-empty) and ($dir | str starts-with $home) {
+                let rel = ($dir | str replace $home "" | str trim -l -c '/')
+                $"~/($rel)"
+            } else {
+                $dir
+            }
+            let parts = ($display | split row "/")
+            let shortened = if ($parts | length) <= 5 {
+                $display
+            } else {
+                let tail = ($parts | last 5 | str join "/")
+                $"…/($tail)"
+            }
+            $shortened
+        }
+    }
+
+    let cwd_raw = ($input | get workspace?.current_dir? | default "")
+    let cwd_display = if ($cwd_raw | is-not-empty) {
+        let formatted = (format-cwd $cwd_raw)
+        $" | ($formatted)"
+    } else { "" }
+    let jj_info = get-jj-info
+    let quota_section = if ($usage_info | is-not-empty) {
+        " | (usage) " + $usage_info
+    } else { "" }
+
+    print -n $"($model_name) | Ctx: ($context_display) | ($tok_display)($cache_display) | ($cost_display) | t:($elapsed_display) w:($wait_display) | ($churn_display)($marker_200k)($jj_info)($quota_section)($cwd_display)"
+  '';
+
+  # Extract cli.js from the bun --compile --bytecode executable. Since 2.1.113
+  # the npm package ships a bun SEA ELF instead of plain cli.js, but the source
+  # is still embedded as text alongside the V8 parse cache.
+  lift = pkgs.writeScriptBin "lift-claude-bun" /* py */ ''
+    #!${getExe pkgs.python3}
+    from __future__ import annotations
+
+    import sys
+    from pathlib import Path
+
+    # Skip over .rodata / .text — those contain `// @bun` string literals (error
+    # messages, help text) that would confuse the scanner. The first real module
+    # sat at ~0xd333ec8 in 2.1.113; staying well below that survives future growth.
+    SCAN_FROM: int = 0x6000000
+
+    HEADERS: list[bytes] = [
+        b"// @bun @bytecode @bun-cjs\n(function(exports, require, module, __filename, __dirname) {",
+        b"// @bun @bun-cjs\n(function(exports, require, module, __filename, __dirname) {",
+    ]
+
+    CJS_OPEN: bytes = b"(function(exports, require, module, __filename, __dirname) {"
+    CJS_END: bytes = b"})\n\x00"
+
+
+    def find_main_module(data: bytes) -> tuple[int, int]:
+        # In 2.1.117 bun emits cli.js twice: once as a @bytecode blob with the V8
+        # parse cache interleaved between the source and its `})\n\x00` terminator,
+        # and again as a clean source-only copy that terminates normally. Collect
+        # every header past SCAN_FROM and pick the first one whose terminator lies
+        # before the next header — that's the source-only copy.
+        headers: list[tuple[int, int]] = []
+        for header in HEADERS:
+            p: int = SCAN_FROM
+            while True:
+                p = data.find(header, p)
+                if p < 0:
+                    break
+                headers.append((p, len(header)))
+                p += 1
+
+        if not headers:
+            sys.exit("lift: no bun CJS module header found past 0x6000000")
+
+        headers.sort()
+        boundaries: list[int] = [p for p, _ in headers] + [len(data)]
+
+        for idx, (start, _) in enumerate(headers):
+            next_header: int = boundaries[idx + 1]
+            end: int = data.find(CJS_END, start, next_header)
+            if end >= 0:
+                return start, end + 3  # include })\n, exclude trailing NUL
+
+        sys.exit("lift: could not find module terminator (})\\n\\x00)")
+
+
+    def unwrap(mod: bytes) -> bytes:
+        nl = mod.find(b"\n")
+        if nl < 0:
+            sys.exit("lift: module has no header newline")
+        body = mod[nl + 1 :]
+        if not body.startswith(CJS_OPEN):
+            sys.exit("lift: module does not open with expected CJS wrapper")
+        body = body[len(CJS_OPEN) :]
+        if body.endswith(b"})\n"):
+            body = body[:-3]
+        elif body.endswith(b"})"):
+            body = body[:-2]
+        else:
+            sys.exit("lift: module does not end with `})` wrapper close")
+        return body
+
+
+    def main() -> None:
+        if len(sys.argv) != 3:
+            sys.exit("usage: lift-claude-bun <claude-binary> <output.cjs>")
+
+        binary = Path(sys.argv[1])
+        output = Path(sys.argv[2])
+
+        data = binary.read_bytes()
+        start, end = find_main_module(data)
+        body = unwrap(data[start:end])
+
+        if b"Anthropic" not in body[:4096]:
+            sys.exit("lift: extracted body is missing Anthropic banner — layout changed?")
+
+        output.write_bytes(body)
+        sys.stderr.write(
+            f"lifted {len(body):,} bytes from {binary.name} "
+            f"(module @ {start:#x}..{end:#x}) -> {output}\n"
+        )
+
+
+    if __name__ == "__main__":
+        main()
+  '';
+
+  # Patch the lifted cli.cjs: AGENTS.md loader, macOS config path, hard-disabled
+  # slash commands, telemetry-gate bypass, Av() force-true, 1h prompt cache TTL,
+  # deno bridge spawn via env(1), feature gate flips, background agent timeout
+  # bump, claude-api skill disable, Deno-native OAuth usage fetch.
+  patch = pkgs.writeScriptBin "patch-claude-code-src" /* py */ ''
+    #!${getExe pkgs.python3}
+    from __future__ import annotations
+
+    import re
+    import sys
+    from collections.abc import Callable
+    from pathlib import Path
+    from typing import Union
+
+    type Replacement = Union[bytes, Callable[[re.Match[bytes]], bytes]]
+
+    W: bytes = rb"[\w$]+"
+    # Qualified name: matches `FN` and also `NS.FN` (e.g. `Lf.join`, `Oc7.spawn`).
+    # Since 2.1.113 bun's bundler emits more member-style calls for path/spawn helpers.
+    Q: bytes = rb"[\w$]+(?:\.[\w$]+)*"
+    data: bytes = Path(sys.argv[1]).read_bytes()
+
+    SEARCH_WINDOW: int = 500
+
+
+    def log(msg: str) -> None:
+        sys.stderr.write(msg + "\n")
+
+
+    def patch(label: str, pattern: bytes, replacement: Replacement) -> None:
+        global data
+        data, n = re.subn(pattern, replacement, data)
+        log(f"{label} ({n})")
+
+
+    def replace(label: str, old: bytes, new: bytes) -> None:
+        global data
+        n: int = data.count(old)
+        if n == 0:
+            log(f"{label}: NOT FOUND")
+            return
+        data = data.replace(old, new)
+        log(f"{label} ({n})")
+
+
+    def flip_gates(gates: list[tuple[bytes, str]]) -> None:
+        """Flip all gate defaults from false to true in a single regex pass."""
+        global data
+        gate_keys: list[bytes] = [g for g, _ in gates]
+        labels: dict[bytes, str] = dict(gates)
+        alternation: bytes = b"|".join(re.escape(g) for g in gate_keys)
+        pat: bytes = W + rb'\("(' + alternation + rb')",!1\)'
+        flipped: set[bytes] = set()
+
+        def replacer(m: re.Match[bytes]) -> bytes:
+            flipped.add(m.group(1))
+            return m[0].replace(b",!1)", b",!0)")
+
+        data, n = re.subn(pat, replacer, data)
+        log(f"feature gates: {n} flipped across {len(flipped)} gates")
+        for key in gate_keys:
+            status = "ok" if key in flipped else "MISSED"
+            log(f"  {labels[key]} [{status}]")
+
+
+    # --- AGENTS.md support ---
+    # The CLAUDE.md loader only reads CLAUDE.md. Patch it to also load AGENTS.md
+    # from the same directories. Pattern: let VAR=ME(DIR,"CLAUDE.md");ARR.push(...await XE(VAR,"Project",ARG,BOOL))
+
+    agents_pat: bytes = (
+        rb"let (" + W + rb")=(" + Q + rb")\((" + W + rb'),"CLAUDE\.md"\);'
+        rb"(" + W + rb")\.push\(\.\.\.await (" + W + rb")\(\1,\"Project\",(" + W + rb"),(" + W + rb")\)\)"
+    )
+
+
+    def agents_repl(m: re.Match[bytes]) -> bytes:
+        var, join_fn, dir_, arr, load_fn, arg, flag = [m.group(i) for i in range(1, 8)]
+        return (
+            b'for(let _f of["CLAUDE.md","AGENTS.md"]){let '
+            + var + b"=" + join_fn + b"(" + dir_ + b",_f);"
+            + arr + b".push(...await " + load_fn + b"(" + var + b',"Project",' + arg + b"," + flag + b"))}"
+        )
+
+
+    patch("agents.md loader", agents_pat, agents_repl)
+
+    # --- macOS config path ---
+
+    replace(
+        "macOS config path",
+        b'case"macos":return"/Library/Application Support/ClaudeCode"',
+        b'case"macos":return"/etc/claude-code"',
+    )
+
+    # --- Enable hard-disabled slash commands ---
+
+    slash_commands: list[tuple[bytes, str]] = [
+        (b'name:"btw",description:"Ask a quick side question', "/btw"),
+        (b'name:"bridge-kick",description:"Inject bridge failure states', "/bridge-kick"),
+        (b'name:"files",description:"List all files currently in context"', "/files"),
+    ]
+
+    for anchor, label in slash_commands:
+        pos: int = data.find(anchor)
+        if pos < 0:
+            log(f"slash command {label}: NOT FOUND")
+            continue
+        window: bytes = data[pos : pos + SEARCH_WINDOW]
+        patched: bytes = window.replace(b"isEnabled:()=>!1", b"isEnabled:()=>!0", 1)
+        if patched == window:
+            log(f"slash command {label}: isEnabled not found in window")
+            continue
+        data = data[:pos] + patched + data[pos + SEARCH_WINDOW :]
+        log(f"slash command {label}: enabled")
+
+    # --- Bypass telemetry gate in feature flag checker ---
+    # The chain is: h8(featureGate) bails to default if !Qo(); Qo()=Ew6();
+    # Ew6()=!Cq6(); Cq6() returns true when on bedrock/vertex/foundry OR when
+    # user-facing telemetry is disabled (s_1()/equivalent). Drop the trailing
+    # telemetry-disabled check so feature gates still resolve with
+    # DISABLE_TELEMETRY=1 while preserving the bedrock/vertex/foundry detection.
+    # Anchor on the stable env-var literal CLAUDE_CODE_USE_BEDROCK; the obfuscated
+    # function name (Cq6) and the trailing wrapper name (s_1) both rotate.
+
+    patch(
+        "telemetry gate (drop telemetry-disabled check)",
+        (
+            rb"function (" + W + rb")\(\)\{return (" + W + rb")\(process\.env\.CLAUDE_CODE_USE_BEDROCK\)"
+            rb"\|\|\2\(process\.env\.CLAUDE_CODE_USE_VERTEX\)"
+            rb"\|\|\2\(process\.env\.CLAUDE_CODE_USE_FOUNDRY\)"
+            rb"\|\|" + W + rb"\(\)\}"
+        ),
+        lambda m: re.sub(rb"\|\|" + W + rb"\(\)\}$", b"||!1}", m[0]),
+    )
+
+    # --- Force Av() async-gate to always resolve true ---
+    # Av(flag) is the ASYNC feature-gate resolver. It short-circuits to its default
+    # in two places when telemetry is off: an inline `if(!va())return!1;` AND the
+    # same check inside Irq() which it delegates to. Since Av() hardcodes !1 as the
+    # default passed to Irq, dropping only the inline guard leaves Irq returning
+    # false anyway.
+    #
+    # Every Av() call-site in 2.1.113 targets a gate we intentionally want enabled:
+    #   - tengu_ccr_bridge              → Qr8() → initReplBridge() auto-connect
+    #   - tengu_ccr_bridge_multi_session → multi-session remote control
+    #   - tengu_ccr_bundle_seed_enabled  → CCR bundle seed
+    #   - tengu_harbor                   → plugin marketplace
+    # None of these are things we want off. Replace the whole body to return !0.
+    # Safe because Av() never writes telemetry — it only reads cached flag state.
+
+    patch(
+        "Av() force-true for telemetry-off builds",
+        # Negative lookahead keeps the body match from extending past the end of Av
+        # into the next function definition (a previous version matched `async
+        # function Bb8(...)` and spanned through Av's tail, obliterating both).
+        # The inner resolver name (Irq → aeq → ...) rotates across versions, so
+        # capture it rather than pinning to a literal.
+        rb"async function (" + W + rb")\(H\)\{(?:(?!async function ).){60,400}?return " + W + rb"\(H,!1,!0\)\}",
+        lambda m: b"async function " + m[1] + b"(H){return !0}",
+    )
+
+    # --- Restore 1h prompt cache TTL when telemetry is off ---
+    # https://github.com/anthropics/claude-code/issues/45381
+    # The GrowthBook allowlist for "ttl":"1h" cache_control falls back to the
+    # default object when telemetry is off. Anthropic now ships
+    # {allowlist:["repl_main_thread*","sdk","auto_mode"]} as the default (up
+    # from the broken {} in earlier versions), so the TUI and SDK already get
+    # 1h TTL — but batch agents and less-common query sources still miss.
+    # Widen the default to ["*"] so everything matches.
+
+    patch(
+        "1h prompt cache TTL fallback",
+        rb'(' + W + rb')\("tengu_prompt_cache_1h_config",\{allowlist:\[[^\]]+\]\}\)\.allowlist\?\?\[\]',
+        lambda m: m[1] + b'("tengu_prompt_cache_1h_config",{allowlist:["*"]}).allowlist??[]',
+    )
+
+    # --- Disable tengu_keybindings_dom (new chord dispatcher) ---
+    # 2.1.118 introduced a DOM-style chord/focus keybinding system behind this
+    # gate. The gate defaults !0 (on). The new system wraps the TUI in a
+    # programmatic focus manager (gt()-guarded useLayoutEffect subscribes to
+    # activeElement and re-focuses a tabIndex ref). During /rewind the message
+    # selector unmounts and remounts in a sequence where the focus target goes
+    # null long enough that keystrokes stop routing — stdin ends up paused,
+    # fd 0 drops out of epoll, and Ctrl-C (a raw 0x03 byte in raw mode) has no
+    # reader. Wedges the TUI hard; only `kill` from another terminal recovers.
+    # The old 117-era dispatcher is still present as the `: old_path` branch
+    # of every gt()?new:old site; flipping the default reverts to it.
+
+    patch(
+        "disable new keybindings dispatcher (causes /rewind hang in 2.1.118)",
+        rb'(' + W + rb')\("tengu_keybindings_dom",!0\)',
+        lambda m: m[1] + b'("tengu_keybindings_dom",!1)',
+    )
+
+    # --- Fix Deno-compile bridge spawn ---
+    # Deno-compiled binaries eat --flags as V8 args, so we route spawns through
+    # env(1) to pass them as normal CLI flags instead.
+
+    patch(
+        "deno bridge spawn fix",
+        rb"let (" + W + rb")=(" + Q + rb")\((" + W + rb")\.execPath,(" + W + rb"),",
+        lambda m: (
+            b"let "
+            + m[1]
+            + b"="
+            + m[2]
+            + b'("env",["--",'
+            + m[3]
+            + b".execPath,..."
+            + m[4]
+            + b"],"
+        ),
+    )
+
+    # --- Flip feature gates ---
+    # DISABLE_TELEMETRY=1 prevents GrowthBook feature flag resolution, so all gates
+    # fall back to their hardcoded defaults (false). Flip them to true.
+
+    Gate = tuple[bytes, str]
+
+    core_gates: list[Gate] = [
+        (b"tengu_ccr_bridge", "remote control"),
+        (b"tengu_bridge_system_init", "bridge SDK init on connect"),
+        (b"tengu_bridge_client_presence_enabled", "bridge presence heartbeats"),
+        (b"tengu_bridge_requires_action_details", "bridge rich tool-use payloads"),
+        (b"tengu_remote_backend", "remote backend"),
+        (b"tengu_immediate_model_command", "instant /model switching"),
+        (b"tengu_fgts", "fine-grained tool streaming"),
+        (b"tengu_auto_background_agents", "background agent timeout"),
+        (b"tengu_plan_mode_interview_phase", "plan mode interview"),
+        (b"tengu_surreal_dali", "scheduled agents/cron"),
+    ]
+
+    memory_gates: list[Gate] = [
+        # (b"tengu_session_memory", "session memory"),  # auto-memory; pollutes unrelated convos
+        (b"tengu_pebble_leaf_prune", "message pruning"),
+        (b"tengu_herring_clock", "team memory directory"),
+        (b"tengu_passport_quail", "typed combined memory prompts"),
+        (b"tengu_paper_halyard", "memory dedup in nested dirs"),
+    ]
+
+    ux_gates: list[Gate] = [
+        (b"tengu_coral_fern", "grep hints in prompt"),
+        (b"tengu_kairos_brief", "brief output mode"),
+        (b"tengu_destructive_command_warning", "destructive command warnings"),
+        (b"tengu_amber_prism", "permission denial context"),
+        (b"tengu_hawthorn_steeple", "context windowing"),
+        (b"tengu_loud_sugary_rock", "Opus 4.7 terse output guidance"),
+        (b"tengu_verified_vs_assumed", "verified-vs-assumed reporting"),
+        (b"tengu_birch_compass", "/usage 'What's contributing' breakdown block"),
+        # tengu_pewter_brook (fullscreen TUI default) disabled — Ink fullscreen
+        # rendering drops memoized Text children in nested Box columns (/usage
+        # loses its "What's contributing..." bold header, big vertical gaps).
+        # Re-enable by setting `tui: "fullscreen"` in settings.json if desired.
+    ]
+
+    tool_gates: list[Gate] = [
+        (b"tengu_chrome_auto_enable", "auto-enable chrome devtools"),
+        (b"tengu_plum_vx3", "web search reranking"),
+        # (b"tengu_moth_copse", "relevant memory recall"),  # auto-recall; pollutes unrelated convos
+        (b"tengu_cork_m4q", "batch command processing"),
+        (b"tengu_harbor", "plugin marketplace"),
+        (b"tengu_harbor_permissions", "plugin permissions"),
+        (b"tengu_relay_chain_v1", "parallel command chaining guidance"),
+        (b"tengu_edit_minimalanchor_jrn", "Edit tool minimal-anchor instructions"),
+        (b"tengu_slate_reef", "Read tool clearer offset/limit docs"),
+        (b"tengu_otk_slot_v1", "output-token escalation for complex tasks"),
+        (b"tengu_onyx_basin_m1k", "subagent tool-result truncation"),
+        (b"tengu_sub_nomdrep_q7k", "block subagent report .md writes"),
+        (b"tengu_amber_sentinel", "Monitor tool for streaming bg scripts"),
+        (b"tengu_miraculo_the_bard", "skip penguin-mode startup prefetch"),
+        (b"tengu_noreread_q7m_velvet", "sharper 'wasted read' feedback"),
+    ]
+
+    flip_gates(core_gates + memory_gates + ux_gates + tool_gates)
+
+    # --- Bump background agent timeout from 120s to 240s ---
+
+    patch(
+        "background agent timeout",
+        rb'"tengu_auto_background_agents",![01]\)\)return 120000',
+        lambda m: m[0].replace(b"120000", b"240000"),
+    )
+
+    # --- Disable the claude-api bundled skill ---
+    # Registered via vA({name:"claude-api",description:v4_,...}) at bundle-load
+    # time. The description (v4_) is a ~200-token SDK/Bedrock usage matrix with
+    # TRIGGER/SKIP rules that gets injected into every system prompt. We don't
+    # write Anthropic SDK code in this environment, so cut it. Renamed from
+    # `claude-developer-platform` in an earlier release — match on current name.
+
+    patch(
+        "disable claude-api skill",
+        rb'(' + W + rb')\(\{name:"claude-api",description:',
+        lambda m: m[1] + b'({name:"claude-api",isEnabled:()=>!1,description:',
+    )
+
+    # --- Replace usage fetch with self-contained OAuth implementation ---
+    # FO()/eO() falls back to x-api-key when dA()/nA() returns false (telemetry off),
+    # but /api/oauth/usage requires Bearer + oauth beta header. Replace the entire
+    # function with a Deno-native implementation that reads credentials directly.
+
+    usage_fn_pat: bytes = (
+        rb"async function (" + W + rb")\(\)\{"
+        rb"(?:if\(!" + W + rb"\(\)\|\|!" + W + rb"\(\)\)return\{\};)?"
+        rb"let " + W + rb"=" + W + rb"\(\);if\(" + W + rb"&&" + W + rb"\(" + W + rb"\." + W + rb"\)\)return null;"
+        rb"let " + W + rb"=" + W + rb"\(\);if\(" + W + rb"\.error\)throw Error\(\x60Auth error: \x24\{" + W + rb"\.error\}\x60\);"
+        rb"let " + W + rb"=\{[^}]+\}," + W + rb"=\x60\x24\{(" + W + rb")\(\)\.(" + W + rb")\}/api/oauth/usage\x60;"
+        rb"return\(await (" + W + rb")\.get\(" + W + rb",\{headers:" + W + rb",timeout:5000\}\)\)\.data\}"
+    )
+
+    usage_fn_match: re.Match[bytes] | None = re.search(usage_fn_pat, data)
+    if usage_fn_match:
+        fn_name: bytes = usage_fn_match.group(1)
+        config_fn: bytes = usage_fn_match.group(2)
+        base_url_key: bytes = usage_fn_match.group(3)
+        http_client: bytes = usage_fn_match.group(4)
+        replacement: bytes = (
+            b"async function " + fn_name + b"(){"
+            b"const _cd=(process.env.CLAUDE_CONFIG_DIR||"
+            b'(Deno.env.get("HOME")+"/.config/claude"));'
+            b"let _tk;"
+            b'try{const _cr=JSON.parse(new TextDecoder().decode('
+            b'Deno.readFileSync(_cd+"/.credentials.json")));'
+            b"_tk=_cr?.claudeAiOauth?.accessToken}catch{return{}}"
+            b"if(!_tk)return{};"
+            b'const _cp="/tmp/.claude-usage-"+_tk.slice(-8)+".json";'
+            b"try{const _s=Deno.statSync(_cp);"
+            b"if(Date.now()-_s.mtime.getTime()<60000)"
+            b'return JSON.parse(new TextDecoder().decode(Deno.readFileSync(_cp)))}catch{}'
+            b"const _h={" + b'"Content-Type":"application/json",'
+            b'"Authorization":"Bearer "+_tk,'
+            b'"anthropic-beta":"oauth-2025-04-20"};'
+            b"const _u=`''${" + config_fn + b"()." + base_url_key + b"}/api/oauth/usage`;"
+            b"const _r=(await " + http_client + b".get(_u,{headers:_h,timeout:5000})).data;"
+            b'try{Deno.writeTextFileSync(_cp,JSON.stringify(_r))}catch{}'
+            b"return _r}"
+        )
+        data = data.replace(usage_fn_match[0], replacement)
+        log("usage fetch: replaced")
+    else:
+        log("usage fetch: pattern NOT FOUND")
+
+    # --- grep/find/rg shim: delegate to absolute Nix store paths ---
+    # claude-code ships a shell shim (o45/i45 → a38) that redefines
+    # `grep`/`find`/`rg` as bash functions which re-exec the claude binary
+    # with argv[0]=ugrep/bfs/rg. In Bun "ant-native" builds this dispatches
+    # to bundled native tools. The Deno repack drops those, so invocations
+    # fail with `error: unknown option '-G'`. Rewrite a38's emitted bash to
+    # call the real tools directly via their Nix store paths (resolved at
+    # build time), so the shim works regardless of PATH and whether the
+    # cached binary is launched through the wrapper or standalone.
+
+    a38_pat: bytes = (
+        rb"function (" + W + rb")\(H,_,q=\[\]\)\{"
+        rb"let (" + W + rb")=q\.length>0\?\x60\$\{q\.join\(\" \"\)\} \"\$@\"\x60:'\"\$@\"';"
+        rb"return\[[\s\S]*?\]\.join\(\x60\n\x60\)\}"
+    )
+
+
+    def a38_repl(m: re.Match[bytes]) -> bytes:
+        fn_name: bytes = m.group(1)
+        loc: bytes = m.group(2)
+        return (
+            b"function " + fn_name + b"(H,_,q=[]){"
+            b"let " + loc + b'=q.length>0?\x60''${q.join(" ")} "$@"\x60:\'"$@"\';'
+            b'let P=({ugrep:"${getExe' pkgs.ugrep "ugrep"}",'
+            b'bfs:"${getExe pkgs.bfs}",'
+            b'rg:"${getExe pkgs.ripgrep}"})[_]||_;'
+            b"return\x60function ''${H} { "
+            b'if ! [ -x ''${P} ]; then command ''${H} "$@"; return; fi; '
+            b"''${P} ''${" + loc + b"}; }\x60}"
+        )
+
+
+    patch("grep/find/rg shim: use absolute store paths", a38_pat, a38_repl)
+
+    Path(sys.argv[1]).write_bytes(data)
+  '';
+
+  # Chrome DevTools MCP: deno-compiled so we can stub the Clearcut telemetry
+  # watchdog before sealing the binary.
+  chrome-devtools-mcp =
+    let
+      version = "0.17.3";
+    in
+    pkgs.writeShellScriptBin "chrome-devtools-mcp" ''
+      set -euo pipefail
+      export PATH="${pkgs.deno}/bin:$PATH"
+
+      CACHE="''${XDG_CACHE_HOME:-$HOME/.cache}/chrome-devtools-mcp"
+      BIN="$CACHE/chrome-devtools-mcp-${version}"
+
+      if [ ! -x "$BIN" ]; then
+        mkdir -p "$CACHE"
+        DENO_DIR="$CACHE/.deno"
+        export DENO_DIR
+        deno cache "npm:chrome-devtools-mcp@${version}"
+        cat > "$DENO_DIR/npm/registry.npmjs.org/chrome-devtools-mcp/${version}/build/src/telemetry/WatchdogClient.js" <<'STUB'
+      export class WatchdogClient { constructor() {} send() {} }
+      STUB
+        deno compile --allow-all --output "$BIN" "npm:chrome-devtools-mcp@${version}" 2>&1
+        rm -rf "$DENO_DIR"
+      fi
+
+      exec "$BIN" --no-usage-statistics "$@"
+    '';
+
+  # CLI proxy that trims command output before it reaches the LLM.
+  rtk = pkgs.rustPlatform.buildRustPackage {
+    pname = "rtk";
+    version = "0.34.1";
+
+    src = pkgs.fetchFromGitHub {
+      owner = "rtk-ai";
+      repo = "rtk";
+      tag = "v0.34.1";
+      hash = "sha256-f9bhFkJ1d4S791iouIqyz0wOyghScvdpHpQKLC+UxJM=";
+    };
+
+    cargoHash = "sha256-DCVYkznC91OP50FxaigW0q/mVLclYLTy7nAShnK11yE=";
+
+    doCheck = false;
+
+    meta = {
+      description = "CLI proxy that reduces LLM token consumption by filtering command output";
+      homepage = "https://github.com/rtk-ai/rtk";
+      license = lib.licenses.mit;
+      mainProgram = "rtk";
+    };
+  };
+
+  settings = {
+    "$schema" = "https://json.schemastore.org/claude-code-settings.json";
+
+    env = {
+      CLAUDE_BASH_NO_LOGIN = "1";
+      CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING = "1";
+      CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1";
+      CLAUDE_CODE_DISABLE_TERMINAL_TITLE = "1";
+      CLAUDE_CODE_EAGER_FLUSH = "1";
+      CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
+      CLAUDE_CODE_FORCE_GLOBAL_CACHE = "1";
+      CLAUDE_CODE_HIDE_ACCOUNT_INFO = "1";
+      CLAUDE_CODE_MAX_TOOL_USE_CONCURRENCY = "20";
+      CLAUDE_CODE_PLAN_V2_AGENT_COUNT = "5";
+      CLAUDE_CODE_PLAN_V2_EXPLORE_AGENT_COUNT = "5";
+      DISABLE_AUTO_COMPACT = "1";
+      DISABLE_AUTOUPDATER = "1";
+      DISABLE_COST_WARNINGS = "1";
+      DISABLE_ERROR_REPORTING = "1";
+      DISABLE_INSTALLATION_CHECKS = "1";
+      DISABLE_TELEMETRY = "1";
+      ENABLE_MCP_LARGE_OUTPUT_FILES = "1";
+      ENABLE_TOOL_SEARCH = "auto:5";
+      MAX_THINKING_TOKENS = "31999";
+      MCP_CONNECTION_NONBLOCKING = "1";
+      RTK_TELEMETRY_DISABLED = "1";
+      USE_BUILTIN_RIPGREP = "0";
+      UV_THREADPOOL_SIZE = "16";
+    };
+
+    attribution.commit = "";
+    attribution.pr = "";
+
+    permissions.allow = [
+      "Read"
+      "mcp__chrome-devtools__*"
+      "mcp__ida-pro-mcp__*"
+    ];
+    permissions.defaultMode = "bypassPermissions";
+
+    hooks.PreToolUse = singleton {
+      matcher = "Bash";
+      hooks = singleton {
+        type = "command";
+        command = "/home/amaanq/.claude/hooks/rtk-rewrite.sh";
+      };
+    };
+    hooks.WorktreeCreate = singleton {
+      hooks = singleton {
+        type = "command";
+        command = /* bash */ ''jj workspace add "$(cat /dev/stdin | jq -r '.name')"'';
+      };
+    };
+    hooks.WorktreeRemove = singleton {
+      hooks = singleton {
+        type = "command";
+        command = /* bash */ ''jj workspace forget "$(cat /dev/stdin | jq -r '.worktree_path')"'';
+      };
+    };
+
+    enabledPlugins = {
+      "clangd-lsp@claude-plugins-official" = true;
+      "code-review@claude-plugins-official" = true;
+      "code-simplifier@claude-plugins-official" = true;
+      "kotlin-lsp@claude-plugins-official" = true;
+      "ralph-loop@claude-plugins-official" = true;
+      "rust-analyzer-lsp@claude-plugins-official" = true;
+    };
+
+    statusLine = {
+      type = "command";
+      command = getExe statusLine;
+    };
+
+    skipWebFetchPreflight = true;
+
+    spinnerVerbs.mode = "replace";
+    spinnerVerbs.verbs = [
+      "Redeeming"
+      "Clodding"
+      "Tokenmaxxing"
+      "Slopping"
+      "Clanking"
+      "Churning"
+      "Forgetting"
+      "Splurging"
+      "Ignoring GPL"
+      "Increasing ram prices"
+    ];
+
+    cleanupPeriodDays = 90;
+    alwaysThinkingEnabled = true;
+    remoteControlAtStartup = true;
+    showClearContextOnPlanAccept = true;
+    skipDangerousModePermissionPrompt = true;
+  };
+
+  settingsJson = pkgs.writeText "claude-settings.json" (toJSON settings);
+
+  runtimeDeps = lib.makeBinPath (
+    [
+      pkgs.procps
+      pkgs.ripgrep
+    ]
+    ++ optionals pkgs.stdenv.hostPlatform.isLinux [
+      pkgs.bubblewrap
+      pkgs.socat
+    ]
+  );
+
+  # Launcher: detects platform, downloads the latest npm tarball, lifts cli.cjs,
+  # patches it, deno-compiles it, caches per version, then execs. Falls back to
+  # the newest cached binary when offline.
+  claude = pkgs.writeScriptBin "claude" /* nu */ ''
+    #!${getExe pkgs.nushell} --no-config-file
+
+    def detect-platform []: nothing -> string {
+      let arch = match ($nu.os-info.arch | str downcase) {
+        "x86_64" | "x64" | "amd64" => "x64"
+        "aarch64" | "arm64" => "arm64"
+        $arch => {
+          print --stderr $"(ansi red_bold)error:(ansi reset) unsupported arch: ($arch)"
+          exit 67
+        }
+      }
+
+      match ($nu.os-info.name | str downcase) {
+        "linux" => $"linux-($arch)"
+        "macos" | "darwin" => $"darwin-($arch)"
+        $os => {
+          print --stderr $"(ansi red_bold)error:(ansi reset) unsupported os: ($os)"
+          exit 67
+        }
+      }
+    }
+
+    def build-binary [version: string, binary_path: string, cache: string] {
+      let platform = detect-platform
+      let pkg = $"@anthropic-ai/claude-code-($platform)"
+      let tarball_url = $"https://registry.npmjs.org/($pkg)/-/claude-code-($platform)-($version).tgz"
+
+      let tgz_dir = $cache | path join "tgz"
+      mkdir $tgz_dir
+      let tgz = $tgz_dir | path join $"claude-code-($platform)-($version).tgz"
+
+      if not ($tgz | path exists) {
+        print --stderr $"(ansi cyan)fetch:(ansi reset) ($tarball_url)"
+        http get --raw $tarball_url | save --force --raw $tgz
+      }
+
+      let workdir = $cache | path join $"build-($version)"
+      rm -rf $workdir
+      mkdir $workdir
+
+      ^${getExe pkgs.gnutar} -xzf $tgz -C $workdir
+      let native_bin = $workdir | path join "package" "claude"
+      if not ($native_bin | path exists) {
+        error make { msg: $"lift: ($native_bin) missing after tar extract" }
+      }
+
+      let cli = $workdir | path join "cli.cjs"
+      ^${getExe lift} $native_bin $cli
+      ^${getExe patch} $cli
+
+      # Bun keeps a handful of http/ws/schema libs as runtime-external. Deno has
+      # no equivalent — drop a package.json next to cli.cjs, resolve deps into
+      # a local node_modules/, and bundle the tree into the executable via
+      # --include.
+      r#'${
+        toJSON {
+          name = "claude-code-lifted";
+          type = "commonjs";
+          dependencies = {
+            ws = "^8";
+            undici = "^6";
+            node-fetch = "^3";
+            ajv = "^8";
+            ajv-formats = "^3";
+            yaml = "^2";
+          };
+        }
+      }'# | save --force ($workdir | path join "package.json")
+
+      cd $workdir
+      $env.DENO_DIR = ($workdir | path join ".deno")
+      ^${getExe pkgs.deno} install --node-modules-dir=auto
+      ^${getExe pkgs.deno} compile --allow-all --no-check --node-modules-dir=auto --include=node_modules --output $binary_path "cli.cjs"
+
+      # nushell refuses to delete a directory you're currently inside
+      cd $cache
+      rm -rf $workdir
+    }
+
+    def detect-version [--cache: directory, --rebuild]: nothing -> string {
+      let version_file = $cache | path join "latest-version"
+
+      match ($rebuild or (try { (date now) - (ls $version_file | get 0.modified) > 6hr })) {
+        # Version older than 6h or doesn't exist.
+        true | null => {
+          let version = try {
+            http get --max-time 5sec https://registry.npmjs.org/@anthropic-ai/claude-code/latest
+              | get version
+          } catch {
+            print --stderr $"(ansi yellow_bold)warn:(ansi reset) fetched version older than 6hr, but can't re-fetch"
+            return ""
+          }
+
+          try {
+            $version_file | path parse | get parent | mkdir $in
+            $version | save --force $version_file
+          } catch {
+            print --stderr $"(ansi yellow_bold)warn:(ansi reset) failed to save latest fetched version"
+          }
+
+          $version
+        },
+
+        # Version fetched within 6h.
+        false => { try {
+          open $version_file
+        } catch {
+          print --stderr $"(ansi yellow_bold)warn:(ansi reset) failed to read latest fetched version"
+          ""
+        } },
+      }
+    }
+
+    def run-latest [--cache: directory, ...arguments] {
+      print --stderr $"(ansi yellow_bold)warn:(ansi reset) falling back to latest binary"
+
+      try {
+        let latest = ls --long ($cache | path join "claude-*")
+          | where { $in.type == "file" and ($in.mode | str substring 2..<3) == "x" }
+          | sort-by modified
+          | last
+          | get name
+        exec $latest ...$arguments
+      } catch {
+        print --stderr $"(ansi red_bold)error:(ansi reset) no binary found"
+        exit 67
+      }
+    }
+
+    def --wrapped main [--rebuild, ...args] {
+      let cache = $env
+        | get --optional "XDG_CACHE_HOME"
+        | default ($env.HOME | path join ".cache")
+        | path join "claude-code"
+      mkdir $cache
+
+      let config_dir = $env | get --optional "CLAUDE_CONFIG_DIR" | default (
+        $env
+          | get --optional "XDG_CONFIG_HOME"
+          | default ($env.HOME | path join ".config")
+          | path join "claude"
+      )
+      mkdir $config_dir
+
+      # Sync declarative settings into the writable config dir. Slop refuses
+      # to read a read-only settings.json in place, so we have to copy.
+      cp --force ${settingsJson} ($config_dir | path join "settings.json")
+
+      let version = detect-version --cache $cache --rebuild=($rebuild)
+      if ($version | is-empty) { run-latest --cache $cache ...$args }
+
+      let binary_path = $cache | path join $"claude-($version)"
+
+      if not ($binary_path | path exists) or $rebuild {
+        build-binary $version $binary_path $cache
+      }
+
+      $env.PATH = ($env.PATH | prepend ("${runtimeDeps}" | split row ":"))
+      r#'${toJSON settings.env}'# | from json | load-env
+
+      exec $binary_path ...$args
+    }
+  '';
+in
+{
+  environment.systemPackages = [
+    chrome-devtools-mcp
+    rtk
+    claude
+  ];
+
+  environment.variables.CLAUDE_CONFIG_DIR = "$XDG_CONFIG_HOME/claude";
+}
