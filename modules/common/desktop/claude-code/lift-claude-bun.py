@@ -35,17 +35,34 @@ CJS_END: bytes = b"})\n\x00"
 
 
 def find_main_module(data: bytes) -> tuple[int, int]:
+    # In 2.1.117 bun emits cli.js twice: once as a @bytecode blob with the V8
+    # parse cache interleaved between the source and its `})\n\x00` terminator,
+    # and again as a clean source-only copy that terminates normally. Collect
+    # every header past SCAN_FROM and pick the first one whose terminator lies
+    # before the next header — that's the source-only copy.
+    headers: list[tuple[int, int]] = []
     for header in HEADERS:
-        start = data.find(header, SCAN_FROM)
-        if start >= 0:
-            break
-    else:
+        p: int = SCAN_FROM
+        while True:
+            p = data.find(header, p)
+            if p < 0:
+                break
+            headers.append((p, len(header)))
+            p += 1
+
+    if not headers:
         sys.exit("lift: no bun CJS module header found past 0x6000000")
 
-    end = data.find(CJS_END, start)
-    if end < 0:
-        sys.exit("lift: could not find module terminator (})\\n\\x00)")
-    return start, end + 3  # include })\n, exclude trailing NUL
+    headers.sort()
+    boundaries: list[int] = [p for p, _ in headers] + [len(data)]
+
+    for idx, (start, _) in enumerate(headers):
+        next_header: int = boundaries[idx + 1]
+        end: int = data.find(CJS_END, start, next_header)
+        if end >= 0:
+            return start, end + 3  # include })\n, exclude trailing NUL
+
+    sys.exit("lift: could not find module terminator (})\\n\\x00)")
 
 
 def unwrap(mod: bytes) -> bytes:
