@@ -37,25 +37,29 @@ let
     };
   });
 
-  # Vendor prettier into packages/opencode/node_modules. The fork's
+  # Vendor prettier into packages/opencode/node_modules. Upstream's
   # node_modules.nix runs `bun install --filter '!./' --filter './packages/opencode' ...`
   # which skips the root workspace, but prettier (used at compile time by
   # generate.ts via dynamic import) is declared in the ROOT package.json.
   # Without this, bun --compile fails with "Could not resolve 'prettier'".
-  # Upstream fix belongs in the fork's filter list.
+  # Upstream fix belongs in the filter list.
   prettier = pkgs.fetchzip {
     url = "https://registry.npmjs.org/prettier/-/prettier-3.6.2.tgz";
     hash = "sha256-1ECWebLdPoOsVcq8TsLMPcZE1iu/GvZYfdf6tikBBlc=";
   };
 
   opencode =
-    (pkgs.callPackage "${inputs.opencode-anomalyco}/nix/opencode.nix" {
+    (pkgs.callPackage "${inputs.opencode-src}/nix/opencode.nix" {
       bun = bun';
-      node_modules = pkgs.callPackage "${inputs.opencode-anomalyco}/nix/node_modules.nix" {
+      node_modules = pkgs.callPackage "${inputs.opencode-src}/nix/node_modules.nix" {
         bun = bun';
       };
     }).overrideAttrs
       (prev: {
+        # PR #13885 (statusline templates) rebased onto v1.14.24; drop once
+        # upstream merges and the tag includes it.
+        patches = (prev.patches or [ ]) ++ [ ./patches/opencode-statusline.patch ];
+
         postConfigure = (prev.postConfigure or "") + ''
           chmod -R u+w packages/opencode/node_modules
           mkdir -p packages/opencode/node_modules/prettier
