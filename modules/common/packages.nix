@@ -46,7 +46,6 @@ in
     pkgs.rbw
     pkgs.rsync
     pkgs.sd
-    pkgs.timg
     pkgs.tokei
     pkgs.tree
     pkgs.unzip
@@ -57,6 +56,7 @@ in
     pkgs.zoxide
   ]
   ++ optionals config.isDesktop [
+    pkgs.timg
     pkgs.yt-dlp
   ]
   ++ optionals config.isLinux [
