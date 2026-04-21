@@ -18,16 +18,19 @@ let
     hash = "sha256-QAWZlCn3qqiXPTx6fb2CjWcUrqb6POyL0srh0cBNLE4=";
   };
 
+  immichPatches = [ ./sharp-0.35.patch ];
+  immichPnpmDeps = pkgs.fetchPnpmDeps {
+    inherit (pkgs.immich) pname version src;
+    patches = (pkgs.immich.patches or [ ]) ++ immichPatches;
+    pnpm = pkgs.pnpm_10;
+    fetcherVersion = 2;
+    hash = "sha256-lGm1yrJmc3EZgQ8ATKXg7n3JG4EDpCkQZy47ftIditM=";
+  };
+
   immich' = pkgs.immich.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ./sharp-0.35.patch ];
+    patches = (old.patches or [ ]) ++ immichPatches;
     buildInputs = map (d: if d.pname or "" == "vips" then pkgs.vips else d) old.buildInputs;
-    pnpmDeps = pkgs.fetchPnpmDeps {
-      inherit (old) pname version src;
-      patches = (old.patches or [ ]) ++ [ ./sharp-0.35.patch ];
-      pnpm = pkgs.pnpm_10;
-      fetcherVersion = 2;
-      hash = "sha256-BM47u88sy8Y9AJ/mT0AapZscQv9m7j5KbDgsWB8thf8=";
-    };
+    pnpmDeps = immichPnpmDeps;
     # Install sharp prebuilt binary with symlinks to system libvips (has libultrahdr)
     postInstall = (old.postInstall or "") + ''
       sharpDir="$out/lib/node_modules/immich/node_modules/.pnpm/sharp@0.35.0-rc.0/node_modules/@img/sharp-linux-x64"
@@ -42,10 +45,12 @@ let
     '';
     passthru = old.passthru // {
       web = old.passthru.web.overrideAttrs (w: {
-        patches = (w.patches or [ ]) ++ [ ./sharp-0.35.patch ];
+        patches = (w.patches or [ ]) ++ immichPatches;
+        pnpmDeps = immichPnpmDeps;
       });
       plugins = old.passthru.plugins.overrideAttrs (p: {
-        patches = (p.patches or [ ]) ++ [ ./sharp-0.35.patch ];
+        patches = (p.patches or [ ]) ++ immichPatches;
+        pnpmDeps = immichPnpmDeps;
       });
     };
   });
