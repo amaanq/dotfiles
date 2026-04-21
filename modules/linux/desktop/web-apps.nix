@@ -80,42 +80,23 @@ let
       '';
   };
 
-  webAppLauncher = pkgs.writeShellScript "web-app-launcher" ''
-    browser="helium"
-
-    browser_exec=""
-    for path in ~/.local ~/.nix-profile /usr /nix/var/nix/profiles/system/etc/profiles/per-user/$USER; do
-      if [ -f "$path/share/applications/$browser.desktop" ]; then
-        browser_exec=$(sed -n 's/^Exec=\([^ ]*\).*/\1/p' "$path/share/applications/$browser.desktop" 2>/dev/null | head -1)
-        break
-      fi
-    done
-
-    if [ -z "$browser_exec" ]; then
-      browser_exec="helium"
-    fi
-
-    url="$1"
-    app_name="''${2:-$(basename "$0")}"
-    shift 2
-
-    exec setsid "$browser_exec" \
-      --app="$url" \
-      --user-data-dir="$HOME/.local/share/web-apps/$app_name" \
-      --no-first-run \
-      --no-default-browser-check \
-      --disable-background-timer-throttling \
-      --disable-backgrounding-occluded-windows \
-      --disable-renderer-backgrounding \
-      --enable-quic \
-      --quic-version=h3-29 \
-      --enable-features=UseOzonePlatform,WaylandWindowDecorations,WaylandPerWindowScaling,WaylandTextInputV3,WebRTCPipeWireCapturer \
-      --disable-features=WebRtcAllowInputVolumeAdjustment \
-      --ozone-platform=wayland \
-      --gtk-version=4 \
-      --enable-experimental-web-platform-features \
-      "$@"
-  '';
+  # Shared flags every PWA inherits. Values are literal strings expanded at
+  # build time; $HOME is escaped so it expands at run time.
+  commonFlags = [
+    "--password-store=gnome-libsecret"
+    "--no-first-run"
+    "--no-default-browser-check"
+    "--disable-background-timer-throttling"
+    "--disable-backgrounding-occluded-windows"
+    "--disable-renderer-backgrounding"
+    "--enable-quic"
+    "--quic-version=h3-29"
+    "--enable-features=UseOzonePlatform,WaylandWindowDecorations,WaylandPerWindowScaling,WaylandTextInputV3,WebRTCPipeWireCapturer"
+    "--disable-features=WebRtcAllowInputVolumeAdjustment"
+    "--ozone-platform=wayland"
+    "--gtk-version=4"
+    "--enable-experimental-web-platform-features"
+  ];
 
   mkWebApp =
     {
@@ -128,6 +109,13 @@ let
     let
       cleanName = replaceStrings [ " " "\n" "\t" ] [ "-" "-" "-" ] name |> toLower;
       pname = "${cleanName}-web-app";
+      heliumBin = "${config.wrappers.helium.finalPackage}/bin/helium";
+      flags = [
+        "--app=${url}"
+        "--user-data-dir=$HOME/.local/share/web-apps/${pname}"
+      ]
+      ++ commonFlags;
+      flagArgs = lib.concatStringsSep " " (map (f: "--add-flags ${lib.escapeShellArg f}") flags);
     in
     pkgs.stdenv.mkDerivation {
       inherit pname;
@@ -141,9 +129,7 @@ let
 
       installPhase = ''
         runHook preInstall
-        makeWrapper ${webAppLauncher} $out/bin/${pname} \
-          --add-flags "${url}" \
-          --add-flags "${pname}"
+        makeWrapper ${heliumBin} $out/bin/${pname} ${flagArgs}
         runHook postInstall
       '';
 
