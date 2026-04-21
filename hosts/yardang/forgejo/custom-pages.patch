@@ -1,0 +1,61 @@
+diff --git a/routers/web/home.go b/routers/web/home.go
+index bd9942748a..4d7db69121 100644
+--- a/routers/web/home.go
++++ b/routers/web/home.go
+@@ -25,10 +25,14 @@ import (
+ )
+ 
+ const (
+ 	// tplHome home page template
+ 	tplHome base.TplName = "home"
++	// tplPrivacy privacy page template
++	tplPrivacy base.TplName = "privacy"
++	// tplHelp help page template
++	tplHelp base.TplName = "help"
+ )
+ 
+ // Home render home page
+ func Home(ctx *context.Context) {
+ 	if ctx.IsSigned {
+@@ -66,10 +70,24 @@ func Home(ctx *context.Context) {
+ 	ctx.Data["OpenGraphDescription"] = setting.UI.Meta.Description
+ 
+ 	ctx.HTML(http.StatusOK, tplHome)
+ }
+ 
++// Privacy renders the privacy policy page
++func Privacy(ctx *context.Context) {
++	ctx.Data["Title"] = "Privacy Policy"
++	ctx.Data["PageIsPrivacy"] = true
++	ctx.HTML(http.StatusOK, tplPrivacy)
++}
++
++// Help renders the help page
++func Help(ctx *context.Context) {
++	ctx.Data["Title"] = "Help"
++	ctx.Data["PageIsHelp"] = true
++	ctx.HTML(http.StatusOK, tplHelp)
++}
++
+ // HomeSitemap renders the main sitemap
+ func HomeSitemap(ctx *context.Context) {
+ 	m := sitemap.NewSitemapIndex()
+ 	if !setting.Service.Explore.DisableUsersPage {
+ 		_, cnt, err := user_model.SearchUsers(ctx, &user_model.SearchUserOptions{
+diff --git a/routers/web/web.go b/routers/web/web.go
+index 6cca2a9f2e..74a6cff65e 100644
+--- a/routers/web/web.go
++++ b/routers/web/web.go
+@@ -438,10 +438,12 @@ func registerRoutes(m *web.Route) {
+ 
+ 	// FIXME: not all routes need go through same middleware.
+ 	// Especially some AJAX requests, we can reduce middleware number to improve performance.
+ 
+ 	m.Get("/", Home)
++	m.Get("/privacy", Privacy)
++	m.Get("/help", Help)
+ 	m.Get("/sitemap.xml", sitemapEnabled, ignExploreSignIn, HomeSitemap)
+ 	m.Group("/.well-known", func() {
+ 		m.Get("/openid-configuration", auth.OIDCWellKnown)
+ 		m.Group("", func() {
+ 			m.Get("/nodeinfo", NodeInfoLinks)
