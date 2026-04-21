@@ -1,0 +1,884 @@
+diff --git a/packages/opencode/src/cli/cmd/tui/app.tsx b/packages/opencode/src/cli/cmd/tui/app.tsx
+index eb5cb44e8..33da44925 100644
+--- a/packages/opencode/src/cli/cmd/tui/app.tsx
++++ b/packages/opencode/src/cli/cmd/tui/app.tsx
+@@ -55,10 +55,11 @@ import { TuiEvent } from "./event"
+ import { KVProvider, useKV } from "./context/kv"
+ import { Provider } from "@/provider"
+ import { ArgsProvider, useArgs, type Args } from "./context/args"
+ import open from "open"
+ import { PromptRefProvider, usePromptRef } from "./context/prompt"
++import { StatusLineProvider, useStatusLine } from "./context/statusline"
+ import { TuiConfigProvider, useTuiConfig } from "./context/tui-config"
+ import { TuiConfig } from "@/cli/cmd/tui/config/tui"
+ import { createTuiApi, TuiPluginRuntime, type RouteMap } from "./plugin"
+ import { FormatError, FormatUnknownError } from "@/cli/error"
+ 
+@@ -169,27 +170,29 @@ export function tui(input: {
+                       >
+                         <ProjectProvider>
+                           <SyncProvider>
+                             <ThemeProvider mode={mode}>
+                               <LocalProvider>
+-                                <KeybindProvider>
+-                                  <PromptStashProvider>
+-                                    <DialogProvider>
+-                                      <CommandProvider>
+-                                        <FrecencyProvider>
+-                                          <PromptHistoryProvider>
+-                                            <PromptRefProvider>
+-                                              <EditorContextProvider>
+-                                                <App onSnapshot={input.onSnapshot} />
+-                                              </EditorContextProvider>
+-                                            </PromptRefProvider>
+-                                          </PromptHistoryProvider>
+-                                        </FrecencyProvider>
+-                                      </CommandProvider>
+-                                    </DialogProvider>
+-                                  </PromptStashProvider>
+-                                </KeybindProvider>
++                                <StatusLineProvider>
++                                  <KeybindProvider>
++                                    <PromptStashProvider>
++                                      <DialogProvider>
++                                        <CommandProvider>
++                                          <FrecencyProvider>
++                                            <PromptHistoryProvider>
++                                              <PromptRefProvider>
++                                                <EditorContextProvider>
++                                                  <App onSnapshot={input.onSnapshot} />
++                                                </EditorContextProvider>
++                                              </PromptRefProvider>
++                                            </PromptHistoryProvider>
++                                          </FrecencyProvider>
++                                        </CommandProvider>
++                                      </DialogProvider>
++                                    </PromptStashProvider>
++                                  </KeybindProvider>
++                                </StatusLineProvider>
+                               </LocalProvider>
+                             </ThemeProvider>
+                           </SyncProvider>
+                         </ProjectProvider>
+                       </SDKProvider>
+@@ -221,10 +224,11 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
+   const themeState = useTheme()
+   const { theme, mode, setMode, locked, lock, unlock } = themeState
+   const sync = useSync()
+   const exit = useExit()
+   const promptRef = usePromptRef()
++  const statusline = useStatusLine()
+   const routes: RouteMap = new Map()
+   const [routeRev, setRouteRev] = createSignal(0)
+   const routeView = (name: string) => {
+     routeRev()
+     return routes.get(name)?.at(-1)?.render
+@@ -307,10 +311,16 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
+ 
+   // Update terminal window title based on current route and session
+   createEffect(() => {
+     if (!terminalTitleEnabled() || Flag.OPENCODE_DISABLE_TERMINAL_TITLE) return
+ 
++    const custom = statusline.templates().terminal_title
++    if (custom) {
++      renderer.setTerminalTitle(custom)
++      return
++    }
++
+     if (route.data.type === "home") {
+       renderer.setTerminalTitle("OpenCode")
+       return
+     }
+ 
+diff --git a/packages/opencode/src/cli/cmd/tui/config/tui-schema.ts b/packages/opencode/src/cli/cmd/tui/config/tui-schema.ts
+index ed79e8e52..6c3ae36d0 100644
+--- a/packages/opencode/src/cli/cmd/tui/config/tui-schema.ts
++++ b/packages/opencode/src/cli/cmd/tui/config/tui-schema.ts
+@@ -22,10 +22,30 @@ export const TuiOptions = z.object({
+   diff_style: z
+     .enum(["auto", "stacked"])
+     .optional()
+     .describe("Control diff rendering style: 'auto' adapts to terminal width, 'stacked' always shows single column"),
+   mouse: z.boolean().optional().describe("Enable or disable mouse capture (default: true)"),
++  status_line: z
++    .object({
++      templates: z
++        .record(z.enum(["terminal_title", "session_footer", "home_footer"]), z.string())
++        .optional()
++        .describe("Template strings per display target with {variable:format} placeholders"),
++      interval: z
++        .number()
++        .int()
++        .min(1)
++        .max(300)
++        .optional()
++        .describe("Polling interval in seconds"),
++      commands: z
++        .record(z.string(), z.string())
++        .optional()
++        .describe("Named shell commands available as {shell:name} in templates"),
++    })
++    .optional()
++    .describe("Status line template configuration"),
+ })
+ 
+ export const TuiInfo = z
+   .object({
+     $schema: z.string().optional(),
+diff --git a/packages/opencode/src/cli/cmd/tui/context/statusline.tsx b/packages/opencode/src/cli/cmd/tui/context/statusline.tsx
+new file mode 100644
+index 000000000..510441c0b
+--- /dev/null
++++ b/packages/opencode/src/cli/cmd/tui/context/statusline.tsx
+@@ -0,0 +1,49 @@
++import { createSignal, createEffect, onCleanup, on } from "solid-js"
++import { useSDK } from "./sdk"
++import { useRoute } from "./route"
++import { createSimpleContext } from "./helper"
++
++export const { use: useStatusLine, provider: StatusLineProvider } = createSimpleContext({
++  name: "StatusLine",
++  init: () => {
++    const sdk = useSDK()
++    const route = useRoute()
++    const [templates, setTemplates] = createSignal<Record<string, string>>({})
++    const [frequency, setFrequency] = createSignal(10)
++
++    let timer: Timer | undefined
++
++    const poll = async () => {
++      const sessionID = route.data.type === "session" ? route.data.sessionID : undefined
++      const result = await sdk.client.tui.statusline({ sessionID }).catch(() => undefined)
++      if (!result?.data) return
++      setTemplates(result.data.templates)
++      setFrequency(result.data.interval)
++    }
++
++    const start = () => {
++      if (timer) clearInterval(timer)
++      poll()
++      timer = setInterval(poll, frequency() * 1000)
++    }
++
++    const stop = () => {
++      if (!timer) return
++      clearInterval(timer)
++      timer = undefined
++    }
++
++    createEffect(
++      on(
++        () => route.data.type === "session" ? route.data.sessionID : undefined,
++        () => {
++          start()
++        },
++      ),
++    )
++
++    onCleanup(stop)
++
++    return { templates, interval: frequency }
++  },
++})
+diff --git a/packages/opencode/src/cli/cmd/tui/routes/home.tsx b/packages/opencode/src/cli/cmd/tui/routes/home.tsx
+index 2f0ff07e9..4f8469e8c 100644
+--- a/packages/opencode/src/cli/cmd/tui/routes/home.tsx
++++ b/packages/opencode/src/cli/cmd/tui/routes/home.tsx
+@@ -1,16 +1,18 @@
+ import { Prompt, type PromptRef } from "@tui/component/prompt"
+-import { createEffect, createSignal } from "solid-js"
++import { createEffect, createSignal, Show } from "solid-js"
+ import { Logo } from "../component/logo"
+ import { useProject } from "../context/project"
+ import { useSync } from "../context/sync"
+ import { Toast } from "../ui/toast"
+ import { useArgs } from "../context/args"
+ import { useRouteData } from "@tui/context/route"
+ import { usePromptRef } from "../context/prompt"
+ import { useLocal } from "../context/local"
++import { useTheme } from "../context/theme"
+ import { TuiPluginRuntime } from "../plugin"
++import { useStatusLine } from "../context/statusline"
+ 
+ let once = false
+ const placeholder = {
+   normal: ["Fix a TODO in the codebase", "What is the tech stack of this project?", "Fix broken tests"],
+   shell: ["ls -la", "git status", "pwd"],
+@@ -37,10 +39,12 @@ export function Home() {
+     }
+     if (!args.prompt) return
+     r.set({ input: args.prompt, parts: [] })
+     once = true
+   }
++  const { theme } = useTheme()
++  const statusline = useStatusLine()
+ 
+   // Wait for sync and model store to be ready before auto-submitting --prompt
+   createEffect(() => {
+     const r = ref()
+     if (sent) return
+@@ -81,10 +85,15 @@ export function Home() {
+         <TuiPluginRuntime.Slot name="home_bottom" />
+         <box flexGrow={1} minHeight={0} />
+         <Toast />
+       </box>
+       <box width="100%" flexShrink={0}>
+-        <TuiPluginRuntime.Slot name="home_footer" mode="single_winner" />
++        <Show
++          when={!statusline.templates().home_footer}
++          fallback={<text fg={theme.textMuted}>{statusline.templates().home_footer}</text>}
++        >
++          <TuiPluginRuntime.Slot name="home_footer" mode="single_winner" />
++        </Show>
+       </box>
+     </>
+   )
+ }
+diff --git a/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx b/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx
+index c04e58ace..6ef4b3124 100644
+--- a/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx
++++ b/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx
+@@ -71,10 +71,11 @@ import * as Clipboard from "../../util/clipboard"
+ import { errorMessage } from "@/util/error"
+ import { Toast, useToast } from "../../ui/toast"
+ import { useKV } from "../../context/kv.tsx"
+ import * as Editor from "../../util/editor"
+ import stripAnsi from "strip-ansi"
++import { useStatusLine } from "../../context/statusline"
+ import { usePromptRef } from "../../context/prompt"
+ import { useExit } from "../../context/exit"
+ import { Filesystem } from "@/util"
+ import { Global } from "@/global"
+ import { PermissionPrompt } from "./permission"
+@@ -124,10 +125,11 @@ export function Session() {
+   const project = useProject()
+   const tuiConfig = useTuiConfig()
+   const kv = useKV()
+   const { theme } = useTheme()
+   const promptRef = usePromptRef()
++  const statusline = useStatusLine()
+   const session = createMemo(() => sync.session.get(route.sessionID))
+   const children = createMemo(() => {
+     const parentID = session()?.parentID ?? session()?.id
+     return sync.data.session
+       .filter((x) => x.parentID === parentID || x.id === parentID)
+@@ -1129,12 +1131,12 @@ export function Session() {
+                                           <span style={{ fg: theme.diffRemoved }}> -{file.deletions}</span>
+                                         </Show>
+                                       </text>
+                                     )}
+                                   </For>
+-                                </box>
+-                              </Show>
++            </box>
++          </Show>
+                             </box>
+                           </box>
+                         )
+                       })()}
+                     </Match>
+@@ -1201,10 +1203,15 @@ export function Session() {
+                     right={<TuiPluginRuntime.Slot name="session_prompt_right" session_id={route.sessionID} />}
+                   />
+                 </TuiPluginRuntime.Slot>
+               </Show>
+             </box>
++            <Show when={statusline.templates().session_footer}>
++              <box flexShrink={0} paddingTop={1}>
++                <text fg={theme.textMuted}>{statusline.templates().session_footer}</text>
++              </box>
++            </Show>
+           </Show>
+           <Toast />
+         </box>
+         <Show when={sidebarVisible()}>
+           <Switch>
+diff --git a/packages/opencode/src/server/routes/instance/tui.ts b/packages/opencode/src/server/routes/instance/tui.ts
+index 932cf509e..66773321b 100644
+--- a/packages/opencode/src/server/routes/instance/tui.ts
++++ b/packages/opencode/src/server/routes/instance/tui.ts
+@@ -3,16 +3,17 @@ import { describeRoute, validator, resolver } from "hono-openapi"
+ import { Schema } from "effect"
+ import z from "zod"
+ import { Bus } from "@/bus"
+ import { Session } from "@/session"
+ import type { SessionID } from "@/session/schema"
++import { StatusLine } from "@/statusline"
+ import { TuiEvent } from "@/cli/cmd/tui/event"
+ import { zodObject } from "@/util/effect-zod"
+ import { AsyncQueue } from "@/util/queue"
+ import { errors } from "../../error"
+ import { lazy } from "@/util/lazy"
+-import { runRequest } from "./trace"
++import { jsonRequest, runRequest } from "./trace"
+ 
+ const TuiRequest = z.object({
+   path: z.string(),
+   body: z.any(),
+ })
+@@ -385,7 +386,38 @@ export const TuiRoutes = lazy(() =>
+         )
+         await Bus.publish(TuiEvent.SessionSelect, { sessionID })
+         return c.json(true)
+       },
+     )
++    .get(
++      "/statusline",
++      describeRoute({
++        summary: "Get resolved status line",
++        description: "Resolve status line templates for each display target with current variables.",
++        operationId: "tui.statusline",
++        responses: {
++          200: {
++            description: "Resolved status line templates",
++            content: {
++              "application/json": {
++                schema: resolver(
++                  z
++                    .object({
++                      templates: z.record(z.string(), z.string()),
++                      interval: z.number(),
++                    })
++                    .nullable(),
++                ),
++              },
++            },
++          },
++        },
++      }),
++      validator("query", z.object({ sessionID: z.string().optional() })),
++      async (c) =>
++        jsonRequest("TuiRoutes.statusline", c, function* () {
++          const result = yield* StatusLine.get(c.req.valid("query").sessionID)
++          return result ?? null
++        }),
++    )
+     .route("/control", TuiControlRoutes),
+ )
+diff --git a/packages/opencode/src/statusline/index.ts b/packages/opencode/src/statusline/index.ts
+new file mode 100644
+index 000000000..fb98dba83
+--- /dev/null
++++ b/packages/opencode/src/statusline/index.ts
+@@ -0,0 +1,258 @@
++import { TuiConfig } from "@/cli/cmd/tui/config/tui"
++import { Plugin } from "../plugin"
++import { Vcs } from "../project"
++import { Instance } from "../project/instance"
++import { Session } from "../session"
++import { SessionID } from "../session/schema"
++import type { MessageV2 } from "../session/message-v2"
++import { SessionStatus } from "../session/status"
++import { Provider } from "../provider"
++import { Log } from "../util"
++import { Effect } from "effect"
++import path from "path"
++
++const log = Log.create({ service: "statusline" })
++
++export namespace StatusLine {
++  const TOKEN_RE = /\{([^}]+)\}/g
++
++  export const builtins = Effect.fn("StatusLine.builtins")(function* (sessionID?: string) {
++    const vars: Record<string, string> = {}
++
++    vars.directory = Instance.directory
++    vars.worktree = Instance.worktree
++    vars.cwd = Instance.directory
++    vars.cwd_basename = path.basename(Instance.directory)
++    vars.project_name = Instance.project.name ?? path.basename(Instance.directory)
++
++    const vcs = yield* Vcs.Service
++    const branch = yield* vcs.branch().pipe(Effect.catchAll(() => Effect.succeed(undefined)))
++    if (branch) vars.git_branch = branch
++
++    vars.timestamp = String(Date.now())
++
++    if (!sessionID) return vars
++
++    const sid = SessionID.make(sessionID)
++    const sessions = yield* Session.Service
++    const session = yield* sessions.get(sid).pipe(Effect.catchAll(() => Effect.succeed(undefined)))
++    if (!session) return vars
++
++    vars.session_id = session.id
++    vars.session_title = session.title
++    vars.session_slug = session.slug
++
++    const sessionStatus = yield* SessionStatus.Service
++    const status = yield* sessionStatus.get(sid)
++    vars.session_status = status.type
++
++    vars.session_created = String(session.time.created)
++    vars.session_updated = String(session.time.updated)
++    vars.session_duration = String(Date.now() - session.time.created)
++
++    const msgs = yield* sessions
++      .messages({ sessionID: sid })
++      .pipe(Effect.catchAll(() => Effect.succeed([] as MessageV2.WithParts[])))
++    if (msgs.length === 0) return vars
++
++    vars.message_count = String(msgs.length)
++
++    const assistants = msgs.flatMap((m) => (m.info.role === "assistant" ? [m.info] : [])).reverse()
++
++    const cost = assistants.reduce((sum, m) => sum + (m.cost ?? 0), 0)
++    const total = assistants.reduce(
++      (sum, m) =>
++        sum + m.tokens.input + m.tokens.output + m.tokens.reasoning + m.tokens.cache.read + m.tokens.cache.write,
++      0,
++    )
++
++    const last = assistants[0]
++    if (last) {
++      vars.model_id = last.modelID
++      vars.provider_id = last.providerID
++      vars.agent = last.agent ?? ""
++      vars.tokens_input = String(last.tokens.input)
++      vars.tokens_output = String(last.tokens.output)
++      vars.tokens_reasoning = String(last.tokens.reasoning)
++      vars.tokens_cache_read = String(last.tokens.cache.read)
++      vars.tokens_cache_write = String(last.tokens.cache.write)
++    }
++
++    vars.total_cost = String(cost)
++    vars.total_tokens = String(total)
++
++    if (last) {
++      const provider = yield* Provider.Service
++      const model = yield* provider
++        .getModel(last.providerID, last.modelID)
++        .pipe(Effect.catchAll(() => Effect.succeed(undefined)))
++      if (model) {
++        vars.model_name = model.name
++        vars.model_family = model.family ?? ""
++        vars.model_context_limit = String(model.limit.context)
++        if (total > 0) {
++          vars.context_used_pct = String(Math.round((total / model.limit.context) * 100))
++        }
++      }
++    }
++
++    return vars
++  })
++
++  export async function commands(cmds: Record<string, string>, cwd: string, timeout = 5000) {
++    const entries = Object.entries(cmds)
++    if (entries.length === 0) return {}
++
++    const results = await Promise.allSettled(
++      entries.map(async ([name, cmd]) => {
++        const proc = Bun.spawn(["sh", "-c", cmd], {
++          cwd,
++          stdout: "pipe",
++          stderr: "ignore",
++          env: process.env,
++        })
++        const timer = setTimeout(() => proc.kill(), timeout)
++        const reader = proc.stdout.getReader()
++        const chunks: Uint8Array[] = []
++        let bytes = 0
++        const maxBytes = 1024
++        while (bytes < maxBytes) {
++          const { done, value } = await reader.read()
++          if (done) break
++          chunks.push(value)
++          bytes += value.length
++        }
++        reader.cancel()
++        clearTimeout(timer)
++        const output = new TextDecoder().decode(Buffer.concat(chunks)).slice(0, maxBytes)
++        return { name, output: output.trimEnd() }
++      }),
++    )
++
++    const fulfilled = results.filter(
++      (r): r is PromiseFulfilledResult<{ name: string; output: string }> => r.status === "fulfilled",
++    )
++    const rejected = results.filter((r): r is PromiseRejectedResult => r.status === "rejected")
++
++    for (const r of rejected) {
++      log.debug("shell command failed", {
++        error: r.reason?.message ?? String(r.reason),
++      })
++    }
++
++    return Object.fromEntries(fulfilled.map((r) => [`shell:${r.value.name}`, r.value.output]))
++  }
++
++  export function resolve(template: string, vars: Record<string, string>) {
++    return template.replace(TOKEN_RE, (_match, token: string) => {
++      if (token in vars) return vars[token]
++
++      const colon = token.indexOf(":")
++      if (colon === -1) {
++        log.debug("unresolved variable", { name: token, template })
++        return ""
++      }
++
++      const name = token.slice(0, colon)
++      const spec = token.slice(colon + 1)
++
++      const value = vars[name]
++      if (value === undefined) {
++        log.debug("unresolved variable", { name, template })
++        return ""
++      }
++      return format(value, spec)
++    })
++  }
++
++  export function format(value: string, spec: string): string {
++    if (spec === "basename") return path.basename(value)
++
++    const barMatch = spec.match(/^bar(\d+)?$/)
++    if (barMatch) {
++      const width = barMatch[1] ? parseInt(barMatch[1]) : 10
++      const pct = Number(value)
++      if (isNaN(pct)) return value
++      const filled = Math.round((Math.min(100, Math.max(0, pct)) / 100) * width)
++      return "█".repeat(filled) + "░".repeat(width - filled)
++    }
++
++    if (spec === "k") {
++      const n = Number(value)
++      if (isNaN(n)) return value
++      return Math.round(n / 1000) + "k"
++    }
++
++    if (spec.startsWith("%")) return formatTime(value, spec)
++
++    log.debug("unknown format spec", { spec, value })
++    return value
++  }
++
++  function formatTime(value: string, spec: string): string {
++    const ms = Number(value)
++    if (isNaN(ms)) return value
++
++    const isDuration =
++      !spec.includes("%Y") &&
++      !spec.includes("%d") &&
++      !spec.includes("%b") &&
++      (spec.includes("%H") || spec.includes("%M") || spec.includes("%S"))
++
++    if (isDuration && ms < 365 * 24 * 60 * 60 * 1000) {
++      const secs = Math.floor(ms / 1000)
++      const hours = Math.floor(secs / 3600)
++      const minutes = Math.floor((secs % 3600) / 60)
++      const seconds = secs % 60
++      return spec
++        .replace("%H", String(hours))
++        .replace("%M", String(minutes).padStart(2, "0"))
++        .replace("%S", String(seconds).padStart(2, "0"))
++    }
++
++    const date = new Date(ms)
++    return spec
++      .replace("%Y", String(date.getFullYear()))
++      .replace("%m", String(date.getMonth() + 1).padStart(2, "0"))
++      .replace("%d", String(date.getDate()).padStart(2, "0"))
++      .replace("%H", String(date.getHours()).padStart(2, "0"))
++      .replace("%M", String(date.getMinutes()).padStart(2, "0"))
++      .replace("%S", String(date.getSeconds()).padStart(2, "0"))
++  }
++
++  export const get = Effect.fn("StatusLine.get")(function* (sessionID?: string) {
++    // TuiConfig isn't part of the server's AppRuntime, so we provide its
++    // default layer inline rather than requiring the caller to inject it.
++    const config = yield* Effect.gen(function* () {
++      const svc = yield* TuiConfig.Service
++      return yield* svc.get()
++    }).pipe(Effect.provide(TuiConfig.defaultLayer))
++    const sl = config.status_line
++    if (!sl?.templates || Object.keys(sl.templates).length === 0) return undefined
++
++    const builtin = yield* builtins(sessionID)
++    const shell = yield* Effect.promise(() => commands(sl.commands ?? {}, Instance.worktree))
++
++    const plugin = yield* Plugin.Service
++    const pluginVars = yield* plugin
++      .trigger("tui.statusLine.variables", { sessionID }, { variables: {} as Record<string, string> })
++      .pipe(
++        Effect.map((r) => r.variables),
++        Effect.catchAll((e) => {
++          log.debug("plugin variables failed", { error: (e as any)?.message ?? String(e) })
++          return Effect.succeed({} as Record<string, string>)
++        }),
++      )
++
++    const vars = { ...builtin, ...shell, ...pluginVars }
++
++    const templates = Object.fromEntries(
++      Object.entries(sl.templates).map(([target, template]) => [target, resolve(template, vars)]),
++    )
++
++    return {
++      templates,
++      interval: sl.interval ?? 10,
++    }
++  })
++}
+diff --git a/packages/opencode/test/statusline/statusline.test.ts b/packages/opencode/test/statusline/statusline.test.ts
+new file mode 100644
+index 000000000..37fe8976a
+--- /dev/null
++++ b/packages/opencode/test/statusline/statusline.test.ts
+@@ -0,0 +1,142 @@
++import { test, expect, describe } from "bun:test"
++import { StatusLine } from "../../src/statusline"
++import { tmpdir } from "../fixture/fixture"
++import os from "os"
++
++describe("format", () => {
++  test("basename extracts filename from path", () => {
++    expect(StatusLine.format("/Users/foo/bar/project", "basename")).toBe("project")
++    expect(StatusLine.format("/a/b/c.txt", "basename")).toBe("c.txt")
++    expect(StatusLine.format("single", "basename")).toBe("single")
++  })
++
++  test("k formats thousands", () => {
++    expect(StatusLine.format("1500", "k")).toBe("2k")
++    expect(StatusLine.format("12345", "k")).toBe("12k")
++    expect(StatusLine.format("500", "k")).toBe("1k")
++    expect(StatusLine.format("0", "k")).toBe("0k")
++  })
++
++  test("bar renders progress bar with default width", () => {
++    const result = StatusLine.format("50", "bar")
++    expect(result.length).toBe(10)
++    expect(result).toBe("█████░░░░░")
++  })
++
++  test("bar renders progress bar with custom width", () => {
++    const result = StatusLine.format("50", "bar20")
++    expect(result.length).toBe(20)
++  })
++
++  test("bar clamps values to 0-100", () => {
++    const full = StatusLine.format("150", "bar5")
++    expect(full).toBe("█████")
++    const empty = StatusLine.format("-10", "bar5")
++    expect(empty).toBe("░░░░░")
++  })
++
++  test("bar returns value for non-numeric input", () => {
++    expect(StatusLine.format("hello", "bar")).toBe("hello")
++  })
++
++  test("k returns value for non-numeric input", () => {
++    expect(StatusLine.format("abc", "k")).toBe("abc")
++  })
++
++  test("time format as duration", () => {
++    const ms = String((1 * 3600 + 23 * 60 + 45) * 1000)
++    expect(StatusLine.format(ms, "%H:%M:%S")).toBe("1:23:45")
++  })
++
++  test("time format as date", () => {
++    const date = new Date(2025, 5, 15, 14, 30, 45)
++    const ms = String(date.getTime())
++    expect(StatusLine.format(ms, "%Y-%m-%d")).toBe("2025-06-15")
++    expect(StatusLine.format(ms, "%H:%M:%S")).toMatch(/\d+:\d{2}:\d{2}/)
++  })
++
++  test("time format returns value for non-numeric input", () => {
++    expect(StatusLine.format("abc", "%H:%M:%S")).toBe("abc")
++  })
++
++  test("unknown spec returns value unchanged", () => {
++    expect(StatusLine.format("hello", "unknown")).toBe("hello")
++  })
++})
++
++describe("resolve", () => {
++  test("replaces simple variables", () => {
++    const result = StatusLine.resolve("Hello {name}!", { name: "world" })
++    expect(result).toBe("Hello world!")
++  })
++
++  test("replaces variables with format specs", () => {
++    const result = StatusLine.resolve("{dir:basename}", { dir: "/Users/foo/project" })
++    expect(result).toBe("project")
++  })
++
++  test("replaces multiple variables", () => {
++    const result = StatusLine.resolve("{a} - {b} - {c}", { a: "1", b: "2", c: "3" })
++    expect(result).toBe("1 - 2 - 3")
++  })
++
++  test("missing variables resolve to empty string", () => {
++    const result = StatusLine.resolve("Hello {missing}!", {})
++    expect(result).toBe("Hello !")
++  })
++
++  test("leaves plain text unchanged", () => {
++    expect(StatusLine.resolve("no variables here", {})).toBe("no variables here")
++  })
++
++  test("handles empty template", () => {
++    expect(StatusLine.resolve("", { a: "1" })).toBe("")
++  })
++
++  test("handles combined format specs", () => {
++    const result = StatusLine.resolve("{tokens:k} tokens, {dir:basename}", {
++      tokens: "15000",
++      dir: "/Users/foo/project",
++    })
++    expect(result).toBe("15k tokens, project")
++  })
++
++  test("handles shell-prefixed variables", () => {
++    const result = StatusLine.resolve("branch: {shell:branch}", { "shell:branch": "main" })
++    expect(result).toBe("branch: main")
++  })
++})
++
++describe("commands", () => {
++  test("returns empty object for empty commands", async () => {
++    const result = await StatusLine.commands({}, os.tmpdir())
++    expect(result).toEqual({})
++  })
++
++  test("runs shell command and captures output", async () => {
++    const result = await StatusLine.commands({ greeting: "echo hello" }, os.tmpdir())
++    expect(result["shell:greeting"]).toBe("hello")
++  })
++
++  test("runs multiple commands", async () => {
++    const result = await StatusLine.commands(
++      {
++        a: "echo aaa",
++        b: "echo bbb",
++      },
++      os.tmpdir(),
++    )
++    expect(result["shell:a"]).toBe("aaa")
++    expect(result["shell:b"]).toBe("bbb")
++  })
++
++  test("trims trailing whitespace from output", async () => {
++    const result = await StatusLine.commands({ ws: "printf 'hello\\n\\n'" }, os.tmpdir())
++    expect(result["shell:ws"]).toBe("hello")
++  })
++
++  test("handles failing commands gracefully", async () => {
++    const result = await StatusLine.commands({ bad: "exit 1" }, os.tmpdir())
++    expect(result["shell:bad"]).toBe("")
++  })
++})
+diff --git a/packages/plugin/src/index.ts b/packages/plugin/src/index.ts
+index 71a3278cb..2f954f858 100644
+--- a/packages/plugin/src/index.ts
++++ b/packages/plugin/src/index.ts
+@@ -328,6 +328,14 @@ export interface Hooks {
+   ) => Promise<void>
+   /**
+    * Modify tool definitions (description and parameters) sent to LLM
+    */
+   "tool.definition"?: (input: { toolID: string }, output: { description: string; parameters: any }) => Promise<void>
++  /**
++   * Called periodically to collect custom variables for the status line template.
++   * Plugins return key-value pairs that become available as {key} in the template.
++   */
++  "tui.statusLine.variables"?: (
++    input: { sessionID?: string },
++    output: { variables: Record<string, string> },
++  ) => Promise<void>
+ }
+diff --git a/packages/sdk/js/src/v2/gen/sdk.gen.ts b/packages/sdk/js/src/v2/gen/sdk.gen.ts
+index 6248eb8e4..11b426463 100644
+--- a/packages/sdk/js/src/v2/gen/sdk.gen.ts
++++ b/packages/sdk/js/src/v2/gen/sdk.gen.ts
+@@ -183,10 +183,11 @@ import type {
+   TuiPublishErrors,
+   TuiPublishResponses,
+   TuiSelectSessionErrors,
+   TuiSelectSessionResponses,
+   TuiShowToastResponses,
++  TuiStatuslineResponses,
+   TuiSubmitPromptResponses,
+   VcsDiffResponses,
+   VcsGetResponses,
+   WorktreeCreateErrors,
+   WorktreeCreateInput,
+@@ -4090,10 +4091,40 @@ export class Tui extends HeyApiClient {
+         ...params.headers,
+       },
+     })
+   }
+ 
++  /**
++   * Get resolved status line
++   *
++   * Resolve status line templates for each display target with current variables.
++   */
++  public statusline<ThrowOnError extends boolean = false>(
++    parameters?: {
++      directory?: string
++      sessionID?: string
++    },
++    options?: Options<never, ThrowOnError>,
++  ) {
++    const params = buildClientParams(
++      [parameters],
++      [
++        {
++          args: [
++            { in: "query", key: "directory" },
++            { in: "query", key: "sessionID" },
++          ],
++        },
++      ],
++    )
++    return (options?.client ?? this.client).get<TuiStatuslineResponses, unknown, ThrowOnError>({
++      url: "/tui/statusline",
++      ...options,
++      ...params,
++    })
++  }
++
+   private _control?: Control
+   get control(): Control {
+     return (this._control ??= new Control({ client: this.client }))
+   }
+ }
+diff --git a/packages/sdk/js/src/v2/gen/types.gen.ts b/packages/sdk/js/src/v2/gen/types.gen.ts
+index 40e661b46..763137632 100644
+--- a/packages/sdk/js/src/v2/gen/types.gen.ts
++++ b/packages/sdk/js/src/v2/gen/types.gen.ts
+@@ -5284,10 +5284,34 @@ export type TuiSelectSessionResponses = {
+   200: boolean
+ }
+ 
+ export type TuiSelectSessionResponse = TuiSelectSessionResponses[keyof TuiSelectSessionResponses]
+ 
++export type TuiStatuslineData = {
++  body?: never
++  path?: never
++  query?: {
++    directory?: string
++    sessionID?: string
++  }
++  url: "/tui/statusline"
++}
++
++export type TuiStatuslineResponses = {
++  /**
++   * Resolved status line templates
++   */
++  200: {
++    templates: {
++      [key: string]: string
++    }
++    interval: number
++  } | null
++}
++
++export type TuiStatuslineResponse = TuiStatuslineResponses[keyof TuiStatuslineResponses]
++
+ export type TuiControlNextData = {
+   body?: never
+   path?: never
+   query?: {
+     directory?: string

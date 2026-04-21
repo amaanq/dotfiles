@@ -1,0 +1,32 @@
+diff --git a/models-manager/models.json b/models-manager/models.json
+--- a/models-manager/models.json
++++ b/models-manager/models.json
+@@ -16,9 +16,9 @@
+         "limit": 10000
+       },
+       "supports_parallel_tool_calls": true,
+-      "context_window": 272000,
+-      "max_context_window": 272000,
++      "context_window": 400000,
++      "max_context_window": 400000,
+       "auto_compact_token_limit": null,
+       "reasoning_summary_format": "experimental",
+       "default_reasoning_summary": "none",
+       "slug": "gpt-5.5",
+diff --git a/models-manager/src/model_info.rs b/models-manager/src/model_info.rs
+--- a/models-manager/src/model_info.rs
++++ b/models-manager/src/model_info.rs
+@@ -22,5 +22,13 @@ const PERSONALITY_PLACEHOLDER: &str = "{{ personality }}";
+
+ pub fn with_config_overrides(mut model: ModelInfo, config: &ModelsManagerConfig) -> ModelInfo {
++    // Force gpt-5.5 to 400k regardless of what the /models endpoint cached
++    // in models_cache.json. The OpenAI backend reports 272k for gpt-5.5
++    // (Codex-product cap), but the announced ceiling for paid plans is
++    // 400k and the underlying model supports up to 1M via API.
++    if model.slug == "gpt-5.5" {
++        model.context_window = Some(400_000);
++        model.max_context_window = Some(400_000);
++    }
+     if let Some(supports_reasoning_summaries) = config.model_supports_reasoning_summaries
+         && supports_reasoning_summaries
+     {

@@ -788,10 +788,16 @@ let
       };
     };
 
+    extraKnownMarketplaces.openai-codex.source = {
+      source = "github";
+      repo = "openai/codex-plugin-cc";
+    };
+
     enabledPlugins = {
       "clangd-lsp@claude-plugins-official" = true;
       "code-review@claude-plugins-official" = true;
       "code-simplifier@claude-plugins-official" = true;
+      "codex@openai-codex" = true;
       "kotlin-lsp@claude-plugins-official" = true;
       "ralph-loop@claude-plugins-official" = true;
       "rust-analyzer-lsp@claude-plugins-official" = true;

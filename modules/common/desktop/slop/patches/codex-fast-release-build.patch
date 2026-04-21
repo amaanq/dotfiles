@@ -1,0 +1,19 @@
+diff --git a/Cargo.toml b/Cargo.toml
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -456,15 +456,11 @@
+ strip = true
+
+ [profile.release]
+-lto = "fat"
+ split-debuginfo = "off"
+ # Because we bundle some of these executables with the TypeScript CLI, we
+ # remove everything to make the binary as small as possible.
+ strip = "symbols"
+
+-# See https://github.com/openai/codex/issues/1411 for details.
+-codegen-units = 1
+-
+ [profile.ci-test]
+ debug = 1         # Reduce debug symbol size
+ inherits = "test"
