@@ -1,5 +1,6 @@
 {
   lib,
+  mkSlopLauncher,
   pkgs,
   ...
 }:
@@ -826,45 +827,47 @@ let
 
   settingsJson = pkgs.writeText "claude-settings.json" (toJSON settings);
 
-  runtimeDeps = lib.makeBinPath (
-    [
+  claude = mkSlopLauncher {
+    name = "claude";
+    cacheSubdir = "claude-code";
+    versionUrl = "https://registry.npmjs.org/@anthropic-ai/claude-code/latest";
+    versionParser = "get version";
+    runtimeDeps = [
       pkgs.procps
       pkgs.ripgrep
     ]
     ++ optionals pkgs.stdenv.hostPlatform.isLinux [
       pkgs.bubblewrap
       pkgs.socat
-    ]
-  );
+    ];
+    preExec = /* nu */ ''
+      let config_dir = $env | get --optional "CLAUDE_CONFIG_DIR" | default (
+        $env
+          | get --optional "XDG_CONFIG_HOME"
+          | default ($env.HOME | path join ".config")
+          | path join "claude"
+      )
+      mkdir $config_dir
 
-  # Launcher: detects platform, downloads the latest npm tarball, lifts cli.cjs,
-  # patches it, deno-compiles it, caches per version, then execs. Falls back to
-  # the newest cached binary when offline.
-  claude = pkgs.writeScriptBin "claude" /* nu */ ''
-    #!${getExe pkgs.nushell} --no-config-file
+      # Sync declarative settings into the writable config dir. Slop refuses
+      # to read a read-only settings.json in place, so we have to copy.
+      cp --force ${settingsJson} ($config_dir | path join "settings.json")
 
-    def detect-platform []: nothing -> string {
+      r#'${toJSON settings.env}'# | from json | load-env
+    '';
+    fetch = /* nu */ ''
       let arch = match ($nu.os-info.arch | str downcase) {
         "x86_64" | "x64" | "amd64" => "x64"
         "aarch64" | "arm64" => "arm64"
-        $arch => {
-          print --stderr $"(ansi red_bold)error:(ansi reset) unsupported arch: ($arch)"
-          exit 67
-        }
+        $arch => { error make { msg: $"unsupported arch: ($arch)" } }
       }
 
-      match ($nu.os-info.name | str downcase) {
+      let platform = match ($nu.os-info.name | str downcase) {
         "linux" => $"linux-($arch)"
         "macos" | "darwin" => $"darwin-($arch)"
-        $os => {
-          print --stderr $"(ansi red_bold)error:(ansi reset) unsupported os: ($os)"
-          exit 67
-        }
+        $os => { error make { msg: $"unsupported os: ($os)" } }
       }
-    }
 
-    def build-binary [version: string, binary_path: string, cache: string] {
-      let platform = detect-platform
       let pkg = $"@anthropic-ai/claude-code-($platform)"
       let tarball_url = $"https://registry.npmjs.org/($pkg)/-/claude-code-($platform)-($version).tgz"
 
@@ -872,9 +875,13 @@ let
       mkdir $tgz_dir
       let tgz = $tgz_dir | path join $"claude-code-($platform)-($version).tgz"
 
+      # Download to .tmp + atomic rename so an interrupted run doesn't
+      # leave a partial tarball cached forever (sticky-bad).
       if not ($tgz | path exists) {
+        let tmp = $"($tgz).tmp"
         print --stderr $"(ansi cyan)fetch:(ansi reset) ($tarball_url)"
-        http get --raw $tarball_url | save --force --raw $tgz
+        http get --raw $tarball_url | save --force --raw $tmp
+        mv $tmp $tgz
       }
 
       let workdir = $cache | path join $"build-($version)"
@@ -918,92 +925,8 @@ let
       # nushell refuses to delete a directory you're currently inside
       cd $cache
       rm -rf $workdir
-    }
-
-    def detect-version [--cache: directory, --rebuild]: nothing -> string {
-      let version_file = $cache | path join "latest-version"
-
-      match ($rebuild or (try { (date now) - (ls $version_file | get 0.modified) > 6hr })) {
-        # Version older than 6h or doesn't exist.
-        true | null => {
-          let version = try {
-            http get --max-time 5sec https://registry.npmjs.org/@anthropic-ai/claude-code/latest
-              | get version
-          } catch {
-            print --stderr $"(ansi yellow_bold)warn:(ansi reset) fetched version older than 6hr, but can't re-fetch"
-            return ""
-          }
-
-          try {
-            $version_file | path parse | get parent | mkdir $in
-            $version | save --force $version_file
-          } catch {
-            print --stderr $"(ansi yellow_bold)warn:(ansi reset) failed to save latest fetched version"
-          }
-
-          $version
-        },
-
-        # Version fetched within 6h.
-        false => { try {
-          open $version_file
-        } catch {
-          print --stderr $"(ansi yellow_bold)warn:(ansi reset) failed to read latest fetched version"
-          ""
-        } },
-      }
-    }
-
-    def run-latest [--cache: directory, ...arguments] {
-      print --stderr $"(ansi yellow_bold)warn:(ansi reset) falling back to latest binary"
-
-      try {
-        let latest = ls --long ($cache | path join "claude-*")
-          | where { $in.type == "file" and ($in.mode | str substring 2..<3) == "x" }
-          | sort-by modified
-          | last
-          | get name
-        exec $latest ...$arguments
-      } catch {
-        print --stderr $"(ansi red_bold)error:(ansi reset) no binary found"
-        exit 67
-      }
-    }
-
-    def --wrapped main [--rebuild, ...args] {
-      let cache = $env
-        | get --optional "XDG_CACHE_HOME"
-        | default ($env.HOME | path join ".cache")
-        | path join "claude-code"
-      mkdir $cache
-
-      let config_dir = $env | get --optional "CLAUDE_CONFIG_DIR" | default (
-        $env
-          | get --optional "XDG_CONFIG_HOME"
-          | default ($env.HOME | path join ".config")
-          | path join "claude"
-      )
-      mkdir $config_dir
-
-      # Sync declarative settings into the writable config dir. Slop refuses
-      # to read a read-only settings.json in place, so we have to copy.
-      cp --force ${settingsJson} ($config_dir | path join "settings.json")
-
-      let version = detect-version --cache $cache --rebuild=($rebuild)
-      if ($version | is-empty) { run-latest --cache $cache ...$args }
-
-      let binary_path = $cache | path join $"claude-($version)"
-
-      if not ($binary_path | path exists) or $rebuild {
-        build-binary $version $binary_path $cache
-      }
-
-      $env.PATH = ($env.PATH | prepend ("${runtimeDeps}" | split row ":"))
-      r#'${toJSON settings.env}'# | from json | load-env
-
-      exec $binary_path ...$args
-    }
-  '';
+    '';
+  };
 in
 {
   environment.systemPackages = [
