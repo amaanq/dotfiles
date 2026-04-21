@@ -95,6 +95,16 @@
           buildInputs = builtins.filter (p: (p.pname or "") != "webkitgtk") (old.buildInputs or [ ]);
           cmakeFlags = (old.cmakeFlags or [ ]) ++ [ "-DJUCE_WEB_BROWSER=0" ];
         });
+
+        # plausible's BEAM stack pulls erlang → wxwidgets → webkitgtk for the
+        # Observer GUI, which is useless on a headless server and parks 100MB+
+        # of GTK in the closure. Swap to the wx-less BEAM set; both args must
+        # be overridden because top-level elixir_1_18 sources from the full
+        # erlang independently of beam27Packages.
+        plausible = prev.plausible.override {
+          beam27Packages = prev.beamMinimal27Packages;
+          elixir_1_18 = prev.beamMinimal27Packages.elixir_1_18;
+        };
       }
     )
   ];

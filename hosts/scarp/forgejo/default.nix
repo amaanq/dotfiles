@@ -18,7 +18,11 @@ let
   port = stringToPort "git";
   goAwayPort = stringToPort "go-away:forgejo";
 
-  forgejo' = pkgs.callPackage (self + /packages/forgejo.nix) { };
+  # Pass gitMinimal so forgejo's wrapProgram --prefix PATH doesn't bake the
+  # full perl-enabled git into the closure (drops libwww-perl/FCGI/CGI/etc).
+  forgejo' = pkgs.callPackage (self + /packages/forgejo.nix) {
+    git = pkgs.gitMinimal;
+  };
 
   goAwayPolicy = import (self + /modules/go-away/policy.nix);
 in
@@ -304,6 +308,18 @@ in
         };
       };
   };
+
+  # Upstream forgejo module hardcodes pkgs.git in the systemd path, dragging
+  # libwww-perl/FCGI/CGI/Archive-Zip into the closure via git-instaweb /
+  # git-cvsserver. Forgejo only invokes core git plumbing, so swap to
+  # gitMinimal. coreutils is needed because the pre-start script invokes
+  # bare `cp` / `chmod` to seed app.ini.
+  systemd.services.forgejo.path = mkForce [
+    config.services.forgejo.package
+    pkgs.uutils-coreutils-noprefix
+    pkgs.gitMinimal
+    pkgs.gnupg
+  ];
 
   virtualisation.podman = enabled {
     dockerCompat = true;

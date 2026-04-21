@@ -57,6 +57,13 @@ lib.nixosSystem' "server" (
 
     boot.tmp.cleanOnBoot = true;
 
+    # Immich's exiftool-vendored is fundamentally perl (Image::ExifTool plus
+    # ~hundreds of perl modules) and there is no equivalent for HEIF gainmaps,
+    # video metadata, or RAW manufacturer tags. Until immich is containerized
+    # or moved off scarp, scarp is the one host that legitimately requires
+    # perl in its closure.
+    system.forbiddenDependenciesRegexes = lib.mkForce [ ];
+
     system.stateVersion = "25.11";
 
     time.timeZone = "America/New_York";
