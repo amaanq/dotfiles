@@ -147,7 +147,9 @@ patch(
    # Negative lookahead keeps the body match from extending past the end of Av
    # into the next function definition (a previous version matched `async
    # function Bb8(...)` and spanned through Av's tail, obliterating both).
-   rb"async function (" + W + rb")\(H\)\{(?:(?!async function ).){60,400}?return Irq\(H,!1,!0\)\}",
+   # The inner resolver name (Irq → aeq → ...) rotates across versions, so
+   # capture it rather than pinning to a literal.
+   rb"async function (" + W + rb")\(H\)\{(?:(?!async function ).){60,400}?return " + W + rb"\(H,!1,!0\)\}",
    lambda m: b"async function " + m[1] + b"(H){return !0}",
 )
 
@@ -263,10 +265,10 @@ patch(
 # write Anthropic SDK code in this environment, so cut it. Renamed from
 # `claude-developer-platform` in an earlier release — match on current name.
 
-replace(
+patch(
    "disable claude-api skill",
-   b'vA({name:"claude-api",description:',
-   b'vA({name:"claude-api",isEnabled:()=>!1,description:',
+   rb'(' + W + rb')\(\{name:"claude-api",description:',
+   lambda m: m[1] + b'({name:"claude-api",isEnabled:()=>!1,description:',
 )
 
 # --- Replace usage fetch with self-contained OAuth implementation ---
