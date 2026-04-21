@@ -80,8 +80,10 @@ in
 {
   environment.systemPackages = [
     pkgs.carapace
+  ]
+  ++ lib.optionals config.isDesktop [
     pkgs.fish
     pkgs.zsh
-  ]
-  ++ lib.optional config.isDesktop inshellisense;
+    inshellisense
+  ];
 }
