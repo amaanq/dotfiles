@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  age-plugin-fido2-hmac,
   nixtopsy,
   ...
 }:
@@ -49,6 +50,7 @@ in
     pkgs.zoxide
   ]
   ++ optionals config.isDesktop [
+    age-plugin-fido2-hmac.packages.${pkgs.stdenv.hostPlatform.system}.default
     pkgs.asciinema
     pkgs.dwt1-shell-color-scripts
     pkgs.graphviz

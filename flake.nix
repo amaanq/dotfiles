@@ -95,6 +95,12 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
+    age-plugin-fido2-hmac = {
+      url = "github:amaanq/age-plugin-fido2-hmac";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.fenix.follows = "fenix";
+    };
+
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";

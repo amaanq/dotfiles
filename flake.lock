@@ -1,5 +1,28 @@
 {
   "nodes": {
+    "age-plugin-fido2-hmac": {
+      "inputs": {
+        "fenix": [
+          "fenix"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1779314243,
+        "narHash": "sha256-iOSpZe1MDIoG7ZU1Kv56nNtMwViXvqJk/PKz1KdNikA=",
+        "owner": "amaanq",
+        "repo": "age-plugin-fido2-hmac",
+        "rev": "1499b616bdb81a187cd0be792175e364e05c57a1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "amaanq",
+        "repo": "age-plugin-fido2-hmac",
+        "type": "github"
+      }
+    },
     "agenix": {
       "inputs": {
         "darwin": [
