@@ -1,17 +1,9 @@
-Backport of the renderable.rs portion of openai/codex#11064 onto rust-v0.125.0.
-
-Stabilises bottom-anchored flex layout: the FlexAllocationMode enum lets
-`render`/`cursor_pos` fill the assigned extent (so fixed children stay pinned
-even as flex children change size) while `desired_height` keeps content-based
-sizing. The companion insert_history.rs cursor-hide tweak from the same PR is
-applied via codex.nix's postPatch instead, because GNU patch can't match the
-v0.125.0 wrapping-module imports without unacceptable fuzz.
 
 diff --git a/tui/src/render/renderable.rs b/tui/src/render/renderable.rs
 index eb514b3b0f70..a9132884b735 100644
 --- a/tui/src/render/renderable.rs
 +++ b/tui/src/render/renderable.rs
-@@ -220,6 +220,18 @@ pub struct FlexRenderable<'a> {
+@@ -253,6 +253,18 @@
      children: Vec<FlexChild<'a>>,
  }
  
@@ -30,7 +22,7 @@ index eb514b3b0f70..a9132884b735 100644
  /// Lays out children in a column, with the ability to specify a flex factor for each child.
  ///
  /// Children with flex factor > 0 will be allocated the remaining space after the non-flex children,
-@@ -239,7 +251,7 @@ impl<'a> FlexRenderable<'a> {
+@@ -272,7 +284,7 @@
      /// Loosely inspired by Flutter's Flex widget.
      ///
      /// Ref https://github.com/flutter/flutter/blob/3fd81edbf1e015221e143c92b2664f4371bdc04a/packages/flutter/lib/src/rendering/flex.dart#L1205-L1209
@@ -39,7 +31,7 @@ index eb514b3b0f70..a9132884b735 100644
          let mut allocated_rects = Vec::with_capacity(self.children.len());
          let mut child_sizes = vec![0; self.children.len()];
          let mut allocated_size = 0;
-@@ -273,7 +285,12 @@ impl<'a> FlexRenderable<'a> {
+@@ -306,7 +318,12 @@
                      } else {
                          space_per_flex * *flex as u16
                      };
@@ -53,7 +45,7 @@ index eb514b3b0f70..a9132884b735 100644
                      child_sizes[i] = child_size;
                      allocated_flex_space += child_size;
                  }
-@@ -292,7 +309,7 @@ impl<'a> FlexRenderable<'a> {
+@@ -325,7 +342,7 @@
  
  impl<'a> Renderable for FlexRenderable<'a> {
      fn render(&self, area: Rect, buf: &mut Buffer) {
@@ -62,7 +54,7 @@ index eb514b3b0f70..a9132884b735 100644
              .into_iter()
              .zip(self.children.iter())
              .for_each(|(rect, child)| {
-@@ -301,14 +318,17 @@ impl<'a> Renderable for FlexRenderable<'a> {
+@@ -334,21 +351,24 @@
      }
  
      fn desired_height(&self, width: u16) -> u16 {
@@ -85,7 +77,15 @@ index eb514b3b0f70..a9132884b735 100644
              .into_iter()
              .zip(self.children.iter())
              .find_map(|(rect, child)| child.child.cursor_pos(rect))
-@@ -428,3 +448,68 @@ where
+     }
+ 
+     fn cursor_style(&self, area: Rect) -> SetCursorStyle {
+-        self.allocate(area)
++        self.allocate(area, FlexAllocationMode::FillAssignedExtent)
+             .into_iter()
+             .zip(self.children.iter())
+             .find_map(|(rect, child)| {
+@@ -482,3 +502,68 @@
          RenderableItem::Owned(Box::new(InsetRenderable { child, insets }))
      }
  }

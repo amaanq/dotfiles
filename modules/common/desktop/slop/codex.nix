@@ -9,8 +9,8 @@ let
   codexSrc = pkgs.fetchFromGitHub {
     owner = "openai";
     repo = "codex";
-    tag = "rust-v0.128.0";
-    hash = "sha256-v2W0eslPOPHxHX76+bnkE/f4y+MnQuopeOoAC5X16TA=";
+    tag = "rust-v0.130.0";
+    hash = "sha256-YeUeYbzUMUx0lhIKdtPa8vUYK2Cj1hmbLb68Y80r71o=";
   };
 
   # Verbatim copy of rtk-ai/rtk's hooks/codex/rtk-awareness.md --
@@ -54,15 +54,15 @@ let
   # libclang env, postPatch). We just bump version/src/cargoDeps and apply
   # a few quality-of-life patches on top.
   codexRs = pkgs.codex.overrideAttrs (oldAttrs: {
-    version = "0.128.0";
+    version = "0.130.0";
     src = codexSrc;
     sourceRoot = "source/codex-rs";
 
     cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
-      name = "codex-0.128.0-vendor";
+      name = "codex-0.130.0-vendor";
       src = codexSrc;
       sourceRoot = "source/codex-rs";
-      hash = "sha256-3NQ4UCfBpANhyoJJatd8m31cEugsd42Ye2BXuzlKC0c=";
+      hash = "sha256-cpkj7H/jkKGbfJ92Ty9peqfxibFw2aWWG64tmgeG+2o=";
     };
 
     # Patches applied to the build source:
@@ -167,7 +167,7 @@ let
         mv $tmp $agents_dst
       }
 
-      exec ${getExe codexRs} --dangerously-bypass-approvals-and-sandbox ...$args
+      exec ${getExe codexRs} --dangerously-bypass-approvals-and-sandbox --enable code_mode --enable code_mode_only --enable goals ...$args
     }
   '';
 in
