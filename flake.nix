@@ -89,14 +89,14 @@
       inputs.darwin.follows = "nix-darwin";
     };
 
-    agenix-rekey = {
-      url = "github:oddlama/agenix-rekey";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-parts.follows = "flake-parts";
-    };
-
     age-plugin-fido2-hmac = {
       url = "github:amaanq/age-plugin-fido2-hmac";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.fenix.follows = "fenix";
+    };
+
+    tombkey = {
+      url = "github:amaanq/tombkey";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.fenix.follows = "fenix";
     };
@@ -307,27 +307,14 @@
     // {
       inherit lib;
 
-      apps =
-        let
-          rekeyApps = inputs.agenix-rekey.configure {
-            userFlake = inputs.self;
-            nixosConfigurations = hostsByType.nixosConfigurations or { };
-            darwinConfigurations = hostsByType.darwinConfigurations or { };
-          };
-        in
-        mapAttrs (
-          _system:
-          mapAttrs (
-            name: drv: {
-              type = "app";
-              program = "${drv}/bin/agenix-${name}";
-            }
-          )
-        ) rekeyApps;
+      apps = inputs.tombkey.lib.mkApps {
+        nixosConfigurations = hostsByType.nixosConfigurations or { };
+        darwinConfigurations = hostsByType.darwinConfigurations or { };
+      };
 
       devShells = genAttrs systems (system: {
         default = (import nixpkgs { inherit system; }).mkShell {
-          packages = [ inputs.agenix-rekey.packages.${system}.default ];
+          packages = [ inputs.tombkey.packages.${system}.default ];
         };
       });
     };
