@@ -69,8 +69,12 @@ in
       };
     };
 
+    # Vaultwarden's web vault runs the WebAuthn ceremony inside a same-origin
+    # /webauthn-connector.html iframe.
     extraConfig = ''
       client_max_body_size 525M;
+
+      ${config.services.nginx.mkHeaders { xFrameOptions = "SAMEORIGIN"; }}
     '';
   };
 
