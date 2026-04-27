@@ -6,8 +6,6 @@
   ...
 }:
 let
-  inherit (lib) mkIf;
-
   run0-no-bg = pkgs.writeShellScriptBin "run0" ''
     exec ${pkgs.systemd}/bin/run0 --background= "$@"
   '';
@@ -26,17 +24,18 @@ in
     run0-sudo-shim'
   ];
 
-  security.sudo.wheelNeedsPassword = false;
+  security.sudo.wheelNeedsPassword = !config.isDesktop;
+  security.polkit.enable = lib.mkDefault true;
 
   # Alias sudo/sudoedit to run0-sudo-shim so it takes precedence over SUID wrapper.
   environment.shellAliases.sudo = "${run0-sudo-shim'}/bin/sudo";
   environment.shellAliases.sudoedit = "${run0-sudo-shim'}/bin/sudo -e";
 
-  # Polkit rule for passwordless run0 on desktops.
-  security.polkit.extraConfig = mkIf config.isDesktop ''
+  # Desktops have passwordless sudo,but servers prompt for the user's password.
+  security.polkit.extraConfig = /* javascript */ ''
     polkit.addRule(function(action, subject) {
       if (subject.isInGroup("wheel")) {
-        return polkit.Result.YES;
+        return polkit.Result.${if config.isDesktop then "YES" else "AUTH_SELF_KEEP"};
       }
     });
   '';
