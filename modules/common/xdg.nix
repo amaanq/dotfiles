@@ -4,5 +4,8 @@
     XDG_DATA_HOME = "$HOME/.local/share";
     XDG_STATE_HOME = "$HOME/.local/state";
     XDG_CACHE_HOME = "$HOME/.cache";
+
+    LESSHISTFILE = "$XDG_STATE_HOME/less/history";
+    SQLITE_HISTORY = "$XDG_STATE_HOME/sqlite/history";
   };
 }

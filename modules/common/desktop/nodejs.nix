@@ -11,5 +11,6 @@
     NPM_CONFIG_TMP = "$XDG_RUNTIME_DIR/npm";
     NPM_CONFIG_UPDATE_NOTIFIER = "false";
     NEXT_TELEMETRY_DISABLED = "1";
+    NODE_REPL_HISTORY = "$XDG_STATE_HOME/node/history";
   };
 }
