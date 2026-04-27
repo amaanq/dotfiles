@@ -189,19 +189,6 @@
           ];
         });
 
-        # uutils-coreutils 0.8.0 changed its GNUmakefile default from
-        # `LN ?= ln -sf` to `LN ?= ln -f`, switching the multicall install
-        # from symlinks to hardlinks. patchelf's fixup hook (setup-hook.sh)
-        # iterates `find -type f` without the inode-dedup dance that
-        # strip.sh does, so each of the 108 hardlinked binaries gets
-        # rewritten via temp-file+rename, breaking the hardlinks into
-        # independent ~14 MiB copies. Force symlinks to restore the
-        # expected closure size.
-        uutils-coreutils = prev.uutils-coreutils.overrideAttrs (old: {
-          preBuild = (old.preBuild or "") + ''
-            makeFlagsArray+=("LN=ln -sf")
-          '';
-        });
       }
     )
   ];
