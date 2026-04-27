@@ -1,11 +1,11 @@
-{ config, lib, ... }:
+{ lib, ... }:
 let
-  inherit (lib) head splitString;
+  inherit (lib.lists) singleton;
 in
 {
-  # Yeah, no DNSSEC or DoT or anything.
-  # That's what you get for using Darwin I guess.
-  networking.dns = config.dns.servers |> map (splitString "#") |> map head;
+  # Point the system resolver at hickory-dns on loopback (configured in
+  # hickory-dns.nix) so DoH/DoQ to NextDNS is used for every lookup.
+  networking.dns = singleton "::1";
 
   networking.knownNetworkServices = [
     "Thunderbolt Bridge"
