@@ -8,7 +8,42 @@ let
   inherit (lib) optionals;
   inherit (lib.lists) singleton;
   inherit (lib.meta) getExe getExe';
-  inherit (lib.strings) toJSON;
+  inherit (lib.strings) concatStringsSep toJSON;
+
+  # Bun runtime polyfill prepended to cli.cjs by the patcher below. The bundle
+  # was authored for Bun and calls Bun.stringWidth/Bun.spawn/Bun.Terminal/etc.
+  # unguarded. Deno needs Node-shape replacements. Two pieces matter for
+  # agent view specifically:
+  #   - node:timers globals: Deno's globalThis.setTimeout returns a `number`,
+  #     so the bundle's `setTimeout(...).unref()` chains crash with
+  #     `A.unref is not a function`. node:timers returns Timeout objects.
+  #   - Bun.Terminal: backed by @homebridge/node-pty-prebuilt-multiarch
+  #     (ships linux-x64 prebuilds, no compile). Required by the
+  #     `claude --bg-pty-host` worker to allocate a PTY and spawn the inner
+  #     claude session inside it.
+  bunShim = concatStringsSep "\n" [
+    ''(()=>{if(typeof globalThis.Bun!=="undefined")return;''
+    ''const _nt=require("node:timers");''
+    ''globalThis.setTimeout=_nt.setTimeout;globalThis.setInterval=_nt.setInterval;''
+    ''globalThis.clearTimeout=_nt.clearTimeout;globalThis.clearInterval=_nt.clearInterval;''
+    ''globalThis.setImmediate=_nt.setImmediate;globalThis.clearImmediate=_nt.clearImmediate;''
+    ''const sw=require("string-width"),sa=require("strip-ansi"),wa=require("wrap-ansi");''
+    ''const sv=require("semver"),ya=require("yaml");''
+    ''const cp=require("child_process"),fs=require("fs"),path=require("path");''
+    ''const crypto=require("crypto"),net=require("net");''
+    ''function bunHash(input){const buf=Buffer.isBuffer(input)?input:Buffer.from(typeof input==="string"?input:String(input));return crypto.createHash("sha1").update(buf).digest().readBigUInt64LE(0);}''
+    ''function bunMapStdio(s){if(s==="ignore"||s==="inherit"||s==="pipe")return s;if(s==null)return "pipe";return s;}''
+    ''let _ptyMod=null;function bunPty(){if(!_ptyMod)_ptyMod=require("@homebridge/node-pty-prebuilt-multiarch");return _ptyMod;}''
+    ''const _SIGNAMES={1:"SIGHUP",2:"SIGINT",3:"SIGQUIT",6:"SIGABRT",9:"SIGKILL",13:"SIGPIPE",14:"SIGALRM",15:"SIGTERM"};''
+    ''class BunTerminal{constructor(opts){opts=opts||{};this.cols=opts.cols||80;this.rows=opts.rows||24;this._dataCb=opts.data;this._pty=null;this._disposed=false;}_attach(pty){if(this._disposed){try{pty.kill()}catch{}return;}this._pty=pty;pty.onData(d=>{if(this._disposed)return;try{this._dataCb(this,Buffer.from(d,"utf8"))}catch{}});}write(buf){if(!this._pty||this._disposed)return;try{this._pty.write(Buffer.isBuffer(buf)?buf:Buffer.from(buf))}catch{}}resize(c,r){this.cols=c;this.rows=r;if(this._pty&&!this._disposed){try{this._pty.resize(c,r)}catch{}}}close(){if(this._disposed)return;this._disposed=true;if(this._pty){try{this._pty.kill()}catch{}}}}''
+    ''function bunSpawnTerminal(cmd,opts){const[bin,...args]=cmd;const T=opts.terminal;const p=bunPty().spawn(bin,args,{name:"xterm-256color",cols:T.cols,rows:T.rows,cwd:opts.cwd||process.cwd(),env:opts.env||process.env});T._attach(p);let _sig;const exited=new Promise(r=>{p.onExit(({exitCode,signal})=>{if(signal!=null&&signal!==0)_sig=_SIGNAMES[signal]||("SIG"+signal);r(exitCode==null?1:exitCode)})});return{pid:p.pid,exited,get signalCode(){return _sig},kill(s){try{p.kill(typeof s==="string"?s:undefined)}catch{}}};}''
+    ''function bunSpawn(cmd,opts){opts=opts||{};if(opts.terminal)return bunSpawnTerminal(cmd,opts);const[bin,...args]=cmd;let stdio;if(Array.isArray(opts.stdio))stdio=opts.stdio.map(bunMapStdio);else{stdio=[bunMapStdio(opts.stdin),bunMapStdio(opts.stdout),bunMapStdio(opts.stderr)];}const child=cp.spawn(bin,args,{cwd:opts.cwd,env:opts.env||process.env,stdio,argv0:opts.argv0,detached:!!opts.detached,windowsHide:opts.windowsHide!==!1,uid:opts.uid,gid:opts.gid});const exited=new Promise(r=>child.on("exit",c=>r(c==null?1:c)));return{pid:child.pid,stdin:child.stdin,stdout:child.stdout,stderr:child.stderr,exitCode:null,killed:false,kill(s){try{child.kill(s)}catch{}this.killed=true},async wait(){return await exited},exited,unref(){try{child.unref()}catch{}return this;},ref(){try{child.ref()}catch{}return this;}};}''
+    ''function bunListen(opts){const h=opts.socket||{};const server=net.createServer(s=>{s.data=undefined;if(h.open)try{h.open(s)}catch{}s.on("data",d=>h.data&&h.data(s,d));s.on("close",()=>h.close&&h.close(s));s.on("error",e=>h.error&&h.error(s,e));});server.listen(opts.port||0,opts.hostname||"127.0.0.1");return server;}''
+    "class BunTranspiler{constructor(o){this.opts=o}transformSync(s){return s}}"
+    ''globalThis.Bun={version:"1.3.13",embeddedFiles:[],Terminal:BunTerminal,stringWidth:(s,o)=>sw(String(s||""),o),stripANSI:s=>sa(String(s||"")),wrapAnsi:(s,w,o)=>wa(String(s||""),w,o),semver:{satisfies:(a,b)=>sv.satisfies(a,b),order:(a,b)=>sv.compare(a,b)},hash:bunHash,which(cmd){const dirs=(process.env.PATH||"").split(path.delimiter);for(const d of dirs){const f=path.join(d,cmd);try{fs.accessSync(f,fs.constants.X_OK);return f;}catch{}}return null;},spawn:bunSpawn,listen:bunListen,YAML:{parse:s=>ya.parse(s),stringify:(o,r,i)=>ya.stringify(o,r,i)},Transpiler:BunTranspiler,generateHeapSnapshot:()=>new ArrayBuffer(0),gc:()=>{}};''
+    "})();"
+    ""
+  ];
 
   # Statusline: model, ctx %, in/out tokens, cache %, cost, timing, churn,
   # jj info, cwd, usage quotas. Reads the harness JSON blob on stdin.

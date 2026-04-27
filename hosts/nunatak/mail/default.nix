@@ -2,6 +2,7 @@
   self,
   config,
   lib,
+  pkgs,
   ...
 }:
 
@@ -16,34 +17,57 @@ let
     "hkpoolservices.com"
   ];
 
-  mkDkimSignature = domain: {
-    name = "rsa-${domain}";
-    value = {
-      inherit domain;
-      private-key = "%{file:/run/credentials/stalwart.service/dkim_key}%";
-      selector = "stalwart";
-      algorithm = "rsa-sha256";
-      canonicalization = "relaxed/relaxed";
-    };
-  };
+  acmeRoot = "/var/lib/acme/${domain}";
 
-  mkDkimSignRule = domain: {
-    "if" = "sender_domain == '${domain}'";
-    "then" = "['rsa-${domain}']";
-  };
+  mkListener =
+    {
+      cid,
+      name,
+      bind,
+      protocol,
+      tlsImplicit ? false,
+      useTls ? true,
+    }:
+    {
+      "@type" = "create";
+      object = "NetworkListener";
+      value.${cid} = {
+        inherit name protocol;
+        bind = lib.listToAttrs (
+          map (addr: {
+            name = addr;
+            value = true;
+          }) bind
+        );
+        useTls = useTls;
+        tlsImplicit = tlsImplicit;
+      };
+    };
 in
 {
-  imports = [ (self + /modules/acme) ];
+  imports = [
+    (self + /modules/services/stalwart.nix)
+    (self + /modules/acme)
+  ];
 
   secrets.stalwartPassword.rekeyFile = ./password.plain.age;
   secrets.stalwartAmeerqPassword.rekeyFile = ./ameerq-password.plain.age;
   secrets.stalwartHkPassword.rekeyFile = ./hk-password.plain.age;
   secrets.stalwartDkimKey.rekeyFile = ./dkim-stalwart.key.age;
+  secrets.stalwartRecoveryPassword.rekeyFile = ./recovery-password.plain.age;
+  secrets.stalwartAdminPassword = {
+    rekeyFile = ./admin-password.plain.age;
+    owner = "stalwart-mail";
+    group = "stalwart-mail";
+    mode = "0440";
+  };
 
   services.postgresql.ensure = [ "stalwart-mail" ];
 
   users.users.stalwart-mail.extraGroups = [ "acme" ];
 
+  # On cert renewal stalwart's parse_certificates() keeps the cached DB
+  # notValidAfter until `stalwart-cli update Certificate <id>` is run.
   security.acme.certs.${domain}.reloadServices = [ "stalwart.service" ];
 
   services.nginx.virtualHosts =
@@ -83,116 +107,100 @@ in
       );
 
   services.stalwart = enabled {
-    stateVersion = "25.11";
+    user = "stalwart-mail";
+    group = "stalwart-mail";
     dataDir = "/var/lib/stalwart-mail";
 
-    openFirewall = true;
+    credentials.dkim_key = config.secrets.stalwartDkimKey.path;
 
-    credentials = {
-      password = config.secrets.stalwartPassword.path;
-      ameerq_password = config.secrets.stalwartAmeerqPassword.path;
-      hk_password = config.secrets.stalwartHkPassword.path;
-      dkim_key = config.secrets.stalwartDkimKey.path;
+    openFirewall = true;
+    firewallPorts = [
+      25
+      80
+      143
+      443
+      465
+      587
+      993
+    ];
+
+    dataStore = {
+      "@type" = "PostgreSql";
+      host = "localhost";
+      port = 5432;
+      database = "stalwart-mail";
+      authUsername = "stalwart-mail";
+      authSecret = {
+        "@type" = "None";
+      };
+      timeout = 15000;
+      poolMaxConnections = 10;
     };
 
-    settings = {
-      tracer.stdout.level = "debug";
+    # Listeners aren't carried over by the 0.16 migration; declare them here.
+    plan = [
+      (mkListener {
+        cid = "listener-smtp";
+        name = "smtp";
+        bind = [ "[::]:25" ];
+        protocol = "smtp";
+        useTls = true;
+        tlsImplicit = false;
+      })
+      (mkListener {
+        cid = "listener-submission";
+        name = "submission";
+        bind = [ "[::]:587" ];
+        protocol = "smtp";
+        useTls = true;
+        tlsImplicit = false;
+      })
+      (mkListener {
+        cid = "listener-submissions";
+        name = "submissions";
+        bind = [ "[::]:465" ];
+        protocol = "smtp";
+        useTls = true;
+        tlsImplicit = true;
+      })
+      (mkListener {
+        cid = "listener-imap";
+        name = "imap";
+        bind = [ "[::]:143" ];
+        protocol = "imap";
+        useTls = true;
+        tlsImplicit = false;
+      })
+      (mkListener {
+        cid = "listener-imaps";
+        name = "imaps";
+        bind = [ "[::]:993" ];
+        protocol = "imap";
+        useTls = true;
+        tlsImplicit = true;
+      })
+      (mkListener {
+        cid = "listener-jmap";
+        name = "jmap";
+        bind = [ "[::1]:8080" ];
+        protocol = "http";
+        useTls = false;
+      })
+    ];
 
-      storage.data = "postgres";
-      storage.blob = "postgres";
-      storage.fts = "postgres";
-      storage.lookup = "postgres";
+    recovery = {
+      enable = false;
+      adminUser = "admin";
+      adminPasswordFile = config.secrets.stalwartRecoveryPassword.path;
+    };
 
-      server = {
-        hostname = "mail.${domain}";
-
-        listener = {
-          "smtp" = {
-            bind = [ "[::]:25" ];
-            protocol = "smtp";
-          };
-
-          "submission" = {
-            bind = [ "[::]:587" ];
-            protocol = "smtp";
-            auth.require = true;
-          };
-
-          "submissions" = {
-            bind = [ "[::]:465" ];
-            protocol = "smtp";
-            auth.require = true;
-            tls.implicit = true;
-          };
-
-          "imap" = {
-            bind = [ "[::]:143" ];
-            protocol = "imap";
-          };
-
-          "imaps" = {
-            bind = [ "[::]:993" ];
-            protocol = "imap";
-            tls.implicit = true;
-          };
-
-          "jmap" = {
-            bind = [ "[::1]:8080" ];
-            protocol = "http";
-          };
-
-          "admin" = {
-            bind = [ "[::1]:9080" ];
-            protocol = "http";
-          };
-        };
-      };
-
-      certificate."default" = {
-        cert = "%{file:/var/lib/acme/${domain}/fullchain.pem}%";
-        private-key = "%{file:/var/lib/acme/${domain}/key.pem}%";
-      };
-
-      server.tls = enabled {
-        implicit = false;
-        certificate = "default";
-      };
-
-      authentication.fallback-admin = {
-        user = "admin";
-        secret = "%{file:/run/credentials/stalwart.service/password}%";
-      };
-
-      session.auth = {
-        mechanisms = "[plain, login]";
-        directory = "'internal'";
-      };
-
-      store."postgres" = {
-        type = "postgresql";
-        host = "localhost";
-        port = 5432;
-        database = "stalwart-mail";
-        user = "stalwart-mail";
-        password = "";
-        timeout = "15s";
-        pool.max-connections = 10;
-      };
-
-      directory."internal" = {
-        type = "internal";
-        store = "postgres";
-      };
-
-      signature = lib.listToAttrs (map mkDkimSignature domains);
-
-      auth.dkim.sign = (map mkDkimSignRule domains) ++ [
-        {
-          "else" = false;
-        }
-      ];
-
-      server.virtual = map (domain: { inherit domain; }) domains;
+    # Plan is create-only; stays off after the initial cutover. To add or
+    # change listeners, flip recovery + apply.enable on, deploy, flip back.
+    apply = {
+      enable = false;
+      url = "http://[::1]:8080";
+      adminUser = "admin";
+      adminPasswordFile = config.secrets.stalwartAdminPassword.path;
     };
   };
 }
