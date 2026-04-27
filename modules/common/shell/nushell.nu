@@ -721,6 +721,12 @@ def --wrapped ns [...programs] {
   })
 }
 
+let tty_result = (do { tty } | complete)
+if $tty_result.exit_code == 0 {
+  $env.GPG_TTY = ($tty_result.stdout | str trim)
+  do { ^gpg-connect-agent updatestartuptty /bye } | complete | ignore
+}
+
 # macOS: Insert shadow path before /usr/bin to suppress xcode-select popups
 if $nu.os-info.name == "macos" {
   let shadow_path = $"($env.HOME)/.local/shadow"

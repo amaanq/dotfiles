@@ -228,10 +228,13 @@ let
   // (
     if config.isDesktop then
       {
+        git.sign-on-push = true;
+
         signing = {
-          backend = "ssh";
-          behavior = "own";
-          key = "~/.ssh/id";
+          backend = "gpg";
+          behavior = "drop";
+          key = "git@amaanq.com";
+          backends.gpg.program = "${pkgs.gnupg}/bin/gpg";
         };
       }
     else

@@ -113,15 +113,14 @@ let
     url."ssh://git@github.com/".insteadOf = "https://github.com/";
     url."ssh://forgejo@scarp:6767/".insteadOf = "https://git.amaanq.com/";
 
-    commit.gpgSign = true;
+    commit.gpgSign = false;
     tag.gpgSign = true;
 
     gpg = {
-      format = "ssh";
-      program = toString (pkgs.writeShellScript "no-gpg" "exit 1");
-      ssh.allowedSignersFile = "/etc/git/allowed_signers";
+      format = "openpgp";
+      program = "${pkgs.gnupg}/bin/gpg";
     };
-    user.signingKey = "~/.ssh/id";
+    user.signingKey = "git@amaanq.com";
   };
 in
 merge {
