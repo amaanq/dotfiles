@@ -6,11 +6,13 @@
 let
   inherit (lib.meta) getExe;
 
+  codexVersion = "0.135.0";
+
   codexSrc = pkgs.fetchFromGitHub {
     owner = "openai";
     repo = "codex";
-    tag = "rust-v0.130.0";
-    hash = "sha256-YeUeYbzUMUx0lhIKdtPa8vUYK2Cj1hmbLb68Y80r71o=";
+    tag = "rust-v0.135.0";
+    hash = "sha256-7Ak7rpogcN2kNezk7aMdMmkgNyPxH58f6lFdXOd/mgc=";
   };
 
   # Verbatim copy of rtk-ai/rtk's hooks/codex/rtk-awareness.md --
@@ -54,15 +56,15 @@ let
   # libclang env, postPatch). We just bump version/src/cargoDeps and apply
   # a few quality-of-life patches on top.
   codexRs = pkgs.codex.overrideAttrs (oldAttrs: {
-    version = "0.130.0";
+    version = codexVersion;
     src = codexSrc;
     sourceRoot = "source/codex-rs";
 
     cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
-      name = "codex-0.130.0-vendor";
+      name = "codex-${codexVersion}-vendor";
       src = codexSrc;
       sourceRoot = "source/codex-rs";
-      hash = "sha256-cpkj7H/jkKGbfJ92Ty9peqfxibFw2aWWG64tmgeG+2o=";
+      hash = "sha256-v1ggzNoncBVcOiJDQNNKPxYqWASNGjVjLMCXhsIbrVI=";
     };
 
     # Patches applied to the build source:
@@ -85,7 +87,6 @@ let
     # `codegen-units = 1` on non-Darwin (pkgs/by-name/co/codex/package.nix),
     # so no local fast-release-build patch is needed.
     patches = [
-      ./patches/codex-gpt55-400k-context.patch
       ./patches/codex-tui-cursor-jumpiness.patch
     ];
 
@@ -184,12 +185,31 @@ let
         mv $tmp $agents_dst
       }
 
-      exec ${getExe codexRs} -c "tui.theme=${themeName}" --dangerously-bypass-approvals-and-sandbox --enable code_mode --enable code_mode_only --enable goals ...$args
+      let codex_args = [
+        -c $"tui.theme=${themeName}"
+        -c 'mcp_servers.chrome-devtools.command="npx"'
+        -c 'mcp_servers.chrome-devtools.args=["-y","chrome-devtools-mcp@latest","--no-usage-statistics","--browser-url","http://127.0.0.1:9222"]'
+        -c 'mcp_servers.ida-pro-mcp.url="http://127.0.0.1:13337/mcp"'
+        --dangerously-bypass-approvals-and-sandbox
+        --enable code_mode
+        --enable code_mode_only
+        --enable goals
+      ]
+      exec ${getExe codexRs} ...$codex_args ...$args
     }
   '';
 in
 {
-  environment.systemPackages = [ codex ];
+  options.programs.codex.package = lib.mkOption {
+    type = lib.types.package;
+    readOnly = true;
+    internal = true;
+    default = codex;
+  };
 
-  environment.variables.CODEX_HOME = "$XDG_CONFIG_HOME/codex";
+  config = {
+    environment.systemPackages = [ codex ];
+
+    environment.variables.CODEX_HOME = "$XDG_CONFIG_HOME/codex";
+  };
 }
