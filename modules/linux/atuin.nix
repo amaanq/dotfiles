@@ -27,6 +27,7 @@ in
     description = "Atuin daemon";
     requires = [ "atuin-daemon.socket" ];
     after = [ "atuin-daemon.socket" ];
+    unitConfig.ConditionUser = "amaanq";
     serviceConfig = {
       ExecStart = "${lib.getExe pkgs.atuin} daemon";
       Environment = [
@@ -42,6 +43,7 @@ in
   systemd.user.sockets.atuin-daemon = {
     description = "Atuin daemon socket";
     wantedBy = [ "sockets.target" ];
+    unitConfig.ConditionUser = "amaanq";
     socketConfig = {
       ListenStream = "%t/atuin.sock";
       SocketMode = "0600";
