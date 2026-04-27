@@ -14,5 +14,5 @@ in
   system.tools.nixos-generate-config.enable = lib.mkDefault false;
 
   # I'm never allowing perl on my system again.
-  system.forbiddenDependenciesRegexes = [ "perl" ];
+  system.forbiddenDependenciesRegexes = [ "[^[:alpha:]][Pp]erl" ];
 }
