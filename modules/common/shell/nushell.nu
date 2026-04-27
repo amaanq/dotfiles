@@ -18,8 +18,6 @@ $env.config.cursor_shape.emacs = "line"       # Cursor shape in emacs mode
 $env.config.cursor_shape.vi_insert = "line"   # Cursor shape in vi-insert mode
 $env.config.cursor_shape.vi_normal = "block"  # Cursor shape in normal vi mode
 
-$env.CARAPACE_BRIDGES = "inshellisense,carapace,zsh,fish,bash"
-
 $env.config.completions.algorithm = "prefix"
 $env.config.completions.sort = "smart"
 $env.config.completions.case_sensitive = false

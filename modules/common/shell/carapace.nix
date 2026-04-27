@@ -86,4 +86,7 @@ in
     pkgs.zsh
     inshellisense
   ];
+
+  environment.variables.CARAPACE_BRIDGES =
+    if config.isDesktop then "inshellisense,carapace,zsh,fish,bash" else "carapace,bash";
 }
