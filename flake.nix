@@ -174,7 +174,8 @@
     };
 
     helium = {
-      url = "github:amaanq/helium-flake";
+      # 0.11.3.2 is the last known-good build before the tab indicator colors flipped.
+      url = "github:amaanq/helium-flake/a7c9452dbc7977c35409aeff4eb71c8730e1e466";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
