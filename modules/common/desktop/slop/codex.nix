@@ -117,9 +117,16 @@ let
     ];
   });
 
-  # Thin launcher: manage $CODEX_HOME/{RTK.md,AGENTS.md} on every invocation,
-  # then exec the built codex with our default flags. AGENTS.md uses
-  # absolute @-refs because codex resolves them relative to CWD, not the
+  # Reuse the rose-pine .tmTheme already vendored for bat. Codex's `tui.theme`
+  # picks it up from $CODEX_HOME/themes/<name>.tmTheme; the file stem becomes
+  # the theme name. Diff colors come from the markup.inserted/markup.deleted
+  # scopes already present in this file.
+  themeName = "rose-pine";
+  themeSrc = ../../bat/rose-pine.tmTheme;
+
+  # Thin launcher: manage $CODEX_HOME/{RTK.md,AGENTS.md,themes/} on every
+  # invocation, then exec the built codex with our default flags. AGENTS.md
+  # uses absolute @-refs because codex resolves them relative to CWD, not the
   # AGENTS.md location.
   codex = pkgs.writeScriptBin "codex" /* nu */ ''
     #!${getExe pkgs.nushell} --no-config-file
@@ -146,6 +153,16 @@ let
         ln -s $rtk_src $rtk_dst
       }
 
+      let theme_src = "${themeSrc}"
+      let themes_dir = $codex_home | path join "themes"
+      mkdir $themes_dir
+      let theme_dst = $themes_dir | path join "${themeName}.tmTheme"
+      let current_theme = try { ls -l $theme_dst | get 0.target } catch { null }
+      if $current_theme != $theme_src {
+        rm --force $theme_dst
+        ln -s $theme_src $theme_dst
+      }
+
       let agents_dst = $codex_home | path join "AGENTS.md"
       let desired_agents = [
         $"@($claude_md)"
@@ -167,7 +184,7 @@ let
         mv $tmp $agents_dst
       }
 
-      exec ${getExe codexRs} --dangerously-bypass-approvals-and-sandbox --enable code_mode --enable code_mode_only --enable goals ...$args
+      exec ${getExe codexRs} -c "tui.theme=${themeName}" --dangerously-bypass-approvals-and-sandbox --enable code_mode --enable code_mode_only --enable goals ...$args
     }
   '';
 in
