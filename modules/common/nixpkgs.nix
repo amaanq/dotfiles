@@ -1,6 +1,78 @@
 { lib, ... }:
 {
   nixpkgs.overlays = [
+    # stalwart 0.16 dropped TOML config in favour of a one-shot config.json
+    # describing only the data store; everything else lives in the database
+    # and is reconciled via the relocated stalwart-cli (now its own repo at
+    # github.com/stalwartlabs/cli, version 1.x). nixpkgs PR #512341 hasn't
+    # landed because the module migration is still being designed upstream
+    # (issue #511880, target nixos-26.05). These attrs are exposed under
+    # _0_16 / _1_0 names rather than overriding pkgs.stalwart globally so the
+    # blast radius stays scoped to the new module.
+    (final: prev: {
+      stalwart_0_16 = prev.stalwart.overrideAttrs (_old: rec {
+        version = "0.16.1";
+
+        src = final.fetchFromGitHub {
+          owner = "stalwartlabs";
+          repo = "stalwart";
+          tag = "v${version}";
+          hash = lib.fakeHash;
+        };
+
+        cargoDeps = final.rustPlatform.fetchCargoVendor {
+          inherit src;
+          hash = lib.fakeHash;
+        };
+
+        # 0.16 reshuffled the test tree; the long --skip list pinned to 0.15
+        # no longer matches and would silently no-op. Disable until upstream
+        # rebases the suite.
+        doCheck = false;
+      });
+
+      stalwart-cli_1_0 = final.callPackage (
+        {
+          lib,
+          rustPlatform,
+          fetchFromGitHub,
+        }:
+        rustPlatform.buildRustPackage (finalAttrs: {
+          pname = "stalwart-cli";
+          version = "1.0.2";
+
+          src = fetchFromGitHub {
+            owner = "stalwartlabs";
+            repo = "cli";
+            tag = "v${finalAttrs.version}";
+            hash = lib.fakeHash;
+          };
+
+          cargoDeps = rustPlatform.fetchCargoVendor {
+            inherit (finalAttrs) src;
+            hash = lib.fakeHash;
+          };
+
+          # cli v1.0.2 uses reqwest with default-features=false and
+          # features=["blocking","rustls","json"]; the lockfile resolves to
+          # rustls + ring + rustls-platform-verifier and only pulls in
+          # openssl-probe (not openssl-sys), so neither pkg-config nor an
+          # openssl buildInput is needed.
+
+          # Tests reach out to a live Stalwart server.
+          doCheck = false;
+
+          meta = {
+            description = "Stalwart Mail Server CLI (1.x, JMAP-based)";
+            homepage = "https://github.com/stalwartlabs/cli";
+            changelog = "https://github.com/stalwartlabs/cli/releases/tag/v${finalAttrs.version}";
+            license = lib.licenses.agpl3Only;
+            mainProgram = "stalwart-cli";
+            platforms = lib.platforms.unix;
+          };
+        })
+      ) { };
+    })
     (final: prev: {
       formats = prev.formats // {
         toml =
