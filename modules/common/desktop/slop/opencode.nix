@@ -56,8 +56,9 @@ let
       };
     }).overrideAttrs
       (prev: {
-        # PR #13885 (statusline templates) rebased onto v1.14.24; drop once
-        # upstream merges and the tag includes it.
+        # PR #13885 (statusline templates) rebased onto v1.14.48; the server
+        # half is rewritten for the new Effect HttpApi (groups/handlers split
+        # under instance/httpapi/). Drop once upstream merges.
         patches = (prev.patches or [ ]) ++ [ ./patches/opencode-statusline.patch ];
 
         postConfigure = (prev.postConfigure or "") + ''
