@@ -86,6 +86,27 @@ lib.nixosSystem' "server" (
         ipv4.address = "152.53.83.122";
         ipv6.address = "2a0a:4cc0:2000:3f59::1";
 
+        interfaces.${interface} = {
+          ipv4.addresses = [
+            {
+              address = "152.53.31.156";
+              prefixLength = 32;
+            }
+          ];
+
+          # Second /64 routed via EUI-64 SLAAC; claim both so ND lands.
+          ipv6.addresses = [
+            {
+              address = "2a0a:4cc0:2000:d000::1";
+              prefixLength = 64;
+            }
+            {
+              address = "2a0a:4cc0:2000:3f59:b41d:e8ff:fe20:96e1";
+              prefixLength = 64;
+            }
+          ];
+        };
+
         defaultGateway = {
           inherit interface;
 
