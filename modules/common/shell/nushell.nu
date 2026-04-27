@@ -366,6 +366,57 @@ def --env mcg [path: path]: nothing -> nothing {
   jj git init --colocate
 }
 
+# Clone a git repo via jj into ~/projects[/<category>]/<repo>, then cd into it.
+# If the target exists then just cd in instead of re-cloning. Failed clones are cleaned up.
+def --env --wrapped "jj cl" [
+  url: string                # Git remote (HTTPS, SSH, or SCP-style)
+  --category (-c): string    # Subdir under ~/projects (e.g. forks, android)
+  ...rest                    # Extra args forwarded to `jj git clone`
+] {
+  let repo = (
+    $url
+    | str trim --char "/"
+    | path basename
+    | str replace --regex '\.git$' ''
+  )
+
+  if ($repo | is-empty) {
+    error make {msg: $"could not derive repo name from ($url)"}
+  }
+
+  let target = (
+    if ($category | is-empty) {
+      $env.HOME | path join "projects" $repo
+    } else {
+      $env.HOME | path join "projects" $category $repo
+    }
+    | path expand
+  )
+
+  if ($target | path exists) {
+    print $"(ansi yellow)note:(ansi reset) ($target) already exists"
+    cd $target
+    return
+  }
+
+  mkdir ($target | path dirname)
+  let result = (^jj git clone --colocate --color always ...$rest $url $target | complete)
+
+  if not ($result.stdout | is-empty) {
+    print --raw --no-newline $result.stdout
+  }
+  if not ($result.stderr | is-empty) {
+    print --stderr --raw --no-newline $result.stderr
+  }
+
+  if $result.exit_code != 0 {
+    rm --recursive --force $target
+    error make {msg: $"jj git clone failed: ($url)"}
+  }
+
+  cd $target
+}
+
 # Diff local changes against the pushed version of the current branch.
 def --wrapped "jj rd" [...rest] {
   # Look for a local bookmark on @, then descendants, then ancestors

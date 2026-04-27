@@ -115,10 +115,6 @@ let
       ];
 
       # git
-      cl = [
-        "git"
-        "clone"
-      ];
       clone = [
         "git"
         "clone"
