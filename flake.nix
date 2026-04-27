@@ -2,6 +2,7 @@
   description = "Amaan's Nix Configuration";
   nixConfig = {
     allow-import-from-derivation = false;
+    auto-allocate-uids = true;
     extra-substituters = [
       "https://cache.amaanq.com/"
       "https://cache.garnix.io/"
@@ -15,6 +16,7 @@
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
     ];
     extra-experimental-features = [
+      "auto-allocate-uids"
       "cgroups"
       "flakes"
       "nix-command"
@@ -25,6 +27,7 @@
     flake-registry = "";
     http-connections = 50;
     show-trace = true;
+    system-features = [ "uid-range" ];
     trusted-users = [
       "root"
       "@build"

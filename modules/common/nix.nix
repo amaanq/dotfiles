@@ -209,6 +209,7 @@ in
     mkMachines self.nixosConfigurations [
       "kvm"
       "nixos-test"
+      "uid-range"
     ]
     ++ mkMachines (self.darwinConfigurations or { }) [ ];
 
@@ -237,7 +238,13 @@ in
 
   nix.settings =
     (import (self + /flake.nix)).nixConfig
-    |> flip removeAttrs (optionals (config.isDarwin or false) [ "use-cgroups" ]);
+    |> flip removeAttrs (
+      optionals (config.isDarwin or false) [
+        "use-cgroups"
+        "system-features"
+        "auto-allocate-uids"
+      ]
+    );
 
   nix.optimise.automatic = !config.isDarwin;
 
