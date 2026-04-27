@@ -4,15 +4,30 @@
   inputs,
   lib,
   pkgs,
-  nixpkgs,
   ...
 }:
 let
-  inherit (lib) enabled stringToPort;
+  inherit (lib)
+    enabled
+    filterAttrs
+    mapAttrsToList
+    stringToPort
+    ;
 
   port = stringToPort "nix-serve";
 
-  ppc64Pkgs = import nixpkgs { system = "powerpc64-linux"; };
+  # Pin every other host's system closure as a gcroot so cross-compiled
+  # artifacts built here survive nix-collect-garbage.
+  otherHosts = filterAttrs (
+    n: _: n != config.networking.hostName && n != "lahar"
+  ) inputs.self.nixosConfigurations;
+
+  flakeHostsPin = pkgs.linkFarm "flake-hosts-gcroots" (
+    mapAttrsToList (name: c: {
+      inherit name;
+      path = c.config.system.build.toplevel;
+    }) otherHosts
+  );
 in
 {
   imports = [ inputs.harmonia.nixosModules.harmonia ];
@@ -23,8 +38,7 @@ in
   };
 
   systemd.tmpfiles.rules = [
-    "L+ /nix/var/nix/gcroots/nunatak-kernel - - - - ${self.nixosConfigurations.nunatak.config.boot.kernelPackages.kernel}"
-    "L+ /nix/var/nix/gcroots/ppc64-stdenv - - - - ${ppc64Pkgs.stdenv}"
+    "L+ /nix/var/nix/gcroots/flake-hosts - - - - ${flakeHostsPin}"
   ];
 
   services.harmonia-dev.cache = enabled {
