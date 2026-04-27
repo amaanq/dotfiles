@@ -2,6 +2,7 @@
   self,
   config,
   lib,
+  pkgs,
   hkpoolservices,
   ...
 }:
@@ -11,7 +12,7 @@ let
   group = user;
   stateDir = "/var/lib/${user}";
 
-  hkpspkg = hkpoolservices.packages.${config.hostSystem}.default;
+  hkpspkg = hkpoolservices.packages.${pkgs.stdenv.buildPlatform.system}.default;
 in
 {
   imports = [
