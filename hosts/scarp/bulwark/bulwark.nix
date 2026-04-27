@@ -15,16 +15,16 @@ let
 
   bulwark = pkgs.buildNpmPackage (finalAttrs: {
     pname = "bulwark";
-    version = "1.4.13";
+    version = "1.6.2";
 
     src = pkgs.fetchFromGitHub {
       owner = "bulwarkmail";
       repo = "webmail";
       tag = finalAttrs.version;
-      hash = "sha256-8xR7PDfBuwvDUvIYTQ8y3MCWrTTDq58tF02ZLgwVj48=";
+      hash = "sha256-KpHpS1xCkfczcc3H6zhLgRLLmspTMls7TEgIUNT23e8=";
     };
 
-    npmDepsHash = "sha256-ooNJYXfk1ELa+I/+5ZUgvevNCGp/dZSP3VUEwIJc1Ow=";
+    npmDepsHash = "sha256-9RrxUySH4szRyqhOIzMGr/SOlHyoSiuhBolGgtpB2Ew=";
 
     patches = [ ./bulwark-localfont.patch ];
 
