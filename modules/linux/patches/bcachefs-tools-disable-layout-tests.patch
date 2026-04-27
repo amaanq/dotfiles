@@ -1,0 +1,30 @@
+When cross-compiling on x86_64 -> aarch64, libclang reports inner types of
+packed bitfield structs (e.g. bch_replicas_padded__bindgen_ty_N) with
+align=1, but bindgen bakes in an expected align of 4. The generated layout
+assertions then evaluate `1usize - 4usize` at const-eval time and fail
+("attempt to compute 1_usize - 4_usize, which would overflow"). Native
+aarch64 builds don't hit this because libclang sees host==target alignment.
+
+Disable layout_tests; struct field offsets are still correct, only the
+debug-only static assertions are dropped.
+---
+ bch_bindgen/build.rs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/bch_bindgen/build.rs b/bch_bindgen/build.rs
+index 33989e3..1b700ba 100644
+--- a/bch_bindgen/build.rs
++++ b/bch_bindgen/build.rs
+@@ -360,11 +360,11 @@ fn main() {
+         .clang_arg("-D_GNU_SOURCE")
+         .clang_arg("-DRUST_BINDGEN")
+         .clang_arg("-fkeep-inline-functions")
+         .derive_debug(true)
+         .derive_default(true)
+-        .layout_tests(true)
++        .layout_tests(false)
+         .default_enum_style(bindgen::EnumVariation::Rust {
+             non_exhaustive: true,
+         })
+         .bitfield_enum("btree_iter_update_trigger_flags")
+         .allowlist_function("raid_init")
