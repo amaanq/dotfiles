@@ -10,4 +10,7 @@ in
     ];
     listenAddress = "[::]";
   };
+
+  # Upstream module passes `--web.systemd-socket` but forgets `Sockets=`.
+  systemd.services.prometheus-node-exporter.serviceConfig.Sockets = "prometheus-node-exporter.socket";
 }
