@@ -1,6 +1,7 @@
 lib:
 lib.nixosSystem' "server" (
   {
+    config,
     keys,
     pkgs,
     ...
@@ -19,9 +20,11 @@ lib.nixosSystem' "server" (
       PrintLastLog = false;
     };
 
+    secrets.password.rekeyFile = ./password.age;
     users.users = {
       root = {
         openssh.authorizedKeys.keys = keys.admins;
+        hashedPasswordFile = config.secrets.password.path;
         shell = pkgs.nushell;
       };
 
@@ -29,6 +32,7 @@ lib.nixosSystem' "server" (
         description = "Amaan Qureshi";
         isNormalUser = true;
         extraGroups = [ "wheel" ];
+        hashedPasswordFile = config.secrets.password.path;
         openssh.authorizedKeys.keys = keys.admins;
         shell = pkgs.nushell;
       };
