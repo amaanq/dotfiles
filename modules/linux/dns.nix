@@ -30,6 +30,12 @@ in
           "h3-aws-lc-rs"
           "https-aws-lc-rs"
         ];
+        # tests open real sockets; fail in the nix sandbox.
+        checkFlags = (old.checkFlags or [ ]) ++ [
+          "--skip=client_tests::test_nsec3_no_data"
+          "--skip=h2::h2_client_stream::tests::test_https_google"
+          "--skip=h2::h2_client_stream::tests::test_https_google_with_pure_ip_address_server"
+        ];
       });
 
     settings = {
@@ -123,6 +129,12 @@ in
   networking.nameservers = [ "127.0.0.53" ];
 
   networking.search = [ "cirque.amaanq.com" ];
+
+  # Order hickory-dns before nss-lookup.target so resolver-dependent units wait.
+  systemd.services.hickory-dns = {
+    before = [ "nss-lookup.target" ];
+    wants = [ "nss-lookup.target" ];
+  };
 
   # Prevent DHCP from overriding DNS settings, because Verizon's DNS is garbage and hangs my matrix homeserver.
   # dhcpcd

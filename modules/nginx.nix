@@ -57,6 +57,12 @@ in
     allowedUDPPorts = [ 443 ];
   };
 
+  # Wait for the resolver so `nginx -t` can resolve upstream hostnames.
+  config.systemd.services.nginx = {
+    wants = [ "nss-lookup.target" ];
+    after = [ "nss-lookup.target" ];
+  };
+
   config.services.prometheus.exporters.nginx = enabled {
     listenAddress = "[::]";
   };
