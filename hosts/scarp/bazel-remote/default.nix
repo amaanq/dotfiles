@@ -38,11 +38,17 @@ in
   '';
 
   services.nginx.virtualHosts."android.${domain}" = merge config.services.nginx.sslTemplate {
+    extraConfig = ''
+      client_max_body_size 4G;
+      grpc_read_timeout 600s;
+      grpc_send_timeout 600s;
+    '';
     locations."/" = {
       extraConfig = ''
         if ($rbe_auth_ok = 0) {
           return 403;
         }
+        client_max_body_size 4G;
         grpc_pass grpc://127.0.0.1:9092;
       '';
     };
