@@ -1,6 +1,7 @@
 {
   config,
   nvim-config,
+  pkgs,
   ...
 }:
 let
@@ -12,6 +13,6 @@ in
   };
 
   environment.systemPackages = [
-    nvim-config.packages.${config.hostSystem}.${variant}
+    (pkgs.extend nvim-config.overlays.${variant}).${variant}
   ];
 }
