@@ -53,7 +53,7 @@ in
 
         if not ($rebuild or $stale) {
           return (try {
-            open $version_file
+            open $version_file | str trim
           } catch {
             print --stderr $"(ansi yellow_bold)warn:(ansi reset) failed to read latest fetched version"
             ""
@@ -61,7 +61,7 @@ in
         }
 
         let version = try {
-          http get --max-time 5sec ${versionUrl} | ${versionParser}
+          http get --max-time 5sec ${versionUrl} | ${versionParser} | str trim
         } catch {
           print --stderr $"(ansi yellow_bold)warn:(ansi reset) can't fetch latest version"
           return ""

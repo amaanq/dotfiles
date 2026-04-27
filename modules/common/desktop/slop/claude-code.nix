@@ -8,45 +8,211 @@ let
   inherit (lib) optionals;
   inherit (lib.lists) singleton;
   inherit (lib.meta) getExe getExe';
-  inherit (lib.strings) concatStringsSep toJSON;
+  inherit (lib.strings) toJSON;
 
-  # Bun runtime polyfill prepended to cli.cjs by the patcher below. The bundle
-  # was authored for Bun and calls Bun.stringWidth/Bun.spawn/Bun.Terminal/etc.
-  # unguarded. Deno needs Node-shape replacements. Two pieces matter for
-  # agent view specifically:
-  #   - node:timers globals: Deno's globalThis.setTimeout returns a `number`,
-  #     so the bundle's `setTimeout(...).unref()` chains crash with
-  #     `A.unref is not a function`. node:timers returns Timeout objects.
-  #   - Bun.Terminal: backed by @homebridge/node-pty-prebuilt-multiarch
-  #     (ships linux-x64 prebuilds, no compile). Required by the
-  #     `claude --bg-pty-host` worker to allocate a PTY and spawn the inner
-  #     claude session inside it.
-  bunShim = concatStringsSep "\n" [
-    ''(()=>{if(typeof globalThis.Bun!=="undefined")return;''
-    ''const _nt=require("node:timers");''
-    ''globalThis.setTimeout=_nt.setTimeout;globalThis.setInterval=_nt.setInterval;''
-    ''globalThis.clearTimeout=_nt.clearTimeout;globalThis.clearInterval=_nt.clearInterval;''
-    ''globalThis.setImmediate=_nt.setImmediate;globalThis.clearImmediate=_nt.clearImmediate;''
-    ''const sw=require("string-width"),sa=require("strip-ansi"),wa=require("wrap-ansi");''
-    ''const sv=require("semver"),ya=require("yaml");''
-    ''const cp=require("child_process"),fs=require("fs"),path=require("path");''
-    ''const crypto=require("crypto"),net=require("net");''
-    ''function bunHash(input){const buf=Buffer.isBuffer(input)?input:Buffer.from(typeof input==="string"?input:String(input));return crypto.createHash("sha1").update(buf).digest().readBigUInt64LE(0);}''
-    ''function bunMapStdio(s){if(s==="ignore"||s==="inherit"||s==="pipe")return s;if(s==null)return "pipe";return s;}''
-    ''let _ptyMod=null;function bunPty(){if(!_ptyMod)_ptyMod=require("@homebridge/node-pty-prebuilt-multiarch");return _ptyMod;}''
-    ''const _SIGNAMES={1:"SIGHUP",2:"SIGINT",3:"SIGQUIT",6:"SIGABRT",9:"SIGKILL",13:"SIGPIPE",14:"SIGALRM",15:"SIGTERM"};''
-    ''class BunTerminal{constructor(opts){opts=opts||{};this.cols=opts.cols||80;this.rows=opts.rows||24;this._dataCb=opts.data;this._pty=null;this._disposed=false;}_attach(pty){if(this._disposed){try{pty.kill()}catch{}return;}this._pty=pty;pty.onData(d=>{if(this._disposed)return;try{this._dataCb(this,Buffer.from(d,"utf8"))}catch{}});}write(buf){if(!this._pty||this._disposed)return;try{this._pty.write(Buffer.isBuffer(buf)?buf:Buffer.from(buf))}catch{}}resize(c,r){this.cols=c;this.rows=r;if(this._pty&&!this._disposed){try{this._pty.resize(c,r)}catch{}}}close(){if(this._disposed)return;this._disposed=true;if(this._pty){try{this._pty.kill()}catch{}}}}''
-    ''function bunSpawnTerminal(cmd,opts){const[bin,...args]=cmd;const T=opts.terminal;const p=bunPty().spawn(bin,args,{name:"xterm-256color",cols:T.cols,rows:T.rows,cwd:opts.cwd||process.cwd(),env:opts.env||process.env});T._attach(p);let _sig;const exited=new Promise(r=>{p.onExit(({exitCode,signal})=>{if(signal!=null&&signal!==0)_sig=_SIGNAMES[signal]||("SIG"+signal);r(exitCode==null?1:exitCode)})});return{pid:p.pid,exited,get signalCode(){return _sig},kill(s){try{p.kill(typeof s==="string"?s:undefined)}catch{}}};}''
-    ''function bunSpawn(cmd,opts){opts=opts||{};if(opts.terminal)return bunSpawnTerminal(cmd,opts);const[bin,...args]=cmd;let stdio;if(Array.isArray(opts.stdio))stdio=opts.stdio.map(bunMapStdio);else{stdio=[bunMapStdio(opts.stdin),bunMapStdio(opts.stdout),bunMapStdio(opts.stderr)];}const child=cp.spawn(bin,args,{cwd:opts.cwd,env:opts.env||process.env,stdio,argv0:opts.argv0,detached:!!opts.detached,windowsHide:opts.windowsHide!==!1,uid:opts.uid,gid:opts.gid});const exited=new Promise(r=>child.on("exit",c=>r(c==null?1:c)));return{pid:child.pid,stdin:child.stdin,stdout:child.stdout,stderr:child.stderr,exitCode:null,killed:false,kill(s){try{child.kill(s)}catch{}this.killed=true},async wait(){return await exited},exited,unref(){try{child.unref()}catch{}return this;},ref(){try{child.ref()}catch{}return this;}};}''
-    ''function bunListen(opts){const h=opts.socket||{};const server=net.createServer(s=>{s.data=undefined;if(h.open)try{h.open(s)}catch{}s.on("data",d=>h.data&&h.data(s,d));s.on("close",()=>h.close&&h.close(s));s.on("error",e=>h.error&&h.error(s,e));});server.listen(opts.port||0,opts.hostname||"127.0.0.1");return server;}''
-    "class BunTranspiler{constructor(o){this.opts=o}transformSync(s){return s}}"
-    ''globalThis.Bun={version:"1.3.13",embeddedFiles:[],Terminal:BunTerminal,stringWidth:(s,o)=>sw(String(s||""),o),stripANSI:s=>sa(String(s||"")),wrapAnsi:(s,w,o)=>wa(String(s||""),w,o),semver:{satisfies:(a,b)=>sv.satisfies(a,b),order:(a,b)=>sv.compare(a,b)},hash:bunHash,which(cmd){const dirs=(process.env.PATH||"").split(path.delimiter);for(const d of dirs){const f=path.join(d,cmd);try{fs.accessSync(f,fs.constants.X_OK);return f;}catch{}}return null;},spawn:bunSpawn,listen:bunListen,YAML:{parse:s=>ya.parse(s),stringify:(o,r,i)=>ya.stringify(o,r,i)},Transpiler:BunTranspiler,generateHeapSnapshot:()=>new ArrayBuffer(0),gc:()=>{}};''
-    "})();"
-    ""
-  ];
+  # Bun → Node shim prepended to cli.cjs. node:timers fixes
+  # `setTimeout(...).unref()`. TTY readable→data swap is in the patcher
+  # (a global Deno.stdin pump races the bundle's own /dev/tty reader).
+  bunShim = /* js */ ''
+    (() => {
+      if (typeof globalThis.Bun !== "undefined") return;
 
-  # Statusline: model, ctx %, in/out tokens, cache %, cost, timing, churn,
-  # jj info, cwd, usage quotas. Reads the harness JSON blob on stdin.
+      const _nt = require("node:timers");
+      globalThis.setTimeout = _nt.setTimeout;
+      globalThis.setInterval = _nt.setInterval;
+      globalThis.clearTimeout = _nt.clearTimeout;
+      globalThis.clearInterval = _nt.clearInterval;
+      globalThis.setImmediate = _nt.setImmediate;
+      globalThis.clearImmediate = _nt.clearImmediate;
+
+      const sw = require("string-width");
+      const sa = require("strip-ansi");
+      const wa = require("wrap-ansi");
+      const sv = require("semver");
+      const ya = require("yaml");
+      const cp = require("child_process");
+      const fs = require("fs");
+      const path = require("path");
+      const crypto = require("crypto");
+      const net = require("net");
+
+      function bunHash(input) {
+        const buf = Buffer.isBuffer(input)
+          ? input
+          : Buffer.from(typeof input === "string" ? input : String(input));
+        return crypto.createHash("sha1").update(buf).digest().readBigUInt64LE(0);
+      }
+
+      function bunMapStdio(s) {
+        if (s === "ignore" || s === "inherit" || s === "pipe") return s;
+        if (s == null) return "pipe";
+        return s;
+      }
+
+      let _ptyMod = null;
+      function bunPty() {
+        if (!_ptyMod) _ptyMod = require("@homebridge/node-pty-prebuilt-multiarch");
+        return _ptyMod;
+      }
+
+      const _SIGNAMES = {
+        1: "SIGHUP", 2: "SIGINT", 3: "SIGQUIT", 6: "SIGABRT",
+        9: "SIGKILL", 13: "SIGPIPE", 14: "SIGALRM", 15: "SIGTERM",
+      };
+
+      class BunTerminal {
+        constructor(opts) {
+          opts = opts || {};
+          this.cols = opts.cols || 80;
+          this.rows = opts.rows || 24;
+          this._dataCb = opts.data;
+          this._pty = null;
+          this._disposed = false;
+        }
+        _attach(pty) {
+          if (this._disposed) { try { pty.kill(); } catch {} return; }
+          this._pty = pty;
+          pty.onData(d => {
+            if (this._disposed) return;
+            try { this._dataCb(this, Buffer.from(d, "utf8")); } catch {}
+          });
+        }
+        write(buf) {
+          if (!this._pty || this._disposed) return;
+          try { this._pty.write(Buffer.isBuffer(buf) ? buf : Buffer.from(buf)); } catch {}
+        }
+        resize(c, r) {
+          this.cols = c; this.rows = r;
+          if (this._pty && !this._disposed) {
+            try { this._pty.resize(c, r); } catch {}
+          }
+        }
+        close() {
+          if (this._disposed) return;
+          this._disposed = true;
+          if (this._pty) { try { this._pty.kill(); } catch {} }
+        }
+      }
+
+      function bunSpawnTerminal(cmd, opts) {
+        const [bin, ...args] = cmd;
+        const T = opts.terminal;
+        const p = bunPty().spawn(bin, args, {
+          name: "xterm-256color",
+          cols: T.cols,
+          rows: T.rows,
+          cwd: opts.cwd || process.cwd(),
+          env: opts.env || process.env,
+        });
+        T._attach(p);
+        let _sig;
+        const exited = new Promise(r => {
+          p.onExit(({ exitCode, signal }) => {
+            if (signal != null && signal !== 0) {
+              _sig = _SIGNAMES[signal] || ("SIG" + signal);
+            }
+            r(exitCode == null ? 1 : exitCode);
+          });
+        });
+        return {
+          pid: p.pid,
+          exited,
+          get signalCode() { return _sig; },
+          kill(s) { try { p.kill(typeof s === "string" ? s : undefined); } catch {} },
+        };
+      }
+
+      function bunSpawn(cmd, opts) {
+        opts = opts || {};
+        if (opts.terminal) return bunSpawnTerminal(cmd, opts);
+        const [bin, ...args] = cmd;
+        let stdio;
+        if (Array.isArray(opts.stdio)) {
+          stdio = opts.stdio.map(bunMapStdio);
+        } else {
+          stdio = [
+            bunMapStdio(opts.stdin),
+            bunMapStdio(opts.stdout),
+            bunMapStdio(opts.stderr),
+          ];
+        }
+        const child = cp.spawn(bin, args, {
+          cwd: opts.cwd,
+          env: opts.env || process.env,
+          stdio,
+          argv0: opts.argv0,
+          detached: !!opts.detached,
+          windowsHide: opts.windowsHide !== !1,
+          uid: opts.uid,
+          gid: opts.gid,
+        });
+        const exited = new Promise(r => child.on("exit", c => r(c == null ? 1 : c)));
+        return {
+          pid: child.pid,
+          stdin: child.stdin,
+          stdout: child.stdout,
+          stderr: child.stderr,
+          exitCode: null,
+          killed: false,
+          kill(s) { try { child.kill(s); } catch {} this.killed = true; },
+          async wait() { return await exited; },
+          exited,
+          unref() { try { child.unref(); } catch {} return this; },
+          ref() { try { child.ref(); } catch {} return this; },
+        };
+      }
+
+      function bunListen(opts) {
+        const h = opts.socket || {};
+        const server = net.createServer(s => {
+          s.data = undefined;
+          if (h.open) try { h.open(s); } catch {}
+          s.on("data", d => h.data && h.data(s, d));
+          s.on("close", () => h.close && h.close(s));
+          s.on("error", e => h.error && h.error(s, e));
+        });
+        server.listen(opts.port || 0, opts.hostname || "127.0.0.1");
+        return server;
+      }
+
+      class BunTranspiler {
+        constructor(o) { this.opts = o; }
+        transformSync(s) { return s; }
+      }
+
+      globalThis.Bun = {
+        version: "1.3.13",
+        embeddedFiles: [],
+        Terminal: BunTerminal,
+        stringWidth: (s, o) => sw(String(s || ""), o),
+        stripANSI: s => sa(String(s || "")),
+        wrapAnsi: (s, w, o) => wa(String(s || ""), w, o),
+        semver: {
+          satisfies: (a, b) => sv.satisfies(a, b),
+          order: (a, b) => sv.compare(a, b),
+        },
+        hash: bunHash,
+        which(cmd) {
+          const dirs = (process.env.PATH || "").split(path.delimiter);
+          for (const d of dirs) {
+            const f = path.join(d, cmd);
+            try { fs.accessSync(f, fs.constants.X_OK); return f; } catch {}
+          }
+          return null;
+        },
+        spawn: bunSpawn,
+        listen: bunListen,
+        YAML: {
+          parse: s => ya.parse(s),
+          stringify: (o, r, i) => ya.stringify(o, r, i),
+        },
+        Transpiler: BunTranspiler,
+        generateHeapSnapshot: () => new ArrayBuffer(0),
+        gc: () => {},
+      };
+    })();
+  '';
+
   statusLine = pkgs.writeScriptBin "claude-code-statusline" /* nu */ ''
     #!${getExe pkgs.nushell}
 
@@ -234,9 +400,8 @@ let
     print -n $"($model_name) | Ctx: ($context_display) | ($tok_display)($cache_display) | ($cost_display) | t:($elapsed_display) w:($wait_display) | ($churn_display)($marker_200k)($jj_info)($quota_section)($cwd_display)"
   '';
 
-  # Extract cli.js from the bun --compile --bytecode executable. Since 2.1.113
-  # the npm package ships a bun SEA ELF instead of plain cli.js, but the source
-  # is still embedded as text alongside the V8 parse cache.
+  # Lifts cli.js source out of the bun --compile --bytecode SEA ELF that
+  # the npm package has shipped since 2.1.113.
   lift = pkgs.writeScriptBin "lift-claude-bun" /* py */ ''
     #!${getExe pkgs.python3}
     from __future__ import annotations
@@ -244,9 +409,8 @@ let
     import sys
     from pathlib import Path
 
-    # Skip over .rodata / .text — those contain `// @bun` string literals (error
-    # messages, help text) that would confuse the scanner. The first real module
-    # sat at ~0xd333ec8 in 2.1.113; staying well below that survives future growth.
+    # Skip .rodata/.text — they contain `// @bun` string literals that confuse
+    # the scanner. First real module was at ~0xd333ec8 in 2.1.113.
     SCAN_FROM: int = 0x6000000
 
     HEADERS: list[bytes] = [
@@ -259,11 +423,9 @@ let
 
 
     def find_main_module(data: bytes) -> tuple[int, int]:
-        # In 2.1.117 bun emits cli.js twice: once as a @bytecode blob with the V8
-        # parse cache interleaved between the source and its `})\n\x00` terminator,
-        # and again as a clean source-only copy that terminates normally. Collect
-        # every header past SCAN_FROM and pick the first one whose terminator lies
-        # before the next header — that's the source-only copy.
+        # 2.1.117+ emits cli.js twice: once as @bytecode with the V8 parse
+        # cache interleaved before the terminator, and once as clean source.
+        # Pick the first header whose terminator precedes the next header.
         headers: list[tuple[int, int]] = []
         for header in HEADERS:
             p: int = SCAN_FROM
@@ -331,10 +493,6 @@ let
         main()
   '';
 
-  # Patch the lifted cli.cjs: AGENTS.md loader, macOS config path, hard-disabled
-  # slash commands, telemetry-gate bypass, Av() force-true, 1h prompt cache TTL,
-  # deno bridge spawn via env(1), feature gate flips, background agent timeout
-  # bump, claude-api skill disable, Deno-native OAuth usage fetch.
   patch = pkgs.writeScriptBin "patch-claude-code-src" /* py */ ''
     #!${getExe pkgs.python3}
     from __future__ import annotations
@@ -348,8 +506,8 @@ let
     type Replacement = Union[bytes, Callable[[re.Match[bytes]], bytes]]
 
     W: bytes = rb"[\w$]+"
-    # Qualified name: matches `FN` and also `NS.FN` (e.g. `Lf.join`, `Oc7.spawn`).
-    # Since 2.1.113 bun's bundler emits more member-style calls for path/spawn helpers.
+    # Qualified name: matches `FN` and `NS.FN`. Bun's bundler emits member-style
+    # calls for path/spawn helpers since 2.1.113.
     Q: bytes = rb"[\w$]+(?:\.[\w$]+)*"
     data: bytes = Path(sys.argv[1]).read_bytes()
 
@@ -396,9 +554,8 @@ let
             log(f"  {labels[key]} [{status}]")
 
 
-    # --- AGENTS.md support ---
-    # The CLAUDE.md loader only reads CLAUDE.md. Patch it to also load AGENTS.md
-    # from the same directories. Pattern: let VAR=ME(DIR,"CLAUDE.md");ARR.push(...await XE(VAR,"Project",ARG,BOOL))
+    # --- AGENTS.md loader ---
+    # Also load AGENTS.md from the same dirs as CLAUDE.md.
 
     agents_pat: bytes = (
         rb"let (" + W + rb")=(" + Q + rb")\((" + W + rb'),"CLAUDE\.md"\);'
@@ -447,13 +604,8 @@ let
         log(f"slash command {label}: enabled")
 
     # --- Bypass telemetry gate in feature flag checker ---
-    # The chain is: h8(featureGate) bails to default if !Qo(); Qo()=Ew6();
-    # Ew6()=!Cq6(); Cq6() returns true when on bedrock/vertex/foundry OR when
-    # user-facing telemetry is disabled (s_1()/equivalent). Drop the trailing
-    # telemetry-disabled check so feature gates still resolve with
-    # DISABLE_TELEMETRY=1 while preserving the bedrock/vertex/foundry detection.
-    # Anchor on the stable env-var literal CLAUDE_CODE_USE_BEDROCK; the obfuscated
-    # function name (Cq6) and the trailing wrapper name (s_1) both rotate.
+    # Drops the trailing `||telemetryDisabled()` so gates still resolve under
+    # DISABLE_TELEMETRY=1 while preserving the bedrock/vertex/foundry branch.
 
     patch(
         "telemetry gate (drop telemetry-disabled check)",
@@ -467,39 +619,23 @@ let
     )
 
     # --- Force Av() async-gate to always resolve true ---
-    # Av(flag) is the ASYNC feature-gate resolver. It short-circuits to its default
-    # in two places when telemetry is off: an inline `if(!va())return!1;` AND the
-    # same check inside Irq() which it delegates to. Since Av() hardcodes !1 as the
-    # default passed to Irq, dropping only the inline guard leaves Irq returning
-    # false anyway.
-    #
-    # Every Av() call-site in 2.1.113 targets a gate we intentionally want enabled:
-    #   - tengu_ccr_bridge              → Qr8() → initReplBridge() auto-connect
-    #   - tengu_ccr_bridge_multi_session → multi-session remote control
-    #   - tengu_ccr_bundle_seed_enabled  → CCR bundle seed
-    #   - tengu_harbor                   → plugin marketplace
-    # None of these are things we want off. Replace the whole body to return !0.
-    # Safe because Av() never writes telemetry — it only reads cached flag state.
+    # Av() is the async feature-gate resolver; every call-site we hit
+    # (tengu_ccr_bridge, ccr_bundle_seed, harbor, …) is one we want enabled,
+    # and the default-false path bypasses the gate even after Cq6 is patched.
+    # Av() never writes telemetry, so a blanket !0 is safe.
 
     patch(
         "Av() force-true for telemetry-off builds",
-        # Negative lookahead keeps the body match from extending past the end of Av
-        # into the next function definition (a previous version matched `async
-        # function Bb8(...)` and spanned through Av's tail, obliterating both).
-        # The inner resolver name (Irq → aeq → ...) rotates across versions, so
-        # capture it rather than pinning to a literal.
+        # Negative lookahead bounds the body match — the inner resolver name
+        # (Irq → aeq → ...) rotates, so capture rather than pin.
         rb"async function (" + W + rb")\(H\)\{(?:(?!async function ).){60,400}?return " + W + rb"\(H,!1,!0\)\}",
         lambda m: b"async function " + m[1] + b"(H){return !0}",
     )
 
     # --- Restore 1h prompt cache TTL when telemetry is off ---
     # https://github.com/anthropics/claude-code/issues/45381
-    # The GrowthBook allowlist for "ttl":"1h" cache_control falls back to the
-    # default object when telemetry is off. Anthropic now ships
-    # {allowlist:["repl_main_thread*","sdk","auto_mode"]} as the default (up
-    # from the broken {} in earlier versions), so the TUI and SDK already get
-    # 1h TTL — but batch agents and less-common query sources still miss.
-    # Widen the default to ["*"] so everything matches.
+    # Widen the GrowthBook allowlist default to ["*"] so batch agents and
+    # less-common query sources also get 1h cache_control.
 
     patch(
         "1h prompt cache TTL fallback",
@@ -508,16 +644,9 @@ let
     )
 
     # --- Disable tengu_keybindings_dom (new chord dispatcher) ---
-    # 2.1.118 introduced a DOM-style chord/focus keybinding system behind this
-    # gate. The gate defaults !0 (on). The new system wraps the TUI in a
-    # programmatic focus manager (gt()-guarded useLayoutEffect subscribes to
-    # activeElement and re-focuses a tabIndex ref). During /rewind the message
-    # selector unmounts and remounts in a sequence where the focus target goes
-    # null long enough that keystrokes stop routing — stdin ends up paused,
-    # fd 0 drops out of epoll, and Ctrl-C (a raw 0x03 byte in raw mode) has no
-    # reader. Wedges the TUI hard; only `kill` from another terminal recovers.
-    # The old 117-era dispatcher is still present as the `: old_path` branch
-    # of every gt()?new:old site; flipping the default reverts to it.
+    # The 2.1.118 DOM-style focus manager wedges the TUI during /rewind: the
+    # message selector remount drops the focus target, stdin pauses, fd 0
+    # leaves epoll, Ctrl-C has no reader. Flipping reverts to the 117 path.
 
     patch(
         "disable new keybindings dispatcher (causes /rewind hang in 2.1.118)",
@@ -525,9 +654,37 @@ let
         lambda m: m[1] + b'("tengu_keybindings_dom",!1)',
     )
 
+    # --- stdin: readable → data (Deno TTY compat) ---
+    # Deno's process.stdin never fires "readable" for TTYs ("data" works).
+    # Two sites: startCapturingEarlyInput + agent-view attach.
+
+    patch(
+        "stdin readable→data (startCapturingEarlyInput)",
+        (
+            rb"(" + W + rb")=\(\)=>\{let (" + W + rb")=process\.stdin\.read\(\);"
+            rb"while\(\2!==null\)\{if\(typeof \2===\"string\"\)(" + W + rb")\(\2\);"
+            rb"\2=process\.stdin\.read\(\)\}\},"
+            rb"process\.stdin\.on\(\"readable\",\1\)"
+        ),
+        lambda m: (
+            m[1] + b"=()=>{}," +
+            b'process.stdin.on("data",' + m[2] + b'=>{if(typeof ' + m[2]
+            + b'==="string")' + m[3] + b"(" + m[2] + b")})"
+        ),
+    )
+
+    patch(
+        "stdin readable→data (agent-view attach)",
+        (
+            rb'if\(q\.on\("readable",d\),"resume"in q&&"pause"in q\)'
+            rb'q\.resume\(\),q\.pause\(\)'
+        ),
+        # d() loops q.read() and calls g(chunk); g is in enclosing scope.
+        lambda m: b'q.on("data",g)',
+    )
+
     # --- Fix Deno-compile bridge spawn ---
-    # Deno-compiled binaries eat --flags as V8 args, so we route spawns through
-    # env(1) to pass them as normal CLI flags instead.
+    # Deno binaries eat --flags as V8 args; route through env(1) instead.
 
     patch(
         "deno bridge spawn fix",
@@ -546,8 +703,7 @@ let
     )
 
     # --- Flip feature gates ---
-    # DISABLE_TELEMETRY=1 prevents GrowthBook feature flag resolution, so all gates
-    # fall back to their hardcoded defaults (false). Flip them to true.
+    # Under DISABLE_TELEMETRY=1 GrowthBook never resolves, so defaults stick.
 
     Gate = tuple[bytes, str]
 
@@ -559,13 +715,30 @@ let
         (b"tengu_remote_backend", "remote backend"),
         (b"tengu_immediate_model_command", "instant /model switching"),
         (b"tengu_fgts", "fine-grained tool streaming"),
+        (b"tengu_streaming_tool_execution2", "streaming tool execution v2"),
         (b"tengu_auto_background_agents", "background agent timeout"),
         (b"tengu_plan_mode_interview_phase", "plan mode interview"),
         (b"tengu_surreal_dali", "scheduled agents/cron"),
     ]
 
+    # Agent view (`claude agents` TUI, `--bg`, /background) — slate_meadow is
+    # the fleet gate, fg_left_arrow_agents adds the left-arrow shortcut.
+    agent_view_gates: list[Gate] = [
+        (b"tengu_slate_meadow", "agent view fleet gate (--bg, claude agents TUI)"),
+        (b"tengu_fg_left_arrow_agents", "left-arrow shortcut into agents fleet"),
+    ]
+
+    # /loop dynamic/persistent/prompt sub-modes; without them /loop falls back
+    # to the bare cron path. push gates arm input-needed + generic pushes.
+    loop_gates: list[Gate] = [
+        (b"tengu_kairos_loop_dynamic", "/loop dynamic pacing"),
+        (b"tengu_kairos_loop_persistent", "/loop persistent mode"),
+        (b"tengu_kairos_loop_prompt", "/loop autonomous prompts"),
+        (b"tengu_kairos_push_notifications", "push notifications"),
+        (b"tengu_kairos_input_needed_push", "push when input needed"),
+    ]
+
     memory_gates: list[Gate] = [
-        # (b"tengu_session_memory", "session memory"),  # auto-memory; pollutes unrelated convos
         (b"tengu_pebble_leaf_prune", "message pruning"),
         (b"tengu_herring_clock", "team memory directory"),
         (b"tengu_passport_quail", "typed combined memory prompts"),
@@ -579,18 +752,18 @@ let
         (b"tengu_amber_prism", "permission denial context"),
         (b"tengu_hawthorn_steeple", "context windowing"),
         (b"tengu_loud_sugary_rock", "Opus 4.7 terse output guidance"),
+        (b"tengu_loud_sugary_rock2", "Opus 4.7 terse output guidance v2"),
         (b"tengu_verified_vs_assumed", "verified-vs-assumed reporting"),
+        (b"tengu_sparrow_ledger", "verify_prompt_arm (pairs with verified-vs-assumed)"),
+        (b"tengu_orchid_mantis_v2", "default-NO /schedule offer (less noisy than v1)"),
+        (b"tengu_silk_hinge", "message timestamps setting"),
+        (b"tengu_terminal_sidebar", "status in terminal tab setting"),
         (b"tengu_birch_compass", "/usage 'What's contributing' breakdown block"),
-        # tengu_pewter_brook (fullscreen TUI default) disabled — Ink fullscreen
-        # rendering drops memoized Text children in nested Box columns (/usage
-        # loses its "What's contributing..." bold header, big vertical gaps).
-        # Re-enable by setting `tui: "fullscreen"` in settings.json if desired.
     ]
 
     tool_gates: list[Gate] = [
         (b"tengu_chrome_auto_enable", "auto-enable chrome devtools"),
         (b"tengu_plum_vx3", "web search reranking"),
-        # (b"tengu_moth_copse", "relevant memory recall"),  # auto-recall; pollutes unrelated convos
         (b"tengu_cork_m4q", "batch command processing"),
         (b"tengu_harbor", "plugin marketplace"),
         (b"tengu_harbor_permissions", "plugin permissions"),
@@ -603,11 +776,10 @@ let
         (b"tengu_amber_sentinel", "Monitor tool for streaming bg scripts"),
         (b"tengu_miraculo_the_bard", "skip penguin-mode startup prefetch"),
         (b"tengu_noreread_q7m_velvet", "sharper 'wasted read' feedback"),
+        (b"tengu_mcp_subagent_prompt", "modern MCP subagent prompt (vs legacy)"),
     ]
 
-    flip_gates(core_gates + memory_gates + ux_gates + tool_gates)
-
-    # --- Bump background agent timeout from 120s to 240s ---
+    flip_gates(core_gates + agent_view_gates + loop_gates + memory_gates + ux_gates + tool_gates)
 
     patch(
         "background agent timeout",
@@ -616,11 +788,8 @@ let
     )
 
     # --- Disable the claude-api bundled skill ---
-    # Registered via vA({name:"claude-api",description:v4_,...}) at bundle-load
-    # time. The description (v4_) is a ~200-token SDK/Bedrock usage matrix with
-    # TRIGGER/SKIP rules that gets injected into every system prompt. We don't
-    # write Anthropic SDK code in this environment, so cut it. Renamed from
-    # `claude-developer-platform` in an earlier release — match on current name.
+    # Its description is a ~200-token SDK/Bedrock matrix injected into every
+    # system prompt — not relevant here.
 
     patch(
         "disable claude-api skill",
@@ -629,9 +798,8 @@ let
     )
 
     # --- Replace usage fetch with self-contained OAuth implementation ---
-    # FO()/eO() falls back to x-api-key when dA()/nA() returns false (telemetry off),
-    # but /api/oauth/usage requires Bearer + oauth beta header. Replace the entire
-    # function with a Deno-native implementation that reads credentials directly.
+    # Stock falls back to x-api-key when telemetry is off, but /api/oauth/usage
+    # needs Bearer + oauth beta header. Read credentials directly.
 
     usage_fn_pat: bytes = (
         rb"async function (" + W + rb")\(\)\{"
@@ -675,66 +843,80 @@ let
         log("usage fetch: pattern NOT FOUND")
 
     # --- grep/find/rg shim: delegate to absolute Nix store paths ---
-    # claude-code ships a shell shim (o45/i45 → a38) that redefines
-    # `grep`/`find`/`rg` as bash functions which re-exec the claude binary
-    # with argv[0]=ugrep/bfs/rg. In Bun "ant-native" builds this dispatches
-    # to bundled native tools. The Deno repack drops those, so invocations
-    # fail with `error: unknown option '-G'`. Rewrite a38's emitted bash to
-    # call the real tools directly via their Nix store paths (resolved at
-    # build time), so the shim works regardless of PATH and whether the
-    # cached binary is launched through the wrapper or standalone.
+    # Stock re-execs argv[0]=ugrep/bfs/rg expecting Bun ant-native bundles;
+    # the Deno repack drops those, so point at real tools by store path.
+    # Anchor on (H,_,q=[]) (with optional 2.1.139 K=[] fourth param) plus the
+    # `\x60function ''${H} {` bash header it must emit; two other functions
+    # share the signature so the header disambiguates. Use brace-balanced
+    # parsing for the body end so internal restructures don't drift the regex.
 
-    a38_pat: bytes = (
-        rb"function (" + W + rb")\(H,_,q=\[\]\)\{"
-        rb"let (" + W + rb")=q\.length>0\?\x60\$\{q\.join\(\" \"\)\} \"\$@\"\x60:'\"\$@\"';"
-        rb"return\[[\s\S]*?\]\.join\(\x60\n\x60\)\}"
-    )
+    def scan_js_block(blob: bytes, pos: int) -> int:
+        """Return the offset just past the `}` closing the `{` at pos-1.
+        Tracks ' " ` (with ''${...} interpolations) so braces inside strings
+        don't count. Bun output has no comments or regex literals here."""
+        depth: int = 1
+        while pos < len(blob):
+            c: bytes = blob[pos:pos + 1]
+            if c == b"{":
+                depth += 1
+            elif c == b"}":
+                depth -= 1
+                if depth == 0:
+                    return pos + 1
+            elif c in (b"'", b'"'):
+                pos += 1
+                while pos < len(blob) and blob[pos:pos + 1] != c:
+                    pos += 2 if blob[pos:pos + 1] == b"\\" else 1
+            elif c == b"\x60":
+                pos += 1
+                while pos < len(blob) and blob[pos:pos + 1] != b"\x60":
+                    if blob[pos:pos + 1] == b"\\":
+                        pos += 2
+                    elif blob[pos:pos + 2] == b"''${":
+                        pos += 2
+                        inner: int = 1
+                        while pos < len(blob) and inner > 0:
+                            ic: bytes = blob[pos:pos + 1]
+                            if ic == b"{":
+                                inner += 1
+                            elif ic == b"}":
+                                inner -= 1
+                            pos += 1
+                        continue
+                    else:
+                        pos += 1
+            pos += 1
+        sys.exit("a38 shim: unbalanced braces")
 
 
-    def a38_repl(m: re.Match[bytes]) -> bytes:
-        fn_name: bytes = m.group(1)
-        loc: bytes = m.group(2)
-        return (
+    a38_sig: bytes = rb"function (" + W + rb")\(H,_,q=\[\](?:,K=\[\])?\)\{"
+    a38_match: re.Match[bytes] | None = None
+    for cand in re.finditer(a38_sig, data):
+        if b"\x60function ''${H} {" in data[cand.end():cand.end() + 800]:
+            a38_match = cand
+            break
+
+    if a38_match is None:
+        log("grep/find/rg shim: NOT FOUND")
+    else:
+        fn_name: bytes = a38_match.group(1)
+        body_end: int = scan_js_block(data, a38_match.end())
+        a38_new: bytes = (
             b"function " + fn_name + b"(H,_,q=[]){"
-            b"let " + loc + b'=q.length>0?\x60''${q.join(" ")} "$@"\x60:\'"$@"\';'
+            b'let L=q.length>0?\x60''${q.join(" ")} "$@"\x60:\'"$@"\';'
             b'let P=({ugrep:"${getExe' pkgs.ugrep "ugrep"}",'
             b'bfs:"${getExe pkgs.bfs}",'
             b'rg:"${getExe pkgs.ripgrep}"})[_]||_;'
             b"return\x60function ''${H} { "
             b'if ! [ -x ''${P} ]; then command ''${H} "$@"; return; fi; '
-            b"''${P} ''${" + loc + b"}; }\x60}"
+            b"''${P} ''${L}; }\x60}"
         )
+        data = data[:a38_match.start()] + a38_new + data[body_end:]
+        log(f"grep/find/rg shim: replaced {fn_name.decode()}")
 
+    # --- Prepend Bun → Node shim (see bunShim above) ---
 
-    patch("grep/find/rg shim: use absolute store paths", a38_pat, a38_repl)
-
-    # --- Bun runtime polyfill ---
-    # Since 2.1.128 the bundle calls Bun.* APIs unguarded (Bun.stringWidth,
-    # Bun.semver, Bun.hash, Bun.spawn, Bun.YAML, Bun.Transpiler, Bun.listen,
-    # Bun.which, Bun.wrapAnsi, Bun.stripANSI, Bun.embeddedFiles, Bun.gc,
-    # Bun.generateHeapSnapshot, Bun.JSONL, Bun.Terminal, Bun.version). Under
-    # Deno these throw `ReferenceError: Bun is not defined` at first use
-    # (Bun.stringWidth fires in a column-width helper called during banner
-    # render). Define globalThis.Bun upfront with Node-backed equivalents so
-    # bare `Bun.X` lookups resolve.
-    #
-    # Bun.Terminal and Bun.JSONL are intentionally left absent: the bundle
-    # already has fallback paths gated on `typeof Bun.Terminal<"u"` and
-    # `Bun.JSONL?.parseChunk`, so leaving them undefined preserves the
-    # built-in "running under Node?" degradation rather than half-emulating.
-
-    bun_shim: bytes = rb"""(()=>{if(typeof globalThis.Bun!=="undefined")return;
-const sw=require("string-width"),sa=require("strip-ansi"),wa=require("wrap-ansi");
-const sv=require("semver"),ya=require("yaml");
-const cp=require("child_process"),fs=require("fs"),path=require("path");
-const crypto=require("crypto"),net=require("net");
-function bunHash(input){const buf=Buffer.isBuffer(input)?input:Buffer.from(typeof input==="string"?input:String(input));return crypto.createHash("sha1").update(buf).digest().readBigUInt64LE(0);}
-function bunSpawn(cmd,opts){opts=opts||{};const[bin,...args]=cmd;const stdio=["pipe","pipe",opts.stderr==="ignore"?"ignore":"pipe"];const child=cp.spawn(bin,args,{cwd:opts.cwd,env:opts.env||process.env,stdio,argv0:opts.argv0});const exited=new Promise(r=>child.on("exit",c=>r(c==null?1:c)));return{pid:child.pid,stdin:child.stdin,stdout:child.stdout,stderr:child.stderr,exitCode:null,killed:false,kill(s){try{child.kill(s)}catch{}this.killed=true},async wait(){return await exited},exited};}
-function bunListen(opts){const h=opts.socket||{};const server=net.createServer(s=>{s.data=undefined;if(h.open)try{h.open(s)}catch{}s.on("data",d=>h.data&&h.data(s,d));s.on("close",()=>h.close&&h.close(s));s.on("error",e=>h.error&&h.error(s,e));});server.listen(opts.port||0,opts.hostname||"127.0.0.1");return server;}
-class BunTranspiler{constructor(o){this.opts=o}transformSync(s){return s}}
-globalThis.Bun={version:"1.3.13",embeddedFiles:[],stringWidth:(s,o)=>sw(String(s||""),o),stripANSI:s=>sa(String(s||"")),wrapAnsi:(s,w,o)=>wa(String(s||""),w,o),semver:{satisfies:(a,b)=>sv.satisfies(a,b),order:(a,b)=>sv.compare(a,b)},hash:bunHash,which(cmd){const dirs=(process.env.PATH||"").split(path.delimiter);for(const d of dirs){const f=path.join(d,cmd);try{fs.accessSync(f,fs.constants.X_OK);return f;}catch{}}return null;},spawn:bunSpawn,listen:bunListen,YAML:{parse:s=>ya.parse(s),stringify:(o,r,i)=>ya.stringify(o,r,i)},Transpiler:BunTranspiler,generateHeapSnapshot:()=>new ArrayBuffer(0),gc:()=>{}};
-})();
-"""
+    bun_shim: bytes = b${toJSON bunShim}
 
     data = bun_shim + data
     log("Bun runtime polyfill: prepended")
@@ -742,8 +924,7 @@ globalThis.Bun={version:"1.3.13",embeddedFiles:[],stringWidth:(s,o)=>sw(String(s
     Path(sys.argv[1]).write_bytes(data)
   '';
 
-  # Chrome DevTools MCP: deno-compiled so we can stub the Clearcut telemetry
-  # watchdog before sealing the binary.
+  # Deno-compiled so we can stub the Clearcut telemetry watchdog.
   chrome-devtools-mcp =
     let
       version = "0.17.3";
@@ -770,19 +951,21 @@ globalThis.Bun={version:"1.3.13",embeddedFiles:[],stringWidth:(s,o)=>sw(String(s
       exec "$BIN" --no-usage-statistics "$@"
     '';
 
-  # CLI proxy that trims command output before it reaches the LLM.
+  # Pinned to mlamp's fork @ rtk-ai/rtk#1339 (CLAUDE_CONFIG_DIR support); the
+  # PR is develop-based and doesn't cleanly fetchpatch onto v0.37.2. Drop the
+  # fork once it lands upstream.
   rtk = pkgs.rustPlatform.buildRustPackage {
     pname = "rtk";
     version = "0.37.2";
 
     src = pkgs.fetchFromGitHub {
-      owner = "rtk-ai";
+      owner = "mlamp";
       repo = "rtk";
-      tag = "v0.37.2";
-      hash = "sha256-rNuu8B5TnKZHrbVSV8HkcTeTdcol26259GGJEPEMPZY=";
+      rev = "985f22e37519153f86582a08e6f6dd36152f8f79";
+      hash = "sha256-4jRKsWSY30cjNQHmP7iVOBuNLe1ZWEuJO8FvCIBlv20=";
     };
 
-    cargoHash = "sha256-61+PNuVF8H5+9PHc3MBt8V80ieBBi8HzSC9Gc/WUSzM=";
+    cargoHash = "sha256-MXWqVIRV+nhlbyDTigGdvY3QJ30XnxV6/Q4Y/7CbHaQ=";
 
     doCheck = false;
 
@@ -867,6 +1050,7 @@ globalThis.Bun={version:"1.3.13",embeddedFiles:[],stringWidth:(s,o)=>sw(String(s
       "kotlin-lsp@claude-plugins-official" = true;
       "ralph-loop@claude-plugins-official" = true;
       "rust-analyzer-lsp@claude-plugins-official" = true;
+      "superpowers@claude-plugins-official" = true;
     };
 
     statusLine = {
@@ -921,8 +1105,7 @@ globalThis.Bun={version:"1.3.13",embeddedFiles:[],stringWidth:(s,o)=>sw(String(s
       )
       mkdir $config_dir
 
-      # Sync declarative settings into the writable config dir. Slop refuses
-      # to read a read-only settings.json in place, so we have to copy.
+      # Slop refuses a read-only settings.json, so copy it.
       cp --force ${settingsJson} ($config_dir | path join "settings.json")
 
       r#'${toJSON settings.env}'# | from json | load-env
@@ -947,8 +1130,7 @@ globalThis.Bun={version:"1.3.13",embeddedFiles:[],stringWidth:(s,o)=>sw(String(s
       mkdir $tgz_dir
       let tgz = $tgz_dir | path join $"claude-code-($platform)-($version).tgz"
 
-      # Download to .tmp + atomic rename so an interrupted run doesn't
-      # leave a partial tarball cached forever (sticky-bad).
+      # atomic rename so a partial download isn't cached as good.
       if not ($tgz | path exists) {
         let tmp = $"($tgz).tmp"
         print --stderr $"(ansi cyan)fetch:(ansi reset) ($tarball_url)"
@@ -970,10 +1152,8 @@ globalThis.Bun={version:"1.3.13",embeddedFiles:[],stringWidth:(s,o)=>sw(String(s
       ^${getExe lift} $native_bin $cli
       ^${getExe patch} $cli
 
-      # Bun keeps a handful of http/ws/schema libs as runtime-external. Deno has
-      # no equivalent — drop a package.json next to cli.cjs, resolve deps into
-      # a local node_modules/, and bundle the tree into the executable via
-      # --include.
+      # Bun keeps http/ws/schema libs as runtime-external; Deno has no
+      # equivalent, so resolve into node_modules/ and --include the tree.
       r#'${
         toJSON {
           name = "claude-code-lifted";
@@ -985,13 +1165,13 @@ globalThis.Bun={version:"1.3.13",embeddedFiles:[],stringWidth:(s,o)=>sw(String(s
             ajv = "^8";
             ajv-formats = "^3";
             yaml = "^2";
-            # Bun shim deps (see "Bun runtime polyfill" in patch-claude-code-src).
-            # Pinned to CJS-compatible majors: ESM-only releases (string-width@5+,
-            # strip-ansi@7+, wrap-ansi@8+) break require() inside cli.cjs.
+            # Bun shim deps; pinned to CJS-compatible majors.
             string-width = "^4";
             strip-ansi = "^6";
             wrap-ansi = "^7";
             semver = "^7";
+            # PTY backing Bun.Terminal for `claude --bg-pty-host` (agent view).
+            "@homebridge/node-pty-prebuilt-multiarch" = "^0.13.0";
           };
         }
       }'# | save --force ($workdir | path join "package.json")
@@ -1001,8 +1181,7 @@ globalThis.Bun={version:"1.3.13",embeddedFiles:[],stringWidth:(s,o)=>sw(String(s
       ^${getExe pkgs.deno} install --node-modules-dir=auto
       ^${getExe pkgs.deno} compile --allow-all --no-check --node-modules-dir=auto --include=node_modules --output $binary_path "cli.cjs"
 
-      # nushell refuses to delete a directory you're currently inside
-      cd $cache
+      cd $cache  # nushell can't rm the directory it's inside
       rm -rf $workdir
     '';
   };
