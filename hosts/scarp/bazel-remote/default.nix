@@ -7,20 +7,19 @@
 }:
 let
   inherit (config.networking) domain;
-  inherit (lib) merge mkBefore;
-  tokenFile = config.secrets.bazelRemoteToken.path;
-  authConf = "/run/nginx/bazel-remote-auth.conf";
+  inherit (lib) merge;
 in
 {
   imports = [ (self + /modules/nginx.nix) ];
 
-  secrets.bazelRemoteToken = {
-    rekeyFile = ./token.age;
+  secrets.bazelRemoteAuthMap = {
+    rekeyFile = ./auth-map.age;
     owner = "nginx";
+    mode = "0440";
   };
 
-  # RBE-compatible cache backend for Android builds (reclient)
-  # Provides CAS + Action Cache over gRPC on port 9092
+  # RBE-compatible cache backend for Android builds w/ reclient,
+  # which provides CAS + Action Cache over gRPC on port 9092
   systemd.services.bazel-remote = {
     description = "RBE-Compatible Bazel Remote Cache";
     after = [ "network.target" ];
@@ -34,18 +33,8 @@ in
     };
   };
 
-  # Generate nginx auth map from the agenix secret before nginx starts,
-  # keeping the token out of the world-readable nix store.
-  systemd.services.nginx.preStart = mkBefore ''
-    umask 077
-    TOKEN=$(cat ${tokenFile})
-    printf 'map $http_x_rbe_token $rbe_auth_ok {\n  "%s" 1;\n  default 0;\n}\n' "$TOKEN" > ${authConf}
-    chown root:nginx ${authConf}
-    chmod 0640 ${authConf}
-  '';
-
   services.nginx.appendHttpConfig = ''
-    include ${authConf};
+    include ${config.secrets.bazelRemoteAuthMap.path};
   '';
 
   services.nginx.virtualHosts."android.${domain}" = merge config.services.nginx.sslTemplate {
