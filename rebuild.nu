@@ -17,16 +17,12 @@ def main --wrapped [
    } else { (hostname) }
 
    if $remote {
-      ssh -tt -p 2001 ("root@" + $host) "
-      rm --recursive --force dotfiles
-    "
+      ssh -tt -p 2001 $"root@($host)" "rm --recursive --force dotfiles"
 
-      git ls-files | sync -e "ssh -p 2001" --files-from - ./ $"root@($host):dotfiles"
+      jj file list | sync -e "ssh -p 2001" --files-from - ./ $"root@($host):dotfiles"
 
-      ssh -tt -p 2001 ("root@" + $host) $"
-      cd dotfiles
-      ./rebuild.nu ($host) --bypass-root-check ($arguments | str join ' ')
-    "
+      let quoted = $arguments | each { |a| $"'($a | str replace --all "'" "'\\''")'" } | str join ' '
+      ssh -tt -p 2001 $"root@($host)" $"cd dotfiles && ./rebuild.nu ($host) --bypass-root-check ($quoted)"
 
       return
    }
