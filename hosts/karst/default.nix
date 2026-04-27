@@ -20,6 +20,8 @@ lib.nixosSystem' "server" (
       PrintLastLog = false;
     };
 
+    nix.settings.trusted-users = [ "max" ];
+
     secrets.password.rekeyFile = ./password.age;
     users.users = {
       root = {

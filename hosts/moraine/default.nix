@@ -26,6 +26,7 @@ lib.nixosSystem' "server" (
       "nix-command"
       "flakes"
     ];
+    nix.settings.trusted-users = [ "max" ];
 
     # Many of your common/ and linux/ modules are in disabledModules for ppc64
     # (flake-input pkgs that can't cross-build). Put plain nixpkgs equivalents
