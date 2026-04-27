@@ -12,6 +12,7 @@ let
     mkForce
     theme
     ;
+
   niriPackage = niri-src.packages.${config.hostSystem}.niri;
 
   xdg-desktop-portal-gnome' = pkgs.xdg-desktop-portal-gnome.overrideAttrs (old: {
@@ -20,10 +21,13 @@ let
 
   ziplineUpload = pkgs.writeShellScript "zipline-upload" ''
     set -e
+    umask 077
     FILE="$1"
-    TOKEN=$(cat ${config.secrets.ziplineToken.path})
+    HEADER_FILE=$(${pkgs.coreutils}/bin/mktemp)
+    trap '${pkgs.coreutils}/bin/rm -f "$HEADER_FILE"' EXIT
+    printf 'Authorization: %s\n' "$(${pkgs.coreutils}/bin/cat ${config.secrets.ziplineToken.path})" > "$HEADER_FILE"
     RESPONSE=$(${pkgs.curl}/bin/curl -s -X POST "https://i.amaanq.com/api/upload" \
-      -H "Authorization: $TOKEN" \
+      -H "@$HEADER_FILE" \
       -F "file=@$FILE")
     URL=$(echo "$RESPONSE" | ${pkgs.jq}/bin/jq -r '.files[0].url')
     echo -n "$URL" | ${pkgs.wl-clipboard}/bin/wl-copy
@@ -74,6 +78,10 @@ in
         "chrome-web.telegram.org__a-Default" = "telegram-web-app";
         "chrome-twitter.com__-Default" = "twitter-web-app";
       };
+      skip.apps = [
+        "cs2"
+        "steam"
+      ];
     };
   };
 
@@ -414,14 +422,31 @@ in
         "Mod+Shift+A".action.spawn = [
           "sh"
           "-c"
-          "rm -f /tmp/screenshot.png; niri msg action screenshot --path /tmp/screenshot.png; inotifywait -q -e close_write --include screenshot.png /tmp && satty --filename /tmp/screenshot.png"
+          /* sh */ ''
+            D="$XDG_RUNTIME_DIR/niri"
+            mkdir -p "$D"
+            rm -f "$D/screenshot.png"
+            niri msg action screenshot --path "$D/screenshot.png"
+            inotifywait -q -e close_write --include screenshot.png "$D" \
+              && satty --filename "$D/screenshot.png"
+          ''
         ];
 
         # Screenshot with annotation + upload to Zipline
         "Mod+Shift+D".action.spawn = [
           "sh"
           "-c"
-          "rm -f /tmp/screenshot.png; niri msg action screenshot --path /tmp/screenshot.png; inotifywait -q -e close_write --include screenshot.png /tmp && satty --filename /tmp/screenshot.png --output-filename /tmp/annotated.png --early-exit && ${ziplineUpload} /tmp/annotated.png"
+          /* sh */ ''
+            D="$XDG_RUNTIME_DIR/niri"
+            mkdir -p "$D"
+            rm -f "$D/screenshot.png" "$D/annotated.png"
+            niri msg action screenshot --path "$D/screenshot.png"
+            inotifywait -q -e close_write --include screenshot.png "$D" \
+              && satty --filename "$D/screenshot.png" \
+                       --output-filename "$D/annotated.png" \
+                       --early-exit \
+              && ${ziplineUpload} "$D/annotated.png"
+          ''
         ];
 
         "Mod+Shift+T".action.spawn = [
