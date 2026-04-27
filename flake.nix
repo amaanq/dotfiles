@@ -292,9 +292,9 @@
         mapAttrs (
           _system:
           mapAttrs (
-            _name: drv: {
+            name: drv: {
               type = "app";
-              program = "${drv}/bin/agenix-rekey";
+              program = "${drv}/bin/agenix-${name}";
             }
           )
         ) rekeyApps;
