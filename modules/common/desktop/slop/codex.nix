@@ -9,8 +9,8 @@ let
   codexSrc = pkgs.fetchFromGitHub {
     owner = "openai";
     repo = "codex";
-    tag = "rust-v0.125.0";
-    hash = "sha256-q175gmBw+edb5+w8TM36yUeFsyIdB1/IwWzbxBbBmoA=";
+    tag = "rust-v0.128.0";
+    hash = "sha256-v2W0eslPOPHxHX76+bnkE/f4y+MnQuopeOoAC5X16TA=";
   };
 
   # Verbatim copy of rtk-ai/rtk's hooks/codex/rtk-awareness.md --
@@ -52,28 +52,20 @@ let
 
   # Inherit nixpkgs's codex packaging (v8/rusty_v8 archive, webrtc shim,
   # libclang env, postPatch). We just bump version/src/cargoDeps and apply
-  # the .codex-as-dir bwrap patch on top.
+  # a few quality-of-life patches on top.
   codexRs = pkgs.codex.overrideAttrs (oldAttrs: {
-    version = "0.125.0";
+    version = "0.128.0";
     src = codexSrc;
     sourceRoot = "source/codex-rs";
 
     cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
-      name = "codex-0.125.0-vendor";
+      name = "codex-0.128.0-vendor";
       src = codexSrc;
       sourceRoot = "source/codex-rs";
-      hash = "sha256-WcvBH86U+jJMobDxHSVeGtUDpg2Sq5jrsndGXAGNT0E=";
-      # Only the bwrap patch touches Cargo.lock, so it's the only one the
-      # vendor drv needs to see; the gpt-5.5 + release-profile patches
-      # only edit non-lockfile sources.
-      patches = [ ./patches/codex-bwrap-dotcodex.patch ];
+      hash = "sha256-3NQ4UCfBpANhyoJJatd8m31cEugsd42Ye2BXuzlKC0c=";
     };
 
     # Patches applied to the build source:
-    # * codex-bwrap-dotcodex: dcb73a459 + 12862a366 + fd59b3dd0 cherry-picked
-    #   onto rust-v0.125.0 -- bwrap represents missing preserved path masks
-    #   as empty dirs instead of empty files so git ignores them. Drop once
-    #   the next tagged release ships fd59b3dd0.
     # * codex-gpt55-400k-context: bumps gpt-5.5's `context_window` and
     #   `max_context_window` from 272k to 400k. Two hunks: (1) the bundled
     #   models.json (compiled in via `include_str!`), and (2) a clamp in
@@ -84,27 +76,25 @@ let
     #   stomp the bundled value with the cached one. The model itself
     #   supports up to 1M tokens via API; 400k is the announced ceiling
     #   for paid Codex plans.
-    # * codex-fast-release-build: drops `lto = "fat"` and `codegen-units = 1`
-    #   to keep release builds from taking ~28 minutes on a 9950X. Trades a
-    #   few percent runtime perf for a much shorter rebuild cycle.
     #
     # Set as `patches` rather than `cargoPatches` because overrideAttrs
     # bypasses buildRustPackage's `patches = cargoPatches ++ patches`
-    # concat -- only `patches` reaches stdenv at this layer. The vendor
-    # drv applies the bwrap patch via its own fetchCargoVendor arg above.
+    # concat -- only `patches` reaches stdenv at this layer.
+    #
+    # Note: nixpkgs's own codex postPatch strips `lto = "fat"` and
+    # `codegen-units = 1` on non-Darwin (pkgs/by-name/co/codex/package.nix),
+    # so no local fast-release-build patch is needed.
     patches = [
-      ./patches/codex-bwrap-dotcodex.patch
       ./patches/codex-gpt55-400k-context.patch
-      ./patches/codex-fast-release-build.patch
       ./patches/codex-tui-cursor-jumpiness.patch
     ];
 
     # postPatch: companion to `codex-tui-cursor-jumpiness.patch`. That
     # patch only carries the renderable.rs hunks from openai/codex#11064;
     # the insert_history.rs hunks are applied here via sed because GNU
-    # patch can't match v0.125.0's wrapping-module imports without
-    # unacceptable fuzz (the import block was refactored upstream and
-    # diverged before #11064 was opened).
+    # patch can't match the wrapping-module imports without unacceptable
+    # fuzz (the import block was refactored upstream and diverged before
+    # #11064 was opened).
     postPatch = (oldAttrs.postPatch or "") + ''
       ${pkgs.gnused}/bin/sed -i \
         -e '/^use crossterm::cursor::MoveDown;/i use crossterm::cursor::Hide;' \
