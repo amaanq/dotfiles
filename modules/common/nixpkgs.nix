@@ -178,6 +178,17 @@
           elixir_1_18 = prev.beamMinimal27Packages.elixir_1_18;
         };
 
+        # radicle-node 1.8.0 has four flaky integration tests in
+        # `crates/radicle-cli/tests/commands/`
+        radicle-node = prev.radicle-node.overrideAttrs (old: {
+          checkFlags = (old.checkFlags or [ ]) ++ [
+            "--skip=commands::id::rad_id_threshold"
+            "--skip=commands::inbox::rad_inbox"
+            "--skip=commands::init::rad_init_private_clone_seed"
+            "--skip=commands::patch::rad_patch_checkout_force"
+          ];
+        });
+
         # uutils-coreutils 0.8.0 changed its GNUmakefile default from
         # `LN ?= ln -sf` to `LN ?= ln -f`, switching the multicall install
         # from symlinks to hardlinks. patchelf's fixup hook (setup-hook.sh)
