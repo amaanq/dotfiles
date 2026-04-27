@@ -119,6 +119,7 @@ let
         source ${./ssh-completions.nu}
 
         use ${./terminfo-autogen.nu}
+        source ${./translate.nu}
 
         use ${pkgs.nu_scripts}/share/nu_scripts/modules/capture-foreign-env
         source ${pkgs.nu_scripts}/share/nu_scripts/modules/formats/from-env.nu
@@ -182,6 +183,9 @@ let
           }
           if ("${config.secrets.glm_api_key.path}" | path exists) {
             $env.GLM_API_KEY = (open ${config.secrets.glm_api_key.path} | str trim)
+          }
+          if ("${config.secrets.kagi_session_token.path}" | path exists) {
+            $env.KAGI_SESSION_TOKEN = (open ${config.secrets.kagi_session_token.path} | str trim)
           }
         }
 
@@ -250,6 +254,11 @@ let
 
 in
 {
+  secrets.kagi_session_token = {
+    rekeyFile = ./kagi-session-token.age;
+    owner = "amaanq";
+  };
+
   secrets.openstack_aarch64_password = {
     rekeyFile = ./openstack-aarch64-password.age;
     owner = "amaanq";
