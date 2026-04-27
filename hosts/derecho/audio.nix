@@ -1,5 +1,7 @@
 { pkgs, ... }:
 {
+  services.pipewire.extraLadspaPackages = [ pkgs.rnnoise-plugin ];
+
   services.pipewire.wireplumber.extraConfig."90-game-audio-routing" = {
     "monitor.alsa.rules" = [
       {
@@ -45,7 +47,7 @@
                 {
                   type = "ladspa";
                   name = "rnnoise";
-                  plugin = "${pkgs.rnnoise-plugin}/lib/ladspa/librnnoise_ladspa.so";
+                  plugin = "librnnoise_ladspa";
                   label = "noise_suppressor_mono";
                   control = {
                     "VAD Threshold (%)" = 50.0;
