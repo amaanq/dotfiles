@@ -112,6 +112,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    opencode-src = {
+      url = "github:sst/opencode/v1.14.24";
+      flake = false;
+    };
+
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";

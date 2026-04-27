@@ -87,6 +87,13 @@ let
       plugin = [ "/etc/opencode/plugins/rtk.ts" ];
     }
   );
+
+  opencodeTuiConfig = pkgs.writeText "tui.json" (
+    lib.strings.toJSON {
+      "$schema" = "https://opencode.ai/tui.json";
+      theme = "rosepine";
+    }
+  );
 in
 {
   environment.systemPackages = [ opencode ];
@@ -94,7 +101,9 @@ in
   environment.shellAliases.oc = "opencode";
 
   environment.etc."opencode/opencode.json".source = opencodeConfig;
+  environment.etc."opencode/tui.json".source = opencodeTuiConfig;
   environment.etc."opencode/plugins/rtk.ts".source = rtkOpencodePlugin;
 
   environment.variables.OPENCODE_CONFIG = "/etc/opencode/opencode.json";
+  environment.variables.OPENCODE_TUI_CONFIG = "/etc/opencode/tui.json";
 }
