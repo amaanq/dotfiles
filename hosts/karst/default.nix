@@ -51,7 +51,6 @@ lib.nixosSystem' "server" (
     networking = {
       hostName = "karst";
       useDHCP = true;
-      enableIPv6 = false;
     };
 
     boot.loader.systemd-boot.enable = true;
