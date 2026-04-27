@@ -49,6 +49,12 @@
       inputs.fenix.follows = "fenix";
     };
 
+    nixtopsy = {
+      url = "github:amaanq/nixtopsy";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.fenix.follows = "fenix";
+    };
+
     bindiff = {
       url = "github:amaanq/bindiff";
       inputs.nixpkgs.follows = "nixpkgs";

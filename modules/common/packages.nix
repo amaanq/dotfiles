@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  nixtopsy,
   ...
 }:
 let
@@ -52,6 +53,7 @@ in
     pkgs.dwt1-shell-color-scripts
     pkgs.graphviz
     pkgs.jc
+    nixtopsy.packages.${pkgs.stdenv.hostPlatform.system}.default
     pkgs.rbw
     pkgs.timg
     pkgs.tokei
