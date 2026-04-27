@@ -164,11 +164,13 @@ let
             }
         )
 
-        # atuin
-        source ${
-          pkgs.runCommand "atuin.nu" {
-            nativeBuildInputs = [ pkgs.writableTmpDirAsHomeHook ];
-          } ''${pkgs.buildPackages.atuin}/bin/atuin init nu --disable-up-arrow >> "$out"''
+        # atuin (only for amaanq; the key/sync identity is personal)
+        if ($env.USER == "amaanq") {
+          source ${
+            pkgs.runCommand "atuin.nu" {
+              nativeBuildInputs = [ pkgs.writableTmpDirAsHomeHook ];
+            } ''${pkgs.buildPackages.atuin}/bin/atuin init nu --disable-up-arrow >> "$out"''
+          }
         }
 
         if ($env.USER == "amaanq") {
