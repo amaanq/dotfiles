@@ -14,6 +14,7 @@ let
 in
 {
   environment.systemPackages = [
+    pkgs.libfido2
     pkgs.yubikey-manager
     pkgs.yubikey-personalization
     pkgs.pam_u2f
@@ -38,8 +39,13 @@ in
     };
   };
 
+  services.yubikey-agent = enabled { };
+
   services.udev = {
-    packages = [ pkgs.yubikey-personalization ];
+    packages = [
+      pkgs.yubikey-personalization
+      pkgs.libfido2
+    ];
     extraRules = ''
       ACTION=="remove",\
        ENV{ID_BUS}=="usb",\
