@@ -1,69 +1,58 @@
 diff --git a/packages/opencode/src/cli/cmd/tui/app.tsx b/packages/opencode/src/cli/cmd/tui/app.tsx
-index eb5cb44e8..33da44925 100644
---- a/packages/opencode/src/cli/cmd/tui/app.tsx
-+++ b/packages/opencode/src/cli/cmd/tui/app.tsx
-@@ -55,10 +55,11 @@ import { TuiEvent } from "./event"
- import { KVProvider, useKV } from "./context/kv"
- import { Provider } from "@/provider"
+--- a/packages/opencode/src/cli/cmd/tui/app.tsx	2026-05-04 23:05:04.464294457 -0400
++++ b/packages/opencode/src/cli/cmd/tui/app.tsx	2026-05-04 23:05:59.222150876 -0400
+@@ -58,6 +58,7 @@
  import { ArgsProvider, useArgs, type Args } from "./context/args"
  import open from "open"
  import { PromptRefProvider, usePromptRef } from "./context/prompt"
 +import { StatusLineProvider, useStatusLine } from "./context/statusline"
  import { TuiConfigProvider, useTuiConfig } from "./context/tui-config"
  import { TuiConfig } from "@/cli/cmd/tui/config/tui"
- import { createTuiApi, TuiPluginRuntime, type RouteMap } from "./plugin"
- import { FormatError, FormatUnknownError } from "@/cli/error"
- 
-@@ -169,27 +170,29 @@ export function tui(input: {
-                       >
-                         <ProjectProvider>
-                           <SyncProvider>
-                             <ThemeProvider mode={mode}>
-                               <LocalProvider>
--                                <KeybindProvider>
--                                  <PromptStashProvider>
--                                    <DialogProvider>
--                                      <CommandProvider>
--                                        <FrecencyProvider>
--                                          <PromptHistoryProvider>
--                                            <PromptRefProvider>
--                                              <EditorContextProvider>
--                                                <App onSnapshot={input.onSnapshot} />
--                                              </EditorContextProvider>
--                                            </PromptRefProvider>
--                                          </PromptHistoryProvider>
--                                        </FrecencyProvider>
--                                      </CommandProvider>
--                                    </DialogProvider>
--                                  </PromptStashProvider>
--                                </KeybindProvider>
-+                                <StatusLineProvider>
-+                                  <KeybindProvider>
-+                                    <PromptStashProvider>
-+                                      <DialogProvider>
-+                                        <CommandProvider>
-+                                          <FrecencyProvider>
-+                                            <PromptHistoryProvider>
-+                                              <PromptRefProvider>
-+                                                <EditorContextProvider>
-+                                                  <App onSnapshot={input.onSnapshot} />
-+                                                </EditorContextProvider>
-+                                              </PromptRefProvider>
-+                                            </PromptHistoryProvider>
-+                                          </FrecencyProvider>
-+                                        </CommandProvider>
-+                                      </DialogProvider>
-+                                    </PromptStashProvider>
-+                                  </KeybindProvider>
-+                                </StatusLineProvider>
-                               </LocalProvider>
-                             </ThemeProvider>
-                           </SyncProvider>
-                         </ProjectProvider>
-                       </SDKProvider>
-@@ -221,10 +224,11 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
-   const themeState = useTheme()
-   const { theme, mode, setMode, locked, lock, unlock } = themeState
+ import { createTuiApi } from "@/cli/cmd/tui/plugin/api"
+@@ -172,23 +173,25 @@
+                             <SyncProviderV2>
+                               <ThemeProvider mode={mode}>
+                                 <LocalProvider>
+-                                  <KeybindProvider>
+-                                    <PromptStashProvider>
+-                                      <DialogProvider>
+-                                        <CommandProvider>
+-                                          <FrecencyProvider>
+-                                            <PromptHistoryProvider>
+-                                              <PromptRefProvider>
+-                                                <EditorContextProvider>
+-                                                  <App onSnapshot={input.onSnapshot} />
+-                                                </EditorContextProvider>
+-                                              </PromptRefProvider>
+-                                            </PromptHistoryProvider>
+-                                          </FrecencyProvider>
+-                                        </CommandProvider>
+-                                      </DialogProvider>
+-                                    </PromptStashProvider>
+-                                  </KeybindProvider>
++                                  <StatusLineProvider>
++                                    <KeybindProvider>
++                                      <PromptStashProvider>
++                                        <DialogProvider>
++                                          <CommandProvider>
++                                            <FrecencyProvider>
++                                              <PromptHistoryProvider>
++                                                <PromptRefProvider>
++                                                  <EditorContextProvider>
++                                                    <App onSnapshot={input.onSnapshot} />
++                                                  </EditorContextProvider>
++                                                </PromptRefProvider>
++                                              </PromptHistoryProvider>
++                                            </FrecencyProvider>
++                                          </CommandProvider>
++                                        </DialogProvider>
++                                      </PromptStashProvider>
++                                    </KeybindProvider>
++                                  </StatusLineProvider>
+                                 </LocalProvider>
+                               </ThemeProvider>
+                             </SyncProviderV2>
+@@ -225,6 +228,7 @@
    const sync = useSync()
    const exit = useExit()
    const promptRef = usePromptRef()
@@ -71,11 +60,7 @@ index eb5cb44e8..33da44925 100644
    const routes: RouteMap = new Map()
    const [routeRev, setRouteRev] = createSignal(0)
    const routeView = (name: string) => {
-     routeRev()
-     return routes.get(name)?.at(-1)?.render
-@@ -307,10 +311,16 @@ function App(props: { onSnapshot?: () => Promise<string[]> }) {
- 
-   // Update terminal window title based on current route and session
+@@ -314,6 +318,12 @@
    createEffect(() => {
      if (!terminalTitleEnabled() || Flag.OPENCODE_DISABLE_TERMINAL_TITLE) return
  
@@ -88,15 +73,10 @@ index eb5cb44e8..33da44925 100644
      if (route.data.type === "home") {
        renderer.setTerminalTitle("OpenCode")
        return
-     }
- 
 diff --git a/packages/opencode/src/cli/cmd/tui/config/tui-schema.ts b/packages/opencode/src/cli/cmd/tui/config/tui-schema.ts
-index ed79e8e52..6c3ae36d0 100644
---- a/packages/opencode/src/cli/cmd/tui/config/tui-schema.ts
-+++ b/packages/opencode/src/cli/cmd/tui/config/tui-schema.ts
-@@ -22,10 +22,30 @@ export const TuiOptions = z.object({
-   diff_style: z
-     .enum(["auto", "stacked"])
+--- a/packages/opencode/src/cli/cmd/tui/config/tui-schema.ts	2026-05-04 23:05:04.467854361 -0400
++++ b/packages/opencode/src/cli/cmd/tui/config/tui-schema.ts	2026-05-04 23:05:10.372043712 -0400
+@@ -24,6 +24,26 @@
      .optional()
      .describe("Control diff rendering style: 'auto' adapts to terminal width, 'stacked' always shows single column"),
    mouse: z.boolean().optional().describe("Enable or disable mouse capture (default: true)"),
@@ -123,13 +103,9 @@ index ed79e8e52..6c3ae36d0 100644
  })
  
  export const TuiInfo = z
-   .object({
-     $schema: z.string().optional(),
 diff --git a/packages/opencode/src/cli/cmd/tui/context/statusline.tsx b/packages/opencode/src/cli/cmd/tui/context/statusline.tsx
-new file mode 100644
-index 000000000..510441c0b
---- /dev/null
-+++ b/packages/opencode/src/cli/cmd/tui/context/statusline.tsx
+--- a/packages/opencode/src/cli/cmd/tui/context/statusline.tsx	1969-12-31 19:00:00.000000000 -0500
++++ b/packages/opencode/src/cli/cmd/tui/context/statusline.tsx	2026-05-04 23:05:10.372087774 -0400
 @@ -0,0 +1,49 @@
 +import { createSignal, createEffect, onCleanup, on } from "solid-js"
 +import { useSDK } from "./sdk"
@@ -181,32 +157,26 @@ index 000000000..510441c0b
 +  },
 +})
 diff --git a/packages/opencode/src/cli/cmd/tui/routes/home.tsx b/packages/opencode/src/cli/cmd/tui/routes/home.tsx
-index 2f0ff07e9..4f8469e8c 100644
---- a/packages/opencode/src/cli/cmd/tui/routes/home.tsx
-+++ b/packages/opencode/src/cli/cmd/tui/routes/home.tsx
-@@ -1,16 +1,18 @@
+--- a/packages/opencode/src/cli/cmd/tui/routes/home.tsx	2026-05-04 23:05:04.469134190 -0400
++++ b/packages/opencode/src/cli/cmd/tui/routes/home.tsx	2026-05-04 23:06:12.544532084 -0400
+@@ -1,5 +1,5 @@
  import { Prompt, type PromptRef } from "@tui/component/prompt"
 -import { createEffect, createSignal } from "solid-js"
 +import { createEffect, createSignal, Show } from "solid-js"
  import { Logo } from "../component/logo"
  import { useProject } from "../context/project"
  import { useSync } from "../context/sync"
- import { Toast } from "../ui/toast"
- import { useArgs } from "../context/args"
+@@ -8,7 +8,9 @@
  import { useRouteData } from "@tui/context/route"
  import { usePromptRef } from "../context/prompt"
  import { useLocal } from "../context/local"
 +import { useTheme } from "../context/theme"
- import { TuiPluginRuntime } from "../plugin"
+ import { TuiPluginRuntime } from "@/cli/cmd/tui/plugin/runtime"
 +import { useStatusLine } from "../context/statusline"
  
  let once = false
  const placeholder = {
-   normal: ["Fix a TODO in the codebase", "What is the tech stack of this project?", "Fix broken tests"],
-   shell: ["ls -la", "git status", "pwd"],
-@@ -37,10 +39,12 @@ export function Home() {
-     }
-     if (!args.prompt) return
+@@ -39,6 +41,8 @@
      r.set({ input: args.prompt, parts: [] })
      once = true
    }
@@ -215,11 +185,7 @@ index 2f0ff07e9..4f8469e8c 100644
  
    // Wait for sync and model store to be ready before auto-submitting --prompt
    createEffect(() => {
-     const r = ref()
-     if (sent) return
-@@ -81,10 +85,15 @@ export function Home() {
-         <TuiPluginRuntime.Slot name="home_bottom" />
-         <box flexGrow={1} minHeight={0} />
+@@ -83,7 +87,12 @@
          <Toast />
        </box>
        <box width="100%" flexShrink={0}>
@@ -233,26 +199,18 @@ index 2f0ff07e9..4f8469e8c 100644
        </box>
      </>
    )
- }
 diff --git a/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx b/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx
-index c04e58ace..6ef4b3124 100644
---- a/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx
-+++ b/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx
-@@ -71,10 +71,11 @@ import * as Clipboard from "../../util/clipboard"
- import { errorMessage } from "@/util/error"
- import { Toast, useToast } from "../../ui/toast"
+--- a/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx	2026-05-04 23:05:04.469230514 -0400
++++ b/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx	2026-05-04 23:06:18.254695476 -0400
+@@ -74,6 +74,7 @@
  import { useKV } from "../../context/kv.tsx"
  import * as Editor from "../../util/editor"
  import stripAnsi from "strip-ansi"
 +import { useStatusLine } from "../../context/statusline"
  import { usePromptRef } from "../../context/prompt"
  import { useExit } from "../../context/exit"
- import { Filesystem } from "@/util"
- import { Global } from "@/global"
- import { PermissionPrompt } from "./permission"
-@@ -124,10 +125,11 @@ export function Session() {
-   const project = useProject()
-   const tuiConfig = useTuiConfig()
+ import { Filesystem } from "@/util/filesystem"
+@@ -127,6 +128,7 @@
    const kv = useKV()
    const { theme } = useTheme()
    const promptRef = usePromptRef()
@@ -260,11 +218,7 @@ index c04e58ace..6ef4b3124 100644
    const session = createMemo(() => sync.session.get(route.sessionID))
    const children = createMemo(() => {
      const parentID = session()?.parentID ?? session()?.id
-     return sync.data.session
-       .filter((x) => x.parentID === parentID || x.id === parentID)
-@@ -1129,12 +1131,12 @@ export function Session() {
-                                           <span style={{ fg: theme.diffRemoved }}> -{file.deletions}</span>
-                                         </Show>
+@@ -1134,8 +1136,8 @@
                                        </text>
                                      )}
                                    </For>
@@ -275,11 +229,7 @@ index c04e58ace..6ef4b3124 100644
                              </box>
                            </box>
                          )
-                       })()}
-                     </Match>
-@@ -1201,10 +1203,15 @@ export function Session() {
-                     right={<TuiPluginRuntime.Slot name="session_prompt_right" session_id={route.sessionID} />}
-                   />
+@@ -1206,6 +1208,11 @@
                  </TuiPluginRuntime.Slot>
                </Show>
              </box>
@@ -291,34 +241,24 @@ index c04e58ace..6ef4b3124 100644
            </Show>
            <Toast />
          </box>
-         <Show when={sidebarVisible()}>
-           <Switch>
 diff --git a/packages/opencode/src/server/routes/instance/tui.ts b/packages/opencode/src/server/routes/instance/tui.ts
-index 932cf509e..66773321b 100644
---- a/packages/opencode/src/server/routes/instance/tui.ts
-+++ b/packages/opencode/src/server/routes/instance/tui.ts
-@@ -3,16 +3,17 @@ import { describeRoute, validator, resolver } from "hono-openapi"
- import { Schema } from "effect"
- import z from "zod"
+--- a/packages/opencode/src/server/routes/instance/tui.ts	2026-05-04 23:05:04.473589725 -0400
++++ b/packages/opencode/src/server/routes/instance/tui.ts	2026-05-04 23:06:27.922972125 -0400
+@@ -5,11 +5,12 @@
  import { Bus } from "@/bus"
- import { Session } from "@/session"
+ import { Session } from "@/session/session"
  import type { SessionID } from "@/session/schema"
 +import { StatusLine } from "@/statusline"
  import { TuiEvent } from "@/cli/cmd/tui/event"
  import { zodObject } from "@/util/effect-zod"
- import { AsyncQueue } from "@/util/queue"
  import { errors } from "../../error"
  import { lazy } from "@/util/lazy"
 -import { runRequest } from "./trace"
 +import { jsonRequest, runRequest } from "./trace"
- 
- const TuiRequest = z.object({
-   path: z.string(),
-   body: z.any(),
- })
-@@ -385,7 +386,38 @@ export const TuiRoutes = lazy(() =>
-         )
-         await Bus.publish(TuiEvent.SessionSelect, { sessionID })
+ import {
+   TuiRequest,
+   nextTuiRequest,
+@@ -383,5 +384,36 @@
          return c.json(true)
        },
      )
@@ -356,21 +296,19 @@ index 932cf509e..66773321b 100644
      .route("/control", TuiControlRoutes),
  )
 diff --git a/packages/opencode/src/statusline/index.ts b/packages/opencode/src/statusline/index.ts
-new file mode 100644
-index 000000000..fb98dba83
---- /dev/null
-+++ b/packages/opencode/src/statusline/index.ts
+--- a/packages/opencode/src/statusline/index.ts	1969-12-31 19:00:00.000000000 -0500
++++ b/packages/opencode/src/statusline/index.ts	2026-05-04 23:05:10.372563425 -0400
 @@ -0,0 +1,258 @@
 +import { TuiConfig } from "@/cli/cmd/tui/config/tui"
 +import { Plugin } from "../plugin"
-+import { Vcs } from "../project"
++import { Vcs } from "../project/vcs"
 +import { Instance } from "../project/instance"
-+import { Session } from "../session"
++import { Session } from "../session/session"
 +import { SessionID } from "../session/schema"
 +import type { MessageV2 } from "../session/message-v2"
 +import { SessionStatus } from "../session/status"
-+import { Provider } from "../provider"
-+import { Log } from "../util"
++import { Provider } from "../provider/provider"
++import { Log } from "@opencode-ai/core/util/log"
 +import { Effect } from "effect"
 +import path from "path"
 +
@@ -620,10 +558,8 @@ index 000000000..fb98dba83
 +  })
 +}
 diff --git a/packages/opencode/test/statusline/statusline.test.ts b/packages/opencode/test/statusline/statusline.test.ts
-new file mode 100644
-index 000000000..37fe8976a
---- /dev/null
-+++ b/packages/opencode/test/statusline/statusline.test.ts
+--- a/packages/opencode/test/statusline/statusline.test.ts	1969-12-31 19:00:00.000000000 -0500
++++ b/packages/opencode/test/statusline/statusline.test.ts	2026-05-04 23:05:10.372624508 -0400
 @@ -0,0 +1,142 @@
 +import { test, expect, describe } from "bun:test"
 +import { StatusLine } from "../../src/statusline"
@@ -768,12 +704,9 @@ index 000000000..37fe8976a
 +  })
 +})
 diff --git a/packages/plugin/src/index.ts b/packages/plugin/src/index.ts
-index 71a3278cb..2f954f858 100644
---- a/packages/plugin/src/index.ts
-+++ b/packages/plugin/src/index.ts
-@@ -328,6 +328,14 @@ export interface Hooks {
-   ) => Promise<void>
-   /**
+--- a/packages/plugin/src/index.ts	2026-05-04 23:05:04.485752276 -0400
++++ b/packages/plugin/src/index.ts	2026-05-04 23:05:10.372668050 -0400
+@@ -330,4 +330,12 @@
     * Modify tool definitions (description and parameters) sent to LLM
     */
    "tool.definition"?: (input: { toolID: string }, output: { description: string; parameters: any }) => Promise<void>
@@ -787,24 +720,17 @@ index 71a3278cb..2f954f858 100644
 +  ) => Promise<void>
  }
 diff --git a/packages/sdk/js/src/v2/gen/sdk.gen.ts b/packages/sdk/js/src/v2/gen/sdk.gen.ts
-index 6248eb8e4..11b426463 100644
---- a/packages/sdk/js/src/v2/gen/sdk.gen.ts
-+++ b/packages/sdk/js/src/v2/gen/sdk.gen.ts
-@@ -183,10 +183,11 @@ import type {
-   TuiPublishErrors,
-   TuiPublishResponses,
+--- a/packages/sdk/js/src/v2/gen/sdk.gen.ts	2026-05-04 23:05:04.486615155 -0400
++++ b/packages/sdk/js/src/v2/gen/sdk.gen.ts	2026-05-04 23:06:44.023432825 -0400
+@@ -190,6 +190,7 @@
    TuiSelectSessionErrors,
    TuiSelectSessionResponses,
    TuiShowToastResponses,
 +  TuiStatuslineResponses,
    TuiSubmitPromptResponses,
-   VcsDiffResponses,
-   VcsGetResponses,
-   WorktreeCreateErrors,
-   WorktreeCreateInput,
-@@ -4090,10 +4091,40 @@ export class Tui extends HeyApiClient {
-         ...params.headers,
-       },
+   V2SessionCompactResponses,
+   V2SessionContextResponses,
+@@ -4611,6 +4612,36 @@
      })
    }
  
@@ -841,15 +767,10 @@ index 6248eb8e4..11b426463 100644
    private _control?: Control
    get control(): Control {
      return (this._control ??= new Control({ client: this.client }))
-   }
- }
 diff --git a/packages/sdk/js/src/v2/gen/types.gen.ts b/packages/sdk/js/src/v2/gen/types.gen.ts
-index 40e661b46..763137632 100644
---- a/packages/sdk/js/src/v2/gen/types.gen.ts
-+++ b/packages/sdk/js/src/v2/gen/types.gen.ts
-@@ -5284,10 +5284,34 @@ export type TuiSelectSessionResponses = {
-   200: boolean
- }
+--- a/packages/sdk/js/src/v2/gen/types.gen.ts	2026-05-04 23:05:04.486615155 -0400
++++ b/packages/sdk/js/src/v2/gen/types.gen.ts	2026-05-04 23:05:10.373182424 -0400
+@@ -6469,6 +6469,30 @@
  
  export type TuiSelectSessionResponse = TuiSelectSessionResponses[keyof TuiSelectSessionResponses]
  
@@ -880,5 +801,3 @@ index 40e661b46..763137632 100644
  export type TuiControlNextData = {
    body?: never
    path?: never
-   query?: {
-     directory?: string

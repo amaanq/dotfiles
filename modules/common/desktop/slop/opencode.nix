@@ -62,6 +62,7 @@ let
 
         postConfigure = (prev.postConfigure or "") + ''
           chmod -R u+w packages/opencode/node_modules
+          rm -rf packages/opencode/node_modules/prettier
           mkdir -p packages/opencode/node_modules/prettier
           cp -R --no-preserve=mode,ownership ${prettier}/. packages/opencode/node_modules/prettier/
         '';
