@@ -14,6 +14,7 @@ in
     pkgs.qbittorrent
     pkgs.sequoia-sq
     pkgs.signal-desktop
+    pkgs.sox
     pkgs.wabt
     pkgs.wasmtime
   ]
