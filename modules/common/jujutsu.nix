@@ -1,6 +1,7 @@
 {
   config,
   jj-src,
+  lib,
   pkgs,
   ...
 }:
@@ -246,8 +247,8 @@ in
     pkgs.difftastic
     jj-src.packages.${pkgs.system}.jujutsu
     pkgs.mergiraf
-    pkgs.radicle-node
-  ];
+  ]
+  ++ lib.optional config.isDesktop pkgs.radicle-node;
 
   environment.variables = {
     JJ_CONFIG = "/etc/jj/config.toml";
