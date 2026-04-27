@@ -31,12 +31,23 @@ in
   environment.shellAliases.sudo = "${run0-sudo-shim'}/bin/sudo";
   environment.shellAliases.sudoedit = "${run0-sudo-shim'}/bin/sudo -e";
 
-  # Desktops have passwordless sudo,but servers prompt for the user's password.
-  security.polkit.extraConfig = /* javascript */ ''
-    polkit.addRule(function(action, subject) {
-      if (subject.isInGroup("wheel")) {
-        return polkit.Result.${if config.isDesktop then "YES" else "AUTH_SELF_KEEP"};
-      }
-    });
-  '';
+  security.polkit.extraConfig =
+    let
+      result = if config.isDesktop then "YES" else "AUTH_SELF_KEEP";
+    in
+    /* javascript */ ''
+      polkit.addRule(function(action, subject) {
+        if (!subject.isInGroup("wheel")) return;
+        if (action.id == "org.freedesktop.policykit.exec"
+            || action.id.indexOf("org.freedesktop.systemd1.") == 0) {
+          return polkit.Result.${result};
+        }
+        ${
+          if config.isDesktop then
+            "return polkit.Result.YES;"
+          else
+            "// non-sudo actions: fall through to defaults"
+        }
+      });
+    '';
 }
