@@ -123,13 +123,14 @@ let
 
         # zoxide
         source ${
-          pkgs.runCommand "zoxide.nu" { } ''${pkgs.zoxide}/bin/zoxide init nushell --cmd cd >> "$out"''
+          pkgs.runCommand "zoxide.nu" { }
+            ''${pkgs.buildPackages.zoxide}/bin/zoxide init nushell --cmd cd >> "$out"''
         }
 
         # carapace
         source ${
           pkgs.runCommand "carapace.nu" { }
-            ''${pkgs.carapace}/bin/carapace _carapace nushell | sed 's|"/homeless-shelter|$"($env.HOME)|g' >> "$out"''
+            ''${pkgs.buildPackages.carapace}/bin/carapace _carapace nushell | sed 's|"/homeless-shelter|$"($env.HOME)|g' >> "$out"''
         }
 
         # direnv
@@ -165,7 +166,7 @@ let
         source ${
           pkgs.runCommand "atuin.nu" {
             nativeBuildInputs = [ pkgs.writableTmpDirAsHomeHook ];
-          } ''${pkgs.atuin}/bin/atuin init nu --disable-up-arrow >> "$out"''
+          } ''${pkgs.buildPackages.atuin}/bin/atuin init nu --disable-up-arrow >> "$out"''
         }
 
         if ($env.USER == "amaanq") {
