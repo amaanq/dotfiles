@@ -15,6 +15,7 @@ let
     listToAttrs
     mapAttrs
     mapAttrsToList
+    optionals
     readFile
     replaceStrings
     theme
@@ -254,8 +255,12 @@ in
     owner = "amaanq";
   };
 
-  environment.systemPackages = [ pkgs.openstackclient ];
+  environment.systemPackages = optionals config.isDesktop [
+    pkgs.openstackclient
+  ];
+
   environment.etc."nushell/config.nu".source = configNu;
+
   environment.etc."nufmt/nufmt.nuon".text = ''
     {
         indent: 4
