@@ -10,14 +10,27 @@ let
     simoom = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF2VD1i3vLpEmlN1nYMSn4KyxKf7nt/ekP3+YGxH772I contact@amaanq.com";
     tarn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJh1jaHd93hodjkXjKCQ2dMlfxMUg7mi758Y6iVubPaP root@tarn";
   };
+  yubikeys = {
+    iray-37504518 = "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIJfPMiKZ+NvPZb8j3EhzGd5ebjRHcXGo5rNZY1u64mzQAAAAD3NzaDphbWFhbnEtaXJheQ== contact@amaanq.com";
+    roa-37504840 = "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIAjYeEYU1IfZkoVBYzEqEgzYqlh70cneFvOWnZXsfjaiAAAADnNzaDphbWFhbnEtcm9h contact@amaanq.com";
+    telo-37504930 = "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIO+wUGlqBGzUfWFkfnyTfZNbcO5LUJrCQry4bj+80YpsAAAAD3NzaDphbWFhbnEtdGVsbw== contact@amaanq.com";
+    efatra-37605510 = "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAICBt95vmXS9TSis070JWq8mTPVfOTlxKzKKei9dATnCHAAAAEXNzaDphbWFhbnEtZWZhdHJh contact@amaanq.com";
+    dimy-37605531 = "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIND4w+ET8r7I20z3VodCfQwlFyTfBgDuJGmpVngWxRUoAAAAD3NzaDphbWFhbnEtZGlteQ== contact@amaanq.com";
+    enina-37605687 = "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAILZX27u7CtjraFy2Ad8zvoCclCWx1QY9zrimL+DNUlRvAAAAEHNzaDphbWFhbnEtZW5pbmE= contact@amaanq.com";
+    fito = "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIHWmTxhci2aWb0ijG65eLJ9lb9qbvz2fr3jdUoxgtKUEAAAAD3NzaDphbWFhbnEtZml0bw== contact@amaanq.com";
+  };
   builder = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOW26rsiPa44dsoItJtB+Ngt7VeW702CDQR+3fYMkcQk nix-builder";
+
+  inherit (builtins) attrValues;
 in
 keys
+// yubikeys
 // {
-  inherit builder;
+  inherit builder yubikeys;
   admins = [
     keys.derecho
     keys.simoom
-  ];
-  all = builtins.attrValues keys ++ [ builder ];
+  ]
+  ++ attrValues yubikeys;
+  all = attrValues keys ++ attrValues yubikeys ++ [ builder ];
 }
