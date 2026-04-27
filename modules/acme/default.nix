@@ -32,5 +32,13 @@ in
       ];
       group = "acme";
     };
+
+    # rampart.email is intentionally a separate cert with its own ACME
+    # account contact.
+    certs."rampart.email" = {
+      extraDomainNames = [ "*.rampart.email" ];
+      email = "security@rampart.email";
+      group = "acme";
+    };
   };
 }

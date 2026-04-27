@@ -229,6 +229,15 @@
 
     bunker.url = "github:amaanq/bunker-patches";
 
+    # rampart: self-hosted forward-only email alias manager. Exposed as
+    # `nixosModules.rampart` (not `.default`) so the auto-collector in
+    # lib/system.nix doesn't pull it into every host.
+    rampart = {
+      url = "github:amaanq/rampart";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.fenix.follows = "fenix";
+    };
+
     harmonia = {
       url = "github:nix-community/harmonia";
       inputs.nixpkgs.follows = "nixpkgs";
