@@ -5,7 +5,8 @@
 {
   secrets.nixNetrc = {
     rekeyFile = ./netrc.age;
-    mode = "0444";
+    owner = "amaanq";
+    mode = "0400";
   };
 
   nix.settings."netrc-file" = config.secrets.nixNetrc.path;

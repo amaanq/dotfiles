@@ -37,8 +37,11 @@ in
   # Generate nginx auth map from the agenix secret before nginx starts,
   # keeping the token out of the world-readable nix store.
   systemd.services.nginx.preStart = mkBefore ''
+    umask 077
     TOKEN=$(cat ${tokenFile})
     printf 'map $http_x_rbe_token $rbe_auth_ok {\n  "%s" 1;\n  default 0;\n}\n' "$TOKEN" > ${authConf}
+    chown root:nginx ${authConf}
+    chmod 0640 ${authConf}
   '';
 
   services.nginx.appendHttpConfig = ''

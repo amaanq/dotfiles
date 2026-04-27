@@ -22,12 +22,16 @@ in
 
   secrets.teapotSessions = {
     rekeyFile = ./sessions.age;
-    mode = "0444";
+    owner = "teapot";
+    group = "wheel";
+    mode = "0440";
   };
 
   secrets.teapotKagiToken = {
     rekeyFile = ./kagi-token.age;
-    mode = "0444";
+    owner = "teapot";
+    group = "wheel";
+    mode = "0440";
   };
 
   services.go-away.instances.teapot = enabled {

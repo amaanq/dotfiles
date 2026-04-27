@@ -153,8 +153,19 @@ in
   secrets.builderKey.rekeyFile = ./builder-key.age;
   secrets.githubToken = {
     rekeyFile = ./github-token.age;
-    mode = "0444";
-  };
+  }
+  // (
+    if config.isLinux then
+      {
+        mode = "0440";
+        group = "wheel";
+      }
+    else
+      {
+        owner = "amaanq";
+        mode = "0400";
+      }
+  );
 
   nix.extraOptions = ''
     !include ${config.secrets.githubToken.path}
