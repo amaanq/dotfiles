@@ -49,14 +49,33 @@ in
   };
   boot.supportedFilesystems = [ "bcachefs" ];
 
-  # RDNA 4 (RX 9070) MES scheduler hang workaround
-  # See: https://github.com/ROCm/ROCm/issues/3207
+  # RDNA 4 (RX 9070 XT / Navi 48) workaround stack for the open upstream regression:
+  # https://gitlab.freedesktop.org/drm/amd/-/issues/5185 (6.19 drops off PCIe bus; 6.18 clean)
+  # Plus 40+ sibling tickets with amdgpu_dm_atomic_commit_tail → flip_done timeout.
+  #
+  # Symptom we hit: kworker D-state in drm_atomic_helper_wait_for_flip_done, cascades into
+  # un-SIGKILL-able Chromium renderers stuck in close()→shmem_undo_range.
+  # No upstream fix commit exists yet — AMD asking for bisects.
+  #
+  # 0x21C10 = PSR (0x10) + Panel Replay (0x400) + IPS (0x800) + IPS_DYNAMIC (0x1000)
+  #         + SUBVP_FAMS (0x20000)
+  # SUBVP_FAMS (Firmware-Assisted Memclk Switching) is the load-bearing bit per gitlab #5113.
+  # runpm=0 prevents "device lost from bus" at idle. reset_method=4 = mode1+bus_reset
+  # (best recovery path for this class, though prevention > recovery).
   boot.kernelParams = [
     "boot.shell_on_fail"
     "efi=disable_early_pci_dma" # opt-in only; kills iGPU DMA on laptops. safe with dGPU
     "amdgpu.mcbp=0" # Disable mid-command buffer preemption (primary MES fix)
     "amdgpu.sg_display=0" # Disable scatter-gather display (reduces TLB pressure)
+    "amdgpu.dcdebugmask=0x21C10" # PSR+Replay+IPS+IPS_DYN+SubVP/FAMS — Navi 48 flip_done stack
+    "amdgpu.runpm=0" # Disable runtime PM — Navi 48 drops off PCIe bus at idle otherwise
+    "amdgpu.reset_method=4" # mode1+bus_reset — best chance to recover from hung DC
     "amdgpu.gpu_recovery=1" # Auto-recover from hangs if they still occur
+    # MES(1) failed to respond to msg=INVALIDATE_TLBS hard-locked the box on 6.19.9
+    # (2026-04-26 ~01:34). Known gfx12 race: pipe0+pipe1 share invalidation engine 5
+    # in MES fw <0x83. CWSR uses MES heavily and is the most common trigger on
+    # RDNA3/RDNA4 in 6.18/6.19 — see ROCm#5590, ROCm#5724, Framework critical-bugs thread.
+    "amdgpu.cwsr_enable=0"
   ];
 
   fileSystems."/" = {
