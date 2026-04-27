@@ -48,7 +48,7 @@ in
     pkgs.zoxide
   ]
   ++ optionals config.isDesktop [
-    pkgs.asciinema_3
+    pkgs.asciinema
     pkgs.dwt1-shell-color-scripts
     pkgs.graphviz
     pkgs.jc
