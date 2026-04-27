@@ -7,7 +7,7 @@
 }:
 let
   inherit (config.networking) domain;
-  inherit (lib) enabled mkConst;
+  inherit (lib) enabled mkConst optionalString;
 in
 {
   imports = [ (self + /modules/acme) ];
@@ -18,21 +18,28 @@ in
     useACMEHost = domain;
   };
 
-  options.services.nginx.headers =
-    # nginx
-    mkConst ''
-      proxy_hide_header Access-Control-Allow-Origin;
-      add_header Access-Control-Allow-Origin $allow_origin always;
+  # mkHeaders builds the full security-header set. Each axis can be overridden
+  # per vhost.
+  #
+  # Any nginx scope with an `add_header` drops ALL parent-scope add_headers,
+  # so server-scope overrides must re-emit everything.
+  options.services.nginx.mkHeaders = mkConst (
+    {
+      referrerPolicy ? "no-referrer",
+      xFrameOptions ? "DENY",
+      accessControlOrigin ? "$allow_origin",
+      accessControlCredentials ? "true",
+    }:
+    /* nginx */ ''
+      ${optionalString (accessControlOrigin != null) ''
+        proxy_hide_header Access-Control-Allow-Origin;
+        add_header Access-Control-Allow-Origin ${accessControlOrigin} always;
+      ''}
+      ${optionalString (accessControlCredentials != null) ''
+        proxy_hide_header Access-Control-Allow-Credentials;
+        add_header Access-Control-Allow-Credentials ${accessControlCredentials} always;
+      ''}
 
-      proxy_hide_header Access-Control-Allow-Credentials;
-      add_header Access-Control-Allow-Credentials true always;
-
-      ${config.services.nginx.headersNoAccessControlOrigin}
-    '';
-
-  options.services.nginx.headersNoAccessControlOrigin =
-    # nginx
-    mkConst ''
       proxy_hide_header Access-Control-Allow-Methods;
       add_header Access-Control-Allow-Methods $allow_methods always;
 
@@ -43,11 +50,14 @@ in
       add_header Content-Security-Policy "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: ${domain} *.${domain} *.libg.so; worker-src 'self' blob:; object-src 'self' ${domain} *.${domain}; base-uri 'self';" always;
 
       proxy_hide_header Referrer-Policy;
-      add_header Referrer-Policy no-referrer always;
+      add_header Referrer-Policy ${referrerPolicy} always;
 
       proxy_hide_header X-Frame-Options;
-      add_header X-Frame-Options DENY always;
-    '';
+      add_header X-Frame-Options ${xFrameOptions} always;
+    ''
+  );
+
+  options.services.nginx.headers = mkConst (config.services.nginx.mkHeaders { });
 
   config.networking.firewall = {
     allowedTCPPorts = [

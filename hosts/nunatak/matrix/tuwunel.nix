@@ -20,8 +20,10 @@ let
   wellKnownResponse =
     data: # nginx
     ''
-      ${config.services.nginx.headersNoAccessControlOrigin}
-      add_header Access-Control-Allow-Origin * always;
+      ${config.services.nginx.mkHeaders {
+        accessControlOrigin = "*";
+        accessControlCredentials = null;
+      }}
 
       default_type application/json;
       return 200 '${toJSON data}';

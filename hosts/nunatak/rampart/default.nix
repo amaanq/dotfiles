@@ -93,10 +93,14 @@ in
     chown rampart:rampart /var/lib/rampart
   '';
 
-  # rampart hosts need a same-origin Referer for form POSTs to not be
-  # rejected as cross-origin; override the global no-referrer default.
+  # rampart hosts need a same-origin Referer for form POSTs. The
+  # Referrer-Policy override lives at server scope so the location can stay
+  # add_header-free, as any add_header in a child drops parent inheritance.
   services.nginx.virtualHosts.${rampartHost} = config.services.nginx.sslTemplate // {
     useACMEHost = "rampart.email";
+    extraConfig = config.services.nginx.mkHeaders {
+      referrerPolicy = "strict-origin-when-cross-origin";
+    };
     locations."/" = {
       proxyPass = "http://[::1]:8090";
       extraConfig = ''
@@ -108,8 +112,6 @@ in
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         client_max_body_size 5M;
-        proxy_hide_header Referrer-Policy;
-        add_header Referrer-Policy strict-origin-when-cross-origin always;
       '';
     };
   };
@@ -117,10 +119,12 @@ in
   # Placeholder landing for rampart.email apex.
   services.nginx.virtualHosts."rampart.email" = config.services.nginx.sslTemplate // {
     useACMEHost = "rampart.email";
+    extraConfig = config.services.nginx.mkHeaders {
+      referrerPolicy = "strict-origin-when-cross-origin";
+    };
     locations."/".return = ''200 "rampart.email - coming soon\n"'';
     locations."/".extraConfig = ''
       default_type "text/plain; charset=utf-8";
-      add_header Referrer-Policy strict-origin-when-cross-origin always;
     '';
   };
 }
