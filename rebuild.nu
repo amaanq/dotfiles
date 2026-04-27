@@ -1,43 +1,48 @@
 #!/usr/bin/env nu
-def --wrapped sync [...arguments] { (rsync --archive --compress --delete --recursive --force --delete-excluded --delete-missing-args --human-readable --delay-updates ...$arguments) }
 
 # Rebuild a NixOS / Darwin config.
+#
+# Modes:
+#   ./rebuild.nu                              rebuild the current machine
+#   ./rebuild.nu <host>                       rebuild the current machine; <host> must equal $(hostname)
+#   ./rebuild.nu <host> --target <ssh-dest>   build locally, deploy the closure to <ssh-dest> via nh --target-host
+#
+# Hard-refuses to switch the local machine to a config whose hostname differs
+# from the running one — that's how a laptop once got switched to a server
+# config. The mismatch case ALWAYS requires --target, which is also what makes
+# the build local and the push remote (nh handles the copy + activation over
+# SSH). There is no longer a "build on the remote" mode.
 def main --wrapped [
-  host: string = "" # The host to build.
-  --remote          # Whether if this is a remote host. The config will be built on this host if it is.
-  ...arguments      # The arguments to pass to `nh {os,darwin} switch` and `nix` (separated by --).
+  host: string = ""              # Target NixOS host (defaults to current hostname).
+  --target: string = ""          # SSH destination (e.g. root@moraine). Build locally, deploy there.
+  ...arguments                   # Extra args for `nh switch` and `nix` (separated by --).
 ]: nothing -> nothing {
-   let host = if ($host | is-not-empty) {
-      if $host != (hostname) and not $remote { print $"(ansi yellow_bold)warn:(ansi reset) building local configuration for hostname that does not match the local machine" }
+   let current = (hostname | str trim)
+   let host = if ($host | is-empty) { $current } else { $host }
 
-      $host
-   } else if $remote {
-      print $"(ansi red_bold)error:(ansi reset) hostname not specified for remote build"
+   if $host != $current and ($target | is-empty) {
+      print $"(ansi red_bold)error:(ansi reset) refusing to switch '($current)' to the '($host)' configuration."
+      print $"  pass --target <ssh-dest> to build locally and deploy remotely, or run this on ($host) itself."
       exit 1
-   } else { (hostname) }
-
-   if $remote {
-      ssh -tt -p 2001 $"root@($host)" "rm --recursive --force dotfiles"
-
-      jj file list | sync -e "ssh -p 2001" --files-from - ./ $"root@($host):dotfiles"
-
-      let quoted = $arguments | each { |a| $"'($a | str replace --all "'" "'\\''")'" } | str join ' '
-      ssh -tt -p 2001 $"root@($host)" $"cd dotfiles && ./rebuild.nu ($host) --bypass-root-check ($quoted)"
-
-      return
    }
 
    let args_split = $arguments | prepend "" | split list "--"
-   let nh_flags = ["--hostname", $host] | append ($args_split | get 0 | where { $in != "" })
+
+   let target_flags = if ($target | is-not-empty) { ["--target-host" $target] } else { [] }
+   let nh_flags = (
+      ["--hostname" $host]
+      | append $target_flags
+      | append ($args_split | get 0 | where { $in != "" })
+   )
 
    let nix_flags = [
-      "--option"
-      "accept-flake-config"
-      "true"
-      "--option"
-      "eval-cache"
-      "false"
+      "--option" "accept-flake-config" "true"
+      "--option" "eval-cache" "false"
    ] | append ($args_split | get --optional 1 | default [])
 
-   if (uname | get kernel-name) == "Darwin" { nh darwin switch . ...$nh_flags -- ...$nix_flags --impure } else { nh os switch . ...$nh_flags -- ...$nix_flags }
+   if (uname | get kernel-name) == "Darwin" {
+      nh darwin switch . ...$nh_flags -- ...$nix_flags --impure
+   } else {
+      nh os switch . ...$nh_flags -- ...$nix_flags
+   }
 }
