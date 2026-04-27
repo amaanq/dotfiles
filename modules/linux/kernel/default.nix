@@ -5,15 +5,13 @@
   ...
 }:
 let
-  inherit (lib) mkIf optionals;
+  inherit (lib) enabled mkIf optionals;
 in
 {
   disabledModules = [ "config/malloc.nix" ];
 
-  bunker.kernel = {
-    enable = true;
-    version = lib.mkDefault "7.0";
-    cpuArch = mkIf config.isDesktop config.cpuArch;
+  bunker.kernel = enabled {
+    inherit (config) cpuArch;
     interactive = mkIf config.isServer false;
     drivers = mkIf config.isServer false;
     extras = mkIf config.isServer false;
