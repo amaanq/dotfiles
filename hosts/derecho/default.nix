@@ -72,6 +72,7 @@ lib.nixosSystem' "desktop" (
 
     boot.binfmt.preferStaticEmulators = true;
     boot.binfmt.emulatedSystems = [
+      "aarch64-linux"
       "powerpc64le-linux"
       "powerpc64-linux"
       "riscv64-linux"
