@@ -80,19 +80,20 @@ in
     })
   ];
 
-  # Matrix federation generates enormous DNS traffic (there are SRV lookups for
-  # every federated server). We route these directly to Quad9 DoT instead of through
-  # hickory-dns to NextDNS, which is both slower and fragile for whatever reason, the blame
-  # lies either with Verizon FiOS or NextDNS, or both.
-  systemd.services.matrix-synapse.serviceConfig.BindReadOnlyPaths = [
-    "${pkgs.writeText "matrix-resolv.conf" ''
-      nameserver 9.9.9.9
-      nameserver 149.112.112.112
-      nameserver 2620:fe::fe
-      nameserver 2620:fe::9
-      options edns0
-    ''}:/etc/resolv.conf"
-  ];
+  # Send Synapse federation DNS straight to Quad9 to avoid local resolver limits.
+  # Also, hide nscd so glibc uses this bind-mounted resolv.conf inside the unit.
+  systemd.services.matrix-synapse.serviceConfig = {
+    BindReadOnlyPaths = [
+      "${pkgs.writeText "matrix-resolv.conf" ''
+        nameserver 9.9.9.9
+        nameserver 149.112.112.112
+        nameserver 2620:fe::fe
+        nameserver 2620:fe::9
+        options edns0
+      ''}:/etc/resolv.conf"
+    ];
+    InaccessiblePaths = [ "/run/nscd" ];
+  };
 
   services.matrix-synapse = enabled {
     withJemalloc = true;
