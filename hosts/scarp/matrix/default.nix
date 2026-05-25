@@ -42,6 +42,20 @@ let
       "m.server" = "${fqdn}:443";
     };
   };
+
+  matrixLocations = {
+    "/_matrix".proxyPass = "http://[::1]:${toString port}";
+    "/_synapse/client".proxyPass = "http://[::1]:${toString port}";
+  };
+
+  matrixConfig = {
+    extraConfig = # nginx
+      ''
+        client_max_body_size ${config.services.matrix-synapse.settings.max_upload_size};
+      '';
+
+    locations = matrixLocations;
+  };
 in
 {
   imports = [
@@ -157,19 +171,12 @@ in
     ];
   };
 
-  services.nginx.virtualHosts.${domain} = configWellKnownResponse;
+  services.nginx.virtualHosts.${domain} =
+    merge configWellKnownResponse matrixConfig;
 
   services.nginx.virtualHosts.${fqdn} =
-    merge config.services.nginx.sslTemplate configWellKnownResponse
+    merge config.services.nginx.sslTemplate configWellKnownResponse matrixConfig
       {
-        extraConfig = # nginx
-          ''
-            client_max_body_size ${config.services.matrix-synapse.settings.max_upload_size};
-          '';
-
         locations."/".return = "301 https://${domain}/404";
-
-        locations."/_matrix".proxyPass = "http://[::1]:${toString port}";
-        locations."/_synapse/client".proxyPass = "http://[::1]:${toString port}";
       };
 }

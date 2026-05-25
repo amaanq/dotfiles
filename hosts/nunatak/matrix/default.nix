@@ -42,6 +42,33 @@ let
       "m.server" = "${fqdn}:443";
     };
   };
+
+  matrixLocations = {
+    "/_matrix" = {
+      proxyPass = "http://[::1]:${toString port}";
+      extraConfig = ''
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host $host;
+
+        ${config.services.nginx.headers}
+      '';
+    };
+
+    "/_synapse/client" = {
+      proxyPass = "http://[::1]:${toString port}";
+      extraConfig = config.services.nginx.headers;
+    };
+  };
+
+  matrixConfig = {
+    extraConfig = # nginx
+      ''
+        client_max_body_size ${config.services.matrix-synapse.settings.max_upload_size};
+      '';
+
+    locations = matrixLocations;
+  };
 in
 {
   imports = [
@@ -141,32 +168,11 @@ in
   };
 
   services.nginx.virtualHosts.${domain} =
-    merge config.services.nginx.sslTemplate configWellKnownResponse;
+    merge config.services.nginx.sslTemplate configWellKnownResponse matrixConfig;
 
   services.nginx.virtualHosts.${fqdn} =
-    merge config.services.nginx.sslTemplate configWellKnownResponse
+    merge config.services.nginx.sslTemplate configWellKnownResponse matrixConfig
       {
-        extraConfig = # nginx
-          ''
-            client_max_body_size ${config.services.matrix-synapse.settings.max_upload_size};
-          '';
-
         locations."/".return = "301 https://${domain}/404";
-
-        locations."/_matrix" = {
-          proxyPass = "http://[::1]:${toString port}";
-          extraConfig = ''
-            proxy_set_header X-Forwarded-For $remote_addr;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_set_header Host $host;
-
-            ${config.services.nginx.headers}
-          '';
-
-        };
-        locations."/_synapse/client" = {
-          proxyPass = "http://[::1]:${toString port}";
-          extraConfig = config.services.nginx.headers;
-        };
       };
 }
