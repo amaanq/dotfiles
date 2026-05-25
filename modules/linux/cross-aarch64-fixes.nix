@@ -80,18 +80,20 @@
             busted = lprev.busted.overrideAttrs (old: {
               dontStrip = true;
               postFixup = (old.postFixup or "") + ''
-                grep -RIlE \
-                  -e '/nix/store/[a-z0-9]+-luajit-2\.1\.1741730670' \
-                  -e '/nix/store/[a-z0-9]+-luarocks_bootstrap-3\.13\.0' \
-                  -e '/nix/store/[a-z0-9]+-bash-interactive-5\.3p9' \
-                  "$out" \
-                | while IFS= read -r file; do
-                  sed -i -E \
-                    -e 's#/nix/store/[a-z0-9]+-luajit-2\.1\.1741730670#${final.luajit}#g' \
-                    -e 's#/nix/store/[a-z0-9]+-luarocks_bootstrap-3\.13\.0#${lfinal.luarocks_bootstrap}#g' \
-                    -e 's#/nix/store/[a-z0-9]+-bash-interactive-5\.3p9#${final.bashInteractive}#g' \
-                    "$file"
-                done
+                {
+                  grep -RIlE \
+                    -e '/nix/store/[a-z0-9]+-luajit-[0-9]+\.[0-9]+\.[0-9]+' \
+                    -e '/nix/store/[a-z0-9]+-luarocks_bootstrap-[0-9]+\.[0-9]+\.[0-9]+' \
+                    -e '/nix/store/[a-z0-9]+-bash-interactive-[0-9]+\.[0-9]+[a-z]?[0-9]*' \
+                    "$out" 2>/dev/null \
+                  | while IFS= read -r file; do
+                    sed -i -E \
+                      -e 's#/nix/store/[a-z0-9]+-luajit-[0-9]+\.[0-9]+\.[0-9]+#${final.luajit}#g' \
+                      -e 's#/nix/store/[a-z0-9]+-luarocks_bootstrap-[0-9]+\.[0-9]+\.[0-9]+#${lfinal.luarocks_bootstrap}#g' \
+                      -e 's#/nix/store/[a-z0-9]+-bash-interactive-[0-9]+\.[0-9]+[a-z]?[0-9]*#${final.bashInteractive}#g' \
+                      "$file"
+                  done
+                } || true
               '';
             });
           };
@@ -143,6 +145,7 @@
               (old: {
                 cmakeFlags = (old.cmakeFlags or [ ]) ++ [
                   (final.lib.cmakeFeature "NLUA0_HOST_PRG" "${neovimHostNlua0}/lib/libnlua0.so")
+                  (final.lib.cmakeFeature "TEST_FILTER_OUT" "works with concealed lines")
                 ];
               });
 
@@ -167,6 +170,18 @@
               });
             };
           };
+
+          # redis tests/modules/Makefile hardcodes `CC = gcc` / `LD = gcc`,
+          # which doesn't exist in the cross-stdenv (only the target-prefixed
+          # one). Rewrite to `$(CC)` so the cross-prefixed wrapper is picked
+          # up; lets the test modules build and check phase run via binfmt.
+          redis = prev.redis.overrideAttrs (old: {
+            postPatch = (old.postPatch or "") + ''
+              substituteInPlace tests/modules/Makefile \
+                --replace-fail "LD = gcc" "" \
+                --replace-fail "CC = gcc" ""
+            '';
+          });
 
           # bch_bindgen layout_tests underflow at const-eval on cross
           # (host libclang reports align=1 for packed bitfields, bindgen
