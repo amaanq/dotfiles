@@ -18,9 +18,7 @@ let
 
   # Pin every other host's system closure as a gcroot so cross-compiled
   # artifacts built here survive nix-collect-garbage.
-  otherHosts = filterAttrs (
-    n: _: n != config.networking.hostName && n != "lahar" && n != "scarp"
-  ) inputs.self.nixosConfigurations;
+  otherHosts = filterAttrs (n: _: n != config.networking.hostName) inputs.self.nixosConfigurations;
 
   flakeHostsPin = pkgs.linkFarm "flake-hosts-gcroots" (
     mapAttrsToList (name: c: {
