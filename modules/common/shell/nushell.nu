@@ -728,10 +728,12 @@ def git-ignored []: nothing -> list<string> {
   | where ($it !~ '^(\.jj|\.direnv|\.cipd|\.depot_tools|\.reproxy_cache|src)/$')
 }
 
-let tty_result = (do { tty } | complete)
-if $tty_result.exit_code == 0 {
-  $env.GPG_TTY = ($tty_result.stdout | str trim)
-  do { ^gpg-connect-agent updatestartuptty /bye } | complete | ignore
+if (which gpg-connect-agent | is-not-empty) {
+  let tty_result = (do { tty } | complete)
+  if $tty_result.exit_code == 0 {
+    $env.GPG_TTY = ($tty_result.stdout | str trim)
+    do { ^gpg-connect-agent updatestartuptty /bye } | complete | ignore
+  }
 }
 
 # macOS: Insert shadow path before /usr/bin to suppress xcode-select popups
