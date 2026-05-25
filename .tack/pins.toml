@@ -18,6 +18,7 @@ crane = "crane"
 git-hooks = ["git-hooks-nix"]
 nixpkgs-lib = "nixpkgs-lib"
 rust-analyzer-src = "rust-analyzer"
+treefmt-nix = "treefmt-nix"
 xwayland-satellite = [
 	"xwayland-satellite-stable",
 	"xwayland-satellite-unstable",
@@ -98,7 +99,7 @@ url = "gh:NixOS/nix"
 # build / tooling -------------------------------------------------------------
 
 [inputs.tack]
-url = "manic:tack"
+url = "manic:tack/next"
 
 [inputs.cade]
 url = "manic:cade"
@@ -183,7 +184,7 @@ url = "amaan:rampart"
 url = "gh:nix-community/harmonia"
 
 [inputs.ncro]
-url = "gh:feel-co/ncro"
+url = "manic:ncro"
 
 # jj from source - tracking bare-colocate-fix branch on fork
 # (upstream PRs #8667 + #8834 + bare repo gitlink fix).
