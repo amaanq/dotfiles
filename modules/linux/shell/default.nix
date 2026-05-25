@@ -4,6 +4,9 @@
   pkgs,
   ...
 }:
+let
+  inherit (lib) enabled;
+in
 {
   wrappers.nushell = {
     basePackage = pkgs.nushell;
@@ -24,4 +27,6 @@
     ls = lib.mkForce null;
     l = lib.mkForce null;
   };
+
+  programs.inshellah = enabled;
 }

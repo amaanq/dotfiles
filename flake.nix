@@ -104,6 +104,11 @@
       inputs.fenix.follows = "fenix";
     };
 
+    inshellah = {
+      url = "github:manic-systems/inshellah";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";

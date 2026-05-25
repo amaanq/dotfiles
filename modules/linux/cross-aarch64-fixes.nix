@@ -158,16 +158,6 @@
             ];
           });
 
-          # carapace's preBuild `go generate` needs a host CC; point CC at
-          # the build-host gcc just for that step.
-          carapace = prev.carapace.overrideAttrs (_: {
-            preBuild = ''
-              CC=${final.pkgsBuildBuild.stdenv.cc}/bin/cc \
-              CXX=${final.pkgsBuildBuild.stdenv.cc}/bin/c++ \
-              GOOS= GOARCH= go generate ./...
-            '';
-          });
-
           # python jc: postInstall runs the cross-built jc binary to generate
           # shell completions, which can't execute on the build host. Skip it.
           python313 = prev.python313.override {

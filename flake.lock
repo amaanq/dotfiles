@@ -574,6 +574,26 @@
         "type": "github"
       }
     },
+    "inshellah": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1779674787,
+        "narHash": "sha256-3g16Ol8pE63R4dEOokq2rLP35AYMytP0lfLdeJQ0DS4=",
+        "owner": "sisyphean-group",
+        "repo": "inshellah",
+        "rev": "8d67380c4402b9f02dc7f8f6449a7e77b84d510e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sisyphean-group",
+        "repo": "inshellah",
+        "type": "github"
+      }
+    },
     "jj-src": {
       "inputs": {
         "flake-utils": "flake-utils",

@@ -1,5 +1,5 @@
 use std/clip
-use std null_device
+use std/util null_device
 
 $env.config.history.file_format = "sqlite"
 $env.config.history.isolation = false
@@ -66,7 +66,7 @@ $env.config.datetime_format.normal = "%m/%d/%y %I:%M:%S%p"
 
 $env.config.filesize.unit = "metric"
 $env.config.filesize.show_unit = true
-$env.config.filesize.precision = 1
+$env.config.filesize.precision = 2
 
 $env.config.render_right_prompt_on_last_line = false
 
@@ -721,6 +721,13 @@ def --wrapped ns [...programs] {
   })
 }
 
+# List files hidden by a whitelist-style .gitignore in the current repo.
+def git-ignored []: nothing -> list<string> {
+  ^git ls-files --others -i --exclude-standard --directory
+  | lines
+  | where ($it !~ '^(\.jj|\.direnv|\.cipd|\.depot_tools|\.reproxy_cache|src)/$')
+}
+
 let tty_result = (do { tty } | complete)
 if $tty_result.exit_code == 0 {
   $env.GPG_TTY = ($tty_result.stdout | str trim)
@@ -740,4 +747,83 @@ if $nu.os-info.name == "macos" {
       $env.PATH = $env.PATH | insert $usr_bin_index $shadow_path
     }
   }
+}
+
+# Taken from
+# https://github.com/nushell/nu_scripts/blob/main/modules/capture-foreign-env/mod.nu
+def capture-foreign-env [
+  --shell (-s): string = /bin/sh
+  # The shell to run the script in
+  # (has to support '-c' argument and POSIX 'env', 'echo', 'eval' commands)
+  --arguments (-a): list<string> = []
+  # Additional command line arguments to pass to the foreign shell
+] {
+  let script_contents = $in;
+  let env_out = with-env { SCRIPT_TO_SOURCE: $script_contents } {
+    ^$shell ...$arguments -c `
+    env -0
+    echo -n '<ENV_CAPTURE_EVAL_FENCE>'
+    eval "$SCRIPT_TO_SOURCE"
+    echo -n '<ENV_CAPTURE_EVAL_FENCE>'
+    env -0 -u _ -u _AST_FEATURES -u SHLVL`
+  }
+  | split row '<ENV_CAPTURE_EVAL_FENCE>'
+  | {
+    before: ($in | first | str trim --char (char nul) | split row (char nul))
+    after: ($in | last | str trim --char (char nul) | split row (char nul))
+  }
+
+  $env_out.after
+  | where { |line| $line not-in $env_out.before }
+  | parse "{key}={value}"
+  | transpose --header-row --as-record
+}
+
+# Kagi Translate helper.
+#
+# The token is the Kagi session cookie used by translate.kagi.com. By default
+# it is read from $env.KAGI_SESSION_TOKEN; pass --token-env to use a different
+# env var.
+def translate [
+   --from (-f): string = "auto"             # Source language code
+   --to (-t): string = "en"                 # Target language code
+   --model (-m): string = "standard"        # Kagi translation model
+   --token-env: string = "KAGI_SESSION_TOKEN" # Env var holding the Kagi cookie
+   ...text: string                          # Text to translate (joined with spaces)
+]: nothing -> string {
+   let text = ($text | str join " ")
+
+   if ($text | is-empty) {
+      error make {msg: "No text provided to translate."}
+   }
+
+   let token = ($env | get -o $token_env)
+
+   if ($token | is-empty) {
+      error make {msg: $"Missing Kagi token. Set the ($token_env) environment variable."}
+   }
+
+   let response = (
+      http post
+      --allow-errors
+      --full
+      --content-type "application/json"
+      --headers {
+         Cookie: $"kagi_session=($token)"
+         Accept: "application/json"
+      }
+      "https://translate.kagi.com/api/translate"
+      {
+         text: $text
+         from: $from
+         to: $to
+         model: $model
+      }
+   )
+
+   if $response.status != 200 {
+      error make {msg: $"Kagi translate request failed with status ($response.status):\n($response.body)"}
+   }
+
+   $response.body.translation? | default ($response.body | to text)
 }

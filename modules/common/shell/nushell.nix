@@ -56,16 +56,6 @@ let
 
   shellAliases = config.environment.shellAliases |> filterAttrs (_: value: value != null);
 
-  completions =
-    let
-      completion = name: ''
-        source ${pkgs.nu_scripts}/share/nu_scripts/custom-completions/${name}/${name}-completions.nu
-      '';
-    in
-    names: builtins.foldl' (prev: str: "${prev}\n${str}") "" (map completion names);
-
-  nuScriptsPath = "${pkgs.nu_scripts}/share/nu_scripts";
-
   configNu =
     pkgs.writeText "config.nu" # nu
       ''
@@ -86,54 +76,31 @@ let
           |> concatStringsSep "\n"
         }
 
+        ${lib.optionalString (config.environment.sessionVariables ? LD_PRELOAD) ''
+          # nu's wrapper preloads mimalloc; hand the system allocator back to
+          # everything nu spawns. Nested nu re-enters the wrapper → mimalloc.
+          $env.LD_PRELOAD = "${config.environment.sessionVariables.LD_PRELOAD}"
+        ''}
+
         # Shell aliases
         ${shellAliases |> mapAttrsToList (name: value: "alias ${name} = ${value}") |> concatStringsSep "\n"}
 
-        # Add nu_scripts to library paths
-        $env.NU_LIB_DIRS = (
-          $env.NU_LIB_DIRS | append "${nuScriptsPath}"
-        )
+        $env.LS_COLORS = (open ${
+          pkgs.runCommand "ls_colors" { } ''
+            ${pkgs.buildPackages.vivid}/bin/vivid generate tokyonight-moon > "$out"
+          ''
+        } | str trim)
 
-        ${completions [
-          "bat"
-          "cargo"
-          "curl"
-          "docker"
-          "gh"
-          "git"
-          "just"
-          "less"
-          "make"
-          "man"
-          "nix"
-          "npm"
-          # "rg" - breaks with the alias
-          "rustup"
-          "tar"
-          "typst"
-          "uv"
-          "virsh"
-        ]}
         ${readFile ./nushell.nu}
 
         source ${./ssh-completions.nu}
 
         use ${./terminfo-autogen.nu}
-        source ${./translate.nu}
-
-        use ${pkgs.nu_scripts}/share/nu_scripts/modules/capture-foreign-env
-        source ${pkgs.nu_scripts}/share/nu_scripts/modules/formats/from-env.nu
 
         # zoxide
         source ${
           pkgs.runCommand "zoxide.nu" { }
             ''${pkgs.buildPackages.zoxide}/bin/zoxide init nushell --cmd cd >> "$out"''
-        }
-
-        # carapace
-        source ${
-          pkgs.runCommand "carapace.nu" { }
-            ''${pkgs.buildPackages.carapace}/bin/carapace _carapace nushell | sed 's|"/homeless-shelter|$"($env.HOME)|g' >> "$out"''
         }
 
         # direnv
@@ -165,7 +132,6 @@ let
             }
         )
 
-        # atuin (only for amaanq; the key/sync identity is personal)
         if ($env.USER == "amaanq") {
           source ${
             pkgs.runCommand "atuin.nu" {
@@ -251,7 +217,6 @@ let
           shape_custom: { attr: b }
         }
       '';
-
 in
 {
   secrets.kagi_session_token = {
@@ -282,4 +247,5 @@ in
         margin: 1
     }
   '';
+
 }
