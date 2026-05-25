@@ -1,45 +1,61 @@
 diff --git a/packages/opencode/src/cli/cmd/tui/app.tsx b/packages/opencode/src/cli/cmd/tui/app.tsx
---- a/packages/opencode/src/cli/cmd/tui/app.tsx	2026-05-04 23:05:04.464294457 -0400
-+++ b/packages/opencode/src/cli/cmd/tui/app.tsx	2026-05-04 23:05:59.222150876 -0400
-@@ -58,6 +58,7 @@
+--- a/packages/opencode/src/cli/cmd/tui/app.tsx
++++ b/packages/opencode/src/cli/cmd/tui/app.tsx
+@@ -59,6 +59,7 @@
  import { ArgsProvider, useArgs, type Args } from "./context/args"
  import open from "open"
  import { PromptRefProvider, usePromptRef } from "./context/prompt"
 +import { StatusLineProvider, useStatusLine } from "./context/statusline"
  import { TuiConfigProvider, useTuiConfig } from "./context/tui-config"
  import { TuiConfig } from "@/cli/cmd/tui/config/tui"
- import { createTuiApi } from "@/cli/cmd/tui/plugin/api"
-@@ -215,6 +216,7 @@
-                                 <ThemeProvider mode={mode}>
-                                   <LocalProvider>
--                                    <PromptStashProvider>
-+                                    <StatusLineProvider>
-+                                      <PromptStashProvider>
-                                       <DialogProvider>
-                                         <CommandPaletteProvider>
-                                           <FrecencyProvider>
-@@ -228,7 +230,8 @@
-                                           </FrecencyProvider>
-                                         </CommandPaletteProvider>
-                                       </DialogProvider>
--                                    </PromptStashProvider>
-+                                      </PromptStashProvider>
-+                                    </StatusLineProvider>
-                                   </LocalProvider>
-                                 </ThemeProvider>
-                               </SyncProviderV2>
-@@ -266,6 +269,7 @@
-   const sync = useSync()
+ import { TuiPluginRuntime } from "@/cli/cmd/tui/plugin/runtime"
+@@ -253,19 +254,21 @@
+                             <SyncProviderV2>
+                               <ThemeProvider mode={mode}>
+                                 <LocalProvider>
+-                                  <PromptStashProvider>
+-                                    <DialogProvider>
+-                                      <FrecencyProvider>
+-                                        <PromptHistoryProvider>
+-                                          <PromptRefProvider>
+-                                            <EditorContextProvider>
+-                                              <App onSnapshot={input.onSnapshot} />
+-                                            </EditorContextProvider>
+-                                          </PromptRefProvider>
+-                                        </PromptHistoryProvider>
+-                                      </FrecencyProvider>
+-                                    </DialogProvider>
+-                                  </PromptStashProvider>
++                                  <StatusLineProvider>
++                                    <PromptStashProvider>
++                                      <DialogProvider>
++                                        <FrecencyProvider>
++                                          <PromptHistoryProvider>
++                                            <PromptRefProvider>
++                                              <EditorContextProvider>
++                                                <App onSnapshot={input.onSnapshot} />
++                                              </EditorContextProvider>
++                                            </PromptRefProvider>
++                                          </PromptHistoryProvider>
++                                        </FrecencyProvider>
++                                      </DialogProvider>
++                                    </PromptStashProvider>
++                                  </StatusLineProvider>
+                                 </LocalProvider>
+                               </ThemeProvider>
+                             </SyncProviderV2>
+@@ -380,6 +383,7 @@
+   const project = useProject()
    const exit = useExit()
    const promptRef = usePromptRef()
 +  const statusline = useStatusLine()
    const routes: RouteMap = new Map()
    const [routeRev, setRouteRev] = createSignal(0)
    const routeView = (name: string) => {
-@@ -330,6 +334,12 @@
+@@ -450,6 +454,12 @@
    createEffect(() => {
      if (!terminalTitleEnabled() || Flag.OPENCODE_DISABLE_TERMINAL_TITLE) return
-
+ 
 +    const custom = statusline.templates().terminal_title
 +    if (custom) {
 +      renderer.setTerminalTitle(custom)
@@ -50,38 +66,38 @@ diff --git a/packages/opencode/src/cli/cmd/tui/app.tsx b/packages/opencode/src/c
        renderer.setTerminalTitle("OpenCode")
        return
 diff --git a/packages/opencode/src/cli/cmd/tui/config/tui-schema.ts b/packages/opencode/src/cli/cmd/tui/config/tui-schema.ts
---- a/packages/opencode/src/cli/cmd/tui/config/tui-schema.ts	2026-05-04 23:05:04.467854361 -0400
-+++ b/packages/opencode/src/cli/cmd/tui/config/tui-schema.ts	2026-05-04 23:05:10.372043712 -0400
-@@ -24,6 +24,26 @@
-     .optional()
-     .describe("Control diff rendering style: 'auto' adapts to terminal width, 'stacked' always shows single column"),
-   mouse: z.boolean().optional().describe("Enable or disable mouse capture (default: true)"),
-+  status_line: z
-+    .object({
-+      templates: z
-+        .record(z.enum(["terminal_title", "session_footer", "home_footer"]), z.string())
-+        .optional()
-+        .describe("Template strings per display target with {variable:format} placeholders"),
-+      interval: z
-+        .number()
-+        .int()
-+        .min(1)
-+        .max(300)
-+        .optional()
-+        .describe("Polling interval in seconds"),
-+      commands: z
-+        .record(z.string(), z.string())
-+        .optional()
-+        .describe("Named shell commands available as {shell:name} in templates"),
-+    })
-+    .optional()
-+    .describe("Status line template configuration"),
- })
+--- a/packages/opencode/src/cli/cmd/tui/config/tui-schema.ts
++++ b/packages/opencode/src/cli/cmd/tui/config/tui-schema.ts
+@@ -70,6 +70,20 @@
+   }),
+ }).annotate({ description: "Prompt size settings" })
  
- export const TuiInfo = z
++export const StatusLine = Schema.Struct({
++  templates: Schema.optional(Schema.Record(Schema.String, Schema.String)).annotate({
++    description: "Template strings per display target with {variable:format} placeholders",
++  }),
++  interval: Schema.optional(
++    Schema.Int.check(Schema.isGreaterThanOrEqualTo(1), Schema.isLessThanOrEqualTo(300)),
++  ).annotate({
++    description: "Polling interval in seconds",
++  }),
++  commands: Schema.optional(Schema.Record(Schema.String, Schema.String)).annotate({
++    description: "Named shell commands available as {shell:name} in templates",
++  }),
++}).annotate({ description: "Status line template configuration" })
++
+ export const TuiInfo = Schema.Struct({
+   $schema: Schema.optional(Schema.String),
+   theme: Schema.optional(Schema.String),
+@@ -85,4 +99,5 @@
+   scroll_acceleration: Schema.optional(ScrollAcceleration),
+   diff_style: Schema.optional(DiffStyle),
+   mouse: Schema.optional(Schema.Boolean).annotate({ description: "Enable or disable mouse capture (default: true)" }),
++  status_line: Schema.optional(StatusLine).annotate({ description: "Status line template configuration" }),
+ })
 diff --git a/packages/opencode/src/cli/cmd/tui/context/statusline.tsx b/packages/opencode/src/cli/cmd/tui/context/statusline.tsx
---- a/packages/opencode/src/cli/cmd/tui/context/statusline.tsx	1969-12-31 19:00:00.000000000 -0500
-+++ b/packages/opencode/src/cli/cmd/tui/context/statusline.tsx	2026-05-04 23:05:10.372087774 -0400
+--- a/packages/opencode/src/cli/cmd/tui/context/statusline.tsx
++++ b/packages/opencode/src/cli/cmd/tui/context/statusline.tsx
 @@ -0,0 +1,49 @@
 +import { createSignal, createEffect, onCleanup, on } from "solid-js"
 +import { useSDK } from "./sdk"
@@ -133,16 +149,16 @@ diff --git a/packages/opencode/src/cli/cmd/tui/context/statusline.tsx b/packages
 +  },
 +})
 diff --git a/packages/opencode/src/cli/cmd/tui/routes/home.tsx b/packages/opencode/src/cli/cmd/tui/routes/home.tsx
---- a/packages/opencode/src/cli/cmd/tui/routes/home.tsx	2026-05-04 23:05:04.469134190 -0400
-+++ b/packages/opencode/src/cli/cmd/tui/routes/home.tsx	2026-05-04 23:06:12.544532084 -0400
+--- a/packages/opencode/src/cli/cmd/tui/routes/home.tsx
++++ b/packages/opencode/src/cli/cmd/tui/routes/home.tsx
 @@ -1,5 +1,5 @@
  import { Prompt, type PromptRef } from "@tui/component/prompt"
--import { createEffect, createSignal, onMount } from "solid-js"
-+import { createEffect, createSignal, onMount, Show } from "solid-js"
+-import { createEffect, createMemo, createSignal, onMount } from "solid-js"
++import { createEffect, createMemo, createSignal, onMount, Show } from "solid-js"
  import { Logo } from "../component/logo"
- import { useProject } from "../context/project"
  import { useSync } from "../context/sync"
-@@ -8,7 +8,9 @@
+ import { Toast } from "../ui/toast"
+@@ -7,7 +7,9 @@
  import { useRouteData } from "@tui/context/route"
  import { usePromptRef } from "../context/prompt"
  import { useLocal } from "../context/local"
@@ -150,9 +166,9 @@ diff --git a/packages/opencode/src/cli/cmd/tui/routes/home.tsx b/packages/openco
  import { TuiPluginRuntime } from "@/cli/cmd/tui/plugin/runtime"
 +import { useStatusLine } from "../context/statusline"
  import { useEditorContext } from "@tui/context/editor"
-
- let once = false
-@@ -39,6 +41,8 @@
+ import { useTerminalDimensions } from "@opentui/solid"
+ import { useTuiConfig } from "../context/tui-config"
+@@ -52,6 +54,8 @@
      r.set({ input: args.prompt, parts: [] })
      once = true
    }
@@ -161,7 +177,7 @@ diff --git a/packages/opencode/src/cli/cmd/tui/routes/home.tsx b/packages/openco
  
    // Wait for sync and model store to be ready before auto-submitting --prompt
    createEffect(() => {
-@@ -83,7 +87,12 @@
+@@ -86,7 +90,12 @@
          <Toast />
        </box>
        <box width="100%" flexShrink={0}>
@@ -176,9 +192,9 @@ diff --git a/packages/opencode/src/cli/cmd/tui/routes/home.tsx b/packages/openco
      </>
    )
 diff --git a/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx b/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx
---- a/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx	2026-05-04 23:05:04.469230514 -0400
-+++ b/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx	2026-05-04 23:06:18.254695476 -0400
-@@ -74,6 +74,7 @@
+--- a/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx
++++ b/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx
+@@ -71,6 +71,7 @@
  import { useKV } from "../../context/kv.tsx"
  import * as Editor from "../../util/editor"
  import stripAnsi from "strip-ansi"
@@ -186,7 +202,7 @@ diff --git a/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx b/packag
  import { usePromptRef } from "../../context/prompt"
  import { useExit } from "../../context/exit"
  import { Filesystem } from "@/util/filesystem"
-@@ -127,6 +128,7 @@
+@@ -184,6 +185,7 @@
    const kv = useKV()
    const { theme } = useTheme()
    const promptRef = usePromptRef()
@@ -194,7 +210,7 @@ diff --git a/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx b/packag
    const session = createMemo(() => sync.session.get(route.sessionID))
    const children = createMemo(() => {
      const parentID = session()?.parentID ?? session()?.id
-@@ -1247,6 +1249,11 @@
+@@ -1262,6 +1264,11 @@
                    </TuiPluginRuntime.Slot>
                  </Show>
                </box>
@@ -207,8 +223,8 @@ diff --git a/packages/opencode/src/cli/cmd/tui/routes/session/index.tsx b/packag
              <Toast />
            </box>
 diff --git a/packages/opencode/src/server/routes/instance/httpapi/groups/tui.ts b/packages/opencode/src/server/routes/instance/httpapi/groups/tui.ts
---- a/packages/opencode/src/server/routes/instance/httpapi/groups/tui.ts	2026-05-04 23:05:04.473589725 -0400
-+++ b/packages/opencode/src/server/routes/instance/httpapi/groups/tui.ts	2026-05-04 23:06:27.922972125 -0400
+--- a/packages/opencode/src/server/routes/instance/httpapi/groups/tui.ts
++++ b/packages/opencode/src/server/routes/instance/httpapi/groups/tui.ts
 @@ -4,7 +4,11 @@
  import { HttpApi, HttpApiEndpoint, HttpApiError, HttpApiGroup, OpenApi } from "effect/unstable/httpapi"
  import { Authorization } from "../middleware/authorization"
@@ -221,15 +237,15 @@ diff --git a/packages/opencode/src/server/routes/instance/httpapi/groups/tui.ts 
 +} from "../middleware/workspace-routing"
  import { ApiNotFoundError } from "../errors"
  import { described } from "./metadata"
-
-@@ -46,7 +50,19 @@
+ 
+@@ -46,9 +50,21 @@
    publish: `${root}/publish`,
    selectSession: `${root}/select-session`,
    controlNext: `${root}/control/next`,
 +  statusline: `${root}/statusline`,
    controlResponse: `${root}/control/response`,
  } as const
-
+ 
 +export const StatuslineQuery = Schema.Struct({
 +  ...WorkspaceRoutingQueryFields,
 +  sessionID: Schema.optional(Schema.String),
@@ -244,26 +260,9 @@ diff --git a/packages/opencode/src/server/routes/instance/httpapi/groups/tui.ts 
  export const TuiApi = HttpApi.make("tui")
    .add(
      HttpApiGroup.make("tui")
-@@ -172,6 +188,16 @@
-             description: "Navigate the TUI to display the specified session.",
-           }),
-         ),
-+        HttpApiEndpoint.get("statusline", TuiPaths.statusline, {
-+          query: StatuslineQuery,
-+          success: described(StatuslineResponse, "Resolved status line templates"),
-+        }).annotateMerge(
-+          OpenApi.annotations({
-+            identifier: "tui.statusline",
-+            summary: "Get resolved status line",
-+            description: "Resolve status line templates for each display target with current variables.",
-+          }),
-+        ),
-         HttpApiEndpoint.get("controlNext", TuiPaths.controlNext, {
-           query: WorkspaceRoutingQuery,
-           success: described(TuiRequestPayload, "Next TUI request"),
 diff --git a/packages/opencode/src/server/routes/instance/httpapi/handlers/tui.ts b/packages/opencode/src/server/routes/instance/httpapi/handlers/tui.ts
---- a/packages/opencode/src/server/routes/instance/httpapi/handlers/tui.ts	2026-05-04 23:05:04.473589725 -0400
-+++ b/packages/opencode/src/server/routes/instance/httpapi/handlers/tui.ts	2026-05-04 23:06:27.922972125 -0400
+--- a/packages/opencode/src/server/routes/instance/httpapi/handlers/tui.ts
++++ b/packages/opencode/src/server/routes/instance/httpapi/handlers/tui.ts
 @@ -1,6 +1,7 @@
  import { Bus } from "@/bus"
  import { TuiEvent } from "@/cli/cmd/tui/event"
@@ -275,7 +274,7 @@ diff --git a/packages/opencode/src/server/routes/instance/httpapi/handlers/tui.t
 @@ -103,6 +104,11 @@
        return true
      })
-
+ 
 +    const statusline = Effect.fn("TuiHttpApi.statusline")(function* (ctx: { query: { sessionID?: string } }) {
 +      const result = yield* StatusLine.get(ctx.query.sessionID)
 +      return result ?? null
@@ -293,13 +292,12 @@ diff --git a/packages/opencode/src/server/routes/instance/httpapi/handlers/tui.t
        .handle("controlResponse", controlResponse)
    }),
 diff --git a/packages/opencode/src/statusline/index.ts b/packages/opencode/src/statusline/index.ts
---- a/packages/opencode/src/statusline/index.ts	1969-12-31 19:00:00.000000000 -0500
-+++ b/packages/opencode/src/statusline/index.ts	2026-05-04 23:05:10.372563425 -0400
-@@ -0,0 +1,258 @@
-+import { TuiConfig } from "@/cli/cmd/tui/config/tui"
+--- a/packages/opencode/src/statusline/index.ts
++++ b/packages/opencode/src/statusline/index.ts
+@@ -0,0 +1,263 @@
++import { InstanceState } from "@/effect/instance-state"
 +import { Plugin } from "../plugin"
 +import { Vcs } from "../project/vcs"
-+import { Instance } from "../project/instance"
 +import { Session } from "../session/session"
 +import { SessionID } from "../session/schema"
 +import type { MessageV2 } from "../session/message-v2"
@@ -316,12 +314,13 @@ diff --git a/packages/opencode/src/statusline/index.ts b/packages/opencode/src/s
 +
 +  export const builtins = Effect.fn("StatusLine.builtins")(function* (sessionID?: string) {
 +    const vars: Record<string, string> = {}
++    const instance = yield* InstanceState.context
 +
-+    vars.directory = Instance.directory
-+    vars.worktree = Instance.worktree
-+    vars.cwd = Instance.directory
-+    vars.cwd_basename = path.basename(Instance.directory)
-+    vars.project_name = Instance.project.name ?? path.basename(Instance.directory)
++    vars.directory = instance.directory
++    vars.worktree = instance.worktree
++    vars.cwd = instance.directory
++    vars.cwd_basename = path.basename(instance.directory)
++    vars.project_name = instance.project.name ?? path.basename(instance.directory)
 +
 +    const vcs = yield* Vcs.Service
 +    const branch = yield* vcs.branch().pipe(Effect.catchAll(() => Effect.succeed(undefined)))
@@ -521,15 +520,20 @@ diff --git a/packages/opencode/src/statusline/index.ts b/packages/opencode/src/s
 +  export const get = Effect.fn("StatusLine.get")(function* (sessionID?: string) {
 +    // TuiConfig isn't part of the server's AppRuntime, so we provide its
 +    // default layer inline rather than requiring the caller to inject it.
++    // Load it lazily so non-TUI CLI commands do not initialize TUI-only deps.
 +    const config = yield* Effect.gen(function* () {
-+      const svc = yield* TuiConfig.Service
-+      return yield* svc.get()
-+    }).pipe(Effect.provide(TuiConfig.defaultLayer))
++      const { TuiConfig } = yield* Effect.promise(() => import("@/cli/cmd/tui/config/tui"))
++      return yield* Effect.gen(function* () {
++        const svc = yield* TuiConfig.Service
++        return yield* svc.get()
++      }).pipe(Effect.provide(TuiConfig.defaultLayer))
++    })
 +    const sl = config.status_line
 +    if (!sl?.templates || Object.keys(sl.templates).length === 0) return undefined
 +
 +    const builtin = yield* builtins(sessionID)
-+    const shell = yield* Effect.promise(() => commands(sl.commands ?? {}, Instance.worktree))
++    const instance = yield* InstanceState.context
++    const shell = yield* Effect.promise(() => commands(sl.commands ?? {}, instance.worktree))
 +
 +    const plugin = yield* Plugin.Service
 +    const pluginVars = yield* plugin
@@ -555,8 +559,8 @@ diff --git a/packages/opencode/src/statusline/index.ts b/packages/opencode/src/s
 +  })
 +}
 diff --git a/packages/opencode/test/statusline/statusline.test.ts b/packages/opencode/test/statusline/statusline.test.ts
---- a/packages/opencode/test/statusline/statusline.test.ts	1969-12-31 19:00:00.000000000 -0500
-+++ b/packages/opencode/test/statusline/statusline.test.ts	2026-05-04 23:05:10.372624508 -0400
+--- a/packages/opencode/test/statusline/statusline.test.ts
++++ b/packages/opencode/test/statusline/statusline.test.ts
 @@ -0,0 +1,142 @@
 +import { test, expect, describe } from "bun:test"
 +import { StatusLine } from "../../src/statusline"
@@ -701,9 +705,9 @@ diff --git a/packages/opencode/test/statusline/statusline.test.ts b/packages/ope
 +  })
 +})
 diff --git a/packages/plugin/src/index.ts b/packages/plugin/src/index.ts
---- a/packages/plugin/src/index.ts	2026-05-04 23:05:04.485752276 -0400
-+++ b/packages/plugin/src/index.ts	2026-05-04 23:05:10.372668050 -0400
-@@ -330,4 +330,12 @@
+--- a/packages/plugin/src/index.ts
++++ b/packages/plugin/src/index.ts
+@@ -331,4 +331,12 @@
     * Modify tool definitions (description and parameters) sent to LLM
     */
    "tool.definition"?: (input: { toolID: string }, output: { description: string; parameters: any }) => Promise<void>
@@ -717,17 +721,17 @@ diff --git a/packages/plugin/src/index.ts b/packages/plugin/src/index.ts
 +  ) => Promise<void>
  }
 diff --git a/packages/sdk/js/src/v2/gen/sdk.gen.ts b/packages/sdk/js/src/v2/gen/sdk.gen.ts
---- a/packages/sdk/js/src/v2/gen/sdk.gen.ts	2026-05-04 23:05:04.486615155 -0400
-+++ b/packages/sdk/js/src/v2/gen/sdk.gen.ts	2026-05-04 23:06:44.023432825 -0400
-@@ -190,6 +190,7 @@
-   TuiSelectSessionErrors,
+--- a/packages/sdk/js/src/v2/gen/sdk.gen.ts
++++ b/packages/sdk/js/src/v2/gen/sdk.gen.ts
+@@ -244,6 +244,7 @@
    TuiSelectSessionResponses,
+   TuiShowToastErrors,
    TuiShowToastResponses,
 +  TuiStatuslineResponses,
+   TuiSubmitPromptErrors,
    TuiSubmitPromptResponses,
-   V2SessionCompactResponses,
-   V2SessionContextResponses,
-@@ -4611,6 +4612,36 @@
+   V2ModelListErrors,
+@@ -5003,6 +5004,36 @@
      })
    }
  
@@ -765,9 +769,9 @@ diff --git a/packages/sdk/js/src/v2/gen/sdk.gen.ts b/packages/sdk/js/src/v2/gen/
    get control(): Control {
      return (this._control ??= new Control({ client: this.client }))
 diff --git a/packages/sdk/js/src/v2/gen/types.gen.ts b/packages/sdk/js/src/v2/gen/types.gen.ts
---- a/packages/sdk/js/src/v2/gen/types.gen.ts	2026-05-04 23:05:04.486615155 -0400
-+++ b/packages/sdk/js/src/v2/gen/types.gen.ts	2026-05-04 23:05:10.373182424 -0400
-@@ -6469,6 +6469,30 @@
+--- a/packages/sdk/js/src/v2/gen/types.gen.ts
++++ b/packages/sdk/js/src/v2/gen/types.gen.ts
+@@ -7903,6 +7903,30 @@
  
  export type TuiSelectSessionResponse = TuiSelectSessionResponses[keyof TuiSelectSessionResponses]
  

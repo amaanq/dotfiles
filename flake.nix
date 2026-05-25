@@ -138,7 +138,7 @@
     };
 
     opencode-src = {
-      url = "github:sst/opencode/v1.14.48";
+      url = "github:sst/opencode/v1.15.11";
       flake = false;
     };
 

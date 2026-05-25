@@ -5,7 +5,8 @@
   ...
 }:
 let
-  # Bun override: fork's packageManager is bun@1.3.13, nixpkgs is on 1.3.11.
+  # Bun override: nixpkgs is on 1.3.11, and bun@1.3.14's compiled
+  # opencode binary currently segfaults in the upstream smoke test.
   # Drop once nixpkgs catches up (and pass `{}` to callPackage below).
   bunVersion = "1.3.13";
   bunSources = {
@@ -60,6 +61,11 @@ let
         # half is rewritten for the new Effect HttpApi (groups/handlers split
         # under instance/httpapi/). Drop once upstream merges.
         patches = (prev.patches or [ ]) ++ [ ./patches/opencode-statusline.patch ];
+
+        postPatch = (prev.postPatch or "") + ''
+          substituteInPlace package.json \
+            --replace-fail '"packageManager": "bun@1.3.14"' '"packageManager": "bun@${bunVersion}"'
+        '';
 
         postConfigure = (prev.postConfigure or "") + ''
           chmod -R u+w packages/opencode/node_modules
