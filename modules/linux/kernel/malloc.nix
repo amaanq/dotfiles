@@ -74,12 +74,13 @@ let
 
   # An output that contains only the shared library, to avoid
   # needlessly bloating the system closure
-  mallocLib =
-    pkgs.runCommand "malloc-provider-${cfg.provider}"
+  mkMallocLib =
+    name: libPath:
+    pkgs.runCommand "malloc-provider-${name}"
       rec {
         preferLocalBuild = true;
         allowSubstitutes = false;
-        origLibPath = providerConf.libPath;
+        origLibPath = libPath;
         libName = baseNameOf origLibPath;
       }
       ''
@@ -87,8 +88,22 @@ let
         cp -L $origLibPath $out/lib/$libName
       '';
 
+  mallocLib = mkMallocLib cfg.provider providerConf.libPath;
+
   # The full path to the selected provider shlib.
   providerLibPath = "${mallocLib}/lib/${mallocLib.libName}";
+
+  # Optional fallback allocator for excluded apps. When null, excluded apps
+  # fall back to libc's allocator (LD_PRELOAD unset).
+  hasFallback = cfg.fallbackProvider != null;
+  fallbackLib =
+    if hasFallback then mkMallocLib cfg.fallbackProvider providers.${cfg.fallbackProvider}.libPath else null;
+  fallbackLibPath = lib.optionalString hasFallback "${fallbackLib}/lib/${fallbackLib.libName}";
+
+  excludedLdPreloadFlag =
+    if hasFallback then ''--set LD_PRELOAD "${fallbackLibPath}"'' else "--unset LD_PRELOAD";
+  excludedLdPreloadShell =
+    if hasFallback then ''export LD_PRELOAD="${fallbackLibPath}"'' else "unset LD_PRELOAD";
 
   needsMozillaFix =
     cfg.mozillaPackages != [ ]
@@ -121,7 +136,8 @@ let
         '') cfg.mozillaPackages}
       '';
 
-  # Create wrapper package for excluded packages that unsets LD_PRELOAD
+  # Create wrapper package for excluded packages. Either drops LD_PRELOAD
+  # (falling back to libc) or swaps in `fallbackProvider`.
   wrappedExcludedPackages =
     pkgs.runCommand "malloc-excluded-wrappers"
       {
@@ -137,14 +153,15 @@ let
           for exe in ${lib.getBin pkg}/bin/*; do
             if [ -x "$exe" ] && [ -f "$exe" ]; then
               exeName=$(basename "$exe")
-              makeWrapper "$exe" "$out/bin/$exeName" --unset LD_PRELOAD
+              makeWrapper "$exe" "$out/bin/$exeName" ${excludedLdPreloadFlag}
             fi
           done
         '') cfg.excludedPackages}
       '';
 
-  # Create wrapper scripts for excluded commands (non-NixOS binaries)
-  # These find the real binary in PATH and exec without LD_PRELOAD
+  # Create wrapper scripts for excluded commands (non-NixOS binaries).
+  # Either drops LD_PRELOAD or swaps in `fallbackProvider`, then finds the
+  # real binary in PATH.
   wrappedExcludedCommands =
     pkgs.runCommand "malloc-excluded-commands"
       {
@@ -158,7 +175,7 @@ let
         ${lib.concatMapStringsSep "\n" (cmd: ''
             cat > "$out/bin/${cmd}" <<'EOF'
           #!${pkgs.runtimeShell}
-          unset LD_PRELOAD
+          ${excludedLdPreloadShell}
           # Find the real binary, skipping this wrapper
           for dir in $(echo "$PATH" | tr ':' '\n'); do
             if [ -x "$dir/${cmd}" ] && [ "$dir/${cmd}" != "$0" ]; then
@@ -221,9 +238,9 @@ in
       default = [ ];
       example = lib.literalExpression "[ pkgs.signal-desktop ]";
       description = ''
-        Packages to completely exclude from the system-wide memory allocator.
-        These packages will be wrapped to unset `LD_PRELOAD` before execution,
-        causing them to use libc's default allocator instead.
+        Packages to exclude from the system-wide memory allocator. Their
+        executables are wrapped to either unset `LD_PRELOAD` (falling back
+        to libc's allocator) or swap in {option}`fallbackProvider` when set.
       '';
     };
 
@@ -235,10 +252,24 @@ in
         "ninja"
       ];
       description = ''
-        Command names to exclude from the system-wide memory allocator.
-        Use this for non-NixOS binaries (e.g., prebuilt tools in external projects).
-        Wrapper scripts will be created that unset `LD_PRELOAD` before executing
-        the real binary found in PATH.
+        Command names to exclude from the system-wide memory allocator. Use
+        this for non-NixOS binaries (e.g., prebuilt tools in external project
+        trees). Wrapper scripts set or unset `LD_PRELOAD` per
+        {option}`fallbackProvider`, then exec the real binary found in PATH.
+      '';
+    };
+
+    environment.memoryAllocator.fallbackProvider = lib.mkOption {
+      type = lib.types.nullOr (lib.types.enum (lib.attrNames providers));
+      default = null;
+      example = "mimalloc";
+      description = ''
+        Allocator used for {option}`excludedPackages` and
+        {option}`excludedCommands`. When `null` (the default), excluded apps
+        run with `LD_PRELOAD` unset, so they use libc's allocator. Set to one
+        of the provider names (e.g. `"mimalloc"`) to route them through that
+        allocator instead — useful when libc's allocator is considered too
+        slow or fragmentation-prone to be an acceptable fallback.
       '';
     };
   };
@@ -257,7 +288,7 @@ in
           pkgs.apparmorRulesFromClosure {
             name = "mallocLib";
             baseRules = [ "mr $path/lib/**.so*" ];
-          } [ mallocLib ]
+          } ([ mallocLib ] ++ lib.optional hasFallback fallbackLib)
         }"
       '';
     };

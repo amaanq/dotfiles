@@ -1187,11 +1187,20 @@ let
   };
 in
 {
-  environment.systemPackages = [
-    chrome-devtools-mcp
-    rtk
-    claude
-  ];
+  options.programs.claude-code.package = lib.mkOption {
+    type = lib.types.package;
+    readOnly = true;
+    internal = true;
+    default = claude;
+  };
 
-  environment.variables.CLAUDE_CONFIG_DIR = "$XDG_CONFIG_HOME/claude";
+  config = {
+    environment.systemPackages = [
+      chrome-devtools-mcp
+      rtk
+      claude
+    ];
+
+    environment.variables.CLAUDE_CONFIG_DIR = "$XDG_CONFIG_HOME/claude";
+  };
 }

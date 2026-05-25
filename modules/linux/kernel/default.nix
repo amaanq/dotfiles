@@ -38,9 +38,10 @@ in
     "mitigations=off"
   ];
 
-  # Use GrapheneOS' hardened_malloc as the system allocator.
+  # Use GrapheneOS' hardened_malloc as the system allocator, and mimalloc as a fallback.
   environment.memoryAllocator = {
     provider = mkIf config.isDesktop "graphene-hardened";
+    fallbackProvider = mkIf config.isDesktop "mimalloc";
 
     mozillaPackages = [
       pkgs.thunderbird
@@ -48,7 +49,11 @@ in
 
     excludedPackages = [
       config.nix.package
-      config.programs.spicetify.spicedSpotify
+      config.programs.claude-code.package
+      config.programs.codex.package
+      config.programs.niri.package
+      config.neovimPackage
+      pkgs.kitty
     ];
   };
 }
