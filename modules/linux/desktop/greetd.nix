@@ -16,6 +16,9 @@ let
   };
 in
 {
+  # Power the display off after 60s idle at the console/greeter.
+  boot.kernelParams = [ "consoleblank=60" ];
+
   services.speechd.enable = false;
 
   # Display manager
