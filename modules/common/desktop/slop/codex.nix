@@ -6,13 +6,13 @@
 let
   inherit (lib.meta) getExe;
 
-  codexVersion = "0.137.0";
+  codexVersion = "0.139.0";
 
   src = pkgs.fetchFromGitHub {
     owner = "openai";
     repo = "codex";
     tag = "rust-v${codexVersion}";
-    hash = "sha256-puszZqi1lZeq8iXWAD9U9+WMnNvzMYKf6wVT9mtjSUU=";
+    hash = "sha256-XjzlkBUkBey+P3tFLDYB3ae5oseUfW5tmzhLzqlqj2E=";
   };
 
   # Verbatim copy of rtk-ai/rtk's hooks/codex/rtk-awareness.md --
@@ -62,8 +62,19 @@ let
       inherit src;
       name = "codex-${codexVersion}-vendor";
       sourceRoot = "source/codex-rs";
-      hash = "sha256-SX5LMO+IWismbH61Jd0g1mgykfav8DrqG+wjyNCWyCo=";
+      hash = "sha256-8mN4OTRJvt2mBYHQXZS55PSOChLqEIiXwPu2y+2MZ9o=";
     };
+
+    # Upstream's postPatch strips `lto = "fat"` from the release profile, but
+    # codex 0.139.0 switched the profile to `lto = "thin"`, so the replace-fail
+    # aborts the build. Reapply the same intent against the new value.
+    postPatch = ''
+      substituteInPlace $cargoDepsCopy/*/webrtc-sys-*/build.rs \
+        --replace-fail "cargo:rustc-link-lib=static=webrtc" "cargo:rustc-link-lib=dylib=webrtc"
+      substituteInPlace Cargo.toml \
+        --replace-fail 'lto = "thin"' "" \
+        --replace-fail 'codegen-units = 1' ""
+    '';
   });
 
   # Reuse the rose-pine .tmTheme already vendored for bat. Codex's `tui.theme`
