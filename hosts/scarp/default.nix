@@ -18,6 +18,8 @@ lib.nixosSystem' "server" (
     builderSpeedFactor = 4;
     builderMaxJobs = 32;
 
+    zramSwap.enable = true;
+
     networking = {
       domain = "amaanq.com";
       hostName = "scarp";
