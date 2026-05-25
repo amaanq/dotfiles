@@ -20,6 +20,11 @@
           "output_file": "hosts/derecho/secrets/builderKey.age",
           "output_sha256": "a923cfe67f8d4010a0db4f6c406d438d2dc312facbe4e3f42b66756a5cc46088"
         },
+        "circusAgentToken": {
+          "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
+          "output_file": "hosts/derecho/secrets/circusAgentToken.age",
+          "output_sha256": "302dcdf9602cca6bc15496bb1ee7e319d6c55391728cd38f1f9df532c04414f5"
+        },
         "gitIdentity": {
           "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
           "output_file": "hosts/derecho/secrets/gitIdentity.age",
@@ -116,11 +121,6 @@
           "output_file": "hosts/esker/secrets/builderKey.age",
           "output_sha256": "e6a4ddf96799f80720d030f97e96549fd3c279a9b104aba8b59f9085b76b5a49"
         },
-        "circusAgentClientKey": {
-          "source_sha256": "983ed70cb25cd5845cf388dd2562ef51f447031152ecbb22487c551ce5907414",
-          "output_file": "hosts/esker/secrets/circusAgentClientKey.age",
-          "output_sha256": "325d469f03f41e5c4944cafe9eb66ca183352ae2e7e67a3967752d35138eed5c"
-        },
         "circusAgentToken": {
           "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
           "output_file": "hosts/esker/secrets/circusAgentToken.age",
@@ -211,6 +211,11 @@
           "source_sha256": "b3843bab297d1621662693e71ad7803cf34358c53f495d22934af57975c5b52a",
           "output_file": "hosts/karst/secrets/builderKey.age",
           "output_sha256": "6e1d755809201896f67a6ac9d125c0905aff5d08ba06ede6bcd7037485f865ee"
+        },
+        "circusAgentToken": {
+          "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
+          "output_file": "hosts/karst/secrets/circusAgentToken.age",
+          "output_sha256": "1c997e9ffb08d0cfd24bcc71757e05049474c8d3e1bd44c5377b35f62f255e41"
         },
         "gitIdentity": {
           "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
@@ -379,6 +384,11 @@
           "output_file": "hosts/loess/secrets/builderKey.age",
           "output_sha256": "dab18f49fbb0ce6c3188d18be0e5e68c1aa7436da5dffd7e91a8d4bce9f019d4"
         },
+        "circusAgentToken": {
+          "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
+          "output_file": "hosts/loess/secrets/circusAgentToken.age",
+          "output_sha256": "bbc79777133bbb8e9d9515fa1fa2463b67e9ca5c58b7c111f5a6f21819a6aedb"
+        },
         "gitIdentity": {
           "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
           "output_file": "hosts/loess/secrets/gitIdentity.age",
@@ -459,6 +469,11 @@
           "source_sha256": "b3843bab297d1621662693e71ad7803cf34358c53f495d22934af57975c5b52a",
           "output_file": "hosts/moraine/secrets/builderKey.age",
           "output_sha256": "07d4be8bf7c94c7c2e1a2a7d13a2a6f57a2e336dc82bbc3a8c625f84ecee0308"
+        },
+        "circusAgentToken": {
+          "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
+          "output_file": "hosts/moraine/secrets/circusAgentToken.age",
+          "output_sha256": "5efc28c1f1ef73c0f2a764f31f6a2380996c385aaa17f08af89718ade75d243f"
         },
         "gitIdentity": {
           "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
@@ -545,6 +560,11 @@
           "source_sha256": "b3843bab297d1621662693e71ad7803cf34358c53f495d22934af57975c5b52a",
           "output_file": "hosts/nunatak/secrets/builderKey.age",
           "output_sha256": "8b780a8fd7adf4e9d5af7af33b4c453d8a897b47a09893f003a8bb9cc6ce3081"
+        },
+        "circusAgentToken": {
+          "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
+          "output_file": "hosts/nunatak/secrets/circusAgentToken.age",
+          "output_sha256": "363d60ab3270d517c3229faca66c012ea3593bb0e78bd819b2f4a922242d4e45"
         },
         "gitIdentity": {
           "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
@@ -686,11 +706,6 @@
           "source_sha256": "2f3e9cfb3e9cec7ce8097ab1caddb492b78c4a7bcb7105a17e81284598a9e9ef",
           "output_file": "hosts/scarp/secrets/bulwarkSecret.age",
           "output_sha256": "a4a0b2a88537cc665fcaa60918a00311c8655ed8812ca2c6a5223be16e01c309"
-        },
-        "circusAgentClientKey": {
-          "source_sha256": "983ed70cb25cd5845cf388dd2562ef51f447031152ecbb22487c551ce5907414",
-          "output_file": "hosts/scarp/secrets/circusAgentClientKey.age",
-          "output_sha256": "daf127cfd1455c4c9ea96ceb3db568ac8c8b5a8eb2d76dd698f46243bb91c7de"
         },
         "circusAgentToken": {
           "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
@@ -1004,6 +1019,11 @@
           "source_sha256": "b3843bab297d1621662693e71ad7803cf34358c53f495d22934af57975c5b52a",
           "output_file": "hosts/tarn/secrets/builderKey.age",
           "output_sha256": "7047adcf9398d7fb7f0997e9862bab8f6571e04b5c0f968df339f015db64f929"
+        },
+        "circusAgentToken": {
+          "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
+          "output_file": "hosts/tarn/secrets/circusAgentToken.age",
+          "output_sha256": "d277f4d1c270858deca603e966d78dda0dc32d2557bc28d1c47e87cb87a12821"
         },
         "gitIdentity": {
           "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",

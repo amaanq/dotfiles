@@ -24,6 +24,7 @@ in
 
     isLaptop = mkValue false;
     isVirtual = mkValue false;
+    hasKvm = mkValue true;
 
     isBuilder = mkValue false;
     builderSpeedFactor = mkValue 1;

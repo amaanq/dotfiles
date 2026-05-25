@@ -244,6 +244,17 @@ in
         "system-features"
         "auto-allocate-uids"
       ]
+    )
+    # nixpkgs puts "kvm" in the system-features default unconditionally
+    # which is a lie on VMs without nested virt that gets kvm-requiring
+    # builds scheduled there.
+    |> flip mergeAttrs (
+      optionalAttrs (!config.hasKvm) {
+        system-features = mkForce (
+          remove "kvm" (options.nix.settings.type.getSubOptions [ ]).system-features.default
+          ++ (import (self + /flake.nix)).nixConfig.system-features
+        );
+      }
     );
 
   nix.optimise.automatic = !config.isDarwin;

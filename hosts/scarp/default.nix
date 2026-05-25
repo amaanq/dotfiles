@@ -15,6 +15,7 @@ lib.nixosSystem' "server" (
 
     type = "server";
     isBuilder = true;
+    builderSpeedFactor = 4;
     builderMaxJobs = 32;
 
     networking = {

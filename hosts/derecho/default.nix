@@ -17,7 +17,6 @@ lib.nixosSystem' "desktop" (
     type = "desktop";
     cpuArch = "MZEN5";
     isBuilder = true;
-    builderSpeedFactor = 4;
     builderMaxJobs = 32;
 
     networking.hostName = "derecho";

@@ -14,6 +14,8 @@ lib.nixosSystem' "server" (
     imports = collectNix ./. |> remove ./default.nix;
 
     type = "server";
+    isBuilder = true;
+    builderMaxJobs = 12;
 
     secrets.id.rekeyFile = ./id.age;
     services.openssh.settings = {

@@ -21,5 +21,7 @@
   nixpkgs.hostPlatform = "aarch64-linux";
   nixpkgs.buildPlatform = "x86_64-linux";
 
+  hasKvm = false;
+
   boot.tmp.cleanOnBoot = true;
 }

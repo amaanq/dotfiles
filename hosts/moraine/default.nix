@@ -14,6 +14,8 @@ lib.nixosSystem' "server" (
     imports = collectNix ./. |> remove ./default.nix;
 
     type = "server";
+    isBuilder = true;
+    builderMaxJobs = 16;
 
     services.openssh.settings = {
       PermitRootLogin = "yes";
