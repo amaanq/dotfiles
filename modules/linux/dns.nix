@@ -100,6 +100,7 @@ in
   # Order hickory-dns before nss-lookup.target so resolver-dependent units wait.
   systemd.services.hickory-dns = {
     before = [ "nss-lookup.target" ];
+    restartTriggers = [ config.services.hickory-dns.configFile ];
     wants = [ "nss-lookup.target" ];
   };
 

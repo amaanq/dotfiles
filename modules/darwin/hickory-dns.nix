@@ -6,11 +6,21 @@
 }:
 let
   inherit (lib) enabled singleton;
+  inherit (lib.attrsets)
+    filterAttrs
+    isAttrs
+    mapAttrs
+    ;
   inherit (lib.meta) getExe';
   inherit (lib.modules) mkIf;
   inherit (lib.options) mkEnableOption mkOption mkPackageOption;
+  inherit (lib.strings) escapeShellArgs;
+  inherit (lib.lists) isList map;
   inherit (lib.types)
+    either
+    enum
     listOf
+    nullOr
     path
     port
     str
@@ -20,6 +30,14 @@ let
   cfg = config.services.hickory-dns;
   toml = pkgs.formats.toml { };
   hostname = config.networking.hostName;
+  cleanToml =
+    value:
+    if isList value then
+      map cleanToml value
+    else if isAttrs value then
+      value |> filterAttrs (_: value: value != null) |> mapAttrs (_: cleanToml)
+    else
+      value;
 
   # nixpkgs marks hickory-dns linux-only; the build itself works on darwin.
   hickoryPackage = pkgs.hickory-dns.overrideAttrs (old: {
@@ -35,8 +53,8 @@ in
       default = hickoryPackage;
     };
     configFile = mkOption {
-      type = path;
-      default = toml.generate "hickory-dns.toml" cfg.settings;
+      type = either path str;
+      default = toml.generate "hickory-dns.toml" <| cleanToml cfg.settings;
     };
     settings = mkOption {
       type = submodule {
@@ -55,7 +73,31 @@ in
             default = 53;
           };
           zones = mkOption {
-            type = listOf toml.type;
+            type =
+              listOf
+              <| submodule (
+                { config, ... }:
+                {
+                  freeformType = toml.type;
+                  options = {
+                    zone = mkOption {
+                      type = str;
+                    };
+                    zone_type = mkOption {
+                      type = enum [
+                        "Primary"
+                        "Secondary"
+                        "External"
+                      ];
+                      default = "Primary";
+                    };
+                    file = mkOption {
+                      type = nullOr (either path str);
+                      default = if config.zone_type != "External" then "${config.zone}.zone" else null;
+                    };
+                  };
+                }
+              );
             default = [ ];
           };
         };
@@ -71,7 +113,13 @@ in
         "/bin/sh"
         "-c"
         /* bash */ ''
-          /bin/wait4path /nix/store && exec ${getExe' cfg.package "hickory-dns"} --config ${cfg.configFile}
+          /bin/wait4path /nix/store && exec ${
+            escapeShellArgs [
+              (getExe' cfg.package "hickory-dns")
+              "--config"
+              cfg.configFile
+            ]
+          }
         ''
       ];
       KeepAlive = true;
