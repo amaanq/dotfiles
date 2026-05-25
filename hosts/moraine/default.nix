@@ -30,35 +30,6 @@ lib.nixosSystem' "server" (
     ];
     nix.settings.trusted-users = [ "max" ];
 
-    # Many of your common/ and linux/ modules are in disabledModules for ppc64
-    # (flake-input pkgs that can't cross-build). Put plain nixpkgs equivalents
-    # here so basic dev/ops tools are present. TODO: factor into a per-server
-    # ppc64 bootstrap module rather than duplicating on every ppc64 host.
-    environment.systemPackages = [
-      # Rust toolchain — desktop rust.nix uses fenix (no ppc64), and
-      # `type = "server"` doesn't include it anyway. Stable nixpkgs rustc
-      # only. The rustc-unwrapped overlay patches bootstrap's copy_link_internal
-      # to survive symlink-over-dir collisions at compile.rs:830.
-      #
-      # Use rustc-unwrapped (the actual ppc64 ELF binary) instead of pkgs.rustc
-      # (a runCommand-built bash wrapper). The wrapper's `#!@shell@` shebang
-      # gets substituted with `pkgsBuildHost.bash` (an x86_64 ELF) because
-      # runCommand always uses the build-host stdenv — making cargo fail to
-      # exec rustc with `Exec format error (os error 8)`. The unwrapped binary
-      # has none of the wrapper's flag-injection logic, but our build doesn't
-      # need it (no sysroot override, no defaultArgs).
-      pkgs.rustc-unwrapped
-      pkgs.cargo
-      # cargo invokes `cc` for linking. clang-wrapper provides `cc` and pulls
-      # in binutils-wrapper for `ld`. Reuses LLVM 21 already in the rust
-      # closure rather than pulling a separate gcc 15.
-      pkgs.clang
-      # rustfmt excluded: needs rustc_private for the TARGET (ppc64), but
-      # rustc bootstrap only builds rustc_private for HOST. Cross-compile
-      # is impossible without binfmt+QEMU emulation of ppc64 rustc on x86.
-      # clippy excluded: same reason — depends on rustc-dev internals.
-    ];
-
     secrets.password.rekeyFile = ./password.age;
     users.users = {
       root = {
