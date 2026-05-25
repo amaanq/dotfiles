@@ -37,7 +37,7 @@ in
         {
           name = "high-load-performance";
           "if".all = [
-            { is-more-than = 0.8; value = "%cpu-usage"; }
+            { is-more-than = 0.8; value.cpu-usage-since = "2sec"; }
             { is-less-than = 30.0; value = "$cpu-idle-seconds"; }
             { is-less-than = 75.0; value = "$cpu-temperature"; }
           ];
@@ -61,8 +61,8 @@ in
         {
           name = "moderate-load-balanced";
           "if".all = [
-            { is-more-than = 0.4; value = "%cpu-usage"; }
-            { is-less-than = 0.8; value = "%cpu-usage"; }
+            { is-more-than = 0.4; value.cpu-usage-since = "5sec"; }
+            { is-less-than = 0.8; value.cpu-usage-since = "5sec"; }
           ];
           priority = 60;
           cpu.energy-performance-preference = { "if".is-energy-performance-preference-available = "balance_performance"; "then" = "balance_performance"; };
@@ -74,7 +74,7 @@ in
           name = "low-activity-power-saving";
           "if".all = [
             "?discharging"
-            { is-less-than = 0.2; value = "%cpu-usage"; }
+            { is-less-than = 0.2; value.cpu-usage-since = "10sec"; }
             { is-more-than = 60.0; value = "$cpu-idle-seconds"; }
           ];
           priority = 50;
