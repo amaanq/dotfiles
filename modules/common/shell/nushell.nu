@@ -144,6 +144,7 @@ $env.config.keybindings ++= [
   }
 ]
 
+
 $env.config.keybindings ++= [
   {
     name: help_menu
@@ -717,19 +718,6 @@ alias clw = clod-work
 alias cl2 = claude2
 alias cx = codex
 alias cx2 = codex2
-
-def --wrapped glm-code [...rest] {
-  with-env {
-    ANTHROPIC_AUTH_TOKEN: $env.GLM_API_KEY
-    ANTHROPIC_BASE_URL: 'https://open.bigmodel.cn/api/anthropic'
-    ANTHROPIC_DEFAULT_HAIKU_MODEL: 'glm-5'
-    ANTHROPIC_DEFAULT_SONNET_MODEL: 'glm-5'
-    ANTHROPIC_DEFAULT_OPUS_MODEL: 'glm-5'
-    API_TIMEOUT_MS: '3000000'
-  } {
-    ^claude ...$rest
-  }
-}
 
 alias .r = ./rebuild.nu
 

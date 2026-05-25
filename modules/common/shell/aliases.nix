@@ -1,19 +1,4 @@
 {
-  secrets.openai_api_key = {
-    rekeyFile = ./openai-key.age;
-    owner = "amaanq";
-  };
-
-  secrets.anthropic_api_key = {
-    rekeyFile = ./anthropic-key.age;
-    owner = "amaanq";
-  };
-
-  secrets.glm_api_key = {
-    rekeyFile = ./glm-key.age;
-    owner = "amaanq";
-  };
-
   environment.shellAliases = {
     la = "ls --all";
     l = "ls --long";

@@ -16,7 +16,9 @@ let
     listToAttrs
     mapAttrs
     mapAttrsToList
+    mkIf
     optionals
+    optionalString
     readFile
     replaceStrings
     theme
@@ -57,6 +59,47 @@ let
 
   shellAliases = config.environment.shellAliases |> filterAttrs (_: value: value != null);
 
+  desktopSecretEnv = optionalString config.isDesktop /* nu */ ''
+    if ("${config.secrets.openai_api_key.path}" | path exists) {
+      $env.OPENAI_API_KEY = (open ${config.secrets.openai_api_key.path} | str trim)
+    }
+    if ("${config.secrets.anthropic_api_key.path}" | path exists) {
+      $env.ANTHROPIC_API_KEY = (open ${config.secrets.anthropic_api_key.path} | str trim)
+    }
+    if ("${config.secrets.glm_api_key.path}" | path exists) {
+      $env.GLM_API_KEY = (open ${config.secrets.glm_api_key.path} | str trim)
+    }
+    if ("${config.secrets.kagi_session_token.path}" | path exists) {
+      $env.KAGI_SESSION_TOKEN = (open ${config.secrets.kagi_session_token.path} | str trim)
+    }
+  '';
+
+  openstackCommands = optionalString config.isDesktop /* nu */ ''
+    # OSUOSL OpenStack
+    def --env os-load [auth_url: string, project_id: string, password_path: string] {
+      $env.OS_AUTH_URL = $auth_url
+      $env.OS_PROJECT_ID = $project_id
+      $env.OS_PROJECT_NAME = "Nix/NixOS Tree-sitter"
+      $env.OS_USER_DOMAIN_NAME = "Default"
+      $env.OS_PROJECT_DOMAIN_ID = "default"
+      $env.OS_USERNAME = "amaanq"
+      $env.OS_REGION_NAME = "RegionOne"
+      $env.OS_INTERFACE = "public"
+      $env.OS_IDENTITY_API_VERSION = "3"
+      $env.OS_PASSWORD = (open $password_path | str trim)
+      hide-env -i OS_TENANT_ID
+      hide-env -i OS_TENANT_NAME
+    }
+
+    def --env os-arm [] {
+      os-load "https://arm-openstack.osuosl.org:5000/v3/" "06f88dbf8ad94705aaa966ad43540501" "${config.secrets.openstack_aarch64_password.path}"
+    }
+
+    def --env os-ppc64 [] {
+      os-load "https://openpower-openstack.osuosl.org:5000/v3/" "aab72902cacf4645a458036486a6b072" "${config.secrets.openstack_powerpc64_password.path}"
+    }
+  '';
+
   # cade's own nushell hook
   cadeHook =
     pkgs.runCommand "cade-hook.nu" { }
@@ -72,7 +115,7 @@ let
         ${
           environmentVariables
           |> filterAttrs (name: const <| baseVariablesMap ? ${name})
-          |> mapAttrsToList (name: value: "$env.${name} = $\"${value}\"")
+          |> mapAttrsToList (name: value: /* nu */ "$env.${name} = $\"${value}\"")
           |> concatStringsSep "\n"
         }
 
@@ -80,11 +123,11 @@ let
         ${
           environmentVariables
           |> filterAttrs (name: const <| !(baseVariablesMap ? ${name}))
-          |> mapAttrsToList (name: value: "$env.${name} = $\"${value}\"")
+          |> mapAttrsToList (name: value: /* nu */ "$env.${name} = $\"${value}\"")
           |> concatStringsSep "\n"
         }
 
-        ${lib.optionalString (config.environment.sessionVariables ? LD_PRELOAD) ''
+        ${lib.optionalString (config.environment.sessionVariables ? LD_PRELOAD) /* nu */ ''
           # nu's wrapper preloads mimalloc; hand the system allocator back to
           # everything nu spawns. Nested nu re-enters the wrapper → mimalloc.
           $env.LD_PRELOAD = "${config.environment.sessionVariables.LD_PRELOAD}"
@@ -111,8 +154,10 @@ let
             ''${pkgs.buildPackages.zoxide}/bin/zoxide init nushell --cmd cd >> "$out"''
         }
 
-        # Cade appends a pre_prompt closure that reloads only on PWD change.
-        source ${cadeHook}
+        ${optionalString config.isDesktop /* nu */ ''
+          # Cade appends a pre_prompt closure that reloads only on PWD change.
+          source ${cadeHook}
+        ''}
 
         if ($env.USER == "amaanq") {
           source ${
@@ -123,43 +168,13 @@ let
         }
 
         if ($env.USER == "amaanq") {
-          if ("${config.secrets.openai_api_key.path}" | path exists) {
-            $env.OPENAI_API_KEY = (open ${config.secrets.openai_api_key.path} | str trim)
-          }
           if ("${config.secrets.githubToken.path}" | path exists) {
             $env.GH_TOKEN = (open ${config.secrets.githubToken.path} | parse "access-tokens = github.com={token}" | get token.0)
           }
-          if ("${config.secrets.glm_api_key.path}" | path exists) {
-            $env.GLM_API_KEY = (open ${config.secrets.glm_api_key.path} | str trim)
-          }
-          if ("${config.secrets.kagi_session_token.path}" | path exists) {
-            $env.KAGI_SESSION_TOKEN = (open ${config.secrets.kagi_session_token.path} | str trim)
-          }
+        ${desktopSecretEnv}
         }
 
-        # OSUOSL OpenStack
-        def --env os-load [auth_url: string, project_id: string, password_path: string] {
-          $env.OS_AUTH_URL = $auth_url
-          $env.OS_PROJECT_ID = $project_id
-          $env.OS_PROJECT_NAME = "Nix/NixOS Tree-sitter"
-          $env.OS_USER_DOMAIN_NAME = "Default"
-          $env.OS_PROJECT_DOMAIN_ID = "default"
-          $env.OS_USERNAME = "amaanq"
-          $env.OS_REGION_NAME = "RegionOne"
-          $env.OS_INTERFACE = "public"
-          $env.OS_IDENTITY_API_VERSION = "3"
-          $env.OS_PASSWORD = (open $password_path | str trim)
-          hide-env -i OS_TENANT_ID
-          hide-env -i OS_TENANT_NAME
-        }
-
-        def --env os-arm [] {
-          os-load "https://arm-openstack.osuosl.org:5000/v3/" "06f88dbf8ad94705aaa966ad43540501" "${config.secrets.openstack_aarch64_password.path}"
-        }
-
-        def --env os-ppc64 [] {
-          os-load "https://openpower-openstack.osuosl.org:5000/v3/" "aab72902cacf4645a458036486a6b072" "${config.secrets.openstack_powerpc64_password.path}"
-        }
+        ${openstackCommands}
 
         # Rose Pine theme
         $env.config.color_config = {
@@ -201,19 +216,36 @@ let
       '';
 in
 {
-  secrets.kagi_session_token = {
-    rekeyFile = ./kagi-session-token.age;
-    owner = "amaanq";
-  };
+  secrets = mkIf config.isDesktop {
+    openai_api_key = {
+      rekeyFile = ./openai-key.age;
+      owner = "amaanq";
+    };
 
-  secrets.openstack_aarch64_password = {
-    rekeyFile = ./openstack-aarch64-password.age;
-    owner = "amaanq";
-  };
+    anthropic_api_key = {
+      rekeyFile = ./anthropic-key.age;
+      owner = "amaanq";
+    };
 
-  secrets.openstack_powerpc64_password = {
-    rekeyFile = ./openstack-powerpc64-password.age;
-    owner = "amaanq";
+    glm_api_key = {
+      rekeyFile = ./glm-key.age;
+      owner = "amaanq";
+    };
+
+    kagi_session_token = {
+      rekeyFile = ./kagi-session-token.age;
+      owner = "amaanq";
+    };
+
+    openstack_aarch64_password = {
+      rekeyFile = ./openstack-aarch64-password.age;
+      owner = "amaanq";
+    };
+
+    openstack_powerpc64_password = {
+      rekeyFile = ./openstack-powerpc64-password.age;
+      owner = "amaanq";
+    };
   };
 
   environment.systemPackages = optionals config.isDesktop [
@@ -222,7 +254,7 @@ in
 
   environment.etc."nushell/config.nu".source = configNu;
 
-  environment.etc."nufmt/nufmt.nuon".text = ''
+  environment.etc."nufmt/nufmt.nuon".text = /* nu */ ''
     {
         indent: 4
         line_length: 100

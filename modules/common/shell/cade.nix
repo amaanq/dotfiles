@@ -1,11 +1,13 @@
-{ lib, ... }:
+{ config, lib, ... }:
 let
-  inherit (lib) enabled;
+  inherit (lib) enabled mkIf;
 in
 {
-  programs.cade = enabled {
-    enableBashIntegration = false;
-    enableZshIntegration = false;
-    enableFishIntegration = false;
+  config = mkIf config.isDesktop {
+    programs.cade = enabled {
+      enableBashIntegration = false;
+      enableZshIntegration = false;
+      enableFishIntegration = false;
+    };
   };
 }

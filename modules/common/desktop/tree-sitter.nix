@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ pkgs, ... }:
 let
   tree-sitter-custom = pkgs.tree-sitter.overrideAttrs (old: rec {
     version = "0.26.6";
@@ -20,18 +20,15 @@ let
     };
     patches = [ ];
   });
-
-  tree-sitter = if config.isDesktop then tree-sitter-custom else pkgs.tree-sitter;
 in
 {
-  environment.shellAliases = lib.mkIf config.isDesktop {
+  environment.shellAliases = {
     ts = "tree-sitter";
     tsa = "tree-sitter-alpha";
     tss = "tree-sitter-stable";
   };
   environment.systemPackages = [
-    tree-sitter
-  ] ++ lib.optionals config.isDesktop [
+    tree-sitter-custom
     pkgs.python313Packages.pytest
   ];
 }

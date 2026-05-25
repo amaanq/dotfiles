@@ -21,6 +21,6 @@ in
     cbrd = "cargo build --profile release-dev";
     ci = "cargo install";
     ct = "cargo test";
-    cx = "cargo xtask";
+    cxt = "cargo xtask";
   };
 }
