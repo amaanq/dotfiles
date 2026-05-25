@@ -1,15 +1,5 @@
-{
-  self,
-  config,
-  lib,
-  pkgs,
-  nativelink,
-  ...
-}:
+{ pkgs, nativelink, ... }:
 let
-  inherit (config.networking) domain;
-  inherit (lib) merge;
-
   gib = 1024 * 1024 * 1024;
 
   nativelinkConfig = (pkgs.formats.json { }).generate "nativelink.json5" {
@@ -36,14 +26,21 @@ let
         filesystem = {
           content_path = "/var/cache/nativelink/ac";
           temp_path = "/var/cache/nativelink/ac-tmp";
-          eviction_policy.max_bytes = 2 * gib;
+          eviction_policy.max_bytes = 10 * gib;
+        };
+      }
+      {
+        name = "AC_CHECKED";
+        completeness_checking = {
+          backend.ref_store.name = "AC_MAIN";
+          cas_store.ref_store.name = "CAS_MAIN";
         };
       }
     ];
     servers = [
       {
-        # plaintext h2c as nginx terminates TLS and grpc_pass-es here
-        listener.http.socket_address = "127.0.0.1:50051";
+        listener.http.socket_address = "100.64.0.2:50051";
+        listener.http.freebind = true;
         services = {
           cas = [
             {
@@ -54,33 +51,34 @@ let
           ac = [
             {
               instance_name = "main";
-              ac_store = "AC_MAIN";
+              ac_store = "AC_CHECKED";
             }
           ];
           capabilities = [ { instance_name = "main"; } ];
-          bytestream.cas_stores.main = "CAS_MAIN";
+          bytestream = [
+            {
+              instance_name = "main";
+              cas_store = "CAS_MAIN";
+            }
+          ];
         };
       }
     ];
   };
 in
 {
-  imports = [ (self + /modules/nginx.nix) ];
-
-  secrets.nativelinkAuthMap = {
-    rekeyFile = ./auth-map.age;
-    owner = "nginx";
-    mode = "0440";
-  };
-
-  # RBE cache backend for Android + Chromium builds:
   systemd.services.nativelink = {
     description = "A Nix-powered, high-performance build cache and remote execution server";
-    after = [ "network.target" ];
+    after = [
+      "network.target"
+      "tailscaled.service"
+    ];
     wantedBy = [ "multi-user.target" ];
 
     serviceConfig = {
-      ExecStart = "${nativelink.packages.${pkgs.system}.default}/bin/nativelink ${nativelinkConfig}";
+      ExecStart = "${
+        nativelink.packages.${pkgs.stdenv.hostPlatform.system}.default
+      }/bin/nativelink ${nativelinkConfig}";
       Restart = "on-failure";
       RestartSec = 2;
 
@@ -89,9 +87,7 @@ in
       DynamicUser = true;
       CacheDirectory = "nativelink";
 
-      # Only nginx (loopback) reaches the :50051 listener. When this moves to a
-      # tailnet bind, widen IPAddressAllow to the tailnet CIDR instead.
-      IPAddressAllow = [ "localhost" ];
+      IPAddressAllow = [ "100.64.0.0/10" ];
       IPAddressDeny = [ "any" ];
 
       AmbientCapabilities = [ "" ];
@@ -126,27 +122,6 @@ in
         "~@privileged"
       ];
       UMask = "0077";
-    };
-  };
-
-  services.nginx.appendHttpConfig = ''
-    include ${config.secrets.nativelinkAuthMap.path};
-  '';
-
-  services.nginx.virtualHosts."android.${domain}" = merge config.services.nginx.sslTemplate {
-    extraConfig = ''
-      client_max_body_size 4G;
-      grpc_read_timeout 600s;
-      grpc_send_timeout 600s;
-    '';
-    locations."/" = {
-      extraConfig = ''
-        if ($rbe_auth_ok = 0) {
-          return 403;
-        }
-        client_max_body_size 4G;
-        grpc_pass grpc://127.0.0.1:50051;
-      '';
     };
   };
 }
