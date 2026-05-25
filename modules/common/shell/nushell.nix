@@ -12,6 +12,7 @@ let
     const
     filterAttrs
     flatten
+    getExe
     listToAttrs
     mapAttrs
     mapAttrsToList
@@ -55,6 +56,13 @@ let
     |> filterAttrs (name: const <| name != "TERM" && name != "XDG_DATA_DIRS");
 
   shellAliases = config.environment.shellAliases |> filterAttrs (_: value: value != null);
+
+  # cade's own nushell hook
+  cadeHook =
+    pkgs.runCommand "cade-hook.nu" { }
+      ''${getExe config.programs.cade.package} --config ${
+        (pkgs.formats.toml { }).generate "cade-config.toml" { verbosity = "normal"; }
+      } hook nushell >> "$out"'';
 
   configNu =
     pkgs.writeText "config.nu" # nu
@@ -103,34 +111,8 @@ let
             ''${pkgs.buildPackages.zoxide}/bin/zoxide init nushell --cmd cd >> "$out"''
         }
 
-        # direnv
-        $env.config = ($env.config? | default {})
-        $env.config.hooks = ($env.config.hooks? | default {})
-        $env.config.hooks.pre_prompt = (
-            $env.config.hooks.pre_prompt?
-            | default []
-            | append {||
-                ${pkgs.direnv}/bin/direnv export json
-                | from json --strict
-                | default {}
-                | items {|key, value|
-                    let value = do (
-                        {
-                          "PATH": {
-                            from_string: {|s| $s | split row (char esep) | path expand --no-symlink }
-                            to_string: {|v| $v | path expand --no-symlink | str join (char esep) }
-                          }
-                        }
-                        | merge ($env.ENV_CONVERSIONS? | default {})
-                        | get ([[value, optional, insensitive]; [$key, true, true] [from_string, true, false]] | into cell-path)
-                        | if ($in | is-empty) { {|x| $x} } else { $in }
-                    ) $value
-                    return [ $key $value ]
-                }
-                | into record
-                | load-env
-            }
-        )
+        # Cade appends a pre_prompt closure that reloads only on PWD change.
+        source ${cadeHook}
 
         if ($env.USER == "amaanq") {
           source ${
