@@ -20,6 +20,11 @@
           "output_file": "hosts/derecho/secrets/builderKey.age",
           "output_sha256": "a923cfe67f8d4010a0db4f6c406d438d2dc312facbe4e3f42b66756a5cc46088"
         },
+        "circusAgentCfarmToken": {
+          "source_sha256": "340dec5808c5494c6e027bf37010d033d59563ccf11ea491ac42b6ffd3118acb",
+          "output_file": "hosts/derecho/secrets/circusAgentCfarmToken.age",
+          "output_sha256": "7a85bb5cc031ef8f8aa9b9b2f322e809e900901043ca2e91939aa532121cd72d"
+        },
         "circusAgentToken": {
           "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
           "output_file": "hosts/derecho/secrets/circusAgentToken.age",
@@ -120,6 +125,11 @@
           "source_sha256": "b3843bab297d1621662693e71ad7803cf34358c53f495d22934af57975c5b52a",
           "output_file": "hosts/esker/secrets/builderKey.age",
           "output_sha256": "e6a4ddf96799f80720d030f97e96549fd3c279a9b104aba8b59f9085b76b5a49"
+        },
+        "circusAgentCfarmToken": {
+          "source_sha256": "340dec5808c5494c6e027bf37010d033d59563ccf11ea491ac42b6ffd3118acb",
+          "output_file": "hosts/esker/secrets/circusAgentCfarmToken.age",
+          "output_sha256": "2b0e6c12a82181c6e921a83258524e4ff4ef0bb041017b37e748b6c6a952cf0e"
         },
         "circusAgentToken": {
           "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
@@ -297,6 +307,11 @@
           "source_sha256": "b3843bab297d1621662693e71ad7803cf34358c53f495d22934af57975c5b52a",
           "output_file": "hosts/lahar/secrets/builderKey.age",
           "output_sha256": "65371e8d75f3ca3421f384d2d3a148d7f2e38f419df1ea712533b297c8268e58"
+        },
+        "circusAgentCfarmToken": {
+          "source_sha256": "340dec5808c5494c6e027bf37010d033d59563ccf11ea491ac42b6ffd3118acb",
+          "output_file": "hosts/lahar/secrets/circusAgentCfarmToken.age",
+          "output_sha256": "48c48f9624ea3adcd4a8bf0512d7a3bba9d6c55f6d790a74337e802deded7d6f"
         },
         "gitIdentity": {
           "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
