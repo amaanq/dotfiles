@@ -1,4 +1,9 @@
-{ lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   inherit (lib) disabled enabled;
 in
@@ -7,10 +12,11 @@ in
     doc = disabled;
     dev = enabled;
     info = disabled;
-    man = enabled;
+    man.enable = config.isDesktop; # This forces perl to be compiled on my powerpc machines
   };
 
-  environment.systemPackages = [
+  # See above comment
+  environment.systemPackages = lib.optionals config.isDesktop [
     pkgs.man-pages
     pkgs.man-pages-posix
   ];
