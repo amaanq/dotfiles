@@ -7,6 +7,55 @@
 }:
 let
   inherit (lib) enabled;
+
+  bcachefsShrink = pkgs.writeShellScript "bcachefs-btree-cache-shrink" ''
+    set -eu
+
+    to_bytes() {
+      ${pkgs.gawk}/bin/awk '
+        function mult(s) {
+          if (s == "K") return 1024
+          if (s == "M") return 1024 * 1024
+          if (s == "G") return 1024 * 1024 * 1024
+          if (s == "T") return 1024 * 1024 * 1024 * 1024
+          return 1
+        }
+        {
+          v = $1
+          s = substr(v, length(v), 1)
+          if (s ~ /[kKmMgGtT]/) {
+            s = toupper(s)
+            sub(/[kKmMgGtT]$/, "", v)
+            printf "%.0f\n", v * mult(s)
+          } else {
+            printf "%.0f\n", v
+          }
+        }'
+    }
+
+    soft=$((16 * 1024 * 1024 * 1024))
+    hard=$((32 * 1024 * 1024 * 1024))
+
+    for d in /sys/fs/bcachefs/*; do
+      [ -r "$d/btree_cache_size" ] || continue
+      [ -w "$d/internal/trigger_btree_cache_shrink" ] || continue
+      echo 0 > "$d/options/btree_node_prefetch" 2>/dev/null || true
+
+      bytes=$(to_bytes < "$d/btree_cache_size")
+      passes=0
+      if [ "$bytes" -ge "$hard" ]; then
+        passes=8
+      elif [ "$bytes" -ge "$soft" ]; then
+        passes=3
+      fi
+
+      i=0
+      while [ "$i" -lt "$passes" ]; do
+        echo 200000 > "$d/internal/trigger_btree_cache_shrink" || true
+        i=$((i + 1))
+      done
+    done
+  '';
 in
 {
   imports = [
@@ -102,7 +151,7 @@ in
     ACTION=="add", SUBSYSTEM=="drm", KERNEL=="card[0-9]*", DRIVERS=="amdgpu", ATTR{device/power_dpm_force_performance_level}="high"
   '';
 
-  # Realtek RTL8125 NIC workarounds - disable offloading and EEE to fix driver issues
+  # Realtek RTL8125 NIC workarounds (disable offloading and EEE to fix driver issues cuz realtek sucks)
   systemd.services.ethtool-enp18s0 = {
     description = "Configure ethtool settings for enp18s0";
     after = [ "sys-subsystem-net-devices-enp18s0.device" ];
@@ -115,6 +164,39 @@ in
         ${pkgs.ethtool}/bin/ethtool --set-eee enp18s0 eee off
         ${pkgs.ethtool}/bin/ethtool -A enp18s0 autoneg off rx off tx off
       '';
+    };
+  };
+
+  systemd.services."bcachefs-memory-tune" = {
+    description = "Apply low-memory bcachefs runtime tuning";
+    after = [ "local-fs.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "bcachefs-memory-tune" ''
+        for d in /sys/fs/bcachefs/*; do
+          echo 0 > "$d/options/btree_node_prefetch" 2>/dev/null || true
+        done
+      '';
+    };
+  };
+
+  systemd.services."bcachefs-btree-cache-shrink" = {
+    description = "Shrink bcachefs btree cache above high-water marks";
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = bcachefsShrink;
+    };
+  };
+
+  systemd.timers."bcachefs-btree-cache-shrink" = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnBootSec = "2min";
+      OnUnitActiveSec = "90s";
+      AccuracySec = "15s";
+      Unit = "bcachefs-btree-cache-shrink.service";
     };
   };
 
