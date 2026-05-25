@@ -14,6 +14,7 @@ lib.nixosSystem' "server" (
     imports = collectNix ./. |> remove ./default.nix;
 
     type = "server";
+    cpuArch = "MZEN3";
     isBuilder = true;
     builderSpeedFactor = 4;
     builderMaxJobs = 32;
