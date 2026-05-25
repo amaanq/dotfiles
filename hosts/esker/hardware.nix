@@ -1,17 +1,12 @@
 {
   config,
   lib,
-  modulesPath,
   ...
 }:
 let
   inherit (lib) enabled;
 in
 {
-  imports = [
-    (modulesPath + "/profiles/qemu-guest.nix")
-  ];
-
   boot.initrd.availableKernelModules = [
     "nvme"
     "xhci_pci"
