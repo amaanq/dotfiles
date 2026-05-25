@@ -21,14 +21,14 @@
           "output_sha256": "a923cfe67f8d4010a0db4f6c406d438d2dc312facbe4e3f42b66756a5cc46088"
         },
         "circusAgentCfarmToken": {
-          "source_sha256": "340dec5808c5494c6e027bf37010d033d59563ccf11ea491ac42b6ffd3118acb",
+          "source_sha256": "21970ed20a081acaf732c5cf87762f75b435971bedbfa5a3fec7340b5ec22a55",
           "output_file": "hosts/derecho/secrets/circusAgentCfarmToken.age",
-          "output_sha256": "7a85bb5cc031ef8f8aa9b9b2f322e809e900901043ca2e91939aa532121cd72d"
+          "output_sha256": "e05685c829d3e3bcbaa2ad2ea08938db8e1a27130aae48aca637e52099377fcd"
         },
         "circusAgentToken": {
-          "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
+          "source_sha256": "0d8c3e9f13a9098916cb6ba4db41bf5aa54c45182780ce6eee9b842ed0e5fc5a",
           "output_file": "hosts/derecho/secrets/circusAgentToken.age",
-          "output_sha256": "302dcdf9602cca6bc15496bb1ee7e319d6c55391728cd38f1f9df532c04414f5"
+          "output_sha256": "ae94deb4aba7e4cc02aa65471c68632c67419addf53ec38c56df31032275d599"
         },
         "gitIdentity": {
           "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
@@ -41,9 +41,9 @@
           "output_sha256": "c6bcca669ba5a00ff89ecf7ecf83e2a7c5ec2f3ceee2991e3e4bfc0d063a9726"
         },
         "githubToken": {
-          "source_sha256": "d8bf5540a806f2f0063171f668e7b2674f11e1036d57f597c5655c6bf9a3929e",
+          "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
           "output_file": "hosts/derecho/secrets/githubToken.age",
-          "output_sha256": "e7662b6a20469b9d2ccd9a0e4b32d4c92756bf059458ea475caa2f8ab16bb854"
+          "output_sha256": "f4b22aea93b422906abd06f8d58d2a323a52e974d6eec7ecccd461dbc15ecb30"
         },
         "glm_api_key": {
           "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
@@ -127,14 +127,14 @@
           "output_sha256": "e6a4ddf96799f80720d030f97e96549fd3c279a9b104aba8b59f9085b76b5a49"
         },
         "circusAgentCfarmToken": {
-          "source_sha256": "340dec5808c5494c6e027bf37010d033d59563ccf11ea491ac42b6ffd3118acb",
+          "source_sha256": "21970ed20a081acaf732c5cf87762f75b435971bedbfa5a3fec7340b5ec22a55",
           "output_file": "hosts/esker/secrets/circusAgentCfarmToken.age",
-          "output_sha256": "2b0e6c12a82181c6e921a83258524e4ff4ef0bb041017b37e748b6c6a952cf0e"
+          "output_sha256": "e5e747dff2b62faab7b83c55bed6e82d0c63274a3030083b46a0dcc9fb71048f"
         },
         "circusAgentToken": {
-          "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
+          "source_sha256": "0d8c3e9f13a9098916cb6ba4db41bf5aa54c45182780ce6eee9b842ed0e5fc5a",
           "output_file": "hosts/esker/secrets/circusAgentToken.age",
-          "output_sha256": "2a7598ce68184e21f5d4a34f00ccca798a922f698a60046f8ade422c07f787f4"
+          "output_sha256": "927c1337d9d8540bc6ef7d2666c0282f5c128166dc7ab1856621e3153920a8a3"
         },
         "gitIdentity": {
           "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
@@ -147,9 +147,9 @@
           "output_sha256": "90a4f43f533cd383f670433b7f9132bcb1915df9c2e286e0180e0448397ed4a3"
         },
         "githubToken": {
-          "source_sha256": "d8bf5540a806f2f0063171f668e7b2674f11e1036d57f597c5655c6bf9a3929e",
+          "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
           "output_file": "hosts/esker/secrets/githubToken.age",
-          "output_sha256": "711dd8cb9be0b752eee74864503b273ff0b200207c9a2afcf2512cb666a4c996"
+          "output_sha256": "b3db2ae4d6542ae99a7dca090052bdc03e783b414602920338630767413f2ce2"
         },
         "glm_api_key": {
           "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
@@ -203,6 +203,97 @@
         }
       }
     },
+    "guyot": {
+      "host_pubkey_sha256": "caf1e4c2fec99af72233b54599ee294fd696811f5f089f0de818c4c9e518c6de",
+      "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",
+      "secrets": {
+        "anthropic_api_key": {
+          "source_sha256": "735a4ee7fabd70b2a045b2bea504ebd8cc7269358639eda6e7ab69113b792230",
+          "output_file": "hosts/guyot/secrets/anthropic_api_key.age",
+          "output_sha256": "b6c255f509361be32574684efd1d1ecd717fe363bf578cf6716d4383ebdfe7fb"
+        },
+        "atuin-key": {
+          "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
+          "output_file": "hosts/guyot/secrets/atuin-key.age",
+          "output_sha256": "171814f2c0a5c8a6fac22fb92f6052e45e487300d2272273c0db7edb0836fe0f"
+        },
+        "builderKey": {
+          "source_sha256": "b3843bab297d1621662693e71ad7803cf34358c53f495d22934af57975c5b52a",
+          "output_file": "hosts/guyot/secrets/builderKey.age",
+          "output_sha256": "98834ee9922e9ad94cc8280aa40e559b922e946efaf7718d6b60d9ae2fd89198"
+        },
+        "circusAgentToken": {
+          "source_sha256": "0d8c3e9f13a9098916cb6ba4db41bf5aa54c45182780ce6eee9b842ed0e5fc5a",
+          "output_file": "hosts/guyot/secrets/circusAgentToken.age",
+          "output_sha256": "cda3f87d65df4a952de75308a8c0977625b0f7ed2a502e87a4f477892e60b3e2"
+        },
+        "gitIdentity": {
+          "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
+          "output_file": "hosts/guyot/secrets/gitIdentity.age",
+          "output_sha256": "9b36bf3f8a067e105dc04ebc8507ebf73a8d02f277e1595f8a5b8ae8c991f584"
+        },
+        "gitPrivate": {
+          "source_sha256": "17859114a38ac1568e8b58dd27590879e548f35b040668c6c5dba438293242d3",
+          "output_file": "hosts/guyot/secrets/gitPrivate.age",
+          "output_sha256": "d5bb20bb66a1bf1f74bb219c03c908cc9aba87fd3010f9feadb2fcbcfe1eda60"
+        },
+        "githubToken": {
+          "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
+          "output_file": "hosts/guyot/secrets/githubToken.age",
+          "output_sha256": "fe21e9b259fb5dfaea916b24dee358acbe10c8250a915e0c69f8aef930307c74"
+        },
+        "glm_api_key": {
+          "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
+          "output_file": "hosts/guyot/secrets/glm_api_key.age",
+          "output_sha256": "499cc8b194c832b3c0aa7c6899c525010247853a85242beabc1fe360521cf8e0"
+        },
+        "id": {
+          "source_sha256": "30c3313bdc5bcbc1a33ff9d5d4454139afdbab18ca0850290ec52c00f7750411",
+          "output_file": "hosts/guyot/secrets/id.age",
+          "output_sha256": "8236af617f5c1f21d9f8e3f03c8336262d2c9099488180f7ea228d025c27867b"
+        },
+        "kagi_session_token": {
+          "source_sha256": "f732bc083e19d117b094f07471ed253aa6fd1c7b381869c702a955eaddda6a57",
+          "output_file": "hosts/guyot/secrets/kagi_session_token.age",
+          "output_sha256": "4b57d8c2926f8b5f45bc40373cb886308f1ee5c1fd8a4c469fa8450611aee682"
+        },
+        "openai_api_key": {
+          "source_sha256": "7adf13e7b9840c32efceb33ee2478cc77c38459b348ed5b1f49ee489f9b6a422",
+          "output_file": "hosts/guyot/secrets/openai_api_key.age",
+          "output_sha256": "dba3763275cbe5f868b8634b575a1b02e6488d92a86cc37a0beb32d5de4fde38"
+        },
+        "openstack_aarch64_password": {
+          "source_sha256": "f4a3d44dd5adefa4595a6eee6c9b2bde0dd693f3a76627bc3c785c7cbf2ff393",
+          "output_file": "hosts/guyot/secrets/openstack_aarch64_password.age",
+          "output_sha256": "cbbd294abab2d96dee13cd8dc3f61a40ec9c46e728bf568c9c8148afc0bbe44c"
+        },
+        "openstack_powerpc64_password": {
+          "source_sha256": "d92dc98977f9ad1e11d26f670190749820a8e92a286882d08621e1f2cc3aa524",
+          "output_file": "hosts/guyot/secrets/openstack_powerpc64_password.age",
+          "output_sha256": "73a0c4be9c0fe3d98d86e85a806980433214516f27da705b69c2347f98b15a2f"
+        },
+        "password": {
+          "source_sha256": "8851b8e4e77341256abea10f1760342c40cc4d65961d891cd544b863498fb1e3",
+          "output_file": "hosts/guyot/secrets/password.age",
+          "output_sha256": "c02517995830c85573c119c3652a34da1d9ea825830b1544fd7876164d8919c3"
+        },
+        "resticPassword": {
+          "source_sha256": "eedbc252fa8873aa8f4bebef4026b24a1c9728ef3bd652d2a0c0b5265423c16f",
+          "output_file": "hosts/guyot/secrets/resticPassword.age",
+          "output_sha256": "41fe46395106b8152d1d59efffd9889668f721d232d8846dd1fc3fad2c0d07fa"
+        },
+        "sshConfig": {
+          "source_sha256": "30e974a5871d7051662474a9ce32526ff0745c8c401825e3835153f2ff72945d",
+          "output_file": "hosts/guyot/secrets/sshConfig.age",
+          "output_sha256": "ded37085823703efc8135ea182af70c9493b05f0a2728ddabb354089ff61ea1d"
+        },
+        "tailscaleAuthKey": {
+          "source_sha256": "478f83ebdc94213a4b58b21243ecf916afa81605b21f32e3dbaa798bac70f3ad",
+          "output_file": "hosts/guyot/secrets/tailscaleAuthKey.age",
+          "output_sha256": "5d7f605887d131f5c4d4ba9ed52dbd86062d9d53545528fab12d749c6406412c"
+        }
+      }
+    },
     "karst": {
       "host_pubkey_sha256": "1e9fa8a7b2faa6e3aaa1a2b6592851c0844d720e460c6a606617c7df97e63942",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",
@@ -223,9 +314,9 @@
           "output_sha256": "6e1d755809201896f67a6ac9d125c0905aff5d08ba06ede6bcd7037485f865ee"
         },
         "circusAgentToken": {
-          "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
+          "source_sha256": "0d8c3e9f13a9098916cb6ba4db41bf5aa54c45182780ce6eee9b842ed0e5fc5a",
           "output_file": "hosts/karst/secrets/circusAgentToken.age",
-          "output_sha256": "1c997e9ffb08d0cfd24bcc71757e05049474c8d3e1bd44c5377b35f62f255e41"
+          "output_sha256": "b49efe673f2d140842f3785b8f5c61dafe72c4304289d243bb6446e464b812d5"
         },
         "gitIdentity": {
           "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
@@ -238,9 +329,9 @@
           "output_sha256": "0bdb0b541fffbc9ca17ccd6a49a85abbb1dd039552a5b0073804b44f1331f0f1"
         },
         "githubToken": {
-          "source_sha256": "d8bf5540a806f2f0063171f668e7b2674f11e1036d57f597c5655c6bf9a3929e",
+          "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
           "output_file": "hosts/karst/secrets/githubToken.age",
-          "output_sha256": "98adb8986cf6c621e765eeb5f34d3d2f095960ea679c030f009466e36c1fe7dc"
+          "output_sha256": "20715922a97beaec49b9140c4b55d69103b184e5478bd6f49d5e69be2966d20d"
         },
         "glm_api_key": {
           "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
@@ -309,9 +400,9 @@
           "output_sha256": "65371e8d75f3ca3421f384d2d3a148d7f2e38f419df1ea712533b297c8268e58"
         },
         "circusAgentCfarmToken": {
-          "source_sha256": "340dec5808c5494c6e027bf37010d033d59563ccf11ea491ac42b6ffd3118acb",
+          "source_sha256": "21970ed20a081acaf732c5cf87762f75b435971bedbfa5a3fec7340b5ec22a55",
           "output_file": "hosts/lahar/secrets/circusAgentCfarmToken.age",
-          "output_sha256": "48c48f9624ea3adcd4a8bf0512d7a3bba9d6c55f6d790a74337e802deded7d6f"
+          "output_sha256": "700ced272a637ec6e40f3ff7572169a568908d9de16cd24f7474b4b6c12ce19e"
         },
         "gitIdentity": {
           "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
@@ -324,9 +415,9 @@
           "output_sha256": "049a9b3cf053d11f9fc95b6c6f1671d6349e96752d8c564c26db2feb8f6a4d53"
         },
         "githubToken": {
-          "source_sha256": "d8bf5540a806f2f0063171f668e7b2674f11e1036d57f597c5655c6bf9a3929e",
+          "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
           "output_file": "hosts/lahar/secrets/githubToken.age",
-          "output_sha256": "99582d5e3e18461236f26ff5b31d510e25b84b55e335475fa35365009e797227"
+          "output_sha256": "7ebfb4ce40a3a33d45a5b97977fb457257dff9fa610aba8e12b45edb29025472"
         },
         "glm_api_key": {
           "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
@@ -400,9 +491,9 @@
           "output_sha256": "dab18f49fbb0ce6c3188d18be0e5e68c1aa7436da5dffd7e91a8d4bce9f019d4"
         },
         "circusAgentToken": {
-          "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
+          "source_sha256": "0d8c3e9f13a9098916cb6ba4db41bf5aa54c45182780ce6eee9b842ed0e5fc5a",
           "output_file": "hosts/loess/secrets/circusAgentToken.age",
-          "output_sha256": "bbc79777133bbb8e9d9515fa1fa2463b67e9ca5c58b7c111f5a6f21819a6aedb"
+          "output_sha256": "a23b1dc9ab36222e2204c7533d1bd1ce24ca7abf8bbced8e9aa39d0adf97ae05"
         },
         "gitIdentity": {
           "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
@@ -415,9 +506,9 @@
           "output_sha256": "ab2295bc37d2c6052813761e9af4eaf392fca5a9fb0284af60bfe879d334c9c4"
         },
         "githubToken": {
-          "source_sha256": "d8bf5540a806f2f0063171f668e7b2674f11e1036d57f597c5655c6bf9a3929e",
+          "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
           "output_file": "hosts/loess/secrets/githubToken.age",
-          "output_sha256": "93a72da14289ef849d293dde88d938034f2089f6b9eb0bd3a9cbe9c312941e9e"
+          "output_sha256": "25ffe4b3e155dc3f4b236a2f5d620481b0e230c5cc002f057cb42c56039a3c0e"
         },
         "glm_api_key": {
           "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
@@ -486,9 +577,9 @@
           "output_sha256": "07d4be8bf7c94c7c2e1a2a7d13a2a6f57a2e336dc82bbc3a8c625f84ecee0308"
         },
         "circusAgentToken": {
-          "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
+          "source_sha256": "0d8c3e9f13a9098916cb6ba4db41bf5aa54c45182780ce6eee9b842ed0e5fc5a",
           "output_file": "hosts/moraine/secrets/circusAgentToken.age",
-          "output_sha256": "5efc28c1f1ef73c0f2a764f31f6a2380996c385aaa17f08af89718ade75d243f"
+          "output_sha256": "e04fbf93609fa51a52dbcc820d8df92c3c3b96b2baea9380397a5b2bc563e9bb"
         },
         "gitIdentity": {
           "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
@@ -501,9 +592,9 @@
           "output_sha256": "225dc753f6a2f9225944807cbfba75984a05685240983fad6f622389db4ca58d"
         },
         "githubToken": {
-          "source_sha256": "d8bf5540a806f2f0063171f668e7b2674f11e1036d57f597c5655c6bf9a3929e",
+          "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
           "output_file": "hosts/moraine/secrets/githubToken.age",
-          "output_sha256": "aee5f63b7a34ac37a7f81e7b56ceb98371692076e011bc309b2fa0bef6896988"
+          "output_sha256": "a73440c2f480fb451d11f2d08461deeb98d634a823e5434e69e851674a90cd9d"
         },
         "glm_api_key": {
           "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
@@ -577,9 +668,9 @@
           "output_sha256": "8b780a8fd7adf4e9d5af7af33b4c453d8a897b47a09893f003a8bb9cc6ce3081"
         },
         "circusAgentToken": {
-          "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
+          "source_sha256": "0d8c3e9f13a9098916cb6ba4db41bf5aa54c45182780ce6eee9b842ed0e5fc5a",
           "output_file": "hosts/nunatak/secrets/circusAgentToken.age",
-          "output_sha256": "363d60ab3270d517c3229faca66c012ea3593bb0e78bd819b2f4a922242d4e45"
+          "output_sha256": "d82a9ad9017ef22bbc935289bb9bae0a32999e055f4b16a5ab22a536742acd73"
         },
         "gitIdentity": {
           "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
@@ -592,9 +683,9 @@
           "output_sha256": "6bc07b35945f5171744415204d5474aa37efa93056124b41490d7166d2afe2bf"
         },
         "githubToken": {
-          "source_sha256": "d8bf5540a806f2f0063171f668e7b2674f11e1036d57f597c5655c6bf9a3929e",
+          "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
           "output_file": "hosts/nunatak/secrets/githubToken.age",
-          "output_sha256": "38c9bacb0801384477d5db78aaae4c1542368b230d5fd2849be6687083ca2bd4"
+          "output_sha256": "243284c41229794a5b3774b8a77fffc33d18847257ed1514af03008d0bef2c8f"
         },
         "glm_api_key": {
           "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
@@ -723,9 +814,9 @@
           "output_sha256": "a4a0b2a88537cc665fcaa60918a00311c8655ed8812ca2c6a5223be16e01c309"
         },
         "circusAgentToken": {
-          "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
+          "source_sha256": "0d8c3e9f13a9098916cb6ba4db41bf5aa54c45182780ce6eee9b842ed0e5fc5a",
           "output_file": "hosts/scarp/secrets/circusAgentToken.age",
-          "output_sha256": "78f675dd0da636a37a43a18642263cd247d9c9a8ba5d39e9dda7ece62dd1fd93"
+          "output_sha256": "4ed857e86e9350ea2443f2fd89fbf172320383f7843c9eb054166b5048c968e0"
         },
         "forgejoRunnerToken": {
           "source_sha256": "56b135439dfc4968dcb1980d079af3806d6ba3b151cbfff06ca48c27b2fb1b87",
@@ -748,9 +839,9 @@
           "output_sha256": "64a7f2f82fde0ee2335c7ad072b19324da689c90ffcbcfb9cacb381c3e7806df"
         },
         "githubToken": {
-          "source_sha256": "d8bf5540a806f2f0063171f668e7b2674f11e1036d57f597c5655c6bf9a3929e",
+          "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
           "output_file": "hosts/scarp/secrets/githubToken.age",
-          "output_sha256": "52f3319f77a00b10a031699dcb0ccc8dc5e71edc002c0bef296bfe797865f85f"
+          "output_sha256": "bcaae4acdfbcb52bad364d3b6370625bd565646d0ac3a9e49914800597e842a8"
         },
         "glm_api_key": {
           "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
@@ -828,9 +919,9 @@
           "output_sha256": "14e0d80f3631d9358db5f5f4a2135797f9f3d0b90aadb4ae2f13443aecb20c57"
         },
         "repoPingWebhook": {
-          "source_sha256": "70198eecfe8994d3ee8b9ec3455a01ba0d39e23399ae51394cd3abbc384a1d71",
+          "source_sha256": "650ce9c2534a8e42afe245f4dd39319d41cff10e638b3737e87e681a9972bff8",
           "output_file": "hosts/scarp/secrets/repoPingWebhook.age",
-          "output_sha256": "2bc7983f0fd5b8eca4e706dddd94085010d931d28a945160d8ae91a0de9de9b1"
+          "output_sha256": "e3b31a7355a4a73a8cd01554266d4ace22dcbb87ed9e68911b69eba074f7eff8"
         },
         "resticPassword": {
           "source_sha256": "eedbc252fa8873aa8f4bebef4026b24a1c9728ef3bd652d2a0c0b5265423c16f",
@@ -838,9 +929,9 @@
           "output_sha256": "92b3156085fc4b1607091dae0280609ff7f52321514c519a6468198f3db57087"
         },
         "spotrakEnv": {
-          "source_sha256": "ecd02461fa5c176edeb807b8a97f2b3adba346d1205dea0fc8b024317ea5b7da",
+          "source_sha256": "8c1d043c5c694ab287814262dc7b1a7451725c79fb37a4cc3cc64869d3a7d25a",
           "output_file": "hosts/scarp/secrets/spotrakEnv.age",
-          "output_sha256": "b0cdfc024591ba034cc5944cfd02fa22de250900c01b23a5286d49c761767c45"
+          "output_sha256": "452fd34cbb11ae159e9ea1e4fd85cfb3b32a681b74b23052d67e9c1300976239"
         },
         "sshConfig": {
           "source_sha256": "30e974a5871d7051662474a9ce32526ff0745c8c401825e3835153f2ff72945d",
@@ -904,9 +995,9 @@
           "output_sha256": "5ec437d9213f0a6a639d8786b0a2ab063179b7d2790e9f20ab81e59621f44785"
         },
         "githubToken": {
-          "source_sha256": "d8bf5540a806f2f0063171f668e7b2674f11e1036d57f597c5655c6bf9a3929e",
+          "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
           "output_file": "hosts/simoom/secrets/githubToken.age",
-          "output_sha256": "d239ac7799c8aacb9946d287553a69925def4a5009da4f6e7e2d5a8e300419fa"
+          "output_sha256": "ef803cf0af2db14fef3c5632eb5de4ea98e18a0a44d89c209f376b40b616c738"
         },
         "glm_api_key": {
           "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
@@ -975,9 +1066,9 @@
           "output_sha256": "e3198e99bc0e74a2bfaab1dd4cb87dd9e30f688ebf646ee4c4d5aac621cd5fdd"
         },
         "githubToken": {
-          "source_sha256": "d8bf5540a806f2f0063171f668e7b2674f11e1036d57f597c5655c6bf9a3929e",
+          "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
           "output_file": "hosts/squall/secrets/githubToken.age",
-          "output_sha256": "438cffed16439fdf39d82b69c09938234a715e099c017c52a9106ef817f7494b"
+          "output_sha256": "31d641bde854f78dcf71ebe1c1830b59a09fa4eec48c9a9ced93d0fe2a41e962"
         },
         "glm_api_key": {
           "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
@@ -1036,9 +1127,9 @@
           "output_sha256": "7047adcf9398d7fb7f0997e9862bab8f6571e04b5c0f968df339f015db64f929"
         },
         "circusAgentToken": {
-          "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
+          "source_sha256": "0d8c3e9f13a9098916cb6ba4db41bf5aa54c45182780ce6eee9b842ed0e5fc5a",
           "output_file": "hosts/tarn/secrets/circusAgentToken.age",
-          "output_sha256": "d277f4d1c270858deca603e966d78dda0dc32d2557bc28d1c47e87cb87a12821"
+          "output_sha256": "e7d3406199eb1e4bbc075961d9379b3ca2a9ddde7b5c3dba8fc80be8688d969a"
         },
         "gitIdentity": {
           "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
@@ -1051,9 +1142,9 @@
           "output_sha256": "d80cf9889c6490529261c6648dcd471c831ec4b657ad3e3aceebd8c5ad536054"
         },
         "githubToken": {
-          "source_sha256": "d8bf5540a806f2f0063171f668e7b2674f11e1036d57f597c5655c6bf9a3929e",
+          "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
           "output_file": "hosts/tarn/secrets/githubToken.age",
-          "output_sha256": "553b1ca13b5f0ac7fc6c67efb829acb7dee8d66ec4b0ff410d58fb1912e9d35e"
+          "output_sha256": "f25fb25f33cdbe5db77653e3988eee81e07c5f73edbd9958923504fa37f1cbb8"
         },
         "glm_api_key": {
           "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
@@ -1142,9 +1233,9 @@
           "output_sha256": "45df0f12d791d799f8508556b7e5c2299bf248914d55052847452afeae776358"
         },
         "githubToken": {
-          "source_sha256": "d8bf5540a806f2f0063171f668e7b2674f11e1036d57f597c5655c6bf9a3929e",
+          "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
           "output_file": "hosts/yardang/secrets/githubToken.age",
-          "output_sha256": "80cc20f1bf70eb3f863c514fdba63fafa138d40ee7a2b18b1a5c07ff0daf5032"
+          "output_sha256": "dd603616084a26ec84599d282f55741d58d43c7fa7476e653c94b201a3a20a2a"
         },
         "glm_api_key": {
           "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
@@ -1230,6 +1321,14 @@
     },
     "hosts/esker/password.age": {
       "ciphertext_sha256": "60326b53f7550ed22ef0047bea1ddc5bff4bff38608b51e91e4180397bb8b535",
+      "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66"
+    },
+    "hosts/guyot/id.age": {
+      "ciphertext_sha256": "2d1e8d14f3a4b33bfcd037e33a41893a94e5fbbda005c72a254a9b2f2f59d1db",
+      "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66"
+    },
+    "hosts/guyot/password.age": {
+      "ciphertext_sha256": "8851b8e4e77341256abea10f1760342c40cc4d65961d891cd544b863498fb1e3",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66"
     },
     "hosts/karst/password.age": {
@@ -1340,6 +1439,14 @@
       "ciphertext_sha256": "101758a513a3714d061caa08d18a32c886dc77c199680179791541d9e0db9f82",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66"
     },
+    "hosts/scarp/repo-ping-webhook.age": {
+      "ciphertext_sha256": "650ce9c2534a8e42afe245f4dd39319d41cff10e638b3737e87e681a9972bff8",
+      "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66"
+    },
+    "hosts/scarp/spotrak/env.age": {
+      "ciphertext_sha256": "8c1d043c5c694ab287814262dc7b1a7451725c79fb37a4cc3cc64869d3a7d25a",
+      "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66"
+    },
     "hosts/scarp/teapot/kagi-token.age": {
       "ciphertext_sha256": "70c1c1a45bd128d9be3712a7b5e5b4c0e716e02a8377eb75e8003c45efc1a256",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66"
@@ -1404,6 +1511,10 @@
       "ciphertext_sha256": "911dfec0bc027baa1dd002107b581b8b168d6730a6583e76fa63f0273b0997fb",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66"
     },
+    "modules/common/desktop/slop/circus-agent-cfarm-token.age": {
+      "ciphertext_sha256": "21970ed20a081acaf732c5cf87762f75b435971bedbfa5a3fec7340b5ec22a55",
+      "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66"
+    },
     "modules/common/git-identity.age": {
       "ciphertext_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66"
@@ -1413,7 +1524,7 @@
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66"
     },
     "modules/common/github-token.age": {
-      "ciphertext_sha256": "81cb69be4b4fce9631876b0ecede113e967ca0f440bacd458733381ea5aefd51",
+      "ciphertext_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66"
     },
     "modules/common/shell/anthropic-key.age": {
@@ -1454,6 +1565,10 @@
     },
     "modules/linux/tailscale/authkey.age": {
       "ciphertext_sha256": "478f83ebdc94213a4b58b21243ecf916afa81605b21f32e3dbaa798bac70f3ad",
+      "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66"
+    },
+    "modules/services/circus-agent-token.age": {
+      "ciphertext_sha256": "0d8c3e9f13a9098916cb6ba4db41bf5aa54c45182780ce6eee9b842ed0e5fc5a",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66"
     }
   }
