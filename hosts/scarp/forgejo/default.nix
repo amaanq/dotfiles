@@ -203,10 +203,7 @@ in
     };
   };
 
-  secrets.forgejoRunnerToken = {
-    rekeyFile = ./runner.age;
-    owner = "gitea-runner";
-  };
+  secrets.forgejoRunnerToken.rekeyFile = ./runner.age;
 
   services.postgresql.ensure = [ "forgejo" ];
 

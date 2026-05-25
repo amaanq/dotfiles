@@ -20,19 +20,8 @@ in
     (self + /modules/go-away)
   ];
 
-  secrets.teapotSessions = {
-    rekeyFile = ./sessions.age;
-    owner = "teapot";
-    group = "wheel";
-    mode = "0440";
-  };
-
-  secrets.teapotKagiToken = {
-    rekeyFile = ./kagi-token.age;
-    owner = "teapot";
-    group = "wheel";
-    mode = "0440";
-  };
+  secrets.teapotSessions.rekeyFile = ./sessions.age;
+  secrets.teapotKagiToken.rekeyFile = ./kagi-token.age;
 
   services.go-away.instances.teapot = enabled {
     bindAddress = "[::1]:${toString goAwayPort}";
