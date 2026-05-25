@@ -68,6 +68,12 @@ in
   services.accounts-daemon.enable = mkForce false;
   services.geoclue2.enable = mkForce false;
 
+  systemd.user.services.niri = {
+    overrideStrategy = "asDropin";
+    serviceConfig.OOMScoreAdjust = 100;
+    path = mkForce [ ];
+  };
+
   services.nirinit = enabled {
     settings = {
       launch = {
