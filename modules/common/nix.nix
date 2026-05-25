@@ -152,7 +152,9 @@ in
   '';
 
   # Store flake inputs to prevent garbage collection
-  environment.etc.".system-inputs.json".text = toJSON registryMap;
+  environment.etc = mkIf (!config.isServer) {
+    ".system-inputs.json".text = toJSON registryMap;
+  };
 
   # Only servers use distributed builds to avoid circular delegation deadlocks
   # See: https://github.com/NixOS/nix/issues/10740
@@ -214,7 +216,10 @@ in
   );
 
   nix.registry =
-    registryMap // { default = inputs.nixpkgs; } |> mapAttrs (_: flake: { inherit flake; });
+    registryMap
+    |> filterAttrs (name: _: !config.isServer || name == "nixpkgs")
+    |> (registries: registries // { default = inputs.nixpkgs; })
+    |> mapAttrs (_: flake: { inherit flake; });
 
   nix.settings =
     (import (self + /flake.nix)).nixConfig
