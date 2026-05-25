@@ -26,6 +26,11 @@ in
           public_key = "cache.amaanq.com:H0iXsEEFsvUNtWb5v9V8Kss+L4F/tnXwDHXcY+xbmKk=";
         }
         {
+          url = "https://cache.manic.systems";
+          priority = 20;
+          public_key = "cache.manic.systems-1:s6OZanN8Us8vRi0jVivP3qlMn0cYHBjBALKrNe5nH8s=";
+        }
+        {
           url = "https://cache.garnix.io";
           priority = 20;
           public_key = "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g=";
