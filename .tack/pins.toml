@@ -158,6 +158,9 @@ url = "gh:notashelf/watt"
 
 # system services -------------------------------------------------------------
 
+[inputs.spotrak]
+url = "gh:faukah/spotrak"
+
 [inputs.run0-sudo-shim]
 url = "amaan:run0-sudo-shim/sudoedit"
 

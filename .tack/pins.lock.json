@@ -351,6 +351,14 @@
     "rev": "1362178e5f5f7a848c49fe9dee004ef8824f100a",
     "type": "github"
   },
+  "spotrak": {
+    "lastModified": 1780178872,
+    "narHash": "sha256-uRnAQ2UNKoGYV2y5i+iIIEV8C3PEkmUqxAS/+42YynA=",
+    "owner": "faukah",
+    "repo": "spotrak",
+    "rev": "b5a7880c3fcdc8fbcc7d46d8944a6bfbb39a649f",
+    "type": "github"
+  },
   "tack": {
     "lastModified": 1780040879,
     "narHash": "sha256-YMbSyXPm9LBNNbDTlFQNyUjB/+3XzmxOyYKjhAN1pfQ=",

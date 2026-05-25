@@ -787,6 +787,11 @@
           "output_file": "hosts/scarp/secrets/resticPassword.age",
           "output_sha256": "92b3156085fc4b1607091dae0280609ff7f52321514c519a6468198f3db57087"
         },
+        "spotrakEnv": {
+          "source_sha256": "ecd02461fa5c176edeb807b8a97f2b3adba346d1205dea0fc8b024317ea5b7da",
+          "output_file": "hosts/scarp/secrets/spotrakEnv.age",
+          "output_sha256": "b0cdfc024591ba034cc5944cfd02fa22de250900c01b23a5286d49c761767c45"
+        },
         "sshConfig": {
           "source_sha256": "30e974a5871d7051662474a9ce32526ff0745c8c401825e3835153f2ff72945d",
           "output_file": "hosts/scarp/secrets/sshConfig.age",
@@ -811,11 +816,6 @@
           "source_sha256": "b5e9dc4f809600fb8716112444c6b253a96dc2e7b699f3e9f6fa14fdfab3aa68",
           "output_file": "hosts/scarp/secrets/vaultwardenEnv.age",
           "output_sha256": "5fb4913f3ec3ebf7ff30efd13297a19febb03451d86cf9ae9459c982c647ebcc"
-        },
-        "yourspotifySecret": {
-          "source_sha256": "dc9295b0f294cebd467428ca9abefb96abeb818ad2ec97f29a2ca3c31c487598",
-          "output_file": "hosts/scarp/secrets/yourspotifySecret.age",
-          "output_sha256": "aa69ed8e6a00515be517604a0382e97058ba25aa4d97030cd6154666fa21c32f"
         },
         "ziplineSecret": {
           "source_sha256": "c1294368f5023cec12531575d97ce9b0ac4aa8f3c2b7b0f824975ba3fd0c8549",
