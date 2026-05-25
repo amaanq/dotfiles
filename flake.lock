@@ -135,6 +135,21 @@
     },
     "crane_3": {
       "locked": {
+        "lastModified": 1772080396,
+        "narHash": "sha256-84W9UNtSk9DNMh43WBkOjpkbfODlmg+RDi854PnNgLE=",
+        "owner": "ipetkov",
+        "repo": "crane",
+        "rev": "8525580bc0316c39dbfa18bd09a1331e98c9e463",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ipetkov",
+        "repo": "crane",
+        "type": "github"
+      }
+    },
+    "crane_4": {
+      "locked": {
         "lastModified": 1777830388,
         "narHash": "sha256-2uoQAqUk2H0ijQtGiWAyNeQYGYc6yfAcRRLlJAz4Gp8=",
         "owner": "ipetkov",
@@ -635,6 +650,31 @@
         "type": "github"
       }
     },
+    "nativelink": {
+      "inputs": {
+        "crane": "crane_3",
+        "flake-parts": "flake-parts_2",
+        "git-hooks": "git-hooks",
+        "nix2container": "nix2container",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "rust-overlay": "rust-overlay"
+      },
+      "locked": {
+        "lastModified": 1779569976,
+        "narHash": "sha256-2S1osmDGf2QQxoksVAmTcA+TPohrlVffLmB7uf+7jOM=",
+        "owner": "TraceMachina",
+        "repo": "nativelink",
+        "rev": "5699a274400487eb1ae6daa08ab75800ff66086c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "TraceMachina",
+        "repo": "nativelink",
+        "type": "github"
+      }
+    },
     "neovim-nightly-overlay": {
       "inputs": {
         "flake-parts": [
@@ -886,6 +926,28 @@
       "original": {
         "owner": "midischwarz12",
         "repo": "nix-wrappers",
+        "type": "github"
+      }
+    },
+    "nix2container": {
+      "inputs": {
+        "nixpkgs": [
+          "nativelink",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1767430085,
+        "narHash": "sha256-SiXJ6xv4pS2MDUqfj0/mmG746cGeJrMQGmoFgHLS25Y=",
+        "owner": "nlewo",
+        "repo": "nix2container",
+        "rev": "66f4b8a47e92aa744ec43acbb5e9185078983909",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nlewo",
+        "repo": "nix2container",
+        "rev": "66f4b8a47e92aa744ec43acbb5e9185078983909",
         "type": "github"
       }
     },
