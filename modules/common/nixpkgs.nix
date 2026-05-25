@@ -73,6 +73,30 @@
         })
       ) { };
     })
+    # Stub shellcheck cuz Haskell is slop and I don't want to compile it for ppc64.
+    (
+      final: _prev:
+      let
+        stub =
+          final.runCommand "shellcheck-stub"
+            {
+              meta.mainProgram = "shellcheck";
+              passthru = {
+                unwrapped = stub;
+                compiler.bootstrapAvailable = false;
+              };
+            }
+            ''
+              mkdir -p $out/bin
+              printf '#!/bin/sh\nexit 0\n' > $out/bin/shellcheck
+              chmod +x $out/bin/shellcheck
+            '';
+      in
+      {
+        shellcheck = stub;
+        shellcheck-minimal = stub;
+      }
+    )
     (final: prev: {
       formats = prev.formats // {
         toml =
