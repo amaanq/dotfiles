@@ -116,6 +116,16 @@
           "output_file": "hosts/esker/secrets/builderKey.age",
           "output_sha256": "e6a4ddf96799f80720d030f97e96549fd3c279a9b104aba8b59f9085b76b5a49"
         },
+        "circusAgentClientKey": {
+          "source_sha256": "983ed70cb25cd5845cf388dd2562ef51f447031152ecbb22487c551ce5907414",
+          "output_file": "hosts/esker/secrets/circusAgentClientKey.age",
+          "output_sha256": "325d469f03f41e5c4944cafe9eb66ca183352ae2e7e67a3967752d35138eed5c"
+        },
+        "circusAgentToken": {
+          "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
+          "output_file": "hosts/esker/secrets/circusAgentToken.age",
+          "output_sha256": "2a7598ce68184e21f5d4a34f00ccca798a922f698a60046f8ade422c07f787f4"
+        },
         "gitIdentity": {
           "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
           "output_file": "hosts/esker/secrets/gitIdentity.age",
@@ -678,14 +688,14 @@
           "output_sha256": "a4a0b2a88537cc665fcaa60918a00311c8655ed8812ca2c6a5223be16e01c309"
         },
         "circusAgentClientKey": {
-          "source_sha256": "ad28c370c706bd676a7a84ec3e7cbb2b1255fb4d78fad41c5d93cebd7b7e6fc9",
+          "source_sha256": "983ed70cb25cd5845cf388dd2562ef51f447031152ecbb22487c551ce5907414",
           "output_file": "hosts/scarp/secrets/circusAgentClientKey.age",
-          "output_sha256": "be323ea9cf8e3086f63d87baab8ed13e3488db001c10e261fafe1a162b8d1ddc"
+          "output_sha256": "daf127cfd1455c4c9ea96ceb3db568ac8c8b5a8eb2d76dd698f46243bb91c7de"
         },
         "circusAgentToken": {
-          "source_sha256": "3f3880bd7e364e58f8bccb91f84e7e012bb54cf58f195d6551cd99f0f69758eb",
+          "source_sha256": "d6a0f5e9decbda72df3886e8f0af0a386e0d7684aaf206edbf45cde47a28169e",
           "output_file": "hosts/scarp/secrets/circusAgentToken.age",
-          "output_sha256": "1dc0c0db41bc35df22c4b9487613c0fcb1cb9630b8c655c532c44b8f81de7728"
+          "output_sha256": "78f675dd0da636a37a43a18642263cd247d9c9a8ba5d39e9dda7ece62dd1fd93"
         },
         "forgejoRunnerToken": {
           "source_sha256": "56b135439dfc4968dcb1980d079af3806d6ba3b151cbfff06ca48c27b2fb1b87",
