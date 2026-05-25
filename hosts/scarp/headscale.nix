@@ -17,8 +17,9 @@ let
     sha256 = "sha256-lNgopFjULfxFZ7FYIQKBps8IFvsSoGHWFX8xl7Ay+kE=";
   };
 
+  # prefer the embedded scarp region but keep tailscale's public regions as fallbacks
   derpMap = pkgs.runCommand "derp-yaml" { } ''
-    ${pkgs.jq}/bin/jq 'walk(if type == "object" then with_entries(.key |= ascii_downcase) else . end)' ${derpMapRaw} | \
+    ${pkgs.jq}/bin/jq 'walk(if type == "object" then with_entries(.key |= ascii_downcase) else . end) | .regions |= map_values(.avoid = true)' ${derpMapRaw} | \
     ${pkgs.yq-go}/bin/yq -P | \
     ${pkgs.gnused}/bin/sed 's/^  "\([0-9]\+\)":/  \1:/' > $out
   '';
@@ -65,6 +66,13 @@ in
       };
 
       derp = {
+        server = enabled {
+          region_id = 999;
+          region_code = "scarp";
+          region_name = "scarp";
+          stun_listen_addr = "0.0.0.0:3478";
+          automatically_add_embedded_derp_region = true;
+        };
         urls = [ ];
         auto_update_enabled = false;
         paths = [ "${derpMap}" ];
@@ -78,6 +86,8 @@ in
       };
     };
   };
+
+  networking.firewall.allowedUDPPorts = [ 3478 ];
 
   services.nginx.virtualHosts.${fqdn} = merge config.services.nginx.sslTemplate {
     locations."/" = {
