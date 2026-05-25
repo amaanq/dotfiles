@@ -6,13 +6,13 @@
 let
   inherit (lib.meta) getExe;
 
-  codexVersion = "0.135.0";
+  codexVersion = "0.137.0";
 
-  codexSrc = pkgs.fetchFromGitHub {
+  src = pkgs.fetchFromGitHub {
     owner = "openai";
     repo = "codex";
-    tag = "rust-v0.135.0";
-    hash = "sha256-7Ak7rpogcN2kNezk7aMdMmkgNyPxH58f6lFdXOd/mgc=";
+    tag = "rust-v${codexVersion}";
+    hash = "sha256-puszZqi1lZeq8iXWAD9U9+WMnNvzMYKf6wVT9mtjSUU=";
   };
 
   # Verbatim copy of rtk-ai/rtk's hooks/codex/rtk-awareness.md --
@@ -56,66 +56,14 @@ let
   # libclang env, postPatch). We just bump version/src/cargoDeps and apply
   # a few quality-of-life patches on top.
   codexRs = pkgs.codex.overrideAttrs (oldAttrs: {
+    inherit src;
     version = codexVersion;
-    src = codexSrc;
-    sourceRoot = "source/codex-rs";
-
     cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
+      inherit src;
       name = "codex-${codexVersion}-vendor";
-      src = codexSrc;
       sourceRoot = "source/codex-rs";
-      hash = "sha256-v1ggzNoncBVcOiJDQNNKPxYqWASNGjVjLMCXhsIbrVI=";
+      hash = "sha256-SX5LMO+IWismbH61Jd0g1mgykfav8DrqG+wjyNCWyCo=";
     };
-
-    # Patches applied to the build source:
-    # * codex-gpt55-400k-context: bumps gpt-5.5's `context_window` and
-    #   `max_context_window` from 272k to 400k. Two hunks: (1) the bundled
-    #   models.json (compiled in via `include_str!`), and (2) a clamp in
-    #   `with_config_overrides` so the 400k stays sticky even when
-    #   models-manager refreshes its on-disk `models_cache.json` from the
-    #   OpenAI `/models` endpoint -- the server still reports 272k for
-    #   gpt-5.5 (Codex-product cap), and `try_load_cache` would otherwise
-    #   stomp the bundled value with the cached one. The model itself
-    #   supports up to 1M tokens via API; 400k is the announced ceiling
-    #   for paid Codex plans.
-    #
-    # Set as `patches` rather than `cargoPatches` because overrideAttrs
-    # bypasses buildRustPackage's `patches = cargoPatches ++ patches`
-    # concat -- only `patches` reaches stdenv at this layer.
-    #
-    # Note: nixpkgs's own codex postPatch strips `lto = "fat"` and
-    # `codegen-units = 1` on non-Darwin (pkgs/by-name/co/codex/package.nix),
-    # so no local fast-release-build patch is needed.
-    patches = [
-      ./patches/codex-tui-cursor-jumpiness.patch
-    ];
-
-    # postPatch: companion to `codex-tui-cursor-jumpiness.patch`. That
-    # patch only carries the renderable.rs hunks from openai/codex#11064;
-    # the insert_history.rs hunks are applied here via sed because GNU
-    # patch can't match the wrapping-module imports without unacceptable
-    # fuzz (the import block was refactored upstream and diverged before
-    # #11064 was opened).
-    postPatch = (oldAttrs.postPatch or "") + ''
-      ${pkgs.gnused}/bin/sed -i \
-        -e '/^use crossterm::cursor::MoveDown;/i use crossterm::cursor::Hide;' \
-        -e '/^    let writer = terminal\.backend_mut();$/a\
-\
-    // Hide the terminal cursor while writing wrapped output into scrollback;\
-    // otherwise cursor jank (jumps around / blinks randomly) is visible during\
-    // streaming and scroll updates.\
-    queue!(writer, Hide)?;' \
-        tui/src/insert_history.rs
-    '';
-
-    # 0.125 added codex-v8-poc as a workspace member (a "future V8
-    # experiments" placeholder). Default `cargo build --release` builds
-    # all workspace bins, dragging in v8-poc and a 200MB rusty_v8
-    # archive we do not need. Limit the build to codex-cli.
-    cargoBuildFlags = [
-      "--package"
-      "codex-cli"
-    ];
   });
 
   # Reuse the rose-pine .tmTheme already vendored for bat. Codex's `tui.theme`
@@ -198,6 +146,7 @@ let
       exec ${getExe codexRs} ...$codex_args ...$args
     }
   '';
+
 in
 {
   options.programs.codex.package = lib.mkOption {
