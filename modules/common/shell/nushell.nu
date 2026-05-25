@@ -732,12 +732,12 @@ def --wrapped nr [program: string = "", ...arguments] {
   }
 }
 
-def --wrapped ns [...programs] {
-  nix shell ...($programs | each {
-    if ($in | str contains "#") or ($in | str contains ":") {
-      $in
+def --wrapped ns [...programs: string] {
+  nix shell ...($programs | each {|program|
+    if ($program | str contains "#") or ($program | str contains ":") {
+      $program
     } else {
-      "default#" + $in
+      "default#" + $program
     }
   })
 }
