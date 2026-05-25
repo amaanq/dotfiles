@@ -73,6 +73,81 @@
         })
       ) { };
     })
+    (
+      final: prev:
+      let
+        nhSrc = final.fetchFromGitHub {
+          owner = "nix-community";
+          repo = "nh";
+          rev = "6c2365d27cd771bea9408c5b59fa52715667667d";
+          hash = "sha256-AsKNNidi3qobePFqGLKXjM8OPLW7HbBEp3mgw+ULuU0=";
+        };
+        isCross = final.stdenv.buildPlatform != final.stdenv.hostPlatform;
+      in
+      {
+        nh-unwrapped =
+          let
+            withFork = prev.nh-unwrapped.overrideAttrs (old: {
+              version = "4.4.0-beta1-unstable-2026-06-10";
+              src = nhSrc;
+              # Upstream reads finalAttrs.src.tag, null when using `rev`.
+              env = (old.env or { }) // {
+                NH_REV = nhSrc.rev;
+              };
+              # finalAttrs overrideAttrs swallows cargoHash; swap cargoDeps.
+              cargoDeps = final.rustPlatform.fetchCargoVendor {
+                src = nhSrc;
+                hash = "sha256-Xl1IW8KWfNuCm20DQUH8Bdvfm/J3RUzUpMWt9maJ4hk=";
+              };
+            });
+            # Upstream postInstall runs `xtask dist` via an emulator to make
+            # shell completions + manpage; on cross that drags qemu-user +
+            # glib + gobject-introspection + systemtap into the build closure.
+            dropDistOnCross =
+              drv:
+              drv.overrideAttrs (_: {
+                postInstall = "";
+                nativeInstallCheckInputs = [ ];
+                doInstallCheck = false;
+              });
+          in
+          if isCross then dropDistOnCross withFork else withFork;
+
+        nh =
+          let
+            unwrapped = final.nh-unwrapped;
+            useNom = !(final.stdenv.hostPlatform.isPower64 or false);
+            runtimeDeps = lib.optionals useNom [ final.nix-output-monitor ];
+          in
+          final.symlinkJoin {
+            pname = "nh";
+            inherit (unwrapped) version;
+
+            paths = [ unwrapped ];
+
+            nativeBuildInputs = lib.optionals useNom [ final.makeBinaryWrapper ];
+
+            postBuild = lib.optionalString useNom ''
+              wrapProgram $out/bin/nh \
+                --prefix PATH : ${lib.makeBinPath runtimeDeps}
+            '';
+
+            meta = {
+              inherit (unwrapped.meta)
+                changelog
+                description
+                homepage
+                license
+                mainProgram
+                maintainers
+                ;
+
+              hydraPlatforms = [ ];
+              priority = (unwrapped.meta.priority or lib.meta.defaultPriority) - 1;
+            };
+          };
+      }
+    )
     # Stub shellcheck cuz Haskell is slop and I don't want to compile it for ppc64.
     (
       final: _prev:

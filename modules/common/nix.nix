@@ -3,6 +3,7 @@
   config,
   inputs,
   lib,
+  options,
   pkgs,
   ...
 }:
@@ -25,9 +26,12 @@ let
     mapAttrs
     mapAttrsToList
     merge
+    mergeAttrs
+    mkForce
     mkIf
     optionalAttrs
     optionals
+    remove
     zipListsWith
     ;
   inherit (lib.strings) toJSON;
@@ -66,33 +70,9 @@ let
       '';
     });
 
-  nh =
-    let
-      src = pkgs.fetchFromGitHub {
-        owner = "nix-community";
-        repo = "nh";
-        rev = "1341576fa14f8a00361a10934340fd482bc7b844";
-        hash = "sha256-T8tWn103cEg9Fkd42l0MPLsj6+/ot8qmequ4/yzbsKg=";
-      };
-      unwrapped = pkgs.nh-unwrapped.overrideAttrs (old: {
-        inherit src;
-        cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
-          inherit src;
-          hash = "sha256-ZV5Z3rR7hcbEjtviCFbbWrhjwEBZWzqC1UhO5zKdui4=";
-        };
-        env = (old.env or { }) // {
-          NH_REV = src.rev;
-        };
-      });
-    in
-    pkgs.nh.override {
-      inherit nix-output-monitor;
-      nh-unwrapped = unwrapped;
-    };
-
-  # nh + nom fail to cross-build on ppc64 (nom's Haskell cross via GHC
-  # doesn't work; nh pulls nom). Gate both behind this.
-  isPpc64 = pkgs.stdenv.hostPlatform.system == "powerpc64-linux";
+  # nom fails on cross builds and ppc64 via GHC Template Haskell.
+  isCross = pkgs.stdenv.buildPlatform != pkgs.stdenv.hostPlatform;
+  isPower64 = pkgs.stdenv.hostPlatform.isPower64 or false;
 
   statixConfig = pkgs.writeText "statix.toml" ''disabled = ["repeated_keys"]'';
   statixPatched = pkgs.statix.overrideAttrs (
@@ -101,15 +81,15 @@ let
       src = pkgs.fetchFromGitHub {
         owner = "oppiliappan";
         repo = "statix";
-        rev = "43681f0da4bf1cc6ecd487ef0a5c6ad72e3397c7";
-        hash = "sha256-LXvbkO/H+xscQsyHIo/QbNPw2EKqheuNjphdLfIZUv4=";
+        rev = "e9df54ce918457f151d2e71993edeca1a7af0132";
+        hash = "sha256-duH6Il124g+CdYX+HCqOGnpJxyxOCgWYcrcK0CBnA2M=";
       };
     in
     {
       inherit src;
       cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
         inherit src;
-        hash = "sha256-m4XvzHhbFm3rPEO6KgS7dAvJHV4B4qvmPxdBM5zJGNw=";
+        hash = "sha256-IeVGsrTXqmXbKRbJlBDv02fJ+rPRjwuF354/jZKRK/M=";
       };
       postPatch = ''
         substituteInPlace bin/src/config.rs \
@@ -245,16 +225,18 @@ in
         "auto-allocate-uids"
       ]
     )
-    # nixpkgs puts "kvm" in the system-features default unconditionally
-    # which is a lie on VMs without nested virt that gets kvm-requiring
-    # builds scheduled there.
     |> flip mergeAttrs (
-      optionalAttrs (!config.hasKvm) {
-        system-features = mkForce (
-          remove "kvm" (options.nix.settings.type.getSubOptions [ ]).system-features.default
-          ++ (import (self + /flake.nix)).nixConfig.system-features
-        );
-      }
+      optionalAttrs (!(config.isDarwin or false)) (
+        let
+          default = (options.nix.settings.type.getSubOptions [ ]).system-features.default;
+        in
+        {
+          system-features = mkForce (
+            (if config.hasKvm then default else remove "kvm" default)
+            ++ (import (self + /flake.nix)).nixConfig.system-features
+          );
+        }
+      )
     );
 
   nix.optimise.automatic = !config.isDarwin;
@@ -268,11 +250,15 @@ in
   };
 
   environment.systemPackages = [
-    (pkgs.callPackage (inputs.tack + "/nix/package.nix") { })
     pkgs.nix-index
   ]
-  ++ lib.optionals (!isPpc64) [
-    nh
+  ++ lib.optionals config.isDesktop [
+    (pkgs.callPackage (inputs.tack + "/nix/package.nix") { })
+  ]
+  ++ lib.optionals (!isCross || isPower64) [
+    pkgs.nh
+  ]
+  ++ lib.optionals (!isCross && !isPower64) [
     nix-output-monitor
   ];
 
