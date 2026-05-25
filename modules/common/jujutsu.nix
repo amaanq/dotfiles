@@ -251,12 +251,12 @@ let
   );
 in
 {
-  environment.systemPackages = [
+  environment.systemPackages = lib.optionals config.isDesktop [
     pkgs.difftastic
     jj-src.packages.${pkgs.system}.jujutsu
     pkgs.mergiraf
-  ]
-  ++ lib.optional config.isDesktop pkgs.radicle-node;
+    pkgs.radicle-node
+  ];
 
   environment.variables = {
     JJ_CONFIG = "/etc/jj/config.toml";

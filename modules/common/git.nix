@@ -68,6 +68,8 @@ let
 
     merge = {
       conflictStyle = "diff3";
+    }
+    // lib.optionalAttrs config.isDesktop {
       mergiraf = {
         name = "mergiraf";
         driver = "mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L";
@@ -145,8 +147,10 @@ merge {
   };
 
   environment.systemPackages = [
-    pkgs.difftastic
     pkgs.gitMinimal
+  ]
+  ++ lib.optionals config.isDesktop [
+    pkgs.difftastic
     (pkgs.mergiraf.override { git = pkgs.gitMinimal; })
   ];
 
@@ -156,7 +160,7 @@ merge {
       include.path = config.secrets.gitPrivate.path;
     }
   );
-  environment.etc."git/attributes".text = "* merge=mergiraf\n";
+  environment.etc."git/attributes".text = if config.isDesktop then "* merge=mergiraf\n" else "";
   environment.etc."git/ignore".text = ''
     .jj/
     .claude/
