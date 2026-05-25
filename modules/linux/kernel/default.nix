@@ -5,7 +5,13 @@
   ...
 }:
 let
-  inherit (lib) enabled mkIf optionals;
+  inherit (lib)
+    enabled
+    hasPrefix
+    mkIf
+    optionals
+    ;
+  isAmd = config.cpuArch != null && hasPrefix "MZEN" config.cpuArch;
 in
 {
   disabledModules = [ "config/malloc.nix" ];
@@ -29,6 +35,9 @@ in
     "vm.dirty_bytes" = lib.mkDefault (2 * 1024 * 1024 * 1024);
     "vm.dirty_background_bytes" = lib.mkDefault (512 * 1024 * 1024);
   };
+
+  boot.extraModulePackages = optionals isAmd [ config.boot.kernelPackages.zenpower ];
+  boot.blacklistedKernelModules = optionals isAmd [ "k10temp" ];
 
   boot.kernelParams = [
     "rootflags=noatime"
