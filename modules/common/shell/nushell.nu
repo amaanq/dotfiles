@@ -668,7 +668,7 @@ def fg [id?: int] {
 def _claude_alt_account [account_dir: string, label: string, ...rest] {
   let main_dir = $'($env.XDG_CONFIG_HOME)/claude'
 
-  # Bootstrap on first run: symlink everything except per-account files
+  # On bootstrap, symlink everything except per-account files
   if not ($account_dir | path exists) {
     mkdir $account_dir
     ls -a $main_dir
@@ -682,12 +682,33 @@ def _claude_alt_account [account_dir: string, label: string, ...rest] {
   }
 }
 
+def _codex_alt_account [account_dir: string, label: string, ...rest] {
+  let main_dir = $'($env.XDG_CONFIG_HOME)/codex'
+
+  # On bootstrap, symlink everything except per-account files
+  if not ($account_dir | path exists) {
+    mkdir $account_dir
+    ls -a $main_dir
+      | where { |f| ($f.name | path basename) not-in [. .. auth.json] }
+      | each { |f| ^ln -s $f.name $'($account_dir)/($f.name | path basename)' }
+    print $"($label) dir created. Run `($label)` again to sign in."
+  }
+
+  with-env { CODEX_HOME: $account_dir } {
+    ^codex ...$rest
+  }
+}
+
 def --wrapped clod-work [...rest] {
   _claude_alt_account $'($env.XDG_CONFIG_HOME)/claude-work' 'clod-work' ...$rest
 }
 
 def --wrapped clod2 [...rest] {
   _claude_alt_account $'($env.XDG_CONFIG_HOME)/claude2' 'clod2' ...$rest
+}
+
+def --wrapped codex2 [...rest] {
+  _codex_alt_account $'($env.XDG_CONFIG_HOME)/codex2' 'codex2' ...$rest
 }
 
 def --wrapped glm-code [...rest] {
