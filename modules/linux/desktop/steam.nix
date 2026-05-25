@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   lib,
   ...
@@ -6,7 +7,9 @@
 let
   inherit (lib)
     enabled
+    mkEnableOption
     mkForce
+    mkIf
     ;
 
   # Override Steam to unset LD_PRELOAD in the init script
@@ -20,23 +23,29 @@ let
   };
 in
 {
-  unfree.allowedNames = [
-    "steam"
-    "steam-unwrapped"
-  ];
-
-  programs.gamemode = enabled;
-  programs.steam = enabled {
-    package = steamWithoutMalloc;
-    protontricks = enabled;
-    extraCompatPackages = [
-      pkgs.proton-ge-bin
-    ];
+  options.local.steam.enable = mkEnableOption "Steam (+ gamemode + mangohud bundle)" // {
+    default = true;
   };
 
-  # Nope
-  hardware.graphics.enable32Bit = mkForce false;
-  environment.systemPackages = [
-    (pkgs.mangohud.override { lowerBitnessSupport = false; }) # no 32-bit mangohud
-  ];
+  config = mkIf config.local.steam.enable {
+    unfree.allowedNames = [
+      "steam"
+      "steam-unwrapped"
+    ];
+
+    programs.gamemode = enabled;
+    programs.steam = enabled {
+      package = steamWithoutMalloc;
+      protontricks = enabled;
+      extraCompatPackages = [
+        pkgs.proton-ge-bin
+      ];
+    };
+
+    # Nope
+    hardware.graphics.enable32Bit = mkForce false;
+    environment.systemPackages = [
+      (pkgs.mangohud.override { lowerBitnessSupport = false; }) # no 32-bit mangohud
+    ];
+  };
 }
