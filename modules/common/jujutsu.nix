@@ -132,6 +132,15 @@ let
         "git"
         "fetch"
       ];
+      gp = [
+        "git"
+        "push"
+      ];
+      gpr = [
+        "git"
+        "push"
+        "--remote"
+      ];
       i = [
         "git"
         "init"

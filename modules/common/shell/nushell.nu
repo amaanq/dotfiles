@@ -703,6 +703,7 @@ def --wrapped clod-work [...rest] {
   _claude_alt_account $'($env.XDG_CONFIG_HOME)/claude-work' 'clod-work' ...$rest
 }
 
+
 def --wrapped clod2 [...rest] {
   _claude_alt_account $'($env.XDG_CONFIG_HOME)/claude2' 'clod2' ...$rest
 }
@@ -710,6 +711,12 @@ def --wrapped clod2 [...rest] {
 def --wrapped codex2 [...rest] {
   _codex_alt_account $'($env.XDG_CONFIG_HOME)/codex2' 'codex2' ...$rest
 }
+
+alias cl = claude
+alias clw = clod-work
+alias cl2 = claude2
+alias cx = codex
+alias cx2 = codex2
 
 def --wrapped glm-code [...rest] {
   with-env {
@@ -723,6 +730,8 @@ def --wrapped glm-code [...rest] {
     ^claude ...$rest
   }
 }
+
+alias .r = ./rebuild.nu
 
 def --wrapped nr [program: string = "", ...arguments] {
   if ($program | str contains "#") or ($program | str contains ":") {
