@@ -116,10 +116,17 @@ in
           pkgConfigRouterPreBuild = ''
             export PKG_CONFIG=${pkgConfigRouter}/bin/pkg-config
           '';
+          targetIsPpc64 = prev.stdenv.targetPlatform.isPower64 or false;
         in
         {
           # ppc64 BE uses the ELFv2 ABI, but stock rustc only ships the ELFv1
-          # powerpc64-unknown-linux-gnu target.
+          # powerpc64-unknown-linux-gnu target. Patch is applied unconditionally
+          # because the cross rust bootstrap uses `--set=build.rustc=` pointing
+          # at pkgsBuildBuild.rustc (native x86_64, target=x86_64) — and THAT
+          # rust is what compiles stdlib for ppc64-elfv2 during the cross build.
+          # Without the patch on pkgsBuildBuild.rust, --print=file-names fails
+          # with "could not find specification for target". Costs one native
+          # rust rebuild; cheaper than a duplicate LLVM.
           rust_1_95 = prev.rust_1_95 // {
             packages = prev.rust_1_95.packages // {
               stable = prev.rust_1_95.packages.stable.overrideScope (
@@ -131,38 +138,32 @@ in
                     ];
                     # Doc generation runs error_index_generator, a ppc64 BE
                     # binary; under qemu it can't load the little-endian
-                    # libLLVM.so.21.1 it links ("ELF file data encoding not
-                    # big-endian"), so doc gen can't run cross. (rust.lto is left
-                    # at its default — the stage2-tools ThinLTO SIGSEGV that
-                    # needed lto=off no longer reproduces on 1.95 / LLVM 21.1.8.)
-                    configureFlags = (old.configureFlags or [ ]) ++ [
-                      "--set=build.docs=false"
-                    ];
-                    env = (old.env or { }) // {
-                      RUST_MIN_STACK = "16777216";
-                    };
+                    # libLLVM.so.21.1. Stack bump avoids stage1 symbol-table
+                    # overflow. Only when target=ppc64; native rust skips both.
+                    configureFlags =
+                      (old.configureFlags or [ ])
+                      ++ lib.optional targetIsPpc64 "--set=build.docs=false";
+                    env =
+                      (old.env or { })
+                      // lib.optionalAttrs targetIsPpc64 { RUST_MIN_STACK = "16777216"; };
                   });
                 }
               );
             };
           };
-
+        }
+        // lib.optionalAttrs (prev.stdenv.hostPlatform.isPower64 or false) {
           # GCC 15.2 ICEs at -O2 in ipa-cp.cc / ipa-icf-gimple.cc when building
-          # the ppc64 cross-gcc; pragma those files down to -O1. Conditional on
-          # targetPlatform so native x86 gcc-unwrapped isn't rehashed.
-          gcc-unwrapped =
-            if prev.stdenv.targetPlatform.isPower64 then
-              prev.gcc-unwrapped.overrideAttrs (old: {
-                postPatch = (old.postPatch or "") + ''
-                  for f in gcc/ipa-cp.cc gcc/ipa-icf-gimple.cc; do
-                    if [ -f "$f" ] && ! grep -q 'pragma GCC optimize' "$f"; then
-                      sed -i '1i #pragma GCC optimize("-O1")' "$f"
-                    fi
-                  done
-                '';
-              })
-            else
-              prev.gcc-unwrapped;
+          # the ppc64 cross-gcc; pragma those files down to -O1.
+          gcc-unwrapped = prev.gcc-unwrapped.overrideAttrs (old: {
+            postPatch = (old.postPatch or "") + ''
+              for f in gcc/ipa-cp.cc gcc/ipa-icf-gimple.cc; do
+                if [ -f "$f" ] && ! grep -q 'pragma GCC optimize' "$f"; then
+                  sed -i '1i #pragma GCC optimize("-O1")' "$f"
+                fi
+              done
+            '';
+          });
 
           # Non-EFI grub can't build for ppc64 ELFv2
           grub2 = prev.grub2.overrideAttrs (_: {
@@ -174,52 +175,37 @@ in
 
           # dmi_memory_id is x86-only; nixpkgs udev.nix still adds it to
           # initrd storePaths. Drop a no-op stub so make-initrd-ng resolves.
-          systemd =
-            if prev.stdenv.hostPlatform.isPower64 then
-              prev.systemd.overrideAttrs (old: {
-                # GCC 15.2 ICEs in df_ref_equal_p / loop2_invariant compiling
-                # systemd's dbus-execute.c at -O3. Drop to -O2 via meson knob.
-                mesonFlags = (old.mesonFlags or [ ]) ++ [ "-Doptimization=2" ];
-                postFixup = (old.postFixup or "") + ''
-                  echo "[ppc64 dmi_memory_id stub postFixup] outputs=$outputs out=$out"
-                  if [ -d "$out/lib/udev" ]; then
-                    if [ ! -e "$out/lib/udev/dmi_memory_id" ]; then
-                      chmod +w "$out/lib/udev"
-                      printf '#!/bin/sh\nexit 0\n' > "$out/lib/udev/dmi_memory_id"
-                      chmod 555 "$out/lib/udev/dmi_memory_id"
-                      chmod -w "$out/lib/udev"
-                      echo "[ppc64 dmi_memory_id stub postFixup] created $out/lib/udev/dmi_memory_id"
-                    else
-                      echo "[ppc64 dmi_memory_id stub postFixup] already exists at $out/lib/udev/dmi_memory_id"
-                    fi
-                  else
-                    echo "[ppc64 dmi_memory_id stub postFixup] $out/lib/udev does not exist; skipping"
-                  fi
-                '';
-              })
-            else
-              prev.systemd;
-          systemdMinimal =
-            if prev.stdenv.hostPlatform.isPower64 then
-              prev.systemdMinimal.overrideAttrs (old: {
-                mesonFlags = (old.mesonFlags or [ ]) ++ [ "-Doptimization=2" ];
-                postFixup = (old.postFixup or "") + ''
-                  echo "[ppc64 dmi_memory_id stub min postFixup] outputs=$outputs out=$out"
-                  if [ -d "$out/lib/udev" ] && [ ! -e "$out/lib/udev/dmi_memory_id" ]; then
-                    chmod +w "$out/lib/udev"
-                    printf '#!/bin/sh\nexit 0\n' > "$out/lib/udev/dmi_memory_id"
-                    chmod 555 "$out/lib/udev/dmi_memory_id"
-                    chmod -w "$out/lib/udev"
-                    echo "[ppc64 dmi_memory_id stub min postFixup] created"
-                  fi
-                '';
-              })
-            else
-              prev.systemdMinimal;
+          systemd = prev.systemd.overrideAttrs (old: {
+            mesonFlags = (old.mesonFlags or [ ]) ++ [ "-Doptimization=2" ];
+            postFixup = (old.postFixup or "") + ''
+              if [ -d "$out/lib/udev" ] && [ ! -e "$out/lib/udev/dmi_memory_id" ]; then
+                chmod +w "$out/lib/udev"
+                printf '#!/bin/sh\nexit 0\n' > "$out/lib/udev/dmi_memory_id"
+                chmod 555 "$out/lib/udev/dmi_memory_id"
+                chmod -w "$out/lib/udev"
+              fi
+            '';
+          });
+          systemdMinimal = prev.systemdMinimal.overrideAttrs (old: {
+            mesonFlags = (old.mesonFlags or [ ]) ++ [ "-Doptimization=2" ];
+            postFixup = (old.postFixup or "") + ''
+              if [ -d "$out/lib/udev" ] && [ ! -e "$out/lib/udev/dmi_memory_id" ]; then
+                chmod +w "$out/lib/udev"
+                printf '#!/bin/sh\nexit 0\n' > "$out/lib/udev/dmi_memory_id"
+                chmod 555 "$out/lib/udev/dmi_memory_id"
+                chmod -w "$out/lib/udev"
+              fi
+            '';
+          });
 
-          # openssl asm broken on BE
+          # openssl asm broken on BE. Its test suite is also unreliable here:
+          # 70-test_quic_multistream.t is a known-flaky timing race (openssl
+          # #26949, #27356) that trips on slow/loaded machines, and the suite
+          # burns ~56 min on this cacheless cross target, so skip it like the
+          # other BE test suites.
           openssl = prev.openssl.overrideAttrs (old: {
             configureFlags = (old.configureFlags or [ ]) ++ [ "no-asm" ];
+            doCheck = false;
           });
 
           # nodejs: GCC 15 ICE in V8 at -O3 on ppc64 (cross-heap-remembered-set.h)
@@ -526,20 +512,6 @@ in
             '';
           });
 
-          # g-ir-scanner runs target binaries via qemu-user, but nixpkgs'
-          # qemu-ppc64 can't load ppc64be glib ("ELF file data encoding not
-          # little-endian"). Every GObject library passes `withIntrospection` as an
-          # override arg — use `.override` (not overrideAttrs), which properly
-          # strips gobject-introspection from nativeBuildInputs, drops devdoc,
-          # skips the .gir/typelib outputs, and disables gtk-doc.
-          libgudev = prev.libgudev.override { withIntrospection = false; };
-          json-glib = prev.json-glib.override { withIntrospection = false; };
-          gusb = prev.gusb.override { withIntrospection = false; };
-          harfbuzz = prev.harfbuzz.override { withIntrospection = false; };
-          pango = prev.pango.override { withIntrospection = false; };
-          gdk-pixbuf = prev.gdk-pixbuf.override { withIntrospection = false; };
-          libxmlb = prev.libxmlb.override { withIntrospection = false; };
-
           # lldb: standalone cross-compile requires a native LLVM build alongside,
           # which nixpkgs doesn't set up. Not needed on a server.
           lldb = prev.emptyDirectory // {
@@ -552,44 +524,6 @@ in
             doCheck = false;
             cmakeFlags = (old.cmakeFlags or [ ]) ++ [ "-Dprotobuf_BUILD_TESTS=OFF" ];
           });
-
-          # zfs bash-completion path fix
-          zfs = prev.zfs.overrideAttrs (old: {
-            configureFlags = (old.configureFlags or [ ]) ++ [
-              "--with-bash-completiondir=${placeholder "out"}/share/bash-completion/completions"
-            ];
-          });
-
-          # LLVM at -O3 ICEs gcc-15.2 on tablegen sources; drop to -O2.
-          # Under cross, symlink NATIVE/bin/llvm-config to pkgsBuildBuild's
-          # so postInstall finds it. overrideScope is required: `// {}`
-          # leaves clang/lld pointing at the un-patched libllvm.
-          llvmPackages_21 = prev.llvmPackages_21.overrideScope (
-            _: lprev: {
-              llvm = lprev.llvm.overrideAttrs (old: {
-                postConfigure = (old.postConfigure or "") + ''
-                  find . -name "*.ninja" -exec sed -i 's/-O3/-O2/g' {} +
-                '';
-                preInstall =
-                  (old.preInstall or "")
-                  + lib.optionalString (prev.stdenv.buildPlatform != prev.stdenv.hostPlatform) ''
-                    mkdir -p NATIVE/bin
-                    ln -sf ${final.pkgsBuildBuild.llvmPackages_21.llvm.dev}/bin/llvm-config NATIVE/bin/llvm-config
-                  '';
-              });
-              libllvm = lprev.libllvm.overrideAttrs (old: {
-                postConfigure = (old.postConfigure or "") + ''
-                  find . -name "*.ninja" -exec sed -i 's/-O3/-O2/g' {} +
-                '';
-                preInstall =
-                  (old.preInstall or "")
-                  + lib.optionalString (prev.stdenv.buildPlatform != prev.stdenv.hostPlatform) ''
-                    mkdir -p NATIVE/bin
-                    ln -sf ${final.pkgsBuildBuild.llvmPackages_21.libllvm.dev}/bin/llvm-config NATIVE/bin/llvm-config
-                  '';
-              });
-            }
-          );
 
           # groff: broken PDF in doc output
           groff = prev.groff.overrideAttrs (_: {
