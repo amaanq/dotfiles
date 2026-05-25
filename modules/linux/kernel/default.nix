@@ -20,7 +20,6 @@ in
     inherit (config) cpuArch;
     interactive = mkIf config.isServer false;
     drivers = mkIf config.isServer false;
-    extras = mkIf config.isServer false;
   };
 
   environment = {
