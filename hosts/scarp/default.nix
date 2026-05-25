@@ -15,7 +15,7 @@ lib.nixosSystem' "server" (
 
     type = "server";
     isBuilder = true;
-    builderMaxJobs = 12;
+    builderMaxJobs = 32;
 
     networking = {
       domain = "amaanq.com";
