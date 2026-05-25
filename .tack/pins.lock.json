@@ -39,6 +39,14 @@
     "rev": "8c5cd270e1a01da3b9d7cc598769beb04966b9c0",
     "type": "github"
   },
+  "circus": {
+    "lastModified": 1780358698,
+    "narHash": "sha256-mi0zfEM6tCEuOlu0JJArgVtmzswA8jdVlFoXElplMLs=",
+    "owner": "manic-systems",
+    "repo": "circus",
+    "rev": "537ec92b9ac1e9ec0e594bba781c4781a7b7e472",
+    "type": "github"
+  },
   "crane": {
     "lastModified": 1779130139,
     "narHash": "sha256-BLrtr42azquO7MdGFU5a7KiMl3YpFlTeIXqy1fT5GlQ=",

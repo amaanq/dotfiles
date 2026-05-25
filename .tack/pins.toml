@@ -190,3 +190,6 @@ url = "gh:feel-co/ncro"
 # switch to `gh:jj-vcs/jj` after colocated workspaces land on main.
 [inputs.jj-src]
 url = "amaan:jj/bare-colocate-fix"
+
+[inputs.circus]
+url = "manic:circus"

@@ -677,6 +677,16 @@
           "output_file": "hosts/scarp/secrets/bulwarkSecret.age",
           "output_sha256": "a4a0b2a88537cc665fcaa60918a00311c8655ed8812ca2c6a5223be16e01c309"
         },
+        "circusAgentClientKey": {
+          "source_sha256": "ad28c370c706bd676a7a84ec3e7cbb2b1255fb4d78fad41c5d93cebd7b7e6fc9",
+          "output_file": "hosts/scarp/secrets/circusAgentClientKey.age",
+          "output_sha256": "be323ea9cf8e3086f63d87baab8ed13e3488db001c10e261fafe1a162b8d1ddc"
+        },
+        "circusAgentToken": {
+          "source_sha256": "3f3880bd7e364e58f8bccb91f84e7e012bb54cf58f195d6551cd99f0f69758eb",
+          "output_file": "hosts/scarp/secrets/circusAgentToken.age",
+          "output_sha256": "1dc0c0db41bc35df22c4b9487613c0fcb1cb9630b8c655c532c44b8f81de7728"
+        },
         "forgejoRunnerToken": {
           "source_sha256": "56b135439dfc4968dcb1980d079af3806d6ba3b151cbfff06ca48c27b2fb1b87",
           "output_file": "hosts/scarp/secrets/forgejoRunnerToken.age",
