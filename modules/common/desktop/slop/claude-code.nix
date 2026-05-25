@@ -925,6 +925,135 @@ let
     Path(sys.argv[1]).write_bytes(data)
   '';
 
+  # Shut the clanka up
+  shutUpClanka = pkgs.writeScriptBin "shut-up-clanka" /* py */ ''
+    #!${getExe pkgs.python3}
+    import json
+    import re
+    import sys
+
+    SKIP_EXT = {"md", "markdown", "mdx", "rst", "txt", "adoc", "json"}
+
+    WHITELIST = re.compile(
+        r"^\s*(?:"
+        r"(?:TODO|FIXME|NOTE|HACK|XXX|BUG|WARN|WARNING|SAFETY|PERF|SECURITY)\b"
+        r"|\*|/\*\*|///|//!|#!|#\[|#region|#endregion|#\s*pragma|#\s*region"
+        r"|.*\b(?:eslint|prettier|biome|ts-ignore|ts-expect|ts-nocheck|@ts-|noqa"
+        r"|clippy::|pylint|mypy|rustfmt|gofmt|nolint|type:\s*ignore|coverage:)"
+        r"|.*\b(?:SPDX|Copyright|License|https?://)"
+        r")",
+        re.IGNORECASE,
+    )
+
+    NARRATION = re.compile(
+        r"^(?:update[ds]?|chang(?:e|ed|ing)|modif(?:y|ied)|remov(?:e|ed)|delet(?:e|ed)"
+        r"|add(?:ed|ing)?|refactor(?:ed)?|renam(?:e|ed)|mov(?:e|ed)|replac(?:e|ed)"
+        r"|fix(?:ed)?|introduc(?:e|ed)|now\s|new\s|using\s+the)\b",
+        re.IGNORECASE,
+    )
+
+    RESTATE = re.compile(
+        r"^(?:increment|decrement|set|get|return|call|creat(?:e|ing)|initiali[sz]e|init"
+        r"|loop|iterate|check|assign|declar(?:e|ing)|defin(?:e|ing)|import|instantiate"
+        r"|store|sav(?:e|ing)|load|print|log|handl(?:e|ing)|pars(?:e|ing)|convert"
+        r"|build|mak(?:e|ing)|lock|unlock|open|clos(?:e|ing)|start|stop)\b",
+        re.IGNORECASE,
+    )
+
+    ARTICLE = re.compile(r"^(?:the|this|a|an)\s+(?:following|above|below|next|previous)\b", re.IGNORECASE)
+    DIVIDER = re.compile(r"^[-=*~#_]{3,}\s*$")
+    ENDMARK = re.compile(r"^end\s+(?:of|function|class|method|if|loop|for|while|block)\b", re.IGNORECASE)
+    WORD = re.compile(r"[A-Za-z]{3,}")
+
+
+    def comment_body(line):
+        s = line.strip()
+        for lead in ("//", "#", "--"):
+            if s.startswith(lead):
+                return s[len(lead):].strip()
+        return None
+
+
+    def trailing_comment(line):
+        m = re.search(r"\S\s+(//|#|--)\s?(.+)$", line)
+        if not m:
+            return None, None
+        return m.group(2).strip(), line[: m.start(1)]
+
+
+    def is_bad(body):
+        return bool(
+            NARRATION.match(body)
+            or RESTATE.match(body)
+            or ARTICLE.match(body)
+            or DIVIDER.match(body)
+            or ENDMARK.match(body)
+        )
+
+
+    def restates_code(body, code):
+        cw = {w.lower() for w in WORD.findall(code)}
+        bw = [w.lower() for w in WORD.findall(body)]
+        return len(bw) <= 6 and any(w in cw for w in bw)
+
+
+    def scan(text):
+        hits = []
+        for raw in text.splitlines():
+            body = comment_body(raw)
+            if body is not None:
+                if WHITELIST.match(raw):
+                    continue
+                if is_bad(body):
+                    hits.append(raw.strip())
+                continue
+            tbody, tcode = trailing_comment(raw)
+            if tbody and not WHITELIST.match("// " + tbody):
+                if is_bad(tbody) or restates_code(tbody, tcode):
+                    hits.append(raw.strip())
+        return hits
+
+
+    def collect(tool, ti):
+        if tool == "Write":
+            return ti.get("content", ""), ti.get("file_path", "")
+        if tool == "NotebookEdit":
+            return ti.get("new_source", ""), ti.get("notebook_path", "")
+        if tool == "MultiEdit":
+            return "\n".join(e.get("new_string", "") for e in ti.get("edits", [])), ti.get("file_path", "")
+        return ti.get("new_string", ""), ti.get("file_path", "")
+
+
+    def main():
+        try:
+            data = json.load(sys.stdin)
+        except Exception:
+            return
+        tool = data.get("tool_name", "")
+        text, path = collect(tool, data.get("tool_input", {}))
+        if not text:
+            return
+        ext = path.rsplit(".", 1)[-1].lower() if "." in path else ""
+        if ext in SKIP_EXT:
+            return
+        hits = scan(text)
+        if not hits:
+            return
+        shown = "\n".join(f"  - {h}" for h in hits[:8])
+        extra = f"\n  ...and {len(hits) - 8} more" if len(hits) > 8 else ""
+        msg = (
+            f"⚠️ Comment check: {len(hits)} likely-redundant comment(s) in this edit:\n"
+            f"{shown}{extra}\n"
+            "Per CLAUDE.md, comments explain WHY not WHAT. Remove ones that restate the "
+            "code or narrate the change; keep only a genuine why/footnote if warranted."
+        )
+        print(json.dumps({"hookSpecificOutput": {"hookEventName": "PostToolUse", "additionalContext": msg}}))
+
+
+    if __name__ == "__main__":
+        main()
+  '';
+
   # Deno-compiled so we can stub the Clearcut telemetry watchdog.
   chrome-devtools-mcp =
     let
@@ -1023,6 +1152,13 @@ let
       hooks = singleton {
         type = "command";
         command = "/home/amaanq/.claude/hooks/rtk-rewrite.sh";
+      };
+    };
+    hooks.PostToolUse = singleton {
+      matcher = "Edit|Write|MultiEdit|NotebookEdit";
+      hooks = singleton {
+        type = "command";
+        command = getExe shutUpClanka;
       };
     };
     hooks.WorktreeCreate = singleton {
