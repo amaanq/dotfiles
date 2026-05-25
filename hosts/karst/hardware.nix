@@ -2,12 +2,6 @@
 {
   imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
 
-  boot.initrd.kernelModules = [
-    "virtio_pci"
-    "virtio_scsi"
-    "virtio_blk"
-  ];
-
   boot.initrd.availableKernelModules = [
     "xhci_pci"
     "usbhid"
@@ -22,6 +16,4 @@
   nixpkgs.buildPlatform = "x86_64-linux";
 
   hasKvm = false;
-
-  boot.tmp.cleanOnBoot = true;
 }

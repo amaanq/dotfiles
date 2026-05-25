@@ -13,8 +13,6 @@ _: {
 
   boot.supportedFilesystems = [ "bcachefs" ];
 
-  boot.tmp.cleanOnBoot = true;
-
   networking.useDHCP = false;
   networking.interfaces.ens160.useDHCP = false;
 }

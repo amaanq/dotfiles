@@ -4,8 +4,6 @@
 
   boot.initrd.availableKernelModules = [
     "xhci_pci"
-    "virtio_pci"
-    "virtio_scsi"
     "usbhid"
     "sr_mod"
   ];
@@ -16,8 +14,6 @@
   nixpkgs.buildPlatform = "x86_64-linux";
 
   hasKvm = false;
-
-  boot.tmp.cleanOnBoot = true;
 
   networking.useDHCP = false;
   networking.interfaces.enp7s0.useDHCP = false;

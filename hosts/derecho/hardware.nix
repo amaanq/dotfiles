@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  modulesPath,
   pkgs,
   ...
 }:
@@ -58,10 +57,6 @@ let
   '';
 in
 {
-  imports = [
-    (modulesPath + "/profiles/qemu-guest.nix")
-  ];
-
   boot.extraModulePackages = [ config.boot.kernelPackages.ddcci-driver ];
   boot.initrd.availableKernelModules = [
     "nvme"
