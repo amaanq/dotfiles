@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   modulesPath,
   ...
@@ -12,6 +13,7 @@ in
   ];
 
   unfree.allowedNames = [
+    "nvidia-kernel-modules"
     "nvidia-settings"
     "nvidia-x11"
   ];
@@ -41,9 +43,12 @@ in
 
   hardware.nvidia = {
     modesetting = enabled;
-    powerManagement = enabled;
-    open = false;
     nvidiaSettings = true;
+    open = true;
+    package = config.boot.kernelPackages.nvidiaPackages.stable.override {
+      disable32Bit = true;
+    };
+    powerManagement = enabled;
     prime = {
       offload = enabled {
         enableOffloadCmd = true;
