@@ -45,7 +45,7 @@ let
       builtins.fetchurl sources.${pkgs.stdenv.hostPlatform.system};
     buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.libinput ];
     nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ ida-patcher ];
-    postInstall = (old.postInstall or "") + ''
+    postInstall = (old.postInstall or "") + /* sh */ ''
       cd $out/opt
       ${ida-patcher}/bin/ida-patcher --oneshot
       substituteInPlace cfg/hexrays.cfg \

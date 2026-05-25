@@ -18,7 +18,7 @@
   libslirp,
 }:
 
-stdenv.mkDerivation (finalAttrs: {
+stdenv.mkDerivation {
   pname = "qemu-e2k";
   version = "9.2.50-unstable-2025-04-13";
 
@@ -57,7 +57,7 @@ stdenv.mkDerivation (finalAttrs: {
   dontUseMesonConfigure = true;
   dontAddStaticConfigureFlags = true;
 
-  preConfigure = ''
+  preConfigure = /* sh */ ''
     unset CPP
     chmod +x ./scripts/shaderinclude.py
     patchShebangs .
@@ -85,7 +85,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   doCheck = false;
 
-  postInstall = ''
+  postInstall = /* sh */ ''
     # Remove unnecessary files
     rm -rf $out/share/applications
   '';
@@ -98,4 +98,4 @@ stdenv.mkDerivation (finalAttrs: {
     platforms = lib.platforms.linux;
     mainProgram = "qemu-e2k";
   };
-})
+}

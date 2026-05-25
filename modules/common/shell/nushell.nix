@@ -107,113 +107,111 @@ let
         (pkgs.formats.toml { }).generate "cade-config.toml" { verbosity = "normal"; }
       } hook nushell >> "$out"'';
 
-  configNu =
-    pkgs.writeText "config.nu" # nu
+  configNu = pkgs.writeText "config.nu" /* nu */ ''
+    # Base variables first (XDG dirs, HOME, USER) so that subsequent
+    # variables can reference them over SSH where /etc/profile isn't sourced
+    ${
+      environmentVariables
+      |> filterAttrs (name: const <| baseVariablesMap ? ${name})
+      |> mapAttrsToList (name: value: /* nu */ "$env.${name} = $\"${value}\"")
+      |> concatStringsSep "\n"
+    }
+
+    # Remaining environment variables
+    ${
+      environmentVariables
+      |> filterAttrs (name: const <| !(baseVariablesMap ? ${name}))
+      |> mapAttrsToList (name: value: /* nu */ "$env.${name} = $\"${value}\"")
+      |> concatStringsSep "\n"
+    }
+
+    ${lib.optionalString (config.environment.sessionVariables ? LD_PRELOAD) /* nu */ ''
+      # nu's wrapper preloads mimalloc; hand the system allocator back to
+      # everything nu spawns. Nested nu re-enters the wrapper → mimalloc.
+      $env.LD_PRELOAD = "${config.environment.sessionVariables.LD_PRELOAD}"
+    ''}
+
+    # Shell aliases
+    ${shellAliases |> mapAttrsToList (name: value: "alias ${name} = ${value}") |> concatStringsSep "\n"}
+
+    $env.LS_COLORS = (open ${
+      pkgs.runCommand "ls_colors" { } ''
+        ${pkgs.buildPackages.vivid}/bin/vivid generate tokyonight-moon > "$out"
       ''
-        # Base variables first (XDG dirs, HOME, USER) so that subsequent
-        # variables can reference them over SSH where /etc/profile isn't sourced
-        ${
-          environmentVariables
-          |> filterAttrs (name: const <| baseVariablesMap ? ${name})
-          |> mapAttrsToList (name: value: /* nu */ "$env.${name} = $\"${value}\"")
-          |> concatStringsSep "\n"
-        }
+    } | str trim)
 
-        # Remaining environment variables
-        ${
-          environmentVariables
-          |> filterAttrs (name: const <| !(baseVariablesMap ? ${name}))
-          |> mapAttrsToList (name: value: /* nu */ "$env.${name} = $\"${value}\"")
-          |> concatStringsSep "\n"
-        }
+    ${readFile ./nushell.nu}
 
-        ${lib.optionalString (config.environment.sessionVariables ? LD_PRELOAD) /* nu */ ''
-          # nu's wrapper preloads mimalloc; hand the system allocator back to
-          # everything nu spawns. Nested nu re-enters the wrapper → mimalloc.
-          $env.LD_PRELOAD = "${config.environment.sessionVariables.LD_PRELOAD}"
-        ''}
+    source ${./ssh-completions.nu}
 
-        # Shell aliases
-        ${shellAliases |> mapAttrsToList (name: value: "alias ${name} = ${value}") |> concatStringsSep "\n"}
+    use ${./terminfo-autogen.nu}
 
-        $env.LS_COLORS = (open ${
-          pkgs.runCommand "ls_colors" { } ''
-            ${pkgs.buildPackages.vivid}/bin/vivid generate tokyonight-moon > "$out"
-          ''
-        } | str trim)
+    # zoxide
+    source ${
+      pkgs.runCommand "zoxide.nu" { }
+        ''${pkgs.buildPackages.zoxide}/bin/zoxide init nushell --cmd cd >> "$out"''
+    }
 
-        ${readFile ./nushell.nu}
+    ${optionalString config.isDesktop /* nu */ ''
+      # Cade appends a pre_prompt closure that reloads only on PWD change.
+      source ${cadeHook}
+    ''}
 
-        source ${./ssh-completions.nu}
+    if ($env.USER == "amaanq") {
+      source ${
+        pkgs.runCommand "atuin.nu" {
+          nativeBuildInputs = [ pkgs.writableTmpDirAsHomeHook ];
+        } ''${pkgs.buildPackages.atuin}/bin/atuin init nu --disable-up-arrow >> "$out"''
+      }
+    }
 
-        use ${./terminfo-autogen.nu}
+    if ($env.USER == "amaanq") {
+      if ("${config.secrets.githubToken.path}" | path exists) {
+        $env.GH_TOKEN = (open ${config.secrets.githubToken.path} | parse "access-tokens = github.com={token}" | get token.0)
+      }
+    ${desktopSecretEnv}
+    }
 
-        # zoxide
-        source ${
-          pkgs.runCommand "zoxide.nu" { }
-            ''${pkgs.buildPackages.zoxide}/bin/zoxide init nushell --cmd cd >> "$out"''
-        }
+    ${openstackCommands}
 
-        ${optionalString config.isDesktop /* nu */ ''
-          # Cade appends a pre_prompt closure that reloads only on PWD change.
-          source ${cadeHook}
-        ''}
+    # Rose Pine theme
+    $env.config.color_config = {
+      separator: "${colors.base03}"
+      leading_trailing_space_bg: "${colors.base04}"
+      header: "${colors.base0B}"
+      date: "${colors.base0E}"
+      filesize: "${colors.base0D}"
+      row_index: "${colors.base0C}"
+      bool: "${colors.base08}"
+      int: "${colors.base0B}"
+      duration: "${colors.base08}"
+      range: "${colors.base08}"
+      float: "${colors.base08}"
+      string: "${colors.base04}"
+      nothing: "${colors.base08}"
+      binary: "${colors.base08}"
+      cellpath: "${colors.base08}"
+      hints: dark_gray
 
-        if ($env.USER == "amaanq") {
-          source ${
-            pkgs.runCommand "atuin.nu" {
-              nativeBuildInputs = [ pkgs.writableTmpDirAsHomeHook ];
-            } ''${pkgs.buildPackages.atuin}/bin/atuin init nu --disable-up-arrow >> "$out"''
-          }
-        }
-
-        if ($env.USER == "amaanq") {
-          if ("${config.secrets.githubToken.path}" | path exists) {
-            $env.GH_TOKEN = (open ${config.secrets.githubToken.path} | parse "access-tokens = github.com={token}" | get token.0)
-          }
-        ${desktopSecretEnv}
-        }
-
-        ${openstackCommands}
-
-        # Rose Pine theme
-        $env.config.color_config = {
-          separator: "${colors.base03}"
-          leading_trailing_space_bg: "${colors.base04}"
-          header: "${colors.base0B}"
-          date: "${colors.base0E}"
-          filesize: "${colors.base0D}"
-          row_index: "${colors.base0C}"
-          bool: "${colors.base08}"
-          int: "${colors.base0B}"
-          duration: "${colors.base08}"
-          range: "${colors.base08}"
-          float: "${colors.base08}"
-          string: "${colors.base04}"
-          nothing: "${colors.base08}"
-          binary: "${colors.base08}"
-          cellpath: "${colors.base08}"
-          hints: dark_gray
-
-          shape_garbage: { fg: "${colors.base07}" bg: "${colors.base08}" }
-          shape_bool: "${colors.base0D}"
-          shape_int: { fg: "${colors.base0E}" attr: b }
-          shape_float: { fg: "${colors.base0E}" attr: b }
-          shape_range: { fg: "${colors.base0A}" attr: b }
-          shape_internalcall: { fg: "${colors.base0C}" attr: b }
-          shape_external: "${colors.base0C}"
-          shape_externalarg: { fg: "${colors.base0B}" attr: b }
-          shape_literal: "${colors.base0D}"
-          shape_operator: "${colors.base0A}"
-          shape_signature: { fg: "${colors.base0B}" attr: b }
-          shape_string: "${colors.base0B}"
-          shape_filepath: "${colors.base0D}"
-          shape_globpattern: { fg: "${colors.base0D}" attr: b }
-          shape_variable: "${colors.base0E}"
-          shape_flag: { fg: "${colors.base0D}" attr: b }
-          shape_custom: { attr: b }
-        }
-      '';
+      shape_garbage: { fg: "${colors.base07}" bg: "${colors.base08}" }
+      shape_bool: "${colors.base0D}"
+      shape_int: { fg: "${colors.base0E}" attr: b }
+      shape_float: { fg: "${colors.base0E}" attr: b }
+      shape_range: { fg: "${colors.base0A}" attr: b }
+      shape_internalcall: { fg: "${colors.base0C}" attr: b }
+      shape_external: "${colors.base0C}"
+      shape_externalarg: { fg: "${colors.base0B}" attr: b }
+      shape_literal: "${colors.base0D}"
+      shape_operator: "${colors.base0A}"
+      shape_signature: { fg: "${colors.base0B}" attr: b }
+      shape_string: "${colors.base0B}"
+      shape_filepath: "${colors.base0D}"
+      shape_globpattern: { fg: "${colors.base0D}" attr: b }
+      shape_variable: "${colors.base0E}"
+      shape_flag: { fg: "${colors.base0D}" attr: b }
+      shape_custom: { attr: b }
+    }
+  '';
 in
 {
   secrets = mkIf config.isDesktop {

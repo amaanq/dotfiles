@@ -127,7 +127,7 @@
 
             nativeBuildInputs = lib.optionals useNom [ final.makeBinaryWrapper ];
 
-            postBuild = lib.optionalString useNom ''
+            postBuild = lib.optionalString useNom /* sh */ ''
               wrapProgram $out/bin/nh \
                 --prefix PATH : ${lib.makeBinPath runtimeDeps}
             '';
@@ -201,7 +201,7 @@
         # in aspell, bin/aspell-import is a perl script which imports
         # ispell wordlists. This is not used in KDE
         aspell = prev.aspell.overrideAttrs (old: {
-          postFixup = (old.postFixup or "") + ''
+          postFixup = (old.postFixup or "") + /* sh */ ''
             rm -f $out/bin/aspell-import
           '';
         });
@@ -209,9 +209,9 @@
         # Patch kio-extras at the kdePackages *scope* level so Dolphin
         # et al. rebuild against the perl-free variant.
         kdePackages = prev.kdePackages.overrideScope (
-          kfinal: kprev: {
+          _: kprev: {
             kio-extras = kprev.kio-extras.overrideAttrs (old: {
-              postPatch = (old.postPatch or "") + ''
+              postPatch = (old.postPatch or "") + /* sh */ ''
                 substituteInPlace CMakeLists.txt \
                   --replace-fail 'add_subdirectory( info )' \
                                  '# add_subdirectory( info )  # perl-free closure'
@@ -225,10 +225,10 @@
           name = "xdg-utils-handlr-shim-${prev.handlr-regex.version or "0"}";
           paths = [
             final.xdg-user-dirs
-            (final.writeShellScriptBin "xdg-open" ''exec ${final.handlr-regex}/bin/handlr open "$@"'')
-            (final.writeShellScriptBin "xdg-mime" ''exec ${final.handlr-regex}/bin/handlr mime "$@"'')
-            (final.writeShellScriptBin "xdg-settings" ''exec ${final.handlr-regex}/bin/handlr get "$@"'')
-            (final.writeShellScriptBin "xdg-email" ''exec ${final.handlr-regex}/bin/handlr open "mailto:$*"'')
+            (final.writeShellScriptBin "xdg-open" /* sh */ ''exec ${final.handlr-regex}/bin/handlr open "$@"'')
+            (final.writeShellScriptBin "xdg-mime" /* sh */ ''exec ${final.handlr-regex}/bin/handlr mime "$@"'')
+            (final.writeShellScriptBin "xdg-settings" /* sh */ ''exec ${final.handlr-regex}/bin/handlr get "$@"'')
+            (final.writeShellScriptBin "xdg-email" /* sh */ ''exec ${final.handlr-regex}/bin/handlr open "mailto:$*"'')
 
             # These are install-time helpers that are not used on NixOS.
             (final.writeShellScriptBin "xdg-desktop-menu" "exit 0")
@@ -248,7 +248,7 @@
         # it'll just error at runtime. This should *probably* be fine.
         winetricks = prev.winetricks.overrideAttrs (old: {
           nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.removeReferencesTo ];
-          postFixup = (old.postFixup or "") + ''
+          postFixup = (old.postFixup or "") + /* sh */ ''
             remove-references-to -t ${final.perl} $out/bin/winetricks $out/bin/.winetricks-wrapped
           '';
         });

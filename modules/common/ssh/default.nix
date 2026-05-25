@@ -2,7 +2,6 @@
   self,
   config,
   lib,
-  pkgs,
   ...
 }:
 let
@@ -13,9 +12,8 @@ let
     mapAttrsToList
     head
     map
-    merge
-    mkIf
     remove
+    optionalString
     ;
 
   controlPath = "~/.ssh/control";
@@ -28,8 +26,8 @@ let
     cfarmHosts
     |> map (h: ''
       # @desc ${h.desc}
-      Host ${h.host}${lib.optionalString (h ? port) "\n    Port ${toString h.port}"}${
-        lib.optionalString (h ? extra) "\n    ${h.extra}"
+      Host ${h.host}${optionalString (h ? port) "\n    Port ${toString h.port}"}${
+        optionalString (h ? extra) "\n    ${h.extra}"
       }
     '')
     |> concatStringsSep "\n";
@@ -53,7 +51,7 @@ let
       in
       ''
         Host ${name}
-          User ${user}${lib.optionalString (port != 22) "\n    Port ${toString port}"}
+          User ${user}${optionalString (port != 22) "\n    Port ${toString port}"}
           StrictHostKeyChecking accept-new
       ''
     );
@@ -92,7 +90,7 @@ let
       IdentityFile ~/.ssh/id
   '';
 in
-merge {
+{
   secrets.sshConfig = {
     rekeyFile = ./config.age;
     mode = "0400";

@@ -68,7 +68,7 @@ in
   config.systemd.services.clickhouse-log-cleanup = {
     description = "Truncate ClickHouse system logs";
     serviceConfig.Type = "oneshot";
-    script = ''
+    script = /* sh */ ''
       for table in trace_log metric_log query_log asynchronous_metric_log part_log text_log processors_profile_log latency_log; do
         ${pkgs.clickhouse}/bin/clickhouse-client --query "TRUNCATE TABLE IF EXISTS system.$table" 2>/dev/null || true
         for i in $(seq 0 9); do

@@ -78,7 +78,7 @@ in
   systemd.tmpfiles.rules = [
     "d /var/lib/rampart 0750 rampart rampart - -"
   ];
-  system.activationScripts.rampartSecrets = ''
+  system.activationScripts.rampartSecrets = /* sh */ ''
     set -eu
     umask 077
     mkdir -p /var/lib/rampart

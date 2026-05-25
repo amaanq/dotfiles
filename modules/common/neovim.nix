@@ -6,7 +6,12 @@
   ...
 }:
 let
-  variant = if config.isServer then "server" else "nvim";
+  variant =
+    {
+      desktop = "nvim";
+      server = "server";
+    }
+    .${config.type};
   nvimPackage = (pkgs.extend nvim-config.overlays.${variant}).${variant};
 in
 {

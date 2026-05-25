@@ -1,15 +1,10 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{ pkgs, ... }:
 {
   environment.systemPackages = [ pkgs.kitty ];
 
   environment.variables.KITTY_CONFIG_DIRECTORY = "/etc/kitty";
 
-  environment.etc."kitty/kitty.conf".text = ''
+  environment.etc."kitty/kitty.conf".text = /* kitty */ ''
     # Font configuration
     font_family Berkeley Mono Book
     font_size 11

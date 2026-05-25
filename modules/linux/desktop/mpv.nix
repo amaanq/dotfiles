@@ -12,7 +12,7 @@ in
 
   environment.variables.MPV_HOME = "/etc/mpv";
 
-  environment.etc."mpv/mpv.conf".text = ''
+  environment.etc."mpv/mpv.conf".text = /* ini */ ''
     # Rose Pine OSD theme
     background-color=#000000
     osd-back-color=${colors.base01}

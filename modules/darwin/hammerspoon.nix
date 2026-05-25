@@ -2,7 +2,7 @@
   homebrew.casks = [ "hammerspoon" ];
 
   # Point Hammerspoon directly to /etc/hammerspoon
-  system.activationScripts.postActivation.text = ''
+  system.activationScripts.postActivation.text = /* sh */ ''
     /usr/bin/defaults write org.hammerspoon.Hammerspoon MJConfigFile /etc/hammerspoon/init.lua
   '';
 }

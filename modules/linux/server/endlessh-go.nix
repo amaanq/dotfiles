@@ -8,7 +8,6 @@ let
   inherit (lib)
     enabled
     mkEnableOption
-    mkIf
     mkOption
     types
     ;

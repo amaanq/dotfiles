@@ -62,12 +62,12 @@ let
         # under instance/httpapi/). Drop once upstream merges.
         patches = (prev.patches or [ ]) ++ [ ./patches/opencode-statusline.patch ];
 
-        postPatch = (prev.postPatch or "") + ''
+        postPatch = (prev.postPatch or "") + /* sh */ ''
           substituteInPlace package.json \
             --replace-fail '"packageManager": "bun@1.3.14"' '"packageManager": "bun@${bunVersion}"'
         '';
 
-        postConfigure = (prev.postConfigure or "") + ''
+        postConfigure = (prev.postConfigure or "") + /* sh */ ''
           chmod -R u+w packages/opencode/node_modules
           rm -rf packages/opencode/node_modules/prettier
           mkdir -p packages/opencode/node_modules/prettier

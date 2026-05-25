@@ -21,7 +21,7 @@ let
     hash = "sha256-/hNnmyIpB9lYQhS/g31dkslFa6CID8JGJd0RireRjvk=";
   };
 
-  zipline' = pkgs.zipline.overrideAttrs (old: {
+  zipline' = pkgs.zipline.overrideAttrs (_: {
     buildPhase = ''
       runHook preBuild
 

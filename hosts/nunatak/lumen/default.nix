@@ -47,7 +47,7 @@ let
     };
   };
 
-  configFile = pkgs.writeText "lumen-config.toml" ''
+  configFile = pkgs.writeText "lumen-config.toml" /* toml */ ''
     [lumina]
     bind_addr = "[::1]:${toString lumenPort}"
     use_tls = false

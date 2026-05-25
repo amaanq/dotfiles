@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (lib) disabled enabled;
+  inherit (lib) disabled enabled optionals;
 in
 {
   documentation = {
@@ -16,7 +16,7 @@ in
   };
 
   # See above comment
-  environment.systemPackages = lib.optionals config.isDesktop [
+  environment.systemPackages = optionals config.isDesktop [
     pkgs.man-pages
     pkgs.man-pages-posix
   ];

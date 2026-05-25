@@ -17,7 +17,7 @@ let
     |> filterAttrs (_: u: u.home != null && hasPrefix "/Users/" u.home)
     |> attrValues;
 
-  shadowScript = pkgs.writeScript "shadow-xcode.nu" ''
+  shadowScript = pkgs.writeScript "shadow-xcode.nu" /* nu */ ''
     use std null_device
 
     let shadow_path = $"($env.HOME)/.local/shadow"
@@ -50,7 +50,7 @@ in
   # -H sets HOME to the target user's home directory
   system.activationScripts.postActivation.text =
     users
-    |> concatMapStringsSep "\n" (u: ''
+    |> concatMapStringsSep "\n" (u: /* sh */ ''
       sudo -H -u ${u.name} ${pkgs.nushell}/bin/nu ${shadowScript} || true
     '');
 }

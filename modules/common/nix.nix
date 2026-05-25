@@ -19,19 +19,15 @@ let
     escapeShellArg
     filter
     filterAttrs
-    flip
-    id
     isType
     length
     mapAttrs
     mapAttrsToList
-    merge
-    mergeAttrs
     mkForce
     mkIf
     optionalAttrs
     optionals
-    remove
+    optionalString
     zipListsWith
     ;
   inherit (lib.strings) toJSON;
@@ -64,7 +60,7 @@ let
     in
     assert length oldIcons == length newIcons;
     pkgs.nix-output-monitor.overrideAttrs (old: {
-      postPatch = (old.postPatch or "") + ''
+      postPatch = (old.postPatch or "") + /* sh */ ''
         sed -i ${escapeShellArg (concatStringsSep "\n" zippedIcons)} lib/NOM/Print.hs
         substituteInPlace lib/NOM/Print/Tree.hs --replace-fail '┌' '╭'
       '';
@@ -73,8 +69,14 @@ let
   # nom fails on cross builds and ppc64 via GHC Template Haskell.
   isCross = pkgs.stdenv.buildPlatform != pkgs.stdenv.hostPlatform;
   isPower64 = pkgs.stdenv.hostPlatform.isPower64 or false;
+  inherit (config)
+    isDarwin
+    isDesktop
+    isLinux
+    isServer
+    ;
 
-  statixConfig = pkgs.writeText "statix.toml" ''disabled = ["repeated_keys"]'';
+  statixConfig = pkgs.writeText "statix.toml" /* toml */ ''disabled = ["repeated_keys"]'';
   statixPatched = pkgs.statix.overrideAttrs (
     _o:
     let
@@ -91,7 +93,7 @@ let
         inherit src;
         hash = "sha256-IeVGsrTXqmXbKRbJlBDv02fJ+rPRjwuF354/jZKRK/M=";
       };
-      postPatch = ''
+      postPatch = /* sh */ ''
         substituteInPlace bin/src/config.rs \
           --replace-fail 'default_value = "."' 'default_value = ".", env = "STATIX_CONFIG"'
       '';
@@ -99,9 +101,16 @@ let
   );
 
   registryMap = inputs |> filterAttrs (const <| isType "flake");
+  registryMapForHost =
+    registryMap
+    |> filterAttrs (name: _: !isServer || name == "nixpkgs")
+    |> (registries: registries // { default = inputs.nixpkgs; });
+
+  nixPathFormatters = optionals isDarwin [ (concatStringsSep ":") ];
+  formatNixPath = paths: nixPathFormatters |> builtins.foldl' (value: format: format value) paths;
 
   # Resolve hostname via tailscale, connect with netcat
-  tailscale-proxy = pkgs.writeScript "tailscale-proxy" ''
+  tailscale-proxy = pkgs.writeScript "tailscale-proxy" /* nu */ ''
     #!${pkgs.nushell}/bin/nu
     def main [host: string, port: int] {
       let ip = try {
@@ -131,34 +140,39 @@ let
 in
 {
   secrets.builderKey.rekeyFile = ./builder-key.age;
-  secrets.githubToken = {
-    rekeyFile = ./github-token.age;
-  }
-  // (
-    if config.isLinux then
-      {
+  secrets.githubToken =
+    {
+      rekeyFile = ./github-token.age;
+    }
+    |> (
+      secret:
+      secret
+      // optionalAttrs isLinux {
         mode = "0440";
         group = "wheel";
       }
-    else
-      {
+    )
+    |> (
+      secret:
+      secret
+      // optionalAttrs (!isLinux) {
         owner = "amaanq";
         mode = "0400";
       }
-  );
+    );
 
   nix.extraOptions = ''
     !include ${config.secrets.githubToken.path}
   '';
 
   # Store flake inputs to prevent garbage collection
-  environment.etc = mkIf (!config.isServer) {
+  environment.etc = mkIf (!isServer) {
     ".system-inputs.json".text = toJSON registryMap;
   };
 
   # Only servers use distributed builds to avoid circular delegation deadlocks
   # See: https://github.com/NixOS/nix/issues/10740
-  nix.distributedBuilds = config.type == "server";
+  nix.distributedBuilds = isServer;
   nix.buildMachines =
     let
       mkMachines =
@@ -198,53 +212,56 @@ in
   nix.channel = disabled;
 
   nix.gc =
-    merge {
-      automatic = !config.isDarwin;
+    {
+      automatic = !isDarwin;
       options = "--delete-older-than 3d";
     }
-    <| optionalAttrs config.isLinux {
-      dates = "weekly";
-      persistent = true;
-    };
+    |> (
+      gc:
+      gc
+      // optionalAttrs isLinux {
+        dates = "weekly";
+        persistent = true;
+      }
+    );
 
-  # NIX_PATH embeds every flake input's store path → ~500 MiB of source trees
-  # in the closure. Servers always use flakes, never `<nixpkgs>`, so skip it.
-  nix.nixPath = mkIf (!config.isServer) (
+  nix.nixPath =
     registryMap
     |> mapAttrsToList (name: value: "${name}=${value}")
-    |> (if config.isDarwin or false then concatStringsSep ":" else id)
-  );
+    |> formatNixPath
+    |> mkIf (!isServer);
 
-  nix.registry =
-    registryMap
-    |> filterAttrs (name: _: !config.isServer || name == "nixpkgs")
-    |> (registries: registries // { default = inputs.nixpkgs; })
-    |> mapAttrs (_: flake: { inherit flake; });
+  nix.registry = registryMapForHost |> mapAttrs (_: flake: { inherit flake; });
 
   nix.settings =
     (import (self + /flake.nix)).nixConfig
-    |> flip removeAttrs (
-      optionals (config.isDarwin or false) [
-        "use-cgroups"
-        "system-features"
-        "auto-allocate-uids"
-      ]
+    |> (
+      settings:
+      removeAttrs settings (
+        optionals isDarwin [
+          "use-cgroups"
+          "system-features"
+          "auto-allocate-uids"
+        ]
+      )
     )
-    |> flip mergeAttrs (
-      optionalAttrs (!(config.isDarwin or false)) (
+    |> (
+      settings:
+      settings
+      // optionalAttrs (!isDarwin) (
         let
           default = (options.nix.settings.type.getSubOptions [ ]).system-features.default;
         in
         {
           system-features = mkForce (
-            (if config.hasKvm then default else remove "kvm" default)
+            (default |> filter (feature: feature != "kvm" || config.hasKvm))
             ++ (import (self + /flake.nix)).nixConfig.system-features
           );
         }
       )
     );
 
-  nix.optimise.automatic = !config.isDarwin;
+  nix.optimise.automatic = !isDarwin;
 
   nix.package = pkgs.nixVersions.latest;
 
@@ -254,16 +271,14 @@ in
     executables.statix.environment.STATIX_CONFIG.value = "${statixConfig}";
   };
 
-  environment.systemPackages = [
+  environment.systemPackages = optionals isDesktop [
     pkgs.nix-index
-  ]
-  ++ lib.optionals config.isDesktop [
     (pkgs.callPackage (inputs.tack + "/nix/package.nix") { })
   ]
-  ++ lib.optionals (!isCross || isPower64) [
+  ++ optionals (!isCross || isPower64) [
     pkgs.nh
   ]
-  ++ lib.optionals (!isCross && !isPower64) [
+  ++ optionals (!isCross && !isPower64) [
     nix-output-monitor
   ];
 
@@ -279,7 +294,7 @@ in
           StrictHostKeyChecking accept-new
       ''
       # Servers use distributed builds, resolve via tailscale to avoid DNS → Cloudflare timeouts
-      + lib.optionalString config.isServer "      ProxyCommand ${tailscale-proxy} %h ${toString port}\n"
+      + optionalString isServer "      ProxyCommand ${tailscale-proxy} %h ${toString port}\n"
     );
 
 }

@@ -35,11 +35,11 @@ buildGoModule.override { go = go_1_25; } {
     tinygo
   ];
 
-  postPatch = ''
+  postPatch = /* sh */ ''
     patchShebangs *.sh
   '';
 
-  preBuild = ''
+  preBuild = /* sh */ ''
     ./build-compress.sh
     export HOME=$(mktemp -d)
     go generate -v ./...
@@ -47,7 +47,7 @@ buildGoModule.override { go = go_1_25; } {
 
   subPackages = [ "cmd/go-away" ];
 
-  postInstall = ''
+  postInstall = /* sh */ ''
     mkdir -p $out/lib/go-away
     cp -rv examples/snippets $out/lib/go-away/
   '';

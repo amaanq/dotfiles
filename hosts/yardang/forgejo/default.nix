@@ -200,7 +200,7 @@ in
     };
   };
 
-  system.activationScripts.forgejo-assets = ''
+  system.activationScripts.forgejo-assets = /* sh */ ''
     mkdir -p /etc/forgejo
     ${pkgs.age}/bin/age -d -i ${config.secrets.id.path} ${./assets.tar.gz.age} | ${pkgs.gzip}/bin/gzip -d | ${pkgs.gnutar}/bin/tar -xf - -C /etc/forgejo
   '';

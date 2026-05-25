@@ -1,8 +1,4 @@
-{
-  config,
-  lib,
-  ...
-}:
+{ lib, ... }:
 {
   boot.initrd.availableKernelModules = [
     "ahci"

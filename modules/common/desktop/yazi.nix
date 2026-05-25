@@ -2,7 +2,7 @@
 let
   colors = lib.theme.withHashtag;
 
-  yaziTheme = pkgs.writeText "theme.toml" ''
+  yaziTheme = pkgs.writeText "theme.toml" /* toml */ ''
     # Rose Pine theme for Yazi
 
     [mgr]

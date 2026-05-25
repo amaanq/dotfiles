@@ -207,11 +207,6 @@
       "host_pubkey_sha256": "caf1e4c2fec99af72233b54599ee294fd696811f5f089f0de818c4c9e518c6de",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",
       "secrets": {
-        "anthropic_api_key": {
-          "source_sha256": "735a4ee7fabd70b2a045b2bea504ebd8cc7269358639eda6e7ab69113b792230",
-          "output_file": "hosts/guyot/secrets/anthropic_api_key.age",
-          "output_sha256": "b6c255f509361be32574684efd1d1ecd717fe363bf578cf6716d4383ebdfe7fb"
-        },
         "atuin-key": {
           "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
           "output_file": "hosts/guyot/secrets/atuin-key.age",
@@ -242,35 +237,10 @@
           "output_file": "hosts/guyot/secrets/githubToken.age",
           "output_sha256": "fe21e9b259fb5dfaea916b24dee358acbe10c8250a915e0c69f8aef930307c74"
         },
-        "glm_api_key": {
-          "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
-          "output_file": "hosts/guyot/secrets/glm_api_key.age",
-          "output_sha256": "499cc8b194c832b3c0aa7c6899c525010247853a85242beabc1fe360521cf8e0"
-        },
         "id": {
           "source_sha256": "30c3313bdc5bcbc1a33ff9d5d4454139afdbab18ca0850290ec52c00f7750411",
           "output_file": "hosts/guyot/secrets/id.age",
           "output_sha256": "8236af617f5c1f21d9f8e3f03c8336262d2c9099488180f7ea228d025c27867b"
-        },
-        "kagi_session_token": {
-          "source_sha256": "f732bc083e19d117b094f07471ed253aa6fd1c7b381869c702a955eaddda6a57",
-          "output_file": "hosts/guyot/secrets/kagi_session_token.age",
-          "output_sha256": "4b57d8c2926f8b5f45bc40373cb886308f1ee5c1fd8a4c469fa8450611aee682"
-        },
-        "openai_api_key": {
-          "source_sha256": "7adf13e7b9840c32efceb33ee2478cc77c38459b348ed5b1f49ee489f9b6a422",
-          "output_file": "hosts/guyot/secrets/openai_api_key.age",
-          "output_sha256": "dba3763275cbe5f868b8634b575a1b02e6488d92a86cc37a0beb32d5de4fde38"
-        },
-        "openstack_aarch64_password": {
-          "source_sha256": "f4a3d44dd5adefa4595a6eee6c9b2bde0dd693f3a76627bc3c785c7cbf2ff393",
-          "output_file": "hosts/guyot/secrets/openstack_aarch64_password.age",
-          "output_sha256": "cbbd294abab2d96dee13cd8dc3f61a40ec9c46e728bf568c9c8148afc0bbe44c"
-        },
-        "openstack_powerpc64_password": {
-          "source_sha256": "d92dc98977f9ad1e11d26f670190749820a8e92a286882d08621e1f2cc3aa524",
-          "output_file": "hosts/guyot/secrets/openstack_powerpc64_password.age",
-          "output_sha256": "73a0c4be9c0fe3d98d86e85a806980433214516f27da705b69c2347f98b15a2f"
         },
         "password": {
           "source_sha256": "8851b8e4e77341256abea10f1760342c40cc4d65961d891cd544b863498fb1e3",
@@ -298,11 +268,6 @@
       "host_pubkey_sha256": "1e9fa8a7b2faa6e3aaa1a2b6592851c0844d720e460c6a606617c7df97e63942",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",
       "secrets": {
-        "anthropic_api_key": {
-          "source_sha256": "735a4ee7fabd70b2a045b2bea504ebd8cc7269358639eda6e7ab69113b792230",
-          "output_file": "hosts/karst/secrets/anthropic_api_key.age",
-          "output_sha256": "fc3fc6dd06f079ecc96341b67a49ed6da761a38b9ac150d603369ffb91b28568"
-        },
         "atuin-key": {
           "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
           "output_file": "hosts/karst/secrets/atuin-key.age",
@@ -332,31 +297,6 @@
           "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
           "output_file": "hosts/karst/secrets/githubToken.age",
           "output_sha256": "20715922a97beaec49b9140c4b55d69103b184e5478bd6f49d5e69be2966d20d"
-        },
-        "glm_api_key": {
-          "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
-          "output_file": "hosts/karst/secrets/glm_api_key.age",
-          "output_sha256": "1ee7657d9decc231dd3e64cedcf65e34b760a9068c90bee62d4780b93863eb8c"
-        },
-        "kagi_session_token": {
-          "source_sha256": "f732bc083e19d117b094f07471ed253aa6fd1c7b381869c702a955eaddda6a57",
-          "output_file": "hosts/karst/secrets/kagi_session_token.age",
-          "output_sha256": "327a850ab3b74ddf68ed6b4f59816f24f5e41333c32e2797a4fcebe1f14215d9"
-        },
-        "openai_api_key": {
-          "source_sha256": "7adf13e7b9840c32efceb33ee2478cc77c38459b348ed5b1f49ee489f9b6a422",
-          "output_file": "hosts/karst/secrets/openai_api_key.age",
-          "output_sha256": "7193eef78585705a20f954212f35a46b1d0bdf3bcdbb287303cf55f7a663082e"
-        },
-        "openstack_aarch64_password": {
-          "source_sha256": "f4a3d44dd5adefa4595a6eee6c9b2bde0dd693f3a76627bc3c785c7cbf2ff393",
-          "output_file": "hosts/karst/secrets/openstack_aarch64_password.age",
-          "output_sha256": "21815e1cf173d9f455f1c91b69844cc94773bfe770892c26fc53e652b5bcb1ef"
-        },
-        "openstack_powerpc64_password": {
-          "source_sha256": "d92dc98977f9ad1e11d26f670190749820a8e92a286882d08621e1f2cc3aa524",
-          "output_file": "hosts/karst/secrets/openstack_powerpc64_password.age",
-          "output_sha256": "bdc6486ed5fed6b8c76ec26c4f59370bd766f59bd09aaea549fe19150e773afe"
         },
         "password": {
           "source_sha256": "5d2f9ac82866d4fe689769531819d88d572a411e14d384ba1e43945a2fdd5e05",
@@ -475,11 +415,6 @@
       "host_pubkey_sha256": "be2646bdc2f8751cf5489a39cf2c605153f79372cd9230c9ad647ab5ad71a6a6",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",
       "secrets": {
-        "anthropic_api_key": {
-          "source_sha256": "735a4ee7fabd70b2a045b2bea504ebd8cc7269358639eda6e7ab69113b792230",
-          "output_file": "hosts/loess/secrets/anthropic_api_key.age",
-          "output_sha256": "b50c5fa7f19053b33f69e75f3b16f2963fc9acaf4515302b422ccf9d4a7b40d4"
-        },
         "atuin-key": {
           "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
           "output_file": "hosts/loess/secrets/atuin-key.age",
@@ -510,31 +445,6 @@
           "output_file": "hosts/loess/secrets/githubToken.age",
           "output_sha256": "25ffe4b3e155dc3f4b236a2f5d620481b0e230c5cc002f057cb42c56039a3c0e"
         },
-        "glm_api_key": {
-          "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
-          "output_file": "hosts/loess/secrets/glm_api_key.age",
-          "output_sha256": "50cad4f7535bfd23d49edeabed8d3c119331eefa0454e2ebf6fc48a83042ad9e"
-        },
-        "kagi_session_token": {
-          "source_sha256": "f732bc083e19d117b094f07471ed253aa6fd1c7b381869c702a955eaddda6a57",
-          "output_file": "hosts/loess/secrets/kagi_session_token.age",
-          "output_sha256": "770f4c97fb33a1128eab62d73ec8414f7203a1523d5b3605c75c924e23ed47a0"
-        },
-        "openai_api_key": {
-          "source_sha256": "7adf13e7b9840c32efceb33ee2478cc77c38459b348ed5b1f49ee489f9b6a422",
-          "output_file": "hosts/loess/secrets/openai_api_key.age",
-          "output_sha256": "bd13a416829988dbe812008496a13c65e9e3d48f4d019f7fdbf12e3fc0d7db20"
-        },
-        "openstack_aarch64_password": {
-          "source_sha256": "f4a3d44dd5adefa4595a6eee6c9b2bde0dd693f3a76627bc3c785c7cbf2ff393",
-          "output_file": "hosts/loess/secrets/openstack_aarch64_password.age",
-          "output_sha256": "cb52d7a6bf43cc77f5d69554dc966b89659258335ba6fc92d466393a97e5a42c"
-        },
-        "openstack_powerpc64_password": {
-          "source_sha256": "d92dc98977f9ad1e11d26f670190749820a8e92a286882d08621e1f2cc3aa524",
-          "output_file": "hosts/loess/secrets/openstack_powerpc64_password.age",
-          "output_sha256": "8f3eb30520a7a0e228dd59d6adce960f4a6dc5b90f92638fd6e0de2c448cea15"
-        },
         "password": {
           "source_sha256": "76a707b7a95a918919a53516266348c636117919f6bb2aa175f23cdcea448142",
           "output_file": "hosts/loess/secrets/password.age",
@@ -561,11 +471,6 @@
       "host_pubkey_sha256": "1641a98ecf0b84711de87e1e00893f0f8f04f26f1c1f5b23c8bdb4ea789727a0",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",
       "secrets": {
-        "anthropic_api_key": {
-          "source_sha256": "735a4ee7fabd70b2a045b2bea504ebd8cc7269358639eda6e7ab69113b792230",
-          "output_file": "hosts/moraine/secrets/anthropic_api_key.age",
-          "output_sha256": "ea200029dca5620e7619d44642458457eb0921da468ee6b7c6df5b7d9e6fcd80"
-        },
         "atuin-key": {
           "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
           "output_file": "hosts/moraine/secrets/atuin-key.age",
@@ -595,31 +500,6 @@
           "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
           "output_file": "hosts/moraine/secrets/githubToken.age",
           "output_sha256": "a73440c2f480fb451d11f2d08461deeb98d634a823e5434e69e851674a90cd9d"
-        },
-        "glm_api_key": {
-          "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
-          "output_file": "hosts/moraine/secrets/glm_api_key.age",
-          "output_sha256": "3bb69c2fe3201ec9dc03cf4d052017ab2b5308bf3e143a14a6aeb166eb521638"
-        },
-        "kagi_session_token": {
-          "source_sha256": "f732bc083e19d117b094f07471ed253aa6fd1c7b381869c702a955eaddda6a57",
-          "output_file": "hosts/moraine/secrets/kagi_session_token.age",
-          "output_sha256": "023b6c771dc04eed171be6b1ca356196747e2e630792592e28e1ce5f5c9d908e"
-        },
-        "openai_api_key": {
-          "source_sha256": "7adf13e7b9840c32efceb33ee2478cc77c38459b348ed5b1f49ee489f9b6a422",
-          "output_file": "hosts/moraine/secrets/openai_api_key.age",
-          "output_sha256": "66ab7b1fbd92c48397f5fee3ca830c107a8a794a140628768ad1ab12212d443e"
-        },
-        "openstack_aarch64_password": {
-          "source_sha256": "f4a3d44dd5adefa4595a6eee6c9b2bde0dd693f3a76627bc3c785c7cbf2ff393",
-          "output_file": "hosts/moraine/secrets/openstack_aarch64_password.age",
-          "output_sha256": "6a3ad1c6c0d4f05fe34aedcc8d6b3b0128b1f65439be24544fc8a0e8669750e0"
-        },
-        "openstack_powerpc64_password": {
-          "source_sha256": "d92dc98977f9ad1e11d26f670190749820a8e92a286882d08621e1f2cc3aa524",
-          "output_file": "hosts/moraine/secrets/openstack_powerpc64_password.age",
-          "output_sha256": "7a06d10f8140d865c4be34fef14be33a4a295e348aa2077f3c463eef2f606d6e"
         },
         "password": {
           "source_sha256": "03a79d7ee91e6506712e4e7504470ca95d73a9b58be3c5b8056788b341425ddd",
@@ -652,11 +532,6 @@
           "output_file": "hosts/nunatak/secrets/acmeEnvironment.age",
           "output_sha256": "148a01d17c48eee2fe64a0bb7d63ea465dc6bbfe6a88d3dcbcba44f850b72539"
         },
-        "anthropic_api_key": {
-          "source_sha256": "735a4ee7fabd70b2a045b2bea504ebd8cc7269358639eda6e7ab69113b792230",
-          "output_file": "hosts/nunatak/secrets/anthropic_api_key.age",
-          "output_sha256": "c2b4cdf09750d7aa9aa4921a76faf1a1e518990f6d9a44186605421a2cbaa55d"
-        },
         "atuin-key": {
           "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
           "output_file": "hosts/nunatak/secrets/atuin-key.age",
@@ -687,20 +562,10 @@
           "output_file": "hosts/nunatak/secrets/githubToken.age",
           "output_sha256": "243284c41229794a5b3774b8a77fffc33d18847257ed1514af03008d0bef2c8f"
         },
-        "glm_api_key": {
-          "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
-          "output_file": "hosts/nunatak/secrets/glm_api_key.age",
-          "output_sha256": "4ecbd3ea32091d6fab13c5f79a50cce3cc3d8819996215b667febccb8d8f1c46"
-        },
         "id": {
           "source_sha256": "a0f62a43ea87a7d4df25584643b3f74227ddce988d7efe4720ad634efa5b8535",
           "output_file": "hosts/nunatak/secrets/id.age",
           "output_sha256": "bc5c4f6ea67dad7ea01c0eac49bb34e12b027edc22cbb9e6cec3b460fd652970"
-        },
-        "kagi_session_token": {
-          "source_sha256": "f732bc083e19d117b094f07471ed253aa6fd1c7b381869c702a955eaddda6a57",
-          "output_file": "hosts/nunatak/secrets/kagi_session_token.age",
-          "output_sha256": "521185307c6d0ff2c9447f9c5f2a58264da2b231176750b0d4c6b50249ed716e"
         },
         "matrixKey": {
           "source_sha256": "8532f6aed7a0222a067fe094accfd51a0f6e828ac0277dc77b2b84da837ac5fd",
@@ -711,21 +576,6 @@
           "source_sha256": "0fcfe746d0e9acf4dd41c7ef1973cb6fec951513e93e07430a4ec8e60f5dd95e",
           "output_file": "hosts/nunatak/secrets/matrixSecret.age",
           "output_sha256": "7b24f8c66b9be29540b3b4d31fbc9ff540816b0463d9d03c98633ddc761487b3"
-        },
-        "openai_api_key": {
-          "source_sha256": "7adf13e7b9840c32efceb33ee2478cc77c38459b348ed5b1f49ee489f9b6a422",
-          "output_file": "hosts/nunatak/secrets/openai_api_key.age",
-          "output_sha256": "c5767d887031e1ecc1ae1d7540b9ceb1791bae0835634d25ec8af9f39937c3d4"
-        },
-        "openstack_aarch64_password": {
-          "source_sha256": "f4a3d44dd5adefa4595a6eee6c9b2bde0dd693f3a76627bc3c785c7cbf2ff393",
-          "output_file": "hosts/nunatak/secrets/openstack_aarch64_password.age",
-          "output_sha256": "3021013b1e0e6d47e65d6bd30af9e59bc8377e81b8e8c88a8ab287f70a66b181"
-        },
-        "openstack_powerpc64_password": {
-          "source_sha256": "d92dc98977f9ad1e11d26f670190749820a8e92a286882d08621e1f2cc3aa524",
-          "output_file": "hosts/nunatak/secrets/openstack_powerpc64_password.age",
-          "output_sha256": "af80f86be222c6e7a7dba577d1e5d9174a799b4ea54cc06379f9468248ef9606"
         },
         "password": {
           "source_sha256": "ec5d71aff5cac593ac314ee86616849c52b4e30200725bc592b77d0290e6f596",
@@ -793,11 +643,6 @@
           "output_file": "hosts/scarp/secrets/acmeEnvironment.age",
           "output_sha256": "75102ba4cc200374131a78238d54c743dd3e156162ebce1bce037bdfebfad509"
         },
-        "anthropic_api_key": {
-          "source_sha256": "735a4ee7fabd70b2a045b2bea504ebd8cc7269358639eda6e7ab69113b792230",
-          "output_file": "hosts/scarp/secrets/anthropic_api_key.age",
-          "output_sha256": "98b2489efedab6a4749d0c5bc9f2f99ad858efa931c085204571be2a48e51a5e"
-        },
         "atuin-key": {
           "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
           "output_file": "hosts/scarp/secrets/atuin-key.age",
@@ -843,20 +688,10 @@
           "output_file": "hosts/scarp/secrets/githubToken.age",
           "output_sha256": "bcaae4acdfbcb52bad364d3b6370625bd565646d0ac3a9e49914800597e842a8"
         },
-        "glm_api_key": {
-          "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
-          "output_file": "hosts/scarp/secrets/glm_api_key.age",
-          "output_sha256": "d996fcdf16cf1b78364dc0a13ed8c176c93e94a4e7581293dc2fd2da0f5c9d8a"
-        },
         "id": {
           "source_sha256": "09a758e7e5139190c10ee186505b07c042948c0608a7371ba7833230b139be5a",
           "output_file": "hosts/scarp/secrets/id.age",
           "output_sha256": "b83f747d97606757215acfd18f95f260c729a3e7922283f46b4ba5893de0a736"
-        },
-        "kagi_session_token": {
-          "source_sha256": "f732bc083e19d117b094f07471ed253aa6fd1c7b381869c702a955eaddda6a57",
-          "output_file": "hosts/scarp/secrets/kagi_session_token.age",
-          "output_sha256": "eea9a3301f4d9a0de173661121322b0a6ffb4aa2b26b204a0b1c0ae6f07fb926"
         },
         "matrixKey": {
           "source_sha256": "3fde5c131637f50229dd991cdcfa6b9e8621d0d29481092b1e9707468ea4d7f5",
@@ -892,21 +727,6 @@
           "source_sha256": "7c115a505c1f4566e5ce94ad3ec4600ee7d5afee374647fb3554757ef9a477ff",
           "output_file": "hosts/scarp/secrets/nixServeKey.age",
           "output_sha256": "757eb42f304122d6c47e65ebd60901e8462b3c21b2ce2e9ffc1094a91e7e4951"
-        },
-        "openai_api_key": {
-          "source_sha256": "7adf13e7b9840c32efceb33ee2478cc77c38459b348ed5b1f49ee489f9b6a422",
-          "output_file": "hosts/scarp/secrets/openai_api_key.age",
-          "output_sha256": "ce56ded8cc1530aa5d20dc63d0db7494abd9b5b5fa182fbddc02981e3bddd79b"
-        },
-        "openstack_aarch64_password": {
-          "source_sha256": "f4a3d44dd5adefa4595a6eee6c9b2bde0dd693f3a76627bc3c785c7cbf2ff393",
-          "output_file": "hosts/scarp/secrets/openstack_aarch64_password.age",
-          "output_sha256": "829b71b97a07e33245708396651504c643beb22615eab7e18c2aa98550e543b6"
-        },
-        "openstack_powerpc64_password": {
-          "source_sha256": "d92dc98977f9ad1e11d26f670190749820a8e92a286882d08621e1f2cc3aa524",
-          "output_file": "hosts/scarp/secrets/openstack_powerpc64_password.age",
-          "output_sha256": "37e0eab43495cc8d5405ed95426848160f73cd1ee7b3a7d3be9fa44aa1ecb9ff"
         },
         "password": {
           "source_sha256": "1fd22543631b9999e32e793d57e8a9bf990483bc1002efd113446748d4beaffa",
@@ -1111,11 +931,6 @@
       "host_pubkey_sha256": "4bd0b3e9c7e58cbcb6dd313feb554a55b27d5748ac64bd26a11be3604a10c000",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",
       "secrets": {
-        "anthropic_api_key": {
-          "source_sha256": "735a4ee7fabd70b2a045b2bea504ebd8cc7269358639eda6e7ab69113b792230",
-          "output_file": "hosts/tarn/secrets/anthropic_api_key.age",
-          "output_sha256": "8f9d529be8e3d0e5935d1a175e58cd52fe7008c1f31b391af64f44ec5f438492"
-        },
         "atuin-key": {
           "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
           "output_file": "hosts/tarn/secrets/atuin-key.age",
@@ -1145,31 +960,6 @@
           "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
           "output_file": "hosts/tarn/secrets/githubToken.age",
           "output_sha256": "f25fb25f33cdbe5db77653e3988eee81e07c5f73edbd9958923504fa37f1cbb8"
-        },
-        "glm_api_key": {
-          "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
-          "output_file": "hosts/tarn/secrets/glm_api_key.age",
-          "output_sha256": "05e9fd46bbdb7f6802ff5c0f4c0791e63f94898cb3e029a869b9fa4b24dc48da"
-        },
-        "kagi_session_token": {
-          "source_sha256": "f732bc083e19d117b094f07471ed253aa6fd1c7b381869c702a955eaddda6a57",
-          "output_file": "hosts/tarn/secrets/kagi_session_token.age",
-          "output_sha256": "36321c1fdbd87df9942bf4765fa2f09be9ecd45e47db41caf08dd7023e59ce61"
-        },
-        "openai_api_key": {
-          "source_sha256": "7adf13e7b9840c32efceb33ee2478cc77c38459b348ed5b1f49ee489f9b6a422",
-          "output_file": "hosts/tarn/secrets/openai_api_key.age",
-          "output_sha256": "5138ac54cb5275fcfefd30ee6baf93f3511b5ed75d787e101bda1b6cbacd93f7"
-        },
-        "openstack_aarch64_password": {
-          "source_sha256": "f4a3d44dd5adefa4595a6eee6c9b2bde0dd693f3a76627bc3c785c7cbf2ff393",
-          "output_file": "hosts/tarn/secrets/openstack_aarch64_password.age",
-          "output_sha256": "9e737e8ad1e2a42c81427e7d251e1017ca32053645f237fbb47e983ad3424ccf"
-        },
-        "openstack_powerpc64_password": {
-          "source_sha256": "d92dc98977f9ad1e11d26f670190749820a8e92a286882d08621e1f2cc3aa524",
-          "output_file": "hosts/tarn/secrets/openstack_powerpc64_password.age",
-          "output_sha256": "a8f575ad38af38c965afd9d7212877edf770ed1124a9279d18343d1f927f1c1f"
         },
         "password": {
           "source_sha256": "c09f8ffc8f587947902bbbee584f8c5dc4b8e13fb25231bb3f76011f8c42b13d",
@@ -1202,11 +992,6 @@
           "output_file": "hosts/yardang/secrets/acmeEnvironment.age",
           "output_sha256": "2e3d318cdb7b0aabf61824b16e647d4bc96507a64ccf80028df4a5318f8a500b"
         },
-        "anthropic_api_key": {
-          "source_sha256": "735a4ee7fabd70b2a045b2bea504ebd8cc7269358639eda6e7ab69113b792230",
-          "output_file": "hosts/yardang/secrets/anthropic_api_key.age",
-          "output_sha256": "96208aadd6092141b6865339f4bfc3e7886ece385fe06a43ac9bfa78d8d01d51"
-        },
         "atuin-key": {
           "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
           "output_file": "hosts/yardang/secrets/atuin-key.age",
@@ -1237,11 +1022,6 @@
           "output_file": "hosts/yardang/secrets/githubToken.age",
           "output_sha256": "dd603616084a26ec84599d282f55741d58d43c7fa7476e653c94b201a3a20a2a"
         },
-        "glm_api_key": {
-          "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
-          "output_file": "hosts/yardang/secrets/glm_api_key.age",
-          "output_sha256": "45f9e97109ca3bed56f138266fd757520c3d00c91bc68e85ee463fc758c4d1cc"
-        },
         "grafanaPassword": {
           "source_sha256": "d4ef26f0397bbec43c886942e74de2f16f36fe8e56ca16ec78be601c04cc0965",
           "output_file": "hosts/yardang/secrets/grafanaPassword.age",
@@ -1261,26 +1041,6 @@
           "source_sha256": "9d61228b950b79fd20f806e5d25bb97d755f19f025bbbece5f3d8e017d65cbee",
           "output_file": "hosts/yardang/secrets/id.age",
           "output_sha256": "17b319e210f79048287a9b224873e445dfdbe9ab9105a49cdf8cf3d004408e07"
-        },
-        "kagi_session_token": {
-          "source_sha256": "f732bc083e19d117b094f07471ed253aa6fd1c7b381869c702a955eaddda6a57",
-          "output_file": "hosts/yardang/secrets/kagi_session_token.age",
-          "output_sha256": "1336b1ccc5f6068389375125c66d53f4c8e54fa2fdc014b7f40247e99f13cbb1"
-        },
-        "openai_api_key": {
-          "source_sha256": "7adf13e7b9840c32efceb33ee2478cc77c38459b348ed5b1f49ee489f9b6a422",
-          "output_file": "hosts/yardang/secrets/openai_api_key.age",
-          "output_sha256": "892f96f0a9bb94302f5d10b186de33208c51f170bd86a8a94950472a4acc4074"
-        },
-        "openstack_aarch64_password": {
-          "source_sha256": "f4a3d44dd5adefa4595a6eee6c9b2bde0dd693f3a76627bc3c785c7cbf2ff393",
-          "output_file": "hosts/yardang/secrets/openstack_aarch64_password.age",
-          "output_sha256": "a3e9b5f0d0e40acc744b715dcdf3247fc81200db4f0817d7edd659c44086afe1"
-        },
-        "openstack_powerpc64_password": {
-          "source_sha256": "d92dc98977f9ad1e11d26f670190749820a8e92a286882d08621e1f2cc3aa524",
-          "output_file": "hosts/yardang/secrets/openstack_powerpc64_password.age",
-          "output_sha256": "ebd3a564f923ccac3936388238c914dab5ddacb0ba2981e61bae1c671305f1a6"
         },
         "password": {
           "source_sha256": "3f1641c42c19d70f6be8e64c649fb8f024bb9a19bb84c00cc9f239b750a5403c",

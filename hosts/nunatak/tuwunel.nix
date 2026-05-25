@@ -1,6 +1,6 @@
 _: {
   nixpkgs.overlays = [
-    (final: prev: {
+    (_: prev: {
       matrix-tuwunel =
         let
           rust-jemalloc-sys' = prev.rust-jemalloc-sys.override {

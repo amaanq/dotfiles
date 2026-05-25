@@ -7,7 +7,7 @@ let
   inherit (lib) enabled;
 in
 {
-  environment.etc."xdg/gtk-3.0/settings.ini".text = ''
+  environment.etc."xdg/gtk-3.0/settings.ini".text = /* ini */ ''
     [Settings]
     gtk-application-prefer-dark-theme=1
     gtk-icon-theme-name=${config.theme.icons.name}
@@ -24,7 +24,7 @@ in
     gtk-enable-input-feedback-sounds=0
   '';
 
-  environment.etc."xdg/gtk-4.0/settings.ini".text = ''
+  environment.etc."xdg/gtk-4.0/settings.ini".text = /* ini */ ''
     [Settings]
     gtk-icon-theme-name=${config.theme.icons.name}
     gtk-font-name=${config.theme.font.sans.name} ${toString config.theme.font.size.normal}

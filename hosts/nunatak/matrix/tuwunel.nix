@@ -85,8 +85,7 @@ in
     };
   };
 
-  services.nginx.virtualHosts.${domain} =
-    merge configWellKnownResponse matrixConfig;
+  services.nginx.virtualHosts.${domain} = merge configWellKnownResponse matrixConfig;
 
   services.nginx.virtualHosts.${fqdn} =
     merge config.services.nginx.sslTemplate configWellKnownResponse matrixConfig

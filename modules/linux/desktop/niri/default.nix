@@ -15,7 +15,7 @@ let
 
   niriPackage = niri-src.packages.${config.hostSystem}.niri;
 
-  ziplineUpload = pkgs.writeShellScript "zipline-upload" ''
+  ziplineUpload = pkgs.writeShellScript "zipline-upload" /* sh */ ''
     set -e
     umask 077
     FILE="$1"
@@ -128,7 +128,7 @@ in
     };
   };
 
-  environment.etc."xdg/satty/config.toml".text = ''
+  environment.etc."xdg/satty/config.toml".text = /* toml */ ''
     [general]
     early-exit = true
     copy-command = "wl-copy"

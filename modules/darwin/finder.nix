@@ -45,7 +45,7 @@
   };
 
   # Unhide ~/Library for all users
-  system.activationScripts.postActivation.text = ''
+  system.activationScripts.postActivation.text = /* sh */ ''
     for user_home in /Users/*; do
       if [ -d "$user_home/Library" ]; then
         /usr/bin/chflags nohidden "$user_home/Library"

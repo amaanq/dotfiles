@@ -1,5 +1,4 @@
-{ ... }:
-{
+_: {
   # Quirks for x86_64 → aarch64 cross builds. The overlay is a no-op on
   # native builds and on non-aarch64 targets, so it's safe to load on every
   # linux host.
@@ -64,12 +63,12 @@
                 (final.lib.cmakeBool "ENABLE_TRANSLATIONS" true)
                 (final.lib.cmakeBool "USE_BUNDLED_BUSTED" false)
               ];
-              buildPhase = ''
+              buildPhase = /* sh */ ''
                 runHook preBuild
                 cmake --build . --target nlua0
                 runHook postBuild
               '';
-              installPhase = ''
+              installPhase = /* sh */ ''
                 runHook preInstall
                 install -D lib/libnlua0.so "$out/lib/libnlua0.so"
                 runHook postInstall
@@ -79,7 +78,7 @@
           luaPackageOverrides = lfinal: lprev: {
             busted = lprev.busted.overrideAttrs (old: {
               dontStrip = true;
-              postFixup = (old.postFixup or "") + ''
+              postFixup = (old.postFixup or "") + /* sh */ ''
                 {
                   grep -RIlE \
                     -e '/nix/store/[a-z0-9]+-luajit-[0-9]+\.[0-9]+\.[0-9]+' \
@@ -109,7 +108,7 @@
           # when OUT_DIR isn't on the cross target.
           tree-sitter = prev.tree-sitter.overrideAttrs (old: {
             env = (old.env or { }) // buildPlatformCcEnv // buildPlatformBindgenEnv;
-            preBuild = (old.preBuild or "") + ''
+            preBuild = (old.preBuild or "") + /* sh */ ''
               export BINDGEN_NATIVE_CLANG_ARGS="-isystem ${final.pkgsBuildBuild.stdenv.cc.libc_dev}/include -isystem ${final.pkgsBuildBuild.llvmPackages.libclang.lib}/lib/clang/${prev.lib.versions.major final.pkgsBuildBuild.llvmPackages.libclang.version}/include"
               export NATIVE_HOST_CC="${final.pkgsBuildBuild.stdenv.cc}/bin/cc"
               export NATIVE_HOST_CXX="${final.pkgsBuildBuild.stdenv.cc}/bin/c++"
@@ -176,7 +175,7 @@
           # one). Rewrite to `$(CC)` so the cross-prefixed wrapper is picked
           # up; lets the test modules build and check phase run via binfmt.
           redis = prev.redis.overrideAttrs (old: {
-            postPatch = (old.postPatch or "") + ''
+            postPatch = (old.postPatch or "") + /* sh */ ''
               substituteInPlace tests/modules/Makefile \
                 --replace-fail "LD = gcc" "" \
                 --replace-fail "CC = gcc" ""

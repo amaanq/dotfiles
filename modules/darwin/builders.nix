@@ -15,7 +15,7 @@ in
       home = "/Users/build";
     };
 
-    system.activationScripts.postActivation.text = mkAfter ''
+    system.activationScripts.postActivation.text = mkAfter /* sh */ ''
       # build user
       if ! dscl . -read /Users/build &>/dev/null; then
         sysadminctl -addUser build -shell /bin/zsh -home /Users/build

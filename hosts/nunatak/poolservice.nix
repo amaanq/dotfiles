@@ -34,7 +34,7 @@ in
       Type = "oneshot";
       User = "root";
     };
-    script = ''
+    script = /* sh */ ''
       rm -rf ${stateDir}/*
 
       cp -r ${hkpspkg}/* ${stateDir}/

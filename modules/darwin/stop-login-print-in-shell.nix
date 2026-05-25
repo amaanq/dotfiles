@@ -1,6 +1,6 @@
 {
   # Create .hushlogin for all users to suppress login message
-  system.activationScripts.postActivation.text = ''
+  system.activationScripts.postActivation.text = /* sh */ ''
     for user_home in /Users/*; do
       if [ -d "$user_home" ]; then
         touch "$user_home/.hushlogin"
