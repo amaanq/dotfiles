@@ -192,7 +192,7 @@ in
         {
           name = "source-download";
           conditions = [
-            ''path.matches("^/[^/]+/[^/]+/raw/branch/")''
+            ''path.matches("^/[^/]+/[^/]+/raw/(branch|commit|tag)/")''
             ''path.matches("^/[^/]+/[^/]+/archive/")''
             ''path.matches("^/[^/]+/[^/]+/releases/download/")''
             ''path.matches("^/[^/]+/[^/]+/media/") && ($is-generic-browser)''
