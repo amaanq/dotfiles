@@ -26,4 +26,7 @@ in
 
   # For some reason, this is in Perl.
   programs.command-not-found.enable = false;
+
+  # nixpkgs, sob
+  system.systemBuilderArgs.perl = lib.mkForce "";
 }
