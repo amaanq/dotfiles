@@ -5,7 +5,6 @@
   self,
   config,
   lib,
-  pkgs,
   ...
 }:
 let
@@ -98,7 +97,7 @@ in
   };
 
   nixpkgs.overlays = [
-    (final: prev: {
+    (_: prev: {
       matrix-synapse-unwrapped = prev.matrix-synapse-unwrapped.overrideAttrs (old: {
         doCheck = false;
         doInstallCheck = false;
@@ -168,7 +167,8 @@ in
   };
 
   services.nginx.virtualHosts.${domain} =
-    merge config.services.nginx.sslTemplate configWellKnownResponse matrixConfig;
+    merge config.services.nginx.sslTemplate configWellKnownResponse
+      matrixConfig;
 
   services.nginx.virtualHosts.${fqdn} =
     merge config.services.nginx.sslTemplate configWellKnownResponse matrixConfig

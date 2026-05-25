@@ -55,7 +55,7 @@ let
   # Inherit nixpkgs's codex packaging (v8/rusty_v8 archive, webrtc shim,
   # libclang env, postPatch). We just bump version/src/cargoDeps and apply
   # a few quality-of-life patches on top.
-  codexRs = pkgs.codex.overrideAttrs (oldAttrs: {
+  codexRs = pkgs.codex.overrideAttrs (_: {
     inherit src;
     version = codexVersion;
     cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
@@ -68,7 +68,7 @@ let
     # Upstream's postPatch strips `lto = "fat"` from the release profile, but
     # codex 0.139.0 switched the profile to `lto = "thin"`, so the replace-fail
     # aborts the build. Reapply the same intent against the new value.
-    postPatch = ''
+    postPatch = /* sh */ ''
       substituteInPlace $cargoDepsCopy/*/webrtc-sys-*/build.rs \
         --replace-fail "cargo:rustc-link-lib=static=webrtc" "cargo:rustc-link-lib=dylib=webrtc"
       substituteInPlace Cargo.toml \

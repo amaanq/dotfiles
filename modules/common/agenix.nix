@@ -12,17 +12,19 @@ let
     mkAliasOptionModule
     mkIf
     ;
+
+  userName = head <| attrNames <| config.users.users;
+  identityPathKey = if config.isServer then "server" else config.os;
+  identityPaths = {
+    server = [ "/etc/ssh/ssh_host_ed25519_key" ];
+    linux = [ "/home/${userName}/.ssh/id" ];
+    darwin = [ "/Users/${userName}/.ssh/id" ];
+  };
 in
 {
   imports = [ (mkAliasOptionModule [ "secrets" ] [ "age" "secrets" ]) ];
 
-  age.identityPaths =
-    if config.isServer then
-      [ "/etc/ssh/ssh_host_ed25519_key" ]
-    else if config.isLinux then
-      [ "/home/${head <| attrNames <| config.users.users}/.ssh/id" ]
-    else
-      [ "/Users/${head <| attrNames <| config.users.users}/.ssh/id" ];
+  age.identityPaths = identityPaths.${identityPathKey};
 
   environment = mkIf config.isDesktop {
     systemPackages = [

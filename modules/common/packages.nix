@@ -26,7 +26,7 @@ in
     pkgs.jq
     # perl-free moreutils, which drops chronic, combine, ts, vidir, vipe, zrun (all perl)
     (pkgs.moreutils.overrideAttrs (old: {
-      postFixup = (old.postFixup or "") + ''
+      postFixup = (old.postFixup or "") + /* sh */ ''
         rm -f $out/bin/{chronic,combine,ts,vidir,vipe,zrun}
         rm -f $out/share/man/man1/{chronic,combine,ts,vidir,vipe,zrun}.1*
       '';

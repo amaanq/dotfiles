@@ -2,11 +2,7 @@
 # Auto-imported on every linux host; the overlay self-gates so it's a no-op
 # unless the host is a cross-compiled ppc64 target. Top-level config attrs
 # below also gate on `config.nixpkgs.hostPlatform.isPower64`.
-{
-  config,
-  lib,
-  ...
-}:
+{ config, lib, ... }:
 let
   isPower64 = config.nixpkgs.hostPlatform.isPower64 or false;
 in
@@ -40,7 +36,7 @@ in
 
     nixpkgs.overlays = [
       (
-        final: prev:
+        _: prev:
         let
           # Helper for -sys crates that bundle a C library via cc-rs/cmake.
           # Forces pkg-config against the build-host system library so the
@@ -78,19 +74,19 @@ in
           targetCxx = "${prev.stdenv.cc}/bin/${prev.stdenv.cc.targetPrefix}c++";
           buildCc = "${prev.buildPackages.stdenv.cc}/bin/cc";
           buildCxx = "${prev.buildPackages.stdenv.cc}/bin/c++";
-          cargoCcRouter = prev.buildPackages.writeShellScriptBin "cargo-cc-router" ''
+          cargoCcRouter = prev.buildPackages.writeShellScriptBin "cargo-cc-router" /* sh */ ''
             case "$OUT_DIR" in
               *"/powerpc64-"*) exec ${targetCc} "$@" ;;
               *) exec ${buildCc} "$@" ;;
             esac
           '';
-          cargoCxxRouter = prev.buildPackages.writeShellScriptBin "cargo-cxx-router" ''
+          cargoCxxRouter = prev.buildPackages.writeShellScriptBin "cargo-cxx-router" /* sh */ ''
             case "$OUT_DIR" in
               *"/powerpc64-"*) exec ${targetCxx} "$@" ;;
               *) exec ${buildCxx} "$@" ;;
             esac
           '';
-          cargoCcRouterPreBuild = ''
+          cargoCcRouterPreBuild = /* sh */ ''
             export CC=${cargoCcRouter}/bin/cargo-cc-router
             export CXX=${cargoCxxRouter}/bin/cargo-cxx-router
           '';
@@ -98,7 +94,7 @@ in
           # pkg-config-rs ignores HOST_PKG_CONFIG_PATH under cross; route
           # build-host invocations through pkgsBuildBuild's plain pkg-config.
           nativePkgConfig = prev.pkgsBuildBuild.pkg-config;
-          pkgConfigRouter = prev.buildPackages.writeShellScriptBin "pkg-config" ''
+          pkgConfigRouter = prev.buildPackages.writeShellScriptBin "pkg-config" /* sh */ ''
             case "$OUT_DIR" in
               *"/powerpc64-"*)
                 exec ${nativePkgConfig}/bin/pkg-config "$@"
@@ -113,7 +109,7 @@ in
                 ;;
             esac
           '';
-          pkgConfigRouterPreBuild = ''
+          pkgConfigRouterPreBuild = /* sh */ ''
             export PKG_CONFIG=${pkgConfigRouter}/bin/pkg-config
           '';
           targetIsPpc64 = prev.stdenv.targetPlatform.isPower64 or false;
@@ -140,12 +136,8 @@ in
                     # binary; under qemu it can't load the little-endian
                     # libLLVM.so.21.1. Stack bump avoids stage1 symbol-table
                     # overflow. Only when target=ppc64; native rust skips both.
-                    configureFlags =
-                      (old.configureFlags or [ ])
-                      ++ lib.optional targetIsPpc64 "--set=build.docs=false";
-                    env =
-                      (old.env or { })
-                      // lib.optionalAttrs targetIsPpc64 { RUST_MIN_STACK = "16777216"; };
+                    configureFlags = (old.configureFlags or [ ]) ++ lib.optional targetIsPpc64 "--set=build.docs=false";
+                    env = (old.env or { }) // lib.optionalAttrs targetIsPpc64 { RUST_MIN_STACK = "16777216"; };
                   });
                 }
               );
@@ -156,7 +148,7 @@ in
           # GCC 15.2 ICEs at -O2 in ipa-cp.cc / ipa-icf-gimple.cc when building
           # the ppc64 cross-gcc; pragma those files down to -O1.
           gcc-unwrapped = prev.gcc-unwrapped.overrideAttrs (old: {
-            postPatch = (old.postPatch or "") + ''
+            postPatch = (old.postPatch or "") + /* sh */ ''
               for f in gcc/ipa-cp.cc gcc/ipa-icf-gimple.cc; do
                 if [ -f "$f" ] && ! grep -q 'pragma GCC optimize' "$f"; then
                   sed -i '1i #pragma GCC optimize("-O1")' "$f"
@@ -177,7 +169,7 @@ in
           # initrd storePaths. Drop a no-op stub so make-initrd-ng resolves.
           systemd = prev.systemd.overrideAttrs (old: {
             mesonFlags = (old.mesonFlags or [ ]) ++ [ "-Doptimization=2" ];
-            postFixup = (old.postFixup or "") + ''
+            postFixup = (old.postFixup or "") + /* sh */ ''
               if [ -d "$out/lib/udev" ] && [ ! -e "$out/lib/udev/dmi_memory_id" ]; then
                 chmod +w "$out/lib/udev"
                 printf '#!/bin/sh\nexit 0\n' > "$out/lib/udev/dmi_memory_id"
@@ -188,7 +180,7 @@ in
           });
           systemdMinimal = prev.systemdMinimal.overrideAttrs (old: {
             mesonFlags = (old.mesonFlags or [ ]) ++ [ "-Doptimization=2" ];
-            postFixup = (old.postFixup or "") + ''
+            postFixup = (old.postFixup or "") + /* sh */ ''
               if [ -d "$out/lib/udev" ] && [ ! -e "$out/lib/udev/dmi_memory_id" ]; then
                 chmod +w "$out/lib/udev"
                 printf '#!/bin/sh\nexit 0\n' > "$out/lib/udev/dmi_memory_id"
@@ -210,7 +202,7 @@ in
 
           # nodejs: GCC 15 ICE in V8 at -O3 on ppc64 (cross-heap-remembered-set.h)
           nodejs-slim = prev.nodejs-slim.overrideAttrs (old: {
-            postConfigure = (old.postConfigure or "") + ''
+            postConfigure = (old.postConfigure or "") + /* sh */ ''
               find . -name "*.ninja" -exec sed -i 's/-O3/-O2/g' {} +
             '';
           });
@@ -221,7 +213,7 @@ in
           # env args. Patch the vendored build.rs to inject .clang_arg() overrides
           # directly onto the Builder, where they win over bindgen's auto-target.
           userborn = prev.userborn.overrideAttrs (old: {
-            postPatch = (old.postPatch or "") + ''
+            postPatch = (old.postPatch or "") + /* sh */ ''
               for bs in $(find "$NIX_BUILD_TOP" -path '*/xcrypt-sys-*/build.rs'); do
                 substituteInPlace "$bs" \
                   --replace-fail 'Builder::default()' \
@@ -236,7 +228,7 @@ in
           hickory-dns = prev.hickory-dns.overrideAttrs (
             old:
             let
-              bindgenShim = prev.buildPackages.writeShellScriptBin "bindgen" ''
+              bindgenShim = prev.buildPackages.writeShellScriptBin "bindgen" /* sh */ ''
                 if [ -n "''${TARGET-}" ]; then
                   export TARGET="''${TARGET//gnuelfv2/gnu}"
                 fi
@@ -255,7 +247,7 @@ in
               # about. With -Werror plus other real warnings (_FORTIFY_SOURCE
               # noise from glibc headers), gcc fails. Strip -Werror from every
               # aws-lc CMakeLists the vendor ships, including third_party.
-              preBuild = (old.preBuild or "") + ''
+              preBuild = (old.preBuild or "") + /* sh */ ''
                 find "$NIX_BUILD_TOP" -path '*/aws-lc-sys-*/aws-lc/*' \
                   \( -name CMakeLists.txt -o -name '*.cmake' \) \
                   -print0 2>/dev/null | while IFS= read -r -d "" f; do
@@ -336,7 +328,7 @@ in
 
           # polkit: SUID chmod fails in user namespace
           polkit = prev.polkit.overrideAttrs (old: {
-            postPatch = (old.postPatch or "") + ''
+            postPatch = (old.postPatch or "") + /* sh */ ''
               sed -i 's/0o4755/0o755/' meson_post_install.py
             '';
           });
@@ -344,13 +336,13 @@ in
           # dbus: SUID + chown fail in user namespace; copy_data_for_tests.py fails in cross
           dbus = prev.dbus.overrideAttrs (old: {
             doCheck = false;
-            postPatch = (old.postPatch or "") + ''
+            postPatch = (old.postPatch or "") + /* sh */ ''
               sed -i -e 's/stat.S_ISUID | //' -e 's/os.chown/# os.chown/' meson_post_install.py
               # Remove copy_data_for_tests.py run_command — fails in cross/sandbox
               sed -i '/run_result.*copy_data_for_tests/,/^endif/d' test/data/meson.build
             '';
             nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ prev.removeReferencesTo ];
-            postFixup = (old.postFixup or "") + ''
+            postFixup = (old.postFixup or "") + /* sh */ ''
               find $lib -type f \( -name '*.so*' -o -executable \) -exec remove-references-to -t $out {} + || true
             '';
           });
@@ -380,7 +372,7 @@ in
               "MANPAGES=n"
               "COMPLETIONS=n"
             ];
-            preBuild = (old.preBuild or "") + ''
+            preBuild = (old.preBuild or "") + /* sh */ ''
               for f in $(find "$NIX_BUILD_TOP" -path '*/libc-*/src/unix/mod.rs' 2>/dev/null); do
                 chmod +w "$f" "$(dirname "$f")"
                 sed -i 's|@GLIBC_2\.3"|"|g' "$f"
@@ -395,7 +387,7 @@ in
           # (sibling dir, not under $sourceRoot), so postPatch is too early.
           # Use preBuild and make the vendored files writable before sed.
           uv = prev.uv.overrideAttrs (old: {
-            preBuild = (old.preBuild or "") + ''
+            preBuild = (old.preBuild or "") + /* sh */ ''
               for f in $(find "$NIX_BUILD_TOP" -path '*/target-lexicon-*/src/targets.rs' 2>/dev/null); do
                 chmod +w "$f" "$(dirname "$f")"
                 substituteInPlace "$f" \
@@ -423,7 +415,7 @@ in
             patches = (old.patches or [ ]) ++ [
               ./patches/bcachefs-tools-blkgetsize64-per-arch.patch
             ];
-            postPatch = (old.postPatch or "") + ''
+            postPatch = (old.postPatch or "") + /* sh */ ''
               substituteInPlace bch_bindgen/build.rs \
                 --replace-fail \
                   'let target = std::env::var("TARGET").unwrap();' \
@@ -457,7 +449,7 @@ in
               hostLib = prev.sqlite;
             }).overrideAttrs
               (old: {
-                preBuild = (old.preBuild or "") + ''
+                preBuild = (old.preBuild or "") + /* sh */ ''
                   export HOST_SQLITE3_LIB_DIR="${prev.buildPackages.sqlite.out}/lib"
                   for f in $(find "$NIX_BUILD_TOP" -path '*/libsqlite3-sys-*/build.rs' -type f 2>/dev/null); do
                     chmod +w "$f" "$(dirname "$f")"
@@ -474,7 +466,7 @@ in
           # The patch is conditional on OUT_DIR/TARGET so the build-host
           # branch (proc-macro chain) doesn't mismatch x86_64 sysroot headers.
           tree-sitter = prev.tree-sitter.overrideAttrs (old: {
-            preBuild = (old.preBuild or "") + ''
+            preBuild = (old.preBuild or "") + /* sh */ ''
               # When rquickjs-sys is built as a build-host artifact (proc-macro
               # graph), both bindgen AND cc-rs see cargo's TARGET=ppc64 (cargo
               # bug for build-host deps in proc-macro chains). bindgen reads

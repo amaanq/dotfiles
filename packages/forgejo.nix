@@ -71,17 +71,17 @@ buildGoModule {
     }'"
   ];
 
-  preConfigure = ''
+  preConfigure = /* sh */ ''
     export ldflags+=" -X main.ForgejoVersion=$(GITEA_VERSION=${version} make show-version-api)"
   '';
 
   doCheck = false;
 
-  preInstall = ''
+  preInstall = /* sh */ ''
     mv "$GOPATH/bin/forgejo.org" "$GOPATH/bin/forgejo"
   '';
 
-  postInstall = ''
+  postInstall = /* sh */ ''
     mkdir $data
     cp -R ./{templates,options} ${frontend}/public $data
     mkdir -p $out

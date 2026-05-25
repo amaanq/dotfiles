@@ -326,7 +326,7 @@ in
         # Splice the recovery credential into a transient EnvironmentFile so
         # STALWART_RECOVERY_ADMIN never lands in the nix store.
         ExecStartPre = lib.mkIf cfg.recovery.enable [
-          (pkgs.writeShellScript "stalwart-recovery-env" ''
+          (pkgs.writeShellScript "stalwart-recovery-env" /* sh */ ''
             set -eu
             umask 0077
             pw=$(cat "$CREDENTIALS_DIRECTORY/recovery_admin")
@@ -405,7 +405,7 @@ in
           cfg.apply.adminPasswordFile != null
         ) "apply_admin:${toString cfg.apply.adminPasswordFile}";
 
-        ExecStart = pkgs.writeShellScript "stalwart-apply" ''
+        ExecStart = pkgs.writeShellScript "stalwart-apply" /* sh */ ''
           set -eu
 
           PLAN_SRC=${planNDJSON}

@@ -11,7 +11,7 @@ in
     UV_PYTHON = "${package}";
   };
 
-  environment.etc."ruff/ruff.toml".text = ''
+  environment.etc."ruff/ruff.toml".text = /* toml */ ''
     indent-width = 3
 
     [lint]

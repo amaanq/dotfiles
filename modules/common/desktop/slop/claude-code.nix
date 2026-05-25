@@ -1059,7 +1059,7 @@ let
     let
       version = "1.0.1";
     in
-    pkgs.writeShellScriptBin "chrome-devtools-mcp" ''
+    pkgs.writeShellScriptBin "chrome-devtools-mcp" /* sh */ ''
       set -euo pipefail
       export PATH="${pkgs.deno}/bin:$PATH"
 

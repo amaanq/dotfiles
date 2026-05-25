@@ -1,8 +1,4 @@
-{
-  lib,
-  pkgs,
-  ...
-}:
+{ lib, pkgs, ... }:
 let
   inherit (lib) enabled;
 in
@@ -22,22 +18,21 @@ in
     };
   };
 
-  environment.systemPackages =
-    [
-      pkgs.ffmpegthumbnailer
-      pkgs.udiskie
-    ]
-    ++ (with pkgs.kdePackages; [
-      dolphin
-      dolphin-plugins
-      ark
-      kio
-      kio-extras
-      kio-fuse
-      kservice
-      kde-cli-tools
-      kimageformats
-      ffmpegthumbs
-      kdegraphics-thumbnailers
-    ]);
+  environment.systemPackages = [
+    pkgs.ffmpegthumbnailer
+    pkgs.udiskie
+  ]
+  ++ (with pkgs.kdePackages; [
+    dolphin
+    dolphin-plugins
+    ark
+    kio
+    kio-extras
+    kio-fuse
+    kservice
+    kde-cli-tools
+    kimageformats
+    ffmpegthumbs
+    kdegraphics-thumbnailers
+  ]);
 }

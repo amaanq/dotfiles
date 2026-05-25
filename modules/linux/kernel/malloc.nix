@@ -97,7 +97,10 @@ let
   # fall back to libc's allocator (LD_PRELOAD unset).
   hasFallback = cfg.fallbackProvider != null;
   fallbackLib =
-    if hasFallback then mkMallocLib cfg.fallbackProvider providers.${cfg.fallbackProvider}.libPath else null;
+    if hasFallback then
+      mkMallocLib cfg.fallbackProvider providers.${cfg.fallbackProvider}.libPath
+    else
+      null;
   fallbackLibPath = lib.optionalString hasFallback "${fallbackLib}/lib/${fallbackLib.libName}";
 
   excludedLdPreloadFlag =

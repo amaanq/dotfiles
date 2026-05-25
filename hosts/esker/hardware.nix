@@ -41,8 +41,10 @@ in
   boot.supportedFilesystems = [ "bcachefs" ];
 
   # 8GB dirty page cap for Android builds.
-  boot.kernel.sysctl."vm.dirty_bytes" = 8 * 1024 * 1024 * 1024;
-  boot.kernel.sysctl."vm.dirty_background_bytes" = 2 * 1024 * 1024 * 1024;
+  boot.kernel.sysctl = {
+    "vm.dirty_bytes" = 8 * 1024 * 1024 * 1024; # 8 GiB
+    "vm.dirty_background_bytes" = 2 * 1024 * 1024 * 1024; # 2 GiB
+  };
 
   nixpkgs.hostPlatform = "x86_64-linux";
   hardware.enableRedistributableFirmware = true;

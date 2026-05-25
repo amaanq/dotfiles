@@ -7,7 +7,7 @@
 let
   inherit (lib) enabled;
 
-  bcachefsShrink = pkgs.writeShellScript "bcachefs-btree-cache-shrink" ''
+  bcachefsShrink = pkgs.writeShellScript "bcachefs-btree-cache-shrink" /* sh */ ''
     set -eu
 
     to_bytes() {
@@ -84,7 +84,7 @@ in
     package = pkgs.plymouth.overrideAttrs (old: {
       buildInputs = lib.filter (p: p.pname or "" != "gtk+3") old.buildInputs;
       mesonFlags = (old.mesonFlags or [ ]) ++ [ "-Dgtk=disabled" ];
-      postInstall = (old.postInstall or "") + ''
+      postInstall = (old.postInstall or "") + /* sh */ ''
         touch $out/lib/plymouth/renderers/x11.so
       '';
     });
@@ -154,7 +154,7 @@ in
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStart = pkgs.writeShellScript "ethtool-enp18s0" ''
+      ExecStart = pkgs.writeShellScript "ethtool-enp18s0" /* sh */ ''
         ${pkgs.ethtool}/bin/ethtool -K enp18s0 gso off gro off tso off
         ${pkgs.ethtool}/bin/ethtool --set-eee enp18s0 eee off
         ${pkgs.ethtool}/bin/ethtool -A enp18s0 autoneg off rx off tx off
@@ -169,7 +169,7 @@ in
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStart = pkgs.writeShellScript "bcachefs-memory-tune" ''
+      ExecStart = pkgs.writeShellScript "bcachefs-memory-tune" /* sh */ ''
         for d in /sys/fs/bcachefs/*; do
           echo 0 > "$d/options/btree_node_prefetch" 2>/dev/null || true
         done

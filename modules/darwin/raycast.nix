@@ -22,7 +22,7 @@
   };
 
   # Set Raycast hotkey to Option+R
-  system.activationScripts.postActivation.text = ''
+  system.activationScripts.postActivation.text = /* sh */ ''
     if [ -d "/Applications/Raycast.app" ]; then
       /usr/bin/defaults write com.raycast.macos raycastGlobalHotkey -string "Option-15"
     fi

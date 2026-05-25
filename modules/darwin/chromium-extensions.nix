@@ -29,7 +29,7 @@ let
   extensionIds = map (key: extensions.${key}.id) enabledKeys;
 
   # Generate plist content
-  plistContent = ''
+  plistContent = /* xml */ ''
     <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
     <plist version="1.0">
@@ -120,7 +120,7 @@ let
 in
 {
   config = mkIf cfg.enable {
-    system.activationScripts.postActivation.text = mkAfter ''
+    system.activationScripts.postActivation.text = mkAfter /* sh */ ''
       # Install Chromium extension policy
       echo "Installing Chrome/Chromium extension policy for ${bundleId}..."
       mkdir -p "/Library/Managed Preferences"

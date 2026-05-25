@@ -29,13 +29,13 @@ let
     name = "ida-pro_93_armmac.app.zip";
   };
 
-  idaLauncher = pkgs.writeScript "ida-launcher" ''
+  idaLauncher = pkgs.writeScript "ida-launcher" /* bash */ ''
     #!/bin/bash
     export QT_PLUGIN_PATH=/Applications/IDA/PlugIns
     exec /Applications/IDA/standalone/ida "$@"
   '';
 
-  idaPlist = pkgs.writeText "ida-info.plist" ''
+  idaPlist = pkgs.writeText "ida-info.plist" /* xml */ ''
     <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
     <plist version="1.0">
@@ -78,17 +78,17 @@ let
     </plist>
   '';
 
-  idaWrapper = pkgs.writeShellScriptBin "ida" ''
+  idaWrapper = pkgs.writeShellScriptBin "ida" /* sh */ ''
     export QT_PLUGIN_PATH=/Applications/IDA/PlugIns
     exec /Applications/IDA/standalone/ida "$@"
   '';
 
-  ida64Wrapper = pkgs.writeShellScriptBin "ida64" ''
+  ida64Wrapper = pkgs.writeShellScriptBin "ida64" /* sh */ ''
     export QT_PLUGIN_PATH=/Applications/IDA/PlugIns
     exec /Applications/IDA/standalone/ida "$@"
   '';
 
-  idatWrapper = pkgs.writeShellScriptBin "idat" ''
+  idatWrapper = pkgs.writeShellScriptBin "idat" /* sh */ ''
     exec /Applications/IDA/standalone/idat "$@"
   '';
 in
@@ -100,7 +100,7 @@ merge
     idatWrapper
   ];
 
-  system.activationScripts.postActivation.text = mkAfter ''
+  system.activationScripts.postActivation.text = mkAfter /* sh */ ''
     IDA_DIR="/Applications/IDA"
     IDA_APP="$IDA_DIR/IDA Professional 9.3.app"
     IDA_STANDALONE="$IDA_DIR/standalone"

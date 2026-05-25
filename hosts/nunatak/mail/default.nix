@@ -2,7 +2,6 @@
   self,
   config,
   lib,
-  pkgs,
   ...
 }:
 
@@ -16,9 +15,6 @@ let
     "libg.so"
     "hkpoolservices.com"
   ];
-
-  acmeRoot = "/var/lib/acme/${domain}";
-
   # Rampart identity — separated from amaanq's mail at the IP/PTR/EHLO/cert
   # level so DNS tracing of pool domains never leads back to amaanq.com.
   rampartZone = "rampart.email";
@@ -46,15 +42,18 @@ let
       "@type" = "create";
       object = "NetworkListener";
       value.${cid} = {
-        inherit name protocol;
+        inherit
+          name
+          protocol
+          useTls
+          tlsImplicit
+          ;
         bind = lib.listToAttrs (
           map (addr: {
             name = addr;
             value = true;
           }) bind
         );
-        useTls = useTls;
-        tlsImplicit = tlsImplicit;
       };
     };
 
@@ -79,7 +78,8 @@ let
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header X-Forwarded-Proto $scheme;
-    '' + extra;
+    ''
+    + extra;
   };
 
   # JMAP autodiscovery for secondary mail-using domains.
@@ -121,11 +121,13 @@ in
   security.acme.certs.${rampartZone}.reloadServices = [ "stalwart.service" ];
 
   services.nginx.virtualHosts =
-    lib.genAttrs domains (_:
-      config.services.nginx.sslTemplate // { locations = autodiscoveryLocations; })
+    lib.genAttrs domains (
+      _: config.services.nginx.sslTemplate // { locations = autodiscoveryLocations; }
+    )
     // {
-      "mail.${domain}" =
-        config.services.nginx.sslTemplate // { locations = fullMailLocations; };
+      "mail.${domain}" = config.services.nginx.sslTemplate // {
+        locations = fullMailLocations;
+      };
     };
 
   services.stalwart = enabled {
@@ -167,13 +169,15 @@ in
       (mkUpdateListener {
         id = "ipkm9jiqacaa";
         patch.bind = lib.listToAttrs (
-          map (addr: {
-            name = addr;
-            value = true;
-          }) [
-            "${amaanqInboundV4}:25"
-            "[${amaanqInboundV6}]:25"
-          ]
+          map
+            (addr: {
+              name = addr;
+              value = true;
+            })
+            [
+              "${amaanqInboundV4}:25"
+              "[${amaanqInboundV6}]:25"
+            ]
         );
       })
 

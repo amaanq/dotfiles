@@ -8,8 +8,13 @@ let
   inherit (lib)
     generators
     merge
+    mkForce
     mkIf
+    optionalAttrs
+    optionals
+    optionalString
     ;
+  inherit (config) isDesktop;
 
   ghConfig = {
     git_protocol = "ssh";
@@ -69,7 +74,7 @@ let
     merge = {
       conflictStyle = "diff3";
     }
-    // lib.optionalAttrs config.isDesktop {
+    // optionalAttrs isDesktop {
       mergiraf = {
         name = "mergiraf";
         driver = "mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L";
@@ -149,7 +154,7 @@ merge {
   environment.systemPackages = [
     pkgs.gitMinimal
   ]
-  ++ lib.optionals config.isDesktop [
+  ++ optionals isDesktop [
     pkgs.difftastic
     (pkgs.mergiraf.override { git = pkgs.gitMinimal; })
   ];
@@ -160,7 +165,7 @@ merge {
       include.path = config.secrets.gitPrivate.path;
     }
   );
-  environment.etc."git/attributes".text = if config.isDesktop then "* merge=mergiraf\n" else "";
+  environment.etc."git/attributes".text = optionalString isDesktop "* merge=mergiraf\n";
   environment.etc."git/ignore".text = ''
     .jj/
     .claude/
@@ -180,12 +185,12 @@ merge {
     GNUPGHOME = "$XDG_DATA_HOME/gnupg";
   };
 }
-<| mkIf config.isDesktop {
+<| mkIf isDesktop {
   environment.etc."git/config-desktop".source =
     iniFormat.generate "gitconfig-desktop" desktopGitConfig;
 
   # Include desktop config in main config
-  environment.etc."git/config".source = lib.mkForce (
+  environment.etc."git/config".source = mkForce (
     iniFormat.generate "gitconfig" (
       gitConfig
       // {

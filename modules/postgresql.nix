@@ -26,17 +26,15 @@ in
     <| const {
       paths = [ "/tmp/postgresql-dump.sql.gz" ];
 
-      backupPrepareCommand = # sh
-        ''
-          ${config.services.postgresql.package}/bin/pg_dumpall --clean \
-          | ${lib.getExe pkgs.gzip} --rsyncable \
-          > /tmp/postgresql-dump.sql.gz
-        '';
+      backupPrepareCommand = /* sh */ ''
+        ${config.services.postgresql.package}/bin/pg_dumpall --clean \
+        | ${lib.getExe pkgs.gzip} --rsyncable \
+        > /tmp/postgresql-dump.sql.gz
+      '';
 
-      backupCleanupCommand = # sh
-        ''
-          rm /tmp/postgresql-dump.sql.gz
-        '';
+      backupCleanupCommand = /* sh */ ''
+        rm /tmp/postgresql-dump.sql.gz
+      '';
     };
 
   config.environment.systemPackages = [

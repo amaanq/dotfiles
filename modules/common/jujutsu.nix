@@ -6,6 +6,11 @@
   ...
 }:
 let
+  inherit (lib)
+    optionalAttrs
+    optionals
+    ;
+
   tomlFormat = pkgs.formats.toml { };
   graphStyle = if config.theme.cornerRadius > 0 then "curved" else "square";
 
@@ -234,24 +239,19 @@ let
       push = "origin";
     };
   }
-  // (
-    if config.isDesktop then
-      {
-        git.sign-on-push = true;
+  // optionalAttrs config.isDesktop {
+    git.sign-on-push = true;
 
-        signing = {
-          backend = "gpg";
-          behavior = "drop";
-          key = "git@amaanq.com";
-          backends.gpg.program = "${pkgs.gnupg}/bin/gpg";
-        };
-      }
-    else
-      { }
-  );
+    signing = {
+      backend = "gpg";
+      behavior = "drop";
+      key = "git@amaanq.com";
+      backends.gpg.program = "${pkgs.gnupg}/bin/gpg";
+    };
+  };
 in
 {
-  environment.systemPackages = lib.optionals config.isDesktop [
+  environment.systemPackages = optionals config.isDesktop [
     pkgs.difftastic
     jj-src.packages.${pkgs.system}.jujutsu
     pkgs.mergiraf
