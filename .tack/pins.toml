@@ -102,7 +102,7 @@ url = "gh:NixOS/nix"
 url = "manic:tack/next"
 
 [inputs.cade]
-url = "manic:cade"
+url = "manic:cade/next"
 
 # editor / personal forks -----------------------------------------------------
 
