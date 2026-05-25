@@ -48,7 +48,7 @@ index 83716747ec..a029a37f06 100644
        },
        "original": {
 diff --git a/internal/config/config.go b/internal/config/config.go
-index 87a5b08283..0abc4a2f52 100644
+index 014587d69a..2f291d959d 100644
 --- a/internal/config/config.go
 +++ b/internal/config/config.go
 @@ -17,17 +17,18 @@
@@ -81,7 +81,7 @@ index 87a5b08283..0abc4a2f52 100644
  }
  
  type Color struct {
-@@ -277,3 +278,79 @@
+@@ -260,3 +261,79 @@
  type SshConfig struct {
  	HijackAskpass bool `toml:"hijack_askpass"`
  }
@@ -162,10 +162,10 @@ index 87a5b08283..0abc4a2f52 100644
 +	return tools[c.DiffEditor.selected]
 +}
 diff --git a/internal/config/default/config.toml b/internal/config/default/config.toml
-index 2d2afddb79..b183db931d 100644
+index 657bb20b61..450a297749 100644
 --- a/internal/config/default/config.toml
 +++ b/internal/config/default/config.toml
-@@ -19,10 +19,10 @@
+@@ -21,10 +21,10 @@
    # revset = "zzzzzzz"               # overrides jj's revsets.log
  
  [preview]
@@ -179,7 +179,7 @@ index 2d2afddb79..b183db931d 100644
    position = "auto"
    show_at_start = false
    width_percentage = 50.0
-@@ -44,3 +44,11 @@
+@@ -46,3 +46,11 @@
   jjui.builtin.revisions.toggle_select()
   jjui.builtin.revisions.jump_to_parent()
   """
@@ -199,10 +199,10 @@ index 0000000000..d912156bec
 @@ -0,0 +1,1 @@
 +package config
 diff --git a/internal/config/loader.go b/internal/config/loader.go
-index 3cbb75bcbd..3725c8eb57 100644
+index 69d50f44fa..0dad79580e 100644
 --- a/internal/config/loader.go
 +++ b/internal/config/loader.go
-@@ -108,6 +108,9 @@
+@@ -110,6 +110,9 @@
  		return err
  	}
  
@@ -213,7 +213,7 @@ index 3cbb75bcbd..3725c8eb57 100644
  	// collections are always read from file content, without carrying prior state.
  	// Keep this type explicit and extend it when new merge-managed arrays are added.
 diff --git a/internal/jj/commands.go b/internal/jj/commands.go
-index 8406ff0787..d2b79ae975 100644
+index d5fc8896a1..9226ee958c 100644
 --- a/internal/jj/commands.go
 +++ b/internal/jj/commands.go
 @@ -15,6 +15,7 @@
@@ -224,7 +224,7 @@ index 8406ff0787..d2b79ae975 100644
  
  	// CheckedFilesPlaceholder user checked file names, separated by `\t` tab.
  	// tab is a lot less common than spaces on filenames
-@@ -40,7 +41,7 @@
+@@ -42,7 +43,7 @@
  }
  
  func Log(revset string, limit int, jjTemplate string) CommandArgs {
@@ -233,7 +233,7 @@ index 8406ff0787..d2b79ae975 100644
  	if revset != "" {
  		args = append(args, "-r", revset)
  	}
-@@ -82,8 +83,11 @@
+@@ -84,8 +85,11 @@
  	return []string{"diffedit", "-r", changeId}
  }
  
@@ -246,7 +246,7 @@ index 8406ff0787..d2b79ae975 100644
  	if parallel {
  		args = append(args, "--parallel")
  	}
-@@ -135,8 +139,11 @@
+@@ -141,8 +145,11 @@
  	return args
  }
  
@@ -259,7 +259,7 @@ index 8406ff0787..d2b79ae975 100644
  	if interactive {
  		args = append(args, "--interactive")
  	}
-@@ -206,10 +213,13 @@
+@@ -216,10 +223,13 @@
  	return args
  }
  
@@ -289,10 +289,10 @@ index 4d52be8d8b..212e62db8c 100644
  			}
  		}
 diff --git a/internal/ui/common/msgs.go b/internal/ui/common/msgs.go
-index bf37539bec..37984f1af1 100644
+index 5342ec6c67..d59c854118 100644
 --- a/internal/ui/common/msgs.go
 +++ b/internal/ui/common/msgs.go
-@@ -14,6 +14,7 @@
+@@ -16,6 +16,7 @@
  		SelectedRevision string
  		KeepSelections   bool
  	}
@@ -308,10 +308,10 @@ index 0000000000..a03e1d1c44
 @@ -0,0 +1,1 @@
 +package context
 diff --git a/internal/ui/diff/diff.go b/internal/ui/diff/diff.go
-index 7433168773..c5cb9ec2af 100644
+index 8629e13113..e34a65f5e0 100644
 --- a/internal/ui/diff/diff.go
 +++ b/internal/ui/diff/diff.go
-@@ -1,10 +1,13 @@
+@@ -1,10 +1,12 @@
  package diff
  
  import (
@@ -321,33 +321,23 @@ index 7433168773..c5cb9ec2af 100644
  	tea "charm.land/bubbletea/v2"
  	uv "github.com/charmbracelet/ultraviolet"
 +	"github.com/idursun/jjui/internal/config"
-+	"github.com/idursun/jjui/internal/ui/common"
+ 	"github.com/idursun/jjui/internal/ui/actions"
+ 	"github.com/idursun/jjui/internal/ui/common"
  	"github.com/idursun/jjui/internal/ui/intents"
- 	"github.com/idursun/jjui/internal/ui/layout"
- 	"github.com/idursun/jjui/internal/ui/render"
-@@ -141,6 +144,8 @@
- 	dl.AddDraw(box.R, buf.Render(), 0)
- }
- 
-+var _ common.ImmediateModel = (*Model)(nil)
-+
- type Model struct {
- 	lines        []string
- 	maxLineWidth int
-@@ -249,7 +254,11 @@
- 			m.mode.scrollHorizontal(1, m.viewportWidth)
- 		}
- 		return nil
+@@ -278,7 +280,11 @@
+ 	case intents.DiffScroll, intents.DiffToggleWrap, intents.DiffShow, intents.DiffScrollHorizontal:
+ 		cmd, _ := m.HandleIntent(msg.(intents.Intent))
+ 		return cmd
 -
 +	case tea.KeyMsg:
-+		// Handle cycle diff editor directly (unmatched keys reach here from ui.go)
++		// Handle cycle diff editor directly (unmatched keys reach here via updateBlockingScope)
 +		if msg.String() == "ctrl+e" {
 +			return m.cycleDiffTool()
 +		}
  	case ScrollMsg:
  		if !msg.Horizontal {
  			m.scrollY += msg.Delta
-@@ -261,6 +270,14 @@
+@@ -290,6 +296,14 @@
  	return nil
  }
  
@@ -378,7 +368,7 @@ index 39f7c64ca4..48fe8c32fe 100644
  
  func (DiffShow) isIntent() {}
 diff --git a/internal/ui/operations/details/details.go b/internal/ui/operations/details/details.go
-index 7bcd4de30f..9187b61675 100644
+index 5592c490c2..198e1d2eee 100644
 --- a/internal/ui/operations/details/details.go
 +++ b/internal/ui/operations/details/details.go
 @@ -12,6 +12,7 @@
@@ -388,8 +378,8 @@ index 7bcd4de30f..9187b61675 100644
 +	"github.com/idursun/jjui/internal/config"
  	"github.com/idursun/jjui/internal/jj"
  	"github.com/idursun/jjui/internal/ui/actions"
- 	keybindings "github.com/idursun/jjui/internal/ui/bindings"
-@@ -29,6 +30,11 @@
+ 	"github.com/idursun/jjui/internal/ui/common"
+@@ -28,6 +29,15 @@
  	selectedFiles []string
  }
  
@@ -398,31 +388,24 @@ index 7bcd4de30f..9187b61675 100644
 +// Cleared on RefreshMsg (which fires after any mutating operation).
 +var statusCache = make(map[string]string)
 +
++func ClearStatusCache() {
++	clear(statusCache)
++}
++
  var (
- 	_ operations.Operation = (*Operation)(nil)
- 	_ common.Focusable     = (*Operation)(nil)
-@@ -42,6 +48,7 @@
- 	Current      *jj.Commit
- 	revision     *jj.Commit
- 	confirmation *confirmation.Model
-+	loading      bool
- 	styles       styles
- }
- 
-@@ -69,8 +76,10 @@
+ 	_ operations.Operation                = (*Operation)(nil)
+ 	_ operations.EmbeddedOperation        = (*Operation)(nil)
+@@ -87,6 +97,7 @@
  		s.unselectedHint = ""
  		return nil
  	case common.RefreshMsg:
 +		delete(statusCache, s.revision.GetChangeId())
  		return s.load(s.revision.GetChangeId())
  	case updateCommitStatusMsg:
-+		s.loading = false
  		items := s.createListItems(msg.summary, msg.selectedFiles)
- 		s.context.ClearCheckedItems(reflect.TypeFor[context.SelectedFile]())
- 
-@@ -196,9 +205,11 @@
+@@ -221,9 +232,11 @@
  		if selected == nil {
- 			return nil
+ 			return nil, true
  		}
 +		changeId := s.revision.GetChangeId()
 +		fileName := selected.fileName
@@ -431,10 +414,10 @@ index 7bcd4de30f..9187b61675 100644
 -			return intents.DiffShow{Content: string(output)}
 +			output, _ := s.context.RunCommandImmediate(jj.Diff(changeId, fileName))
 +			return intents.DiffShow{Content: string(output), Revision: changeId, FileName: fileName}
- 		}
+ 		}, true
  	case intents.DetailsSplit:
  		selectedFiles := s.getSelectedFiles(true)
-@@ -208,10 +219,10 @@
+@@ -233,10 +246,10 @@
  			[]string{"Are you sure you want to split the selected files?"},
  			confirmation.WithStylePrefix("revisions"),
  			confirmation.WithOption("Yes",
@@ -447,7 +430,7 @@ index 7bcd4de30f..9187b61675 100644
  				key.NewBinding(key.WithKeys("i"), key.WithHelp("i", "interactive"))),
  			confirmation.WithOption("No",
  				confirmation.Close,
-@@ -234,10 +245,10 @@
+@@ -259,10 +272,10 @@
  			[]string{"Are you sure you want to restore the selected files?"},
  			confirmation.WithStylePrefix("revisions"),
  			confirmation.WithOption("Yes",
@@ -460,27 +443,16 @@ index 7bcd4de30f..9187b61675 100644
  				key.NewBinding(key.WithKeys("i"), key.WithHelp("i", "interactive"))),
  			confirmation.WithOption("No",
  				confirmation.Close,
-@@ -344,6 +355,9 @@
+@@ -362,7 +375,7 @@
  		return 0
  	}
  	if s.Len() == 0 {
-+		if s.loading {
-+			return 0 // Don't reserve space while loading
-+		}
- 		return 1 // "No changes" message
+-		return 1
++		return 1 // "No changes" message
  	}
  	confirmationHeight := 0
-@@ -361,6 +375,9 @@
- 	}
- 
- 	if s.Len() == 0 {
-+		if s.loading {
-+			return 0 // Don't render while loading
-+		}
- 		// Render "No changes" message
- 		content := s.styles.Dimmed.Render("No changes")
- 		dl.AddDraw(layout.Rect(rect.Min.X, rect.Min.Y, rect.Dx(), 1), content, 0)
-@@ -486,18 +503,31 @@
+ 	if s.confirmation != nil {
+@@ -492,18 +505,30 @@
  }
  
  func (s *Operation) load(revision string) tea.Cmd {
@@ -496,7 +468,6 @@ index 7bcd4de30f..9187b61675 100644
 +		}
 +	}
 +
-+	s.loading = true
 +	isWorkingCopy := s.revision != nil && s.revision.IsWorkingCopy
 +	return func() tea.Msg {
 +		var output []byte
@@ -519,29 +490,49 @@ index 7bcd4de30f..9187b61675 100644
  		return common.CommandCompletedMsg{
  			Output: string(output),
  			Err:    err,
-@@ -536,6 +566,9 @@
- 		ch = lipgloss.Height(confirmationView)
+@@ -520,3 +545,29 @@
  	}
- 	if s.Len() == 0 {
-+		if s.loading {
-+			return ""
-+		}
- 		return s.styles.Dimmed.Render("No changes")
- 	}
- 	if width <= 0 {
+ 	return op
+ }
++
++func (s *Operation) viewContent(width, maxHeight int) string {
++	confirmationView := ""
++	ch := 0
++	if s.confirmation != nil {
++		confirmationView = s.confirmation.View()
++		ch = lipgloss.Height(confirmationView)
++	}
++	if s.Len() == 0 {
++		return common.DefaultPalette.Get("revisions details dimmed").Render("No changes")
++	}
++	if width <= 0 {
++		width = 80 // sensible default
++	}
++	height := max(min(maxHeight-5-ch, s.Len()), 0)
++	dl := render.NewDisplayContext()
++	viewRect := layout.Box{R: layout.Rect(0, 0, width, height)}
++	if height > 0 {
++		s.RenderFileList(dl, viewRect)
++	}
++	filesView := strings.TrimRight(dl.RenderToString(width, height), "\n")
++	if confirmationView != "" {
++		return lipgloss.JoinVertical(lipgloss.Top, filesView, confirmationView)
++	}
++	return filesView
++}
 diff --git a/internal/ui/operations/details/details_test.go b/internal/ui/operations/details/details_test.go
-index 35daf8c8cc..cc38140b82 100644
+index c2c5dc5f7e..6889a73b71 100644
 --- a/internal/ui/operations/details/details_test.go
 +++ b/internal/ui/operations/details/details_test.go
-@@ -6,6 +6,7 @@
+@@ -9,6 +9,7 @@
  	"github.com/idursun/jjui/internal/jj"
  	"github.com/idursun/jjui/internal/ui/common"
  	"github.com/idursun/jjui/internal/ui/confirmation"
 +	"github.com/idursun/jjui/internal/ui/context"
  	"github.com/idursun/jjui/internal/ui/intents"
- 	"github.com/stretchr/testify/assert"
- 
-@@ -24,25 +25,28 @@
+ 	"github.com/idursun/jjui/internal/ui/layout"
+ 	"github.com/idursun/jjui/internal/ui/render"
+@@ -29,25 +30,28 @@
  	CommitId: Revision,
  }
  
@@ -575,7 +566,7 @@ index 35daf8c8cc..cc38140b82 100644
  	test.SimulateModel(model, model.Init())
  	assert.Contains(t, test.RenderImmediate(model, 100, 20), "file.txt")
  
-@@ -53,12 +57,11 @@
+@@ -58,12 +62,11 @@
  
  func TestModel_Update_RestoresInteractively(t *testing.T) {
  	commandRunner := test.NewTestCommandRunner(t)
@@ -590,7 +581,7 @@ index 35daf8c8cc..cc38140b82 100644
  	test.SimulateModel(model, model.Init())
  	assert.Contains(t, test.RenderImmediate(model, 100, 20), "file.txt")
  	test.SimulateModel(model, func() tea.Msg { return intents.DetailsRestore{} })
-@@ -69,12 +72,11 @@
+@@ -74,12 +77,11 @@
  
  func TestModel_Update_SplitsSelectedFiles(t *testing.T) {
  	commandRunner := test.NewTestCommandRunner(t)
@@ -605,7 +596,20 @@ index 35daf8c8cc..cc38140b82 100644
  	test.SimulateModel(model, model.Init())
  	assert.Contains(t, test.RenderImmediate(model, 100, 20), "file.txt")
  
-@@ -85,12 +87,11 @@
+@@ -90,11 +92,10 @@
+ 
+ func TestModel_Update_SplitHintsFollowCheckedFiles(t *testing.T) {
+ 	commandRunner := test.NewTestCommandRunner(t)
+-	commandRunner.Expect(jj.Snapshot())
+ 	commandRunner.Expect(jj.Status(Revision)).SetOutput([]byte(StatusOutput))
+ 	defer commandRunner.Verify()
+ 
+-	model := NewOperation(test.NewTestContext(commandRunner), Commit)
++	model := newTestOperation(test.NewTestContext(commandRunner), Commit)
+ 	test.SimulateModel(model, model.Init())
+ 
+ 	test.SimulateModel(model, func() tea.Msg { return intents.DetailsToggleSelect{} })
+@@ -107,12 +108,11 @@
  
  func TestModel_Update_ParallelSplitsSelectedFiles(t *testing.T) {
  	commandRunner := test.NewTestCommandRunner(t)
@@ -620,7 +624,7 @@ index 35daf8c8cc..cc38140b82 100644
  	test.SimulateModel(model, model.Init())
  	assert.Contains(t, test.RenderImmediate(model, 100, 20), "file.txt")
  
-@@ -101,12 +102,11 @@
+@@ -123,12 +123,11 @@
  
  func TestModel_Update_HandlesMovedFiles(t *testing.T) {
  	commandRunner := test.NewTestCommandRunner(t)
@@ -635,7 +639,7 @@ index 35daf8c8cc..cc38140b82 100644
  	test.SimulateModel(model, model.Init())
  	assert.Contains(t, test.RenderImmediate(model, 100, 20), "file.go")
  
-@@ -118,12 +118,11 @@
+@@ -140,12 +139,11 @@
  
  func TestModel_Update_HandlesMovedFilesInDeepDirectories(t *testing.T) {
  	commandRunner := test.NewTestCommandRunner(t)
@@ -650,7 +654,7 @@ index 35daf8c8cc..cc38140b82 100644
  	test.SimulateModel(model, model.Init())
  	assert.Contains(t, test.RenderImmediate(model, 100, 20), "new_file.md")
  
-@@ -136,12 +135,11 @@
+@@ -158,12 +156,11 @@
  
  func TestModel_Update_HandlesFilenamesWithBraces(t *testing.T) {
  	commandRunner := test.NewTestCommandRunner(t)
@@ -665,7 +669,7 @@ index 35daf8c8cc..cc38140b82 100644
  	test.SimulateModel(model, model.Init())
  	assert.Contains(t, test.RenderImmediate(model, 100, 20), "file{with}braces.txt")
  
-@@ -153,11 +151,10 @@
+@@ -175,11 +172,10 @@
  
  func TestModel_Refresh_IgnoreVirtuallySelectedFiles(t *testing.T) {
  	commandRunner := test.NewTestCommandRunner(t)
@@ -678,7 +682,20 @@ index 35daf8c8cc..cc38140b82 100644
  	test.SimulateModel(model, model.Init())
  	test.SimulateModel(model, common.Refresh)
  	for _, file := range model.files {
-@@ -167,7 +164,7 @@
+@@ -189,11 +185,10 @@
+ 
+ func TestModel_HandleIntent_UpdatesSelectedFileWhenCursorMoves(t *testing.T) {
+ 	commandRunner := test.NewTestCommandRunner(t)
+-	commandRunner.Expect(jj.Snapshot())
+ 	commandRunner.Expect(jj.Status(Revision)).SetOutput([]byte(StatusOutput))
+ 	defer commandRunner.Verify()
+ 
+-	model := NewOperation(test.NewTestContext(commandRunner), Commit)
++	model := newTestOperation(test.NewTestContext(commandRunner), Commit)
+ 	test.SimulateModel(model, model.Init())
+ 
+ 	selected, ok := model.context.SelectedItem.(common.SelectedFile)
+@@ -240,7 +235,7 @@
  
  func TestModel_Update_Quit(t *testing.T) {
  	commandRunner := test.NewTestCommandRunner(t)
@@ -688,42 +705,42 @@ index 35daf8c8cc..cc38140b82 100644
  	test.SimulateModel(model, func() tea.Msg { return intents.Quit{} }, func(msg tea.Msg) {
  		msgs = append(msgs, msg)
 diff --git a/internal/ui/operations/evolog/evolog_operation.go b/internal/ui/operations/evolog/evolog_operation.go
-index 5a1aea2926..feec07e8f8 100644
+index a9c3247459..ef6dc6988a 100644
 --- a/internal/ui/operations/evolog/evolog_operation.go
 +++ b/internal/ui/operations/evolog/evolog_operation.go
-@@ -149,8 +149,8 @@
+@@ -153,8 +153,8 @@
  		if o.mode != selectMode {
- 			return nil
+ 			return nil, true
  		}
 +		selectedCommitId := o.getSelectedEvolog().CommitId
  		return func() tea.Msg {
 -			selectedCommitId := o.getSelectedEvolog().CommitId
  			output, _ := o.context.RunCommandImmediate(jj.Diff(selectedCommitId, ""))
  			return intents.DiffShow{Content: string(output)}
- 		}
+ 		}, true
 diff --git a/internal/ui/operations/squash/squash_operation.go b/internal/ui/operations/squash/squash_operation.go
-index 2c96cdb8b6..a287bc8aa9 100644
+index f03468b695..008966f391 100644
 --- a/internal/ui/operations/squash/squash_operation.go
 +++ b/internal/ui/operations/squash/squash_operation.go
-@@ -6,6 +6,7 @@
+@@ -5,6 +5,7 @@
+ 	"strings"
  
  	tea "charm.land/bubbletea/v2"
- 	"charm.land/lipgloss/v2"
 +	"github.com/idursun/jjui/internal/config"
  	"github.com/idursun/jjui/internal/jj"
  	"github.com/idursun/jjui/internal/ui/actions"
- 	keybindings "github.com/idursun/jjui/internal/ui/bindings"
-@@ -95,7 +96,7 @@
+ 	"github.com/idursun/jjui/internal/ui/common"
+@@ -69,7 +70,7 @@
  	case intents.StartAceJump:
- 		return common.StartAceJump()
+ 		return common.StartAceJump(), true
  	case intents.Apply:
 -		args := jj.Squash(s.from, s.targetArg(), s.files, s.keepEmptied, s.useDestinationMessage, s.interactive, intent.Force)
 +		args := jj.Squash(s.from, s.targetArg(), s.files, s.keepEmptied, s.useDestinationMessage, s.interactive, intent.Force, config.GetCurrentDiffEditor(config.Current))
  		continuation := common.RefreshAndSelect(s.current.GetChangeId())
  		if s.interactive || !s.useDestinationMessage {
- 			return tea.Batch(common.CloseApplied, s.context.RunInteractiveCommand(args, continuation))
+ 			return tea.Batch(common.CloseApplied, s.context.RunInteractiveCommand(args, continuation)), true
 diff --git a/internal/ui/preview/preview.go b/internal/ui/preview/preview.go
-index 340221c3cc..4cc5a933fc 100644
+index 7edefa068f..f400d6693a 100644
 --- a/internal/ui/preview/preview.go
 +++ b/internal/ui/preview/preview.go
 @@ -2,6 +2,7 @@
@@ -734,7 +751,7 @@ index 340221c3cc..4cc5a933fc 100644
  	"strconv"
  	"strings"
  	"time"
-@@ -169,6 +170,9 @@
+@@ -204,6 +205,9 @@
  		}
  		content = strings.Join(lines, "\n")
  	}
@@ -744,7 +761,7 @@ index 340221c3cc..4cc5a933fc 100644
  	m.reset()
  	m.content = content
  	m.view.SetContent(content)
-@@ -196,6 +200,11 @@
+@@ -233,6 +237,11 @@
  	return common.Debounce(debounceId, debounceDuration, func() tea.Msg {
  		var args []string
  		previewWidth := strconv.Itoa(m.view.Width())
@@ -756,7 +773,7 @@ index 340221c3cc..4cc5a933fc 100644
  		switch sel := item.(type) {
  		case common.SelectedFile:
  			args = jj.TemplatedArgs(config.Current.Preview.FileCommand, map[string]string{
-@@ -204,6 +213,7 @@
+@@ -241,6 +250,7 @@
  				jj.CommitIdPlaceholder:     sel.CommitId,
  				jj.FilePlaceholder:         sel.File,
  				jj.PreviewWidthPlaceholder: previewWidth,
@@ -764,7 +781,7 @@ index 340221c3cc..4cc5a933fc 100644
  			})
  		case common.SelectedRevision:
  			args = jj.TemplatedArgs(config.Current.Preview.RevisionCommand, map[string]string{
-@@ -211,29 +221,43 @@
+@@ -248,30 +258,44 @@
  				jj.ChangeIdPlaceholder:     sel.ChangeId,
  				jj.CommitIdPlaceholder:     sel.CommitId,
  				jj.PreviewWidthPlaceholder: previewWidth,
@@ -804,6 +821,8 @@ index 340221c3cc..4cc5a933fc 100644
 -			// The preview subprocess does not run in a pane-sized PTY, so let
 -			// width-sensitive tools like `jj diff` see the preview size via the
 -			// conventional terminal size environment variables.
+-			"DFT_WIDTH=" + strconv.Itoa(m.view.Width()), // diftastic
++			"DFT_WIDTH=" + strconv.Itoa(m.view.Width()),
  			"COLUMNS=" + strconv.Itoa(m.view.Width()),
  			"LINES=" + strconv.Itoa(m.view.Height()),
  		}
@@ -836,58 +855,34 @@ index ddf2949a9a..4f98234953 100644
  	model.Update(intents.PreviewShow{Content: "manual"})
  	cmd := model.Update(common.SelectionChangedMsg{Item: selected})
 diff --git a/internal/ui/revisions/dispatch_actions_test.go b/internal/ui/revisions/dispatch_actions_test.go
-index dec3cc4c2d..3e68a32c92 100644
+index dbab300b95..55920ae413 100644
 --- a/internal/ui/revisions/dispatch_actions_test.go
 +++ b/internal/ui/revisions/dispatch_actions_test.go
-@@ -18,7 +18,6 @@
+@@ -17,7 +17,6 @@
  
- func TestHandleDispatchedAction_RevisionsModeOpeners(t *testing.T) {
+ func TestHandleIntent_RevisionsModeOpeners(t *testing.T) {
  	commandRunner := test.NewTestCommandRunner(t)
 -	commandRunner.Expect(jj.Snapshot())
  	commandRunner.Expect(jj.Status("a"))
  	defer commandRunner.Verify()
  
-@@ -26,9 +25,10 @@
+@@ -25,9 +24,10 @@
  	model := New(ctx)
  	model.updateGraphRows(rows, "a")
  
--	_, handled := model.HandleDispatchedAction(keybindings.Action("revisions.open_details"), nil)
-+	cmd, handled := model.HandleDispatchedAction(keybindings.Action("revisions.open_details"), nil)
- 	assert.True(t, handled, "open_details should be handled by revisions dispatcher")
+-	_, handled := model.HandleIntent(intents.OpenDetails{})
++	cmd, handled := model.HandleIntent(intents.OpenDetails{})
+ 	assert.True(t, handled, "open_details should be handled by revisions")
  	assert.Equal(t, "details", model.CurrentOperation().Name())
 +	test.SimulateModel(model, cmd)
  
  	model.Update(intents.Cancel{})
  	model.updateGraphRows(rows, "a")
-diff --git a/internal/ui/revisions/displaycontext_renderer.go b/internal/ui/revisions/displaycontext_renderer.go
-index 7ba991b3b3..1cbaf52ca5 100644
---- a/internal/ui/revisions/displaycontext_renderer.go
-+++ b/internal/ui/revisions/displaycontext_renderer.go
-@@ -7,7 +7,6 @@
- 	"charm.land/lipgloss/v2"
- 	"github.com/idursun/jjui/internal/parser"
- 	"github.com/idursun/jjui/internal/screen"
--	"github.com/idursun/jjui/internal/ui/common"
- 	"github.com/idursun/jjui/internal/ui/layout"
- 	"github.com/idursun/jjui/internal/ui/operations"
- 	"github.com/idursun/jjui/internal/ui/render"
-@@ -159,10 +158,7 @@
- 		clickMsg,
- 	)
- 
--	// Register scroll only when no overlay operation is active
--	if overlay, ok := operation.(common.Overlay); !ok || !overlay.IsOverlay() {
--		r.listRenderer.RegisterScroll(dl, viewRect)
--	}
-+	r.listRenderer.RegisterScroll(dl, viewRect)
- }
- 
- // addHighlights adds highlight effects for lines with Highlightable flag
 diff --git a/internal/ui/revisions/displaycontext_renderer_test.go b/internal/ui/revisions/displaycontext_renderer_test.go
-index 2729f57dfd..c019373cac 100644
+index 42e503f36f..5ef4224e5f 100644
 --- a/internal/ui/revisions/displaycontext_renderer_test.go
 +++ b/internal/ui/revisions/displaycontext_renderer_test.go
-@@ -34,7 +34,6 @@
+@@ -36,7 +36,6 @@
  	// Prepare details operation with a file list.
  	const statusOutput = "false $\nM file.txt\n"
  	commandRunner := test.NewTestCommandRunner(t)
@@ -896,10 +891,10 @@ index 2729f57dfd..c019373cac 100644
  	defer commandRunner.Verify()
  
 diff --git a/internal/ui/revisions/revisions.go b/internal/ui/revisions/revisions.go
-index f1409c579f..01e5e7dc71 100644
+index 660a3f3d56..24750e8322 100644
 --- a/internal/ui/revisions/revisions.go
 +++ b/internal/ui/revisions/revisions.go
-@@ -796,7 +796,7 @@
+@@ -1012,7 +1012,7 @@
  	changeId := commit.GetChangeId()
  	return func() tea.Msg {
  		output, _ := m.context.RunCommandImmediate(jj.Diff(changeId, ""))
@@ -908,7 +903,7 @@ index f1409c579f..01e5e7dc71 100644
  	}
  }
  
-@@ -808,7 +808,7 @@
+@@ -1024,7 +1024,7 @@
  	if commit == nil {
  		return nil
  	}
@@ -918,19 +913,30 @@ index f1409c579f..01e5e7dc71 100644
  
  func (m *Model) updateSelection() tea.Cmd {
 diff --git a/internal/ui/ui.go b/internal/ui/ui.go
-index 6f360e337c..6bba076955 100644
+index 21ec2163a9..cec3d10763 100644
 --- a/internal/ui/ui.go
 +++ b/internal/ui/ui.go
-@@ -66,6 +66,8 @@
- 	height            int
- 	revisionsSplit    *split
- 	activeSplit       *split
+@@ -64,6 +64,8 @@
+ 	height           int
+ 	revisionsSplit   *split
+ 	activeSplit      *split
 +	lastDiffRevision  string
 +	lastDiffFileName  string
- 	splitActive       bool
- }
  
-@@ -493,6 +495,8 @@
+ 	// mode2031Supported is set when the terminal confirms it supports
+ 	// mode 2031 push. Once true, the OSC 11 polling loop stops.
+@@ -167,6 +169,10 @@
+ 		}
+ 		return nil
+ 	case tea.KeyMsg:
++		// Global cycle diff editor shortcut
++		if msg.String() == "ctrl+e" && !m.status.IsFocused() && !m.revsetModel.IsEditing() {
++			return m.cycleDiffEditor()
++		}
+ 		if m.resolver != nil {
+ 			scopes := m.dispatchScopes()
+ 			result := m.resolver.ResolveKey(msg, scopes)
+@@ -629,6 +635,8 @@
  		if m.diff == nil {
  			m.diff = diff.New("")
  		}
@@ -939,20 +945,8 @@ index 6f360e337c..6bba076955 100644
  		return m.diff.Update(intent), true
  	case intents.PreviewShow:
  		if !m.previewModel.Visible() {
-@@ -759,6 +763,11 @@
- 		return nil
- 	}
- 
-+	// Global cycle diff editor shortcut
-+	if msg.String() == "ctrl+e" && !m.status.IsFocused() && !m.revsetModel.Editing {
-+		return m.cycleDiffEditor()
-+	}
-+
- 	if m.status.IsFocused() {
- 		return m.status.Update(msg)
- 	}
-@@ -780,6 +789,32 @@
- 	return m.revisions.Update(msg)
+@@ -735,6 +743,32 @@
+ 	return scope.Handler.Update(msg)
  }
  
 +func (m *Model) cycleDiffEditor() tea.Cmd {
@@ -981,6 +975,103 @@ index 6f360e337c..6bba076955 100644
 +	return tea.Batch(cmds...)
 +}
 +
- func (m *Model) primaryScope() keybindings.Scope {
- 	if m.password != nil {
- 		return scopePassword
+ var _ tea.Model = (*wrapper)(nil)
+ 
+ type (
+diff --git a/internal/ui/ui_test.go b/internal/ui/ui_test.go
+index 6d615c9a92..f291515cdf 100644
+--- a/internal/ui/ui_test.go
++++ b/internal/ui/ui_test.go
+@@ -1035,6 +1035,7 @@
+ 	ctx := test.NewTestContext(commandRunner)
+ 	model := NewUI(ctx)
+ 
++	details.ClearStatusCache()
+ 	op := details.NewOperation(ctx, &jj.Commit{ChangeId: "abc123", CommitId: "def456"})
+ 	model.Update(common.RestoreOperationMsg{Operation: op})
+ 	require.False(t, model.revisions.InNormalMode(), "details operation should be active")
+@@ -1089,6 +1090,7 @@
+ 	ctx := test.NewTestContext(commandRunner)
+ 	model := NewUI(ctx)
+ 
++	details.ClearStatusCache()
+ 	op := details.NewOperation(ctx, &jj.Commit{ChangeId: "abc123", CommitId: "def456"})
+ 	model.Update(common.RestoreOperationMsg{Operation: op})
+ 	require.False(t, model.revisions.InNormalMode(), "details operation should be active")
+@@ -1238,7 +1240,6 @@
+ 	ctx := test.NewTestContext(commandRunner)
+ 	commandRunner.Expect(jj.Log(ctx.CurrentRevset, config.Current.Limit, ctx.JJConfig.Templates.Log)).SetOutput([]byte(logOutput))
+ 	commandRunner.Expect(jj.GetParent(jj.NewSelectedRevisions(&jj.Commit{ChangeId: "child", CommitId: "childcommit"}))).SetOutput([]byte("parentcommit"))
+-	commandRunner.Expect(jj.Snapshot())
+ 	commandRunner.Expect(jj.Status("parent")).SetOutput([]byte(statusOutput))
+ 	defer commandRunner.Verify()
+ 
+@@ -1249,6 +1250,7 @@
+ 	require.NotNil(t, model.revisions.SelectedRevision())
+ 	require.Equal(t, "child", model.revisions.SelectedRevision().GetChangeId())
+ 
++	details.ClearStatusCache()
+ 	model.Update(common.RestoreOperationMsg{Operation: details.NewOperation(ctx, model.revisions.SelectedRevision())})
+ 	require.False(t, model.revisions.InNormalMode(), "details operation should be active")
+ 
+@@ -1420,13 +1422,13 @@
+ 	const statusOutput = "false false $\nM file.txt\nA newfile.txt\n"
+ 
+ 	commandRunner := test.NewTestCommandRunner(t)
+-	commandRunner.Expect(jj.Snapshot())
+ 	commandRunner.Expect(jj.Status("abc123")).SetOutput([]byte(statusOutput))
+ 	defer commandRunner.Verify()
+ 
+ 	ctx := test.NewTestContext(commandRunner)
+ 	model := NewUI(ctx)
+ 
++	details.ClearStatusCache()
+ 	op := details.NewOperation(ctx, &jj.Commit{ChangeId: "abc123", CommitId: "def456"})
+ 	model.Update(common.RestoreOperationMsg{Operation: op})
+ 	test.SimulateModel(model, op.Init())
+@@ -1444,13 +1446,13 @@
+ 	const statusOutput = "false false $\nM file.txt\nA newfile.txt\n"
+ 
+ 	commandRunner := test.NewTestCommandRunner(t)
+-	commandRunner.Expect(jj.Snapshot())
+ 	commandRunner.Expect(jj.Status("abc123")).SetOutput([]byte(statusOutput))
+ 	defer commandRunner.Verify()
+ 
+ 	ctx := test.NewTestContext(commandRunner)
+ 	model := NewUI(ctx)
+ 
++	details.ClearStatusCache()
+ 	op := details.NewOperation(ctx, &jj.Commit{ChangeId: "abc123", CommitId: "def456"})
+ 	model.Update(common.RestoreOperationMsg{Operation: op})
+ 	test.SimulateModel(model, op.Init())
+@@ -1480,6 +1482,7 @@
+ 	ctx := test.NewTestContext(commandRunner)
+ 	model := NewUI(ctx)
+ 
++	details.ClearStatusCache()
+ 	op := details.NewOperation(ctx, &jj.Commit{ChangeId: "abc123", CommitId: "def456"})
+ 	model.Update(common.RestoreOperationMsg{Operation: op})
+ 	require.False(t, model.revisions.InNormalMode(), "details operation should be active")
+@@ -1503,6 +1506,7 @@
+ 	ctx := test.NewTestContext(commandRunner)
+ 	model := NewUI(ctx)
+ 
++	details.ClearStatusCache()
+ 	op := details.NewOperation(ctx, &jj.Commit{ChangeId: "abc123", CommitId: "def456"})
+ 	model.Update(common.RestoreOperationMsg{Operation: op})
+ 	require.False(t, model.revisions.InNormalMode(), "details operation should be active")
+@@ -1522,13 +1526,13 @@
+ 	const statusOutput = "false false $\nM file.txt\nA newfile.txt\n"
+ 
+ 	commandRunner := test.NewTestCommandRunner(t)
+-	commandRunner.Expect(jj.Snapshot())
+ 	commandRunner.Expect(jj.Status("abc123")).SetOutput([]byte(statusOutput))
+ 	defer commandRunner.Verify()
+ 
+ 	ctx := test.NewTestContext(commandRunner)
+ 	model := NewUI(ctx)
+ 
++	details.ClearStatusCache()
+ 	op := details.NewOperation(ctx, &jj.Commit{ChangeId: "abc123", CommitId: "def456"})
+ 	model.Update(common.RestoreOperationMsg{Operation: op})
+ 	test.SimulateModel(model, op.Init())
