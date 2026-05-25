@@ -28,7 +28,7 @@ def main --wrapped [
 
    let args_split = $arguments | prepend "" | split list "--"
 
-   let target_flags = if ($target | is-not-empty) { ["--target-host" $target] } else { [] }
+   let target_flags = if ($target | is-not-empty) { ["--target-host" $target "--use-substitutes"] } else { [] }
    let nh_flags = (
       ["--hostname" $host]
       | append $target_flags
