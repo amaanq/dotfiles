@@ -1,0 +1,189 @@
+[shorturls]
+gh = "github:{path}"
+amaan = "github:amaanq/{path}"
+manic = "github:manic-systems/{path}"
+
+[all_follow]
+# top level pins
+nixpkgs = ["nixpkgs-23-11", "nixpkgs-stable", "nixpkgs-regression"]
+fenix = "fenix"
+rust-overlay = "rust-overlay"
+flake-parts = "flake-parts"
+niri-src = ["niri-stable", "niri-unstable"]
+nix = "nix-src"
+darwin = "nix-darwin"
+
+# transitive inputs
+crane = "crane"
+git-hooks = ["git-hooks-nix"]
+nixpkgs-lib = "nixpkgs-lib"
+rust-analyzer-src = "rust-analyzer"
+xwayland-satellite = [
+	"xwayland-satellite-stable",
+	"xwayland-satellite-unstable",
+]
+
+# stuff solely to have all inputs follow --------------------------------------
+
+[inputs.flake-parts]
+url = "gh:hercules-ci/flake-parts"
+
+[inputs.rust-overlay]
+url = "gh:oxalica/rust-overlay"
+
+# core toolchain --------------------------------------------------------------
+
+[inputs.nixpkgs]
+url = "gh:nixos/nixpkgs/nixpkgs-unstable"
+
+[inputs.fenix]
+url = "gh:nix-community/fenix"
+
+# darwinSLOP ------------------------------------------------------------------
+
+[inputs.nix-darwin]
+url = "gh:LnL7/nix-darwin"
+
+[inputs.nix-homebrew]
+url = "gh:zhaofengli/nix-homebrew"
+
+[inputs.homebrew-core]
+url = "gh:homebrew/homebrew-core"
+flake = false
+
+[inputs.homebrew-cask]
+url = "gh:homebrew/homebrew-cask"
+flake = false
+
+# secrets / identity ----------------------------------------------------------
+
+[inputs.agenix]
+url = "gh:ryantm/agenix"
+
+[inputs.age-plugin-fido2-hmac]
+url = "amaan:age-plugin-fido2-hmac"
+
+[inputs.tombkey]
+url = "amaan:tombkey"
+
+# build / system --------------------------------------------------------------
+
+[inputs.lanzaboote]
+url = "gh:nix-community/lanzaboote"
+
+[inputs.nixos-core]
+url = "github:llakala/nixos-core"
+
+[inputs.nixtopsy]
+url = "manic:nixtopsy"
+
+[inputs.disko]
+url = "gh:nix-community/disko"
+
+[inputs.nativelink]
+url = "gh:TraceMachina/nativelink"
+
+[inputs.nixpak]
+url = "gh:nixpak/nixpak"
+
+[inputs.nix-wrappers]
+url = "gh:midischwarz12/nix-wrappers"
+
+[inputs.bunker]
+url = "amaan:bunker-patches"
+
+[inputs.nix-src]
+url = "gh:NixOS/nix"
+
+# build / tooling -------------------------------------------------------------
+
+[inputs.tack]
+url = "manic:tack"
+
+[inputs.cade]
+url = "manic:cade"
+
+# editor / personal forks -----------------------------------------------------
+
+[inputs.nvim-config]
+url = "amaan:nvim-config"
+
+# misc personal flakes --------------------------------------------------------
+
+[inputs.nirinit]
+url = "amaan:nirinit"
+
+[inputs.bindiff]
+url = "amaan:bindiff"
+
+[inputs.hkpoolservices]
+url = "git+https://git.amaanq.com/amaanq/hkpoolservices.git"
+
+[inputs.inshellah]
+url = "manic:inshellah"
+
+[inputs.github2forgejo]
+url = "gh:RGBCube/GitHub2Forgejo"
+
+[inputs.opencode-src]
+url = "gh:sst/opencode/v1.15.11"
+flake = false
+
+[inputs.ida-pro-overlay]
+url = "gh:msanft/ida-pro-overlay"
+
+[inputs.spicetify]
+url = "gh:Gerg-L/spicetify-nix"
+
+# niri / desktop --------------------------------------------------------------
+
+[inputs.niri]
+url = "amaan:niri-flake/default-module"
+
+[inputs.niri-src]
+url = "gh:YaLTeR/niri"
+
+[inputs.dankMaterialShell]
+url = "gh:AvengeMedia/DankMaterialShell"
+
+[inputs.helium]
+# 0.11.3.2 last known-good before tab indicator color regression
+url = "amaan:helium-flake/a7c9452dbc7977c35409aeff4eb71c8730e1e466"
+
+[inputs.tuigreet]
+url = "gh:notashelf/tuigreet"
+
+[inputs.watt]
+url = "gh:notashelf/watt"
+
+# system services -------------------------------------------------------------
+
+[inputs.run0-sudo-shim]
+url = "amaan:run0-sudo-shim/sudoedit"
+
+[inputs.fcm2up-bridge]
+url = "amaan:fcm2up"
+
+[inputs.teapot]
+url = "amaan:teapot"
+
+[inputs.xitter-notify-server]
+url = "amaan:xitter-notify-server"
+
+[inputs.qtengine]
+url = "gh:kossLAN/qtengine"
+
+[inputs.rampart]
+url = "amaan:rampart"
+
+[inputs.harmonia]
+url = "gh:nix-community/harmonia"
+
+[inputs.ncro]
+url = "gh:feel-co/ncro"
+
+# jj from source - tracking bare-colocate-fix branch on fork
+# (upstream PRs #8667 + #8834 + bare repo gitlink fix).
+# switch to `gh:jj-vcs/jj` after colocated workspaces land on main.
+[inputs.jj-src]
+url = "amaan:jj/bare-colocate-fix"

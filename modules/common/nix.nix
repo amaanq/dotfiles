@@ -257,8 +257,13 @@ in
   };
 
   environment.systemPackages = [
+    (pkgs.callPackage (inputs.tack + "/nix/package.nix") { })
     pkgs.nix-index
-  ] ++ lib.optionals (!isPpc64) [ nh nix-output-monitor ];
+  ]
+  ++ lib.optionals (!isPpc64) [
+    nh
+    nix-output-monitor
+  ];
 
   programs.ssh.extraConfig =
     builderHosts
