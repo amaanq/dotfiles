@@ -777,6 +777,11 @@
           "output_file": "hosts/scarp/secrets/plausibleKey.age",
           "output_sha256": "14e0d80f3631d9358db5f5f4a2135797f9f3d0b90aadb4ae2f13443aecb20c57"
         },
+        "repoPingWebhook": {
+          "source_sha256": "70198eecfe8994d3ee8b9ec3455a01ba0d39e23399ae51394cd3abbc384a1d71",
+          "output_file": "hosts/scarp/secrets/repoPingWebhook.age",
+          "output_sha256": "2bc7983f0fd5b8eca4e706dddd94085010d931d28a945160d8ae91a0de9de9b1"
+        },
         "resticPassword": {
           "source_sha256": "eedbc252fa8873aa8f4bebef4026b24a1c9728ef3bd652d2a0c0b5265423c16f",
           "output_file": "hosts/scarp/secrets/resticPassword.age",
