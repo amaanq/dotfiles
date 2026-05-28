@@ -62,6 +62,7 @@ in
     enableCalendarEvents = false;
     enableDynamicTheming = false;
     enableVPN = false;
+    systemd = enabled;
   };
 
   services.power-profiles-daemon.enable = mkForce false;
@@ -142,7 +143,7 @@ in
     xdgOpenUsePortal = true;
 
     extraPortals = mkForce [
-      xdg-desktop-portal-gnome'
+      pkgs.xdg-desktop-portal-gnome
       pkgs.xdg-desktop-portal-gtk
     ];
 
@@ -217,12 +218,6 @@ in
       spawn-at-startup = [
         { command = [ "xwayland-satellite" ]; }
         { command = [ "${pkgs.mate-polkit}/libexec/polkit-mate-authentication-agent-1" ]; }
-        {
-          command = [
-            "dms"
-            "run"
-          ];
-        }
         { command = [ "${pkgs.keepassxc}/bin/keepassxc" ]; }
       ];
 
