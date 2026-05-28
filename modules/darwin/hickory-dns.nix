@@ -21,37 +21,12 @@ let
   toml = pkgs.formats.toml { };
   hostname = config.networking.hostName;
 
-  hickoryPackage =
-    let
-      version = "0.26.0-alpha.1";
-      src = pkgs.fetchFromGitHub {
-        owner = "hickory-dns";
-        repo = "hickory-dns";
-        rev = "8065bacde2ed02dfa7fd5019b50882bdb8a88475";
-        hash = "sha256-7aO4p4Kh0B18jIaB6R1UkZHWkGMbdhwos5CsEOymyxQ=";
-      };
-    in
-    pkgs.hickory-dns.overrideAttrs (old: {
-      inherit version src;
-      cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
-        inherit src;
-        hash = "sha256-pVuCZjKzQlN36oBDs2CJtRN6DWxOp2iQkyGC/06gG1Y=";
-      };
-      cargoBuildFeatures = old.cargoBuildFeatures or [ ] ++ [
-        "h3-aws-lc-rs"
-        "https-aws-lc-rs"
-      ];
-      # nixpkgs marks hickory-dns linux-only; the build itself works on darwin.
-      meta = old.meta // {
-        platforms = old.meta.platforms ++ lib.platforms.darwin;
-      };
-      # tests open real sockets; fail in sandbox.
-      checkFlags = (old.checkFlags or [ ]) ++ [
-        "--skip=client_tests::test_nsec3_no_data"
-        "--skip=h2::h2_client_stream::tests::test_https_google"
-        "--skip=h2::h2_client_stream::tests::test_https_google_with_pure_ip_address_server"
-      ];
-    });
+  # nixpkgs marks hickory-dns linux-only; the build itself works on darwin.
+  hickoryPackage = pkgs.hickory-dns.overrideAttrs (old: {
+    meta = old.meta // {
+      platforms = old.meta.platforms ++ lib.platforms.darwin;
+    };
+  });
 in
 {
   options.services.hickory-dns = {
