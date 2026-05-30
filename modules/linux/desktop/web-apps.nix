@@ -48,7 +48,7 @@ let
     discord = papirusIcon "discord" "01b789880cnscbwfddkz5b89wjcj7zmm06dpbpblj5dv7sx9lskd";
     element = builtins.fetchurl {
       name = "element.png";
-      url = "https://raw.githubusercontent.com/element-hq/element-web/master/res/vector-icons/1024.png";
+      url = "https://raw.githubusercontent.com/element-hq/element-web/develop/apps/web/res/vector-icons/1024.png";
       sha256 = "0945rxmjzrk510c9swi3qnp69cabarlb7ij52p2wi5mq6icaxabz";
     };
     telegram = builtins.fetchurl {

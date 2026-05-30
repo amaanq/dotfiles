@@ -7,7 +7,7 @@
 }:
 {
   environment.systemPackages = [
-    (fenix.packages.${pkgs.system}.complete.withComponents [
+    (fenix.packages.${pkgs.stdenv.hostPlatform.system}.complete.withComponents [
       "cargo"
       "clippy"
       "rust-src"
@@ -15,7 +15,7 @@
       "rustfmt"
     ])
 
-    fenix.packages.${pkgs.system}.rust-analyzer
+    fenix.packages.${pkgs.stdenv.hostPlatform.system}.rust-analyzer
 
     pkgs.cargo-deny
     pkgs.cargo-expand

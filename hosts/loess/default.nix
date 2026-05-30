@@ -7,7 +7,7 @@ lib.nixosSystem' "server" (
     ...
   }:
   let
-    inherit (lib) collectNix remove;
+    inherit (lib) collectNix enabled remove;
   in
   {
     imports = collectNix ./. |> remove ./default.nix;
@@ -59,7 +59,7 @@ lib.nixosSystem' "server" (
       useDHCP = true;
     };
 
-    boot.loader.systemd-boot.enable = true;
+    boot.loader.systemd-boot = enabled;
     boot.loader.efi.canTouchEfiVariables = true;
     boot.supportedFilesystems = [ "bcachefs" ];
     boot.tmp.cleanOnBoot = true;

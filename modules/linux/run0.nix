@@ -10,14 +10,13 @@ let
     exec ${pkgs.systemd}/bin/run0 --background= "$@"
   '';
 
-  run0-sudo-shim' = run0-sudo-shim.packages.${pkgs.system}.default.overrideAttrs (old: {
-    postInstall = (old.postInstall or "") + ''
-      for bin in $out/bin/*; do
-        wrapProgram "$bin" --prefix PATH : "${run0-no-bg}/bin"
-      done
-    '';
-    nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.makeWrapper ];
-  });
+  run0-sudo-shim' =
+    run0-sudo-shim.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs
+      (old: {
+        env = (old.env or { }) // {
+          RUN0 = "${run0-no-bg}/bin/run0";
+        };
+      });
 in
 {
   environment.systemPackages = [

@@ -4,7 +4,7 @@
   ...
 }:
 let
-  heliumPackage = helium.packages.${pkgs.system}.helium;
+  heliumPackage = helium.packages.${pkgs.stdenv.hostPlatform.system}.helium;
 in
 {
   environment.systemPackages = [

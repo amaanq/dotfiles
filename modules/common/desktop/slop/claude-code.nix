@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   mkSlopLauncher,
   pkgs,
@@ -1092,7 +1093,7 @@ let
       pkgs.procps
       pkgs.ripgrep
     ]
-    ++ optionals pkgs.stdenv.hostPlatform.isLinux [
+    ++ optionals config.isLinux [
       pkgs.bubblewrap
       pkgs.socat
     ];

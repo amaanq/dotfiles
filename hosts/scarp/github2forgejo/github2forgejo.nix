@@ -12,7 +12,7 @@ in
   secrets.github2forgejoEnvironment.rekeyFile = ./environment.age;
 
   services.github2forgejo = enabled {
-    package = github2forgejo.packages.${pkgs.system}.default;
+    package = github2forgejo.packages.${pkgs.stdenv.hostPlatform.system}.default;
     environmentFile = config.secrets.github2forgejoEnvironment.path;
   };
 }

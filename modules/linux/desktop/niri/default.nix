@@ -15,10 +15,6 @@ let
 
   niriPackage = niri-src.packages.${config.hostSystem}.niri;
 
-  xdg-desktop-portal-gnome' = pkgs.xdg-desktop-portal-gnome.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ./xdg-portal-gnome-screencast-fix.patch ];
-  });
-
   ziplineUpload = pkgs.writeShellScript "zipline-upload" ''
     set -e
     umask 077

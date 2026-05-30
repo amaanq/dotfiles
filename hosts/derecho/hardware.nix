@@ -1,6 +1,5 @@
 {
   config,
-  lanzaboote,
   lib,
   modulesPath,
   pkgs,
@@ -12,7 +11,6 @@ in
 {
   imports = [
     (modulesPath + "/profiles/qemu-guest.nix")
-    lanzaboote.nixosModules.lanzaboote
   ];
 
   boot.extraModulePackages = [ config.boot.kernelPackages.ddcci-driver ];

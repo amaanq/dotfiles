@@ -23,10 +23,7 @@ in
     (self + /modules/postgresql.nix)
   ];
 
-  config.secrets.plausibleKey = {
-    rekeyFile = ./key.age;
-    owner = "plausible";
-  };
+  config.secrets.plausibleKey.rekeyFile = ./key.age;
 
   config.services.postgresql.ensure = [ "plausible" ];
 

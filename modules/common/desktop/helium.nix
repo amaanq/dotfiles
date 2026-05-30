@@ -8,7 +8,7 @@
 let
   inherit (lib) optionals;
 
-  heliumPackage = inputs.helium.packages.${pkgs.system}.helium;
+  heliumPackage = inputs.helium.packages.${pkgs.stdenv.hostPlatform.system}.helium;
 in
 {
   wrappers.helium = {

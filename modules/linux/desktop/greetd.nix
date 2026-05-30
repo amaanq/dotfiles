@@ -21,7 +21,7 @@ in
   # Display manager
   services.greetd =
     let
-      tuigreet = "${inputs.tuigreet.packages.${pkgs.system}.default}/bin/tuigreet";
+      tuigreet = "${inputs.tuigreet.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/tuigreet";
       niri-session = "${pkgs.niri}/share/wayland-sessions";
     in
     enabled {

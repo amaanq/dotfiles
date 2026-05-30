@@ -111,7 +111,7 @@ lib.nixosSystem' "desktop" (
       tmpfsSize = "16G";
     };
 
-    nix.package = lib.mkForce nix-src.packages.${pkgs.system}.nix;
+    nix.package = lib.mkForce nix-src.packages.${pkgs.stdenv.hostPlatform.system}.nix;
 
     system.stateVersion = "25.11";
 

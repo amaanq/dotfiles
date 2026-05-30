@@ -1,6 +1,3 @@
-# Moraine-specific module gating on top of the shared cross-ppc64-fixes.
-# The overlay body itself lives in modules/linux/cross-ppc64-fixes.nix.
-{ ... }:
 {
   disabledModules = [
     ../../modules/common/neovim.nix

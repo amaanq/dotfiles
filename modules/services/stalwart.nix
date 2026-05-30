@@ -401,9 +401,9 @@ in
         RuntimeDirectory = "stalwart-apply";
         RuntimeDirectoryMode = "0700";
 
-        LoadCredential = lib.optional (cfg.apply.adminPasswordFile != null) (
-          "apply_admin:${toString cfg.apply.adminPasswordFile}"
-        );
+        LoadCredential = lib.optional (
+          cfg.apply.adminPasswordFile != null
+        ) "apply_admin:${toString cfg.apply.adminPasswordFile}";
 
         ExecStart = pkgs.writeShellScript "stalwart-apply" ''
           set -eu

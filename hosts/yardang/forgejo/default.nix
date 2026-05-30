@@ -205,10 +205,7 @@ in
     ${pkgs.age}/bin/age -d -i ${config.secrets.id.path} ${./assets.tar.gz.age} | ${pkgs.gzip}/bin/gzip -d | ${pkgs.gnutar}/bin/tar -xf - -C /etc/forgejo
   '';
 
-  secrets.forgejoRunnerToken = {
-    rekeyFile = ./runner.age;
-    owner = "gitea-runner";
-  };
+  secrets.forgejoRunnerToken.rekeyFile = ./runner.age;
 
   services.postgresql.ensure = [ "forgejo" ];
 
