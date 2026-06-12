@@ -203,6 +203,42 @@
         }
       }
     },
+    "flysch": {
+      "host_pubkey_sha256": "c597948eadc488b1f5d12c34e8306079b18bffe602b1480627e24b8669064432",
+      "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",
+      "secrets": {
+        "builderKey": {
+          "source_sha256": "b3843bab297d1621662693e71ad7803cf34358c53f495d22934af57975c5b52a",
+          "output_file": "hosts/flysch/secrets/builderKey.age",
+          "output_sha256": "010e9a7ac122c79143640811e79e502613be34e439964f61318e294d38800da4"
+        },
+        "circusAgentToken": {
+          "source_sha256": "0d8c3e9f13a9098916cb6ba4db41bf5aa54c45182780ce6eee9b842ed0e5fc5a",
+          "output_file": "hosts/flysch/secrets/circusAgentToken.age",
+          "output_sha256": "3ef550d7f8fac13d01803e7beaa09e558514b47aa69c32b9558d4c62bc039335"
+        },
+        "githubToken": {
+          "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
+          "output_file": "hosts/flysch/secrets/githubToken.age",
+          "output_sha256": "f1f702e2910e2f54efbb8604e14728083fb4c2614c74b827775b904fd1222e55"
+        },
+        "password": {
+          "source_sha256": "8851b8e4e77341256abea10f1760342c40cc4d65961d891cd544b863498fb1e3",
+          "output_file": "hosts/flysch/secrets/password.age",
+          "output_sha256": "2cf8ac81bd821efab88bf255bb2fbd3b49a0bd1c2e7bde6d5c79713192a7f60e"
+        },
+        "sshConfig": {
+          "source_sha256": "30e974a5871d7051662474a9ce32526ff0745c8c401825e3835153f2ff72945d",
+          "output_file": "hosts/flysch/secrets/sshConfig.age",
+          "output_sha256": "0830ec332cc7428a4d978b674dcebf110427647a7fffe8dfd17c824d9cd91e0a"
+        },
+        "tailscaleAuthKey": {
+          "source_sha256": "478f83ebdc94213a4b58b21243ecf916afa81605b21f32e3dbaa798bac70f3ad",
+          "output_file": "hosts/flysch/secrets/tailscaleAuthKey.age",
+          "output_sha256": "e75f82f0ca31fe34a70524c5f0af840ee34707a8544d8ba83dc582e85c06a7c0"
+        }
+      }
+    },
     "guyot": {
       "host_pubkey_sha256": "caf1e4c2fec99af72233b54599ee294fd696811f5f089f0de818c4c9e518c6de",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",

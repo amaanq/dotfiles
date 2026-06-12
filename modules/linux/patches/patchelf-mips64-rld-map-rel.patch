@@ -1,0 +1,39 @@
+diff --git a/src/patchelf.cc b/src/patchelf.cc
+index 73f1b8d31c..022a07d946 100644
+--- a/src/patchelf.cc
++++ b/src/patchelf.cc
+@@ -1302,17 +1302,31 @@
+                      *   DT_MIPS_RLD_MAP_REL + tag offset + executable base address == DT_MIPS_RLD_MAP
+                      *   DT_MIPS_RLD_MAP_REL              + executable base address == DT_MIPS_RLD_MAP - tag_offset
+                      *   DT_MIPS_RLD_MAP_REL                                        == DT_MIPS_RLD_MAP - tag_offset - executable base address
++                     *
++                     * Direct field assignments elsewhere in this loop (e.g. for
++                     * DT_HASH/DT_STRTAB) preserve target endianness because
++                     * patchelf simply copies one Elf_Addr field into another:
++                     * the "wrong" host-endian read cancels out on the write,
++                     * so the bytes round-trip identical. That trick fails here
++                     * because we *compute* a new value via subtraction. The
++                     * arithmetic must be done on the host-endian integers, so
++                     * the operands need rdi()-conversion and the result must be
++                     * written back via wri(). Without this, on a cross-endian
++                     * link (e.g. mips64 BE patched on an x86_64 LE host) the
++                     * stored d_val is garbage and rtld's elf_setup_debug_entry
++                     * traps with SIGBUS at startup.
+                      */
+-                    auto rld_map_addr = findSectionHeader(".rld_map").sh_addr;
++                    auto rld_map_addr = rdi((*shdr).get().sh_addr);
+                     auto dyn_offset = ((char*)dyn) - ((char*)dyn_table);
+-                    dyn->d_un.d_ptr = rld_map_addr - dyn_offset - (*shdrDynamic).get().sh_addr;
++                    auto dynamic_addr = rdi((*shdrDynamic).get().sh_addr);
++                    wri(dyn->d_un.d_ptr, rld_map_addr - dyn_offset - dynamic_addr);
+                 } else {
+                     /* ELF file with DT_MIPS_RLD_MAP_REL but without .rld_map
+                        is broken, and it's not our job to fix it; yet, we have
+                        to find some location for dynamic loader to write the
+                        debug pointer to; well, let's write it right here */
+                     fprintf(stderr, "warning: DT_MIPS_RLD_MAP_REL entry is present, but .rld_map section is not\n");
+-                    dyn->d_un.d_ptr = 0;
++                    wri(dyn->d_un.d_ptr, 0);
+                 }
+             }
+     }
