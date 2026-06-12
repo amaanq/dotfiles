@@ -289,7 +289,7 @@ index 4d52be8d8b..212e62db8c 100644
  			}
  		}
 diff --git a/internal/ui/common/msgs.go b/internal/ui/common/msgs.go
-index 5342ec6c67..d59c854118 100644
+index e77c4a299e..0335ea2b78 100644
 --- a/internal/ui/common/msgs.go
 +++ b/internal/ui/common/msgs.go
 @@ -16,6 +16,7 @@
@@ -368,10 +368,10 @@ index 39f7c64ca4..48fe8c32fe 100644
  
  func (DiffShow) isIntent() {}
 diff --git a/internal/ui/operations/details/details.go b/internal/ui/operations/details/details.go
-index 5592c490c2..198e1d2eee 100644
+index 46697fdf5a..27114c05db 100644
 --- a/internal/ui/operations/details/details.go
 +++ b/internal/ui/operations/details/details.go
-@@ -12,6 +12,7 @@
+@@ -11,6 +11,7 @@
  	"charm.land/bubbles/v2/key"
  	tea "charm.land/bubbletea/v2"
  	"charm.land/lipgloss/v2"
@@ -379,7 +379,7 @@ index 5592c490c2..198e1d2eee 100644
  	"github.com/idursun/jjui/internal/jj"
  	"github.com/idursun/jjui/internal/ui/actions"
  	"github.com/idursun/jjui/internal/ui/common"
-@@ -28,6 +29,15 @@
+@@ -27,6 +28,15 @@
  	selectedFiles []string
  }
  
@@ -393,17 +393,17 @@ index 5592c490c2..198e1d2eee 100644
 +}
 +
  var (
- 	_ operations.Operation                = (*Operation)(nil)
- 	_ operations.EmbeddedOperation        = (*Operation)(nil)
-@@ -87,6 +97,7 @@
+ 	_ operations.Operation         = (*Operation)(nil)
+ 	_ operations.EmbeddedOperation = (*Operation)(nil)
+@@ -86,6 +96,7 @@
  		s.unselectedHint = ""
  		return nil
  	case common.RefreshMsg:
 +		delete(statusCache, s.revision.GetChangeId())
  		return s.load(s.revision.GetChangeId())
- 	case updateCommitStatusMsg:
- 		items := s.createListItems(msg.summary, msg.selectedFiles)
-@@ -221,9 +232,11 @@
+ 	case common.SelectionChangedMsg:
+ 		selected, ok := msg.Item.(common.SelectedRevision)
+@@ -202,9 +213,11 @@
  		if selected == nil {
  			return nil, true
  		}
@@ -417,7 +417,7 @@ index 5592c490c2..198e1d2eee 100644
  		}, true
  	case intents.DetailsSplit:
  		selectedFiles := s.getSelectedFiles(true)
-@@ -233,10 +246,10 @@
+@@ -214,10 +227,10 @@
  			[]string{"Are you sure you want to split the selected files?"},
  			confirmation.WithStylePrefix("revisions"),
  			confirmation.WithOption("Yes",
@@ -430,7 +430,7 @@ index 5592c490c2..198e1d2eee 100644
  				key.NewBinding(key.WithKeys("i"), key.WithHelp("i", "interactive"))),
  			confirmation.WithOption("No",
  				confirmation.Close,
-@@ -259,10 +272,10 @@
+@@ -240,10 +253,10 @@
  			[]string{"Are you sure you want to restore the selected files?"},
  			confirmation.WithStylePrefix("revisions"),
  			confirmation.WithOption("Yes",
@@ -443,7 +443,7 @@ index 5592c490c2..198e1d2eee 100644
  				key.NewBinding(key.WithKeys("i"), key.WithHelp("i", "interactive"))),
  			confirmation.WithOption("No",
  				confirmation.Close,
-@@ -362,7 +375,7 @@
+@@ -328,7 +341,7 @@
  		return 0
  	}
  	if s.Len() == 0 {
@@ -452,7 +452,7 @@ index 5592c490c2..198e1d2eee 100644
  	}
  	confirmationHeight := 0
  	if s.confirmation != nil {
-@@ -492,18 +505,30 @@
+@@ -445,18 +458,30 @@
  }
  
  func (s *Operation) load(revision string) tea.Cmd {
@@ -490,7 +490,7 @@ index 5592c490c2..198e1d2eee 100644
  		return common.CommandCompletedMsg{
  			Output: string(output),
  			Err:    err,
-@@ -520,3 +545,29 @@
+@@ -474,3 +499,29 @@
  	}
  	return op
  }
@@ -521,7 +521,7 @@ index 5592c490c2..198e1d2eee 100644
 +	return filesView
 +}
 diff --git a/internal/ui/operations/details/details_test.go b/internal/ui/operations/details/details_test.go
-index c2c5dc5f7e..6889a73b71 100644
+index 8a92a4d389..2528e59e1e 100644
 --- a/internal/ui/operations/details/details_test.go
 +++ b/internal/ui/operations/details/details_test.go
 @@ -9,6 +9,7 @@
@@ -694,7 +694,7 @@ index c2c5dc5f7e..6889a73b71 100644
 +	model := newTestOperation(test.NewTestContext(commandRunner), Commit)
  	test.SimulateModel(model, model.Init())
  
- 	selected, ok := model.context.SelectedItem.(common.SelectedFile)
+ 	selected, ok := model.Selection().Highlighted.(common.SelectedFile)
 @@ -240,7 +235,7 @@
  
  func TestModel_Update_Quit(t *testing.T) {
@@ -705,10 +705,10 @@ index c2c5dc5f7e..6889a73b71 100644
  	test.SimulateModel(model, func() tea.Msg { return intents.Quit{} }, func(msg tea.Msg) {
  		msgs = append(msgs, msg)
 diff --git a/internal/ui/operations/evolog/evolog_operation.go b/internal/ui/operations/evolog/evolog_operation.go
-index a9c3247459..ef6dc6988a 100644
+index 062120b72e..d47e899060 100644
 --- a/internal/ui/operations/evolog/evolog_operation.go
 +++ b/internal/ui/operations/evolog/evolog_operation.go
-@@ -153,8 +153,8 @@
+@@ -159,8 +159,8 @@
  		if o.mode != selectMode {
  			return nil, true
  		}
@@ -719,7 +719,7 @@ index a9c3247459..ef6dc6988a 100644
  			return intents.DiffShow{Content: string(output)}
  		}, true
 diff --git a/internal/ui/operations/squash/squash_operation.go b/internal/ui/operations/squash/squash_operation.go
-index f03468b695..008966f391 100644
+index 97a782f5a6..f8ddba6a5c 100644
 --- a/internal/ui/operations/squash/squash_operation.go
 +++ b/internal/ui/operations/squash/squash_operation.go
 @@ -5,6 +5,7 @@
@@ -730,7 +730,7 @@ index f03468b695..008966f391 100644
  	"github.com/idursun/jjui/internal/jj"
  	"github.com/idursun/jjui/internal/ui/actions"
  	"github.com/idursun/jjui/internal/ui/common"
-@@ -69,7 +70,7 @@
+@@ -75,7 +76,7 @@
  	case intents.StartAceJump:
  		return common.StartAceJump(), true
  	case intents.Apply:
@@ -740,18 +740,18 @@ index f03468b695..008966f391 100644
  		if s.interactive || !s.useDestinationMessage {
  			return tea.Batch(common.CloseApplied, s.context.RunInteractiveCommand(args, continuation)), true
 diff --git a/internal/ui/preview/preview.go b/internal/ui/preview/preview.go
-index 7edefa068f..f400d6693a 100644
+index 539551e811..cd288d65fd 100644
 --- a/internal/ui/preview/preview.go
 +++ b/internal/ui/preview/preview.go
-@@ -2,6 +2,7 @@
+@@ -1,6 +1,7 @@
+ package preview
  
  import (
- 	"log"
 +	"slices"
  	"strconv"
  	"strings"
  	"time"
-@@ -204,6 +205,9 @@
+@@ -170,6 +171,9 @@
  		}
  		content = strings.Join(lines, "\n")
  	}
@@ -761,7 +761,7 @@ index 7edefa068f..f400d6693a 100644
  	m.reset()
  	m.content = content
  	m.view.SetContent(content)
-@@ -233,6 +237,11 @@
+@@ -195,6 +199,11 @@
  	return common.Debounce(debounceId, debounceDuration, func() tea.Msg {
  		var args []string
  		previewWidth := strconv.Itoa(m.view.Width())
@@ -773,7 +773,7 @@ index 7edefa068f..f400d6693a 100644
  		switch sel := item.(type) {
  		case common.SelectedFile:
  			args = jj.TemplatedArgs(config.Current.Preview.FileCommand, map[string]string{
-@@ -241,6 +250,7 @@
+@@ -203,6 +212,7 @@
  				jj.CommitIdPlaceholder:     sel.CommitId,
  				jj.FilePlaceholder:         sel.File,
  				jj.PreviewWidthPlaceholder: previewWidth,
@@ -781,7 +781,7 @@ index 7edefa068f..f400d6693a 100644
  			})
  		case common.SelectedRevision:
  			args = jj.TemplatedArgs(config.Current.Preview.RevisionCommand, map[string]string{
-@@ -248,30 +258,44 @@
+@@ -210,21 +220,38 @@
  				jj.ChangeIdPlaceholder:     sel.ChangeId,
  				jj.CommitIdPlaceholder:     sel.CommitId,
  				jj.PreviewWidthPlaceholder: previewWidth,
@@ -818,30 +818,28 @@ index 7edefa068f..f400d6693a 100644
 +		}
 +
  		env := []string{
--			// The preview subprocess does not run in a pane-sized PTY, so let
--			// width-sensitive tools like `jj diff` see the preview size via the
--			// conventional terminal size environment variables.
--			"DFT_WIDTH=" + strconv.Itoa(m.view.Width()), // diftastic
-+			"DFT_WIDTH=" + strconv.Itoa(m.view.Width()),
- 			"COLUMNS=" + strconv.Itoa(m.view.Width()),
- 			"LINES=" + strconv.Itoa(m.view.Height()),
+ 			// The preview subprocess does not run in a pane-sized PTY, so let
+ 			// width-sensitive tools like `jj diff` see the preview size via the
+@@ -236,7 +263,7 @@
+ 		if m.contentItem != nil && m.contentItem.Equal(item) {
+ 			return nil
  		}
 -		output, _ := m.context.RunCommandImmediateWithEnv(args, env)
 +		output, _ := m.context.RunCommandImmediateWithEnv(filteredArgs, env)
  		return updatePreviewContentMsg{
- 			Content: string(output),
- 		}
+ 			contentItem: item,
+ 			content:     string(output),
 diff --git a/internal/ui/preview/preview_test.go b/internal/ui/preview/preview_test.go
-index ddf2949a9a..4f98234953 100644
+index bb50052009..8afcd9d0e9 100644
 --- a/internal/ui/preview/preview_test.go
 +++ b/internal/ui/preview/preview_test.go
-@@ -166,8 +166,17 @@
+@@ -168,8 +168,17 @@
  		jj.ChangeIdPlaceholder:     selected.ChangeId,
  		jj.CommitIdPlaceholder:     selected.CommitId,
- 		jj.PreviewWidthPlaceholder: "0",
+ 		jj.PreviewWidthPlaceholder: "80",
 +		jj.DiffToolPlaceholder:     "",
  	})
--	commandRunner.Expect(args).SetOutput([]byte("auto preview"))
+-	commandRunner.Expect(args).SetOutput([]byte("line 1\nline 2\nline 3\nline 4\nline 5"))
 +	// Filter empty args (from $diff_tool) and add --ignore-working-copy like the real code does
 +	var filteredArgs []string
 +	for _, arg := range args {
@@ -850,15 +848,15 @@ index ddf2949a9a..4f98234953 100644
 +		}
 +	}
 +	filteredArgs = append(filteredArgs, "--ignore-working-copy")
-+	commandRunner.Expect(filteredArgs).SetOutput([]byte("auto preview"))
++	commandRunner.Expect(filteredArgs).SetOutput([]byte("line 1\nline 2\nline 3\nline 4\nline 5"))
  
  	model.Update(intents.PreviewShow{Content: "manual"})
- 	cmd := model.Update(common.SelectionChangedMsg{Item: selected})
+ 	cmd := model.Update(common.RefreshMsg{})
 diff --git a/internal/ui/revisions/dispatch_actions_test.go b/internal/ui/revisions/dispatch_actions_test.go
-index dbab300b95..55920ae413 100644
+index 25bf8a39df..3083c79bdb 100644
 --- a/internal/ui/revisions/dispatch_actions_test.go
 +++ b/internal/ui/revisions/dispatch_actions_test.go
-@@ -17,7 +17,6 @@
+@@ -16,7 +16,6 @@
  
  func TestHandleIntent_RevisionsModeOpeners(t *testing.T) {
  	commandRunner := test.NewTestCommandRunner(t)
@@ -866,9 +864,9 @@ index dbab300b95..55920ae413 100644
  	commandRunner.Expect(jj.Status("a"))
  	defer commandRunner.Verify()
  
-@@ -25,9 +24,10 @@
+@@ -24,9 +23,10 @@
  	model := New(ctx)
- 	model.updateGraphRows(rows, "a")
+ 	model.updateGraphRows(rows, "a", true)
  
 -	_, handled := model.HandleIntent(intents.OpenDetails{})
 +	cmd, handled := model.HandleIntent(intents.OpenDetails{})
@@ -877,12 +875,12 @@ index dbab300b95..55920ae413 100644
 +	test.SimulateModel(model, cmd)
  
  	model.Update(intents.Cancel{})
- 	model.updateGraphRows(rows, "a")
+ 	model.updateGraphRows(rows, "a", true)
 diff --git a/internal/ui/revisions/displaycontext_renderer_test.go b/internal/ui/revisions/displaycontext_renderer_test.go
-index 42e503f36f..5ef4224e5f 100644
+index 5eee55102c..ef8adfcc71 100644
 --- a/internal/ui/revisions/displaycontext_renderer_test.go
 +++ b/internal/ui/revisions/displaycontext_renderer_test.go
-@@ -36,7 +36,6 @@
+@@ -57,7 +57,6 @@
  	// Prepare details operation with a file list.
  	const statusOutput = "false $\nM file.txt\n"
  	commandRunner := test.NewTestCommandRunner(t)
@@ -891,10 +889,10 @@ index 42e503f36f..5ef4224e5f 100644
  	defer commandRunner.Verify()
  
 diff --git a/internal/ui/revisions/revisions.go b/internal/ui/revisions/revisions.go
-index 660a3f3d56..24750e8322 100644
+index f48e7a4acd..3fa7e891a1 100644
 --- a/internal/ui/revisions/revisions.go
 +++ b/internal/ui/revisions/revisions.go
-@@ -1012,7 +1012,7 @@
+@@ -1098,7 +1098,7 @@
  	changeId := commit.GetChangeId()
  	return func() tea.Msg {
  		output, _ := m.context.RunCommandImmediate(jj.Diff(changeId, ""))
@@ -903,7 +901,7 @@ index 660a3f3d56..24750e8322 100644
  	}
  }
  
-@@ -1024,7 +1024,7 @@
+@@ -1110,7 +1110,7 @@
  	if commit == nil {
  		return nil
  	}
@@ -911,21 +909,21 @@ index 660a3f3d56..24750e8322 100644
 +	return m.context.RunInteractiveCommand(jj.Split(commit.GetChangeId(), intent.Files, intent.IsParallel, intent.IsInteractive, config.GetCurrentDiffEditor(config.Current)), common.Refresh)
  }
  
- func (m *Model) updateSelection() tea.Cmd {
+ func (m *Model) highlightChanges() tea.Msg {
 diff --git a/internal/ui/ui.go b/internal/ui/ui.go
-index 21ec2163a9..cec3d10763 100644
+index 6dd230eb02..ba389e8bfc 100644
 --- a/internal/ui/ui.go
 +++ b/internal/ui/ui.go
-@@ -64,6 +64,8 @@
+@@ -62,6 +62,8 @@
+ 	width            int
  	height           int
- 	revisionsSplit   *split
- 	activeSplit      *split
-+	lastDiffRevision  string
-+	lastDiffFileName  string
+ 	splitContainer   *split.SplitContainer
++	lastDiffRevision string
++	lastDiffFileName string
  
  	// mode2031Supported is set when the terminal confirms it supports
  	// mode 2031 push. Once true, the OSC 11 polling loop stops.
-@@ -167,6 +169,10 @@
+@@ -198,6 +200,10 @@
  		}
  		return nil
  	case tea.KeyMsg:
@@ -936,17 +934,17 @@ index 21ec2163a9..cec3d10763 100644
  		if m.resolver != nil {
  			scopes := m.dispatchScopes()
  			result := m.resolver.ResolveKey(msg, scopes)
-@@ -629,6 +635,8 @@
+@@ -600,6 +606,8 @@
  		if m.diff == nil {
  			m.diff = diff.New("")
  		}
 +		m.lastDiffRevision = intent.Revision
 +		m.lastDiffFileName = intent.FileName
  		return m.diff.Update(intent), true
- 	case intents.PreviewShow:
- 		if !m.previewModel.Visible() {
-@@ -735,6 +743,32 @@
- 	return scope.Handler.Update(msg)
+ 	// --- Status ---
+ 	case intents.ExpandStatusToggle:
+@@ -700,6 +708,32 @@
+ 	return m.withSelectionSync(scope.Handler.Update(msg))
  }
  
 +func (m *Model) cycleDiffEditor() tea.Cmd {
@@ -979,10 +977,10 @@ index 21ec2163a9..cec3d10763 100644
  
  type (
 diff --git a/internal/ui/ui_test.go b/internal/ui/ui_test.go
-index 6d615c9a92..f291515cdf 100644
+index 9bcdc512f2..de1799e7ee 100644
 --- a/internal/ui/ui_test.go
 +++ b/internal/ui/ui_test.go
-@@ -1035,6 +1035,7 @@
+@@ -1097,6 +1097,7 @@
  	ctx := test.NewTestContext(commandRunner)
  	model := NewUI(ctx)
  
@@ -990,7 +988,7 @@ index 6d615c9a92..f291515cdf 100644
  	op := details.NewOperation(ctx, &jj.Commit{ChangeId: "abc123", CommitId: "def456"})
  	model.Update(common.RestoreOperationMsg{Operation: op})
  	require.False(t, model.revisions.InNormalMode(), "details operation should be active")
-@@ -1089,6 +1090,7 @@
+@@ -1151,6 +1152,7 @@
  	ctx := test.NewTestContext(commandRunner)
  	model := NewUI(ctx)
  
@@ -998,7 +996,7 @@ index 6d615c9a92..f291515cdf 100644
  	op := details.NewOperation(ctx, &jj.Commit{ChangeId: "abc123", CommitId: "def456"})
  	model.Update(common.RestoreOperationMsg{Operation: op})
  	require.False(t, model.revisions.InNormalMode(), "details operation should be active")
-@@ -1238,7 +1240,6 @@
+@@ -1298,7 +1300,6 @@
  	ctx := test.NewTestContext(commandRunner)
  	commandRunner.Expect(jj.Log(ctx.CurrentRevset, config.Current.Limit, ctx.JJConfig.Templates.Log)).SetOutput([]byte(logOutput))
  	commandRunner.Expect(jj.GetParent(jj.NewSelectedRevisions(&jj.Commit{ChangeId: "child", CommitId: "childcommit"}))).SetOutput([]byte("parentcommit"))
@@ -1006,7 +1004,7 @@ index 6d615c9a92..f291515cdf 100644
  	commandRunner.Expect(jj.Status("parent")).SetOutput([]byte(statusOutput))
  	defer commandRunner.Verify()
  
-@@ -1249,6 +1250,7 @@
+@@ -1309,6 +1310,7 @@
  	require.NotNil(t, model.revisions.SelectedRevision())
  	require.Equal(t, "child", model.revisions.SelectedRevision().GetChangeId())
  
@@ -1014,7 +1012,7 @@ index 6d615c9a92..f291515cdf 100644
  	model.Update(common.RestoreOperationMsg{Operation: details.NewOperation(ctx, model.revisions.SelectedRevision())})
  	require.False(t, model.revisions.InNormalMode(), "details operation should be active")
  
-@@ -1420,13 +1422,13 @@
+@@ -1480,13 +1482,13 @@
  	const statusOutput = "false false $\nM file.txt\nA newfile.txt\n"
  
  	commandRunner := test.NewTestCommandRunner(t)
@@ -1029,7 +1027,7 @@ index 6d615c9a92..f291515cdf 100644
  	op := details.NewOperation(ctx, &jj.Commit{ChangeId: "abc123", CommitId: "def456"})
  	model.Update(common.RestoreOperationMsg{Operation: op})
  	test.SimulateModel(model, op.Init())
-@@ -1444,13 +1446,13 @@
+@@ -1504,13 +1506,13 @@
  	const statusOutput = "false false $\nM file.txt\nA newfile.txt\n"
  
  	commandRunner := test.NewTestCommandRunner(t)
@@ -1044,7 +1042,7 @@ index 6d615c9a92..f291515cdf 100644
  	op := details.NewOperation(ctx, &jj.Commit{ChangeId: "abc123", CommitId: "def456"})
  	model.Update(common.RestoreOperationMsg{Operation: op})
  	test.SimulateModel(model, op.Init())
-@@ -1480,6 +1482,7 @@
+@@ -1540,6 +1542,7 @@
  	ctx := test.NewTestContext(commandRunner)
  	model := NewUI(ctx)
  
@@ -1052,7 +1050,7 @@ index 6d615c9a92..f291515cdf 100644
  	op := details.NewOperation(ctx, &jj.Commit{ChangeId: "abc123", CommitId: "def456"})
  	model.Update(common.RestoreOperationMsg{Operation: op})
  	require.False(t, model.revisions.InNormalMode(), "details operation should be active")
-@@ -1503,6 +1506,7 @@
+@@ -1563,6 +1566,7 @@
  	ctx := test.NewTestContext(commandRunner)
  	model := NewUI(ctx)
  
@@ -1060,7 +1058,7 @@ index 6d615c9a92..f291515cdf 100644
  	op := details.NewOperation(ctx, &jj.Commit{ChangeId: "abc123", CommitId: "def456"})
  	model.Update(common.RestoreOperationMsg{Operation: op})
  	require.False(t, model.revisions.InNormalMode(), "details operation should be active")
-@@ -1522,13 +1526,13 @@
+@@ -1582,13 +1586,13 @@
  	const statusOutput = "false false $\nM file.txt\nA newfile.txt\n"
  
  	commandRunner := test.NewTestCommandRunner(t)

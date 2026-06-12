@@ -8,11 +8,11 @@ let
     src = pkgs.fetchFromGitHub {
       owner = "idursun";
       repo = "jjui";
-      rev = "ba4edb5b"; # main branch
-      hash = "sha256-+iG68IE/0Z4N19hEKyCMFwB1s1wBd5xMy0Dt4E3Z0Lk=";
+      rev = "8afd3b9e26594e4f306613356e2c8aa5fa7a5de4"; # main branch
+      hash = "sha256-Hc5IBJqm1dPAD2tt1jEdQdj7otvefAT+/qVU1afITbI=";
     };
     patches = (old.patches or [ ]) ++ [ ./diff.patch ];
-    vendorHash = "sha256-I39Tcb28voPSuZhYkEPdvhsViZD7QZZtZjDtRKkZ5LE=";
+    vendorHash = "sha256-thGlfZ0SwHpynYydxu6Sg8OUe5kr7jiPKvl6BXS5BWA=";
   });
 
   settings = {
