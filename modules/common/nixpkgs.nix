@@ -103,8 +103,8 @@
         nhSrc = final.fetchFromGitHub {
           owner = "nix-community";
           repo = "nh";
-          rev = "6c2365d27cd771bea9408c5b59fa52715667667d";
-          hash = "sha256-AsKNNidi3qobePFqGLKXjM8OPLW7HbBEp3mgw+ULuU0=";
+          rev = "da26cc24d1f68ec47bdcb76d61c8ccc218a6f758";
+          hash = "sha256-9RJDznEtODgaKESpGIQwos1OPmJbRbnDp4RU4c3Kp5s=";
         };
         isCross = final.stdenv.buildPlatform != final.stdenv.hostPlatform;
       in
@@ -112,7 +112,7 @@
         nh-unwrapped =
           let
             withFork = prev.nh-unwrapped.overrideAttrs (old: {
-              version = "4.4.0-beta1-unstable-2026-06-10";
+              version = "4.4.0-beta1-unstable-2026-06-23";
               src = nhSrc;
               # Upstream reads finalAttrs.src.tag, null when using `rev`.
               env = (old.env or { }) // {
@@ -121,7 +121,7 @@
               # finalAttrs overrideAttrs swallows cargoHash; swap cargoDeps.
               cargoDeps = final.rustPlatform.fetchCargoVendor {
                 src = nhSrc;
-                hash = "sha256-Xl1IW8KWfNuCm20DQUH8Bdvfm/J3RUzUpMWt9maJ4hk=";
+                hash = "sha256-6OZgCjBaFKjXvESQDJGChKPy4I8E0wzi5IjiYWdXNdA=";
               };
             });
             # Upstream postInstall runs `xtask dist` via an emulator to make
