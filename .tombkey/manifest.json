@@ -983,6 +983,62 @@
         }
       }
     },
+    "varve": {
+      "host_pubkey_sha256": "004a0ddd29822dcec73861585f5a126a0d146ae9afe797f53bc25a4c8cd5d59b",
+      "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",
+      "secrets": {
+        "atuin-key": {
+          "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
+          "output_file": "hosts/varve/secrets/atuin-key.age",
+          "output_sha256": "aa123e20e9aa4a128328d4493b4ea6fe6017d7f677be229f64170cfccb4102fe"
+        },
+        "builderKey": {
+          "source_sha256": "b3843bab297d1621662693e71ad7803cf34358c53f495d22934af57975c5b52a",
+          "output_file": "hosts/varve/secrets/builderKey.age",
+          "output_sha256": "5521b8e0ce3828afeee5455717871e12e58c525b300e493637c0fc6e41242b5f"
+        },
+        "circusAgentToken": {
+          "source_sha256": "0d8c3e9f13a9098916cb6ba4db41bf5aa54c45182780ce6eee9b842ed0e5fc5a",
+          "output_file": "hosts/varve/secrets/circusAgentToken.age",
+          "output_sha256": "a34730fe77a00e27dadb0d6c8ba7d6062d3cdbdc1c827a768ae591e3ea0292bc"
+        },
+        "gitIdentity": {
+          "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
+          "output_file": "hosts/varve/secrets/gitIdentity.age",
+          "output_sha256": "963a9290517ff5d601035e55d5814e3f32112de07bd3e8fb533766cbd72bf7de"
+        },
+        "gitPrivate": {
+          "source_sha256": "17859114a38ac1568e8b58dd27590879e548f35b040668c6c5dba438293242d3",
+          "output_file": "hosts/varve/secrets/gitPrivate.age",
+          "output_sha256": "e2649a97578c5ede715e01818d49abca4a8dc653936fc91905fb3e0df4382b75"
+        },
+        "githubToken": {
+          "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
+          "output_file": "hosts/varve/secrets/githubToken.age",
+          "output_sha256": "0834cf6568710b4b477989a5f99814a38cf6c15663f24b661ce68d64b9466e8f"
+        },
+        "password": {
+          "source_sha256": "8851b8e4e77341256abea10f1760342c40cc4d65961d891cd544b863498fb1e3",
+          "output_file": "hosts/varve/secrets/password.age",
+          "output_sha256": "9b4e42e758b8d049883980038d64d1e359c63e42583f9b184e0aed154290afc0"
+        },
+        "resticPassword": {
+          "source_sha256": "eedbc252fa8873aa8f4bebef4026b24a1c9728ef3bd652d2a0c0b5265423c16f",
+          "output_file": "hosts/varve/secrets/resticPassword.age",
+          "output_sha256": "b844086be6985d5c8a67f3df7a136dbd15b998673ff32da754bc41a1f744656e"
+        },
+        "sshConfig": {
+          "source_sha256": "30e974a5871d7051662474a9ce32526ff0745c8c401825e3835153f2ff72945d",
+          "output_file": "hosts/varve/secrets/sshConfig.age",
+          "output_sha256": "4a9e6916f0a9b205131caf2f98d33cb898feb19f9ec600d67e6748fb9019ee20"
+        },
+        "tailscaleAuthKey": {
+          "source_sha256": "478f83ebdc94213a4b58b21243ecf916afa81605b21f32e3dbaa798bac70f3ad",
+          "output_file": "hosts/varve/secrets/tailscaleAuthKey.age",
+          "output_sha256": "db4cce7169076cd26d06acda0b58e5f8dc5bf7b21aadaca8f2d8e90327bf7b32"
+        }
+      }
+    },
     "yardang": {
       "host_pubkey_sha256": "3551351a830c403765f85eb8a12b5561f180bf78672b609fbc84304b5734845e",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",

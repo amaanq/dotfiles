@@ -1,0 +1,105 @@
+bcachefs-tools: fix big-endian superblock crypto (chacha + nonce + key magic)
+
+The Rust rewrite and the vendored chacha shim assume a little-endian host, so
+unlocking an encrypted filesystem on big-endian (mips64) always reports
+'incorrect passphrase'. Three spots byte-swap wrongly: chacha20_crypt() hands
+libsodium the native-order u32 key/nonce words but libsodium reads them with
+LOAD32_LE; nonce() builds the IV with from_le_bytes (swaps the raw uuid bytes on
+BE); and the key-magic comparison reads the on-disk __le64 in native order.
+Mirror the C le<->cpu handling: serialize the chacha key/IV little-endian, take
+the raw uuid bytes for the nonce, and from_le/to_le the magic.
+
+--- a/include/crypto/chacha.h	1969-12-31 19:00:01.000000000 -0500
++++ b/include/crypto/chacha.h	2026-06-13 23:58:49.357195704 -0400
+@@ -61,10 +61,25 @@
+ {
+ 	u32 *key = state->x + 4;
+ 	u32 *iv  = state->x + 12;
++
++	/*
++	 * libsodium reads the key and nonce via LOAD32_LE, but state->x holds
++	 * native-order u32 words. On a big-endian host those bytes are wrong;
++	 * re-serialize each word little-endian so the IV/key round-trip on any
++	 * arch (a no-op on little-endian).
++	 */
++	u8 k[CHACHA_KEY_SIZE];
++	u8 n[8];
++	int i;
++	for (i = 0; i < CHACHA_KEY_WORDS; i++)
++		put_unaligned_le32(key[i], k + i * 4);
++	put_unaligned_le32(iv[2], n + 0);
++	put_unaligned_le32(iv[3], n + 4);
++
+ 	int ret = crypto_stream_chacha20_xor_ic(dst, src, bytes,
+-						(void *) &iv[2],
++						n,
+ 						iv[0] | ((u64) iv[1] << 32),
+-						(void *) key);
++						k);
+ 	BUG_ON(ret);
+ }
+ 
+--- a/bch_bindgen/src/bcachefs.rs	1969-12-31 19:00:01.000000000 -0500
++++ b/bch_bindgen/src/bcachefs.rs	2026-06-13 23:38:27.303637663 -0400
+@@ -67,8 +67,13 @@
+     /// Get the nonce used to encrypt the superblock
+     pub fn nonce(&self) -> nonce {
+         let [a, b, c, d, e, f, g, h, _rest @ ..] = self.uuid.b;
+-        let dword1 = u32::from_le_bytes([a, b, c, d]);
+-        let dword2 = u32::from_le_bytes([e, f, g, h]);
++        // nonce.d holds __le32 words: store the raw little-endian bytes so
++        // chacha's le32 read reconstructs the same value on every host.
++        // from_le_bytes() yields a host *value* that, written back as a native
++        // u32, byte-swaps the IV on big-endian (mips64) and breaks decryption;
++        // from_ne_bytes() preserves the bytes [a,b,c,d]/[e,f,g,h].
++        let dword1 = u32::from_ne_bytes([a, b, c, d]);
++        let dword2 = u32::from_ne_bytes([e, f, g, h]);
+         nonce {
+             d: [0, 0, dword1, dword2],
+         }
+--- a/src/key.rs	1969-12-31 19:00:01.000000000 -0500
++++ b/src/key.rs	2026-06-13 23:59:53.760596427 -0400
+@@ -30,14 +30,14 @@
+     let bch_key_magic = u64::from_le_bytes(*BCH_KEY_MAGIC);
+     sb.sb()
+         .crypt()
+-        .map(|c| c.key().magic != bch_key_magic)
++        .map(|c| u64::from_le(c.key().magic) != bch_key_magic)
+         .unwrap_or(false)
+ }
+ 
+ /// Create an unencrypted (plaintext) key for the crypt field (remove-passphrase).
+ pub fn unencrypted_key(key: &bch_key) -> bch_encrypted_key {
+     bch_encrypted_key {
+-        magic: u64::from_le_bytes(*BCH_KEY_MAGIC),
++        magic: u64::from_le_bytes(*BCH_KEY_MAGIC).to_le(),
+         key: *key,
+     }
+ }
+@@ -275,7 +275,7 @@
+     ) -> bch_encrypted_key {
+         let crypt = sb.sb().crypt().expect("called on encrypted fs");
+         let mut new_key = bch_encrypted_key {
+-            magic: u64::from_le_bytes(*BCH_KEY_MAGIC),
++            magic: u64::from_le_bytes(*BCH_KEY_MAGIC).to_le(),
+             key: *key,
+         };
+ 
+@@ -303,7 +303,7 @@
+         let mut sb_key = *crypt.key();
+ 
+         ensure!(
+-            sb_key.magic != bch_key_magic,
++            u64::from_le(sb_key.magic) != bch_key_magic,
+             "filesystem encryption key is not passphrase-protected"
+         );
+ 
+@@ -317,7 +317,7 @@
+                 mem::size_of_val(&sb_key),
+             )
+         };
+-        ensure!(sb_key.magic == bch_key_magic, "incorrect passphrase");
++        ensure!(u64::from_le(sb_key.magic) == bch_key_magic, "incorrect passphrase");
+ 
+         Ok((passphrase_key, sb_key))
+     }

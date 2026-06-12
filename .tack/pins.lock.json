@@ -27,9 +27,9 @@
     "type": "github",
     "owner": "amaanq",
     "repo": "bunker-patches",
-    "rev": "6f583f3c43eebf5fa7f9fa8ed513def3819bcca8",
-    "narHash": "sha256-J1oGoPlLAc+5fCN0WpGNZ5OBt9nds7lb1XRDw+cKIic=",
-    "lastModified": 1782072505
+    "rev": "0bbb52ea075400507110871ac83648cfb051b6ef",
+    "narHash": "sha256-WEzRLQim2C9pVv15awZExCwuR8rzROppta88cGzJZvU=",
+    "lastModified": 1782257399
   },
   "cade": {
     "type": "github",

@@ -10,6 +10,7 @@ let
     scarp = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHpGaxgsOi5dIbFMVqA90Gy5tvhLNn4ggLDdnPl3KuW3 root@scarp";
     simoom = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF2VD1i3vLpEmlN1nYMSn4KyxKf7nt/ekP3+YGxH772I contact@amaanq.com";
     tarn = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJh1jaHd93hodjkXjKCQ2dMlfxMUg7mi758Y6iVubPaP root@tarn";
+    varve = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDePnpqjL94IYg724wrlvkghw0/dMEiaWAsuVNlMPdwD root@varve";
   };
   yubikeys = {
     iray-37504518 = "sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIJfPMiKZ+NvPZb8j3EhzGd5ebjRHcXGo5rNZY1u64mzQAAAAD3NzaDphbWFhbnEtaXJheQ== contact@amaanq.com";
