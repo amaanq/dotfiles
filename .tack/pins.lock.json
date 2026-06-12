@@ -391,6 +391,14 @@
     "narHash": "sha256-g6a6JB44wgJiD1LUFczt7qf9KrUshxtfgucvEEfHebk=",
     "lastModified": 1781231567
   },
+  "tilera-docs": {
+    "type": "github",
+    "owner": "re-tile",
+    "repo": "docs",
+    "rev": "acefef3358d875cc66725c377fd831334776410a",
+    "narHash": "sha256-JFfakKJiEbFoN5uJQuHsanYo5RHTLWuyxfskXRel6qI=",
+    "lastModified": 1782097856
+  },
   "tombkey": {
     "type": "github",
     "owner": "amaanq",

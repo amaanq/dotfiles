@@ -197,3 +197,7 @@ url = "manic:circus"
 
 [inputs.ida-tilegx]
 url = "amaan:ida-tilegx"
+
+[inputs.tilera-docs]
+url = "gh:re-tile/docs"
+type = "fetch"
