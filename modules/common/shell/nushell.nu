@@ -713,11 +713,16 @@ def --wrapped codex2 [...rest] {
   _codex_alt_account $'($env.XDG_CONFIG_HOME)/codex2' 'codex2' ...$rest
 }
 
+def --wrapped codex3 [...rest] {
+  _codex_alt_account $'($env.XDG_CONFIG_HOME)/codex3' 'codex3' ...$rest
+}
+
 alias cl = claude
 alias clw = clod-work
 alias cl2 = claude2
 alias cx = codex
 alias cx2 = codex2
+alias cx3 = codex3
 
 alias .r = ./rebuild.nu
 
