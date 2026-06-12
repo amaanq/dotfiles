@@ -226,6 +226,8 @@ let
       };
     };
 
+    core.fsmonitor = "watchman";
+
     snapshot = {
       auto-update-stale = true;
     };
