@@ -145,8 +145,8 @@ let
 
       let codex_args = [
         -c $"tui.theme=${themeName}"
-        -c 'mcp_servers.chrome-devtools.command="npx"'
-        -c 'mcp_servers.chrome-devtools.args=["-y","chrome-devtools-mcp@latest","--no-usage-statistics","--browser-url","http://127.0.0.1:9222"]'
+        -c 'mcp_servers.chrome-devtools.command="chrome-devtools-mcp"'
+        -c 'mcp_servers.chrome-devtools.args=["--browser-url","http://127.0.0.1:9222"]'
         -c 'mcp_servers.ida-pro-mcp.url="http://127.0.0.1:13337/mcp"'
         --dangerously-bypass-approvals-and-sandbox
         --enable code_mode
