@@ -981,7 +981,7 @@ let
   # Deno-compiled so we can stub the Clearcut telemetry watchdog.
   chrome-devtools-mcp =
     let
-      version = "1.0.1";
+      version = "1.3.0";
     in
     pkgs.writeShellScriptBin "chrome-devtools-mcp" /* sh */ ''
       set -euo pipefail
