@@ -746,6 +746,14 @@ let
 
     enable_gates(core_gates + loop_gates + memory_gates + ux_gates + tool_gates)
 
+    # --- Remote Control: neuter the feature-flag-availability guard ---
+
+    patch(
+        "remote control feature-flag guard (telemetry off)",
+        rb"if\(!E4\(\)\)\{let (" + W + rb")=Wen\(\);",
+        lambda m: b"if(!1){let " + m[1] + b"=Wen();",
+    )
+
     # --- Disable the claude-api bundled skill ---
     # Its description is a ~200-token SDK/Bedrock matrix injected into every
     # system prompt — not relevant here.
