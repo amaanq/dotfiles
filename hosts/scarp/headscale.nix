@@ -42,11 +42,9 @@ in
       dns = {
         magic_dns = true;
         base_domain = "cirque.${domain}";
+        override_local_dns = true;
         nameservers.global = [
-          "45.90.28.0"
-          "45.90.30.0"
-          "2a07:a8c0::"
-          "2a07:a8c1::"
+          "https://dns.nextdns.io/9b2c13"
         ];
       };
 
