@@ -157,6 +157,20 @@
         shellcheck-minimal = stub;
       }
     )
+    (
+      final: prev:
+      let
+        thunderbirdUnwrapped = prev.thunderbird-unwrapped.overrideAttrs (old: {
+          configureFlags = map (
+            flag: if lib.hasPrefix "--with-onnx-runtime=" flag then "--without-onnx-runtime" else flag
+          ) old.configureFlags;
+        });
+      in
+      lib.optionalAttrs prev.stdenv.hostPlatform.isLinux {
+        thunderbird-unwrapped = thunderbirdUnwrapped;
+        thunderbird = final.wrapThunderbird thunderbirdUnwrapped { };
+      }
+    )
     (final: prev: {
       formats = prev.formats // {
         toml =
