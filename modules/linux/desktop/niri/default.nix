@@ -168,7 +168,6 @@ in
         keyboard = {
           xkb = {
             layout = "us";
-            options = "caps:escape_shifted_capslock,caps:ctrl_modifier";
           };
           repeat-delay = 200;
           repeat-rate = 25;
