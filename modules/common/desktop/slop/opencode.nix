@@ -52,9 +52,20 @@ let
   opencode =
     (pkgs.callPackage "${inputs.opencode-src}/nix/opencode.nix" {
       bun = bun';
-      node_modules = pkgs.callPackage "${inputs.opencode-src}/nix/node_modules.nix" {
-        bun = bun';
-      };
+      # opencode's committed bun.lock no longer survives `bun install
+      # --frozen-lockfile` with current bun, skull
+      node_modules =
+        (pkgs.callPackage "${inputs.opencode-src}/nix/node_modules.nix" {
+          bun = bun';
+          hash =
+            {
+              x86_64-linux = "sha256-zGRkSZMAHI+pRL7XppAOQckN5fBu4/Z85tY9DQegLn0=";
+            }
+            .${pkgs.stdenv.hostPlatform.system} or lib.fakeHash;
+        }).overrideAttrs
+          (o: {
+            buildPhase = builtins.replaceStrings [ "--frozen-lockfile" ] [ "" ] o.buildPhase;
+          });
     }).overrideAttrs
       (prev: {
         # PR #13885 (statusline templates) rebased onto v1.14.48; the server
