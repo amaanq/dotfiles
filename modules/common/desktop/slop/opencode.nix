@@ -60,6 +60,7 @@ let
           hash =
             {
               x86_64-linux = "sha256-zGRkSZMAHI+pRL7XppAOQckN5fBu4/Z85tY9DQegLn0=";
+              aarch64-darwin = "sha256-EFUkVmxSWODJJIRIey+4TrIgiJw7mkKxfrK68Q08f4o=";
             }
             .${pkgs.stdenv.hostPlatform.system} or lib.fakeHash;
         }).overrideAttrs
