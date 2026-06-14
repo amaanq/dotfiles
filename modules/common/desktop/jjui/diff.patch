@@ -213,7 +213,7 @@ index 69d50f44fa..0dad79580e 100644
  	// collections are always read from file content, without carrying prior state.
  	// Keep this type explicit and extend it when new merge-managed arrays are added.
 diff --git a/internal/jj/commands.go b/internal/jj/commands.go
-index d5fc8896a1..9226ee958c 100644
+index aa62fe1955..d78564ea2b 100644
 --- a/internal/jj/commands.go
 +++ b/internal/jj/commands.go
 @@ -15,6 +15,7 @@
@@ -246,8 +246,8 @@ index d5fc8896a1..9226ee958c 100644
  	if parallel {
  		args = append(args, "--parallel")
  	}
-@@ -141,8 +145,11 @@
- 	return args
+@@ -145,8 +149,11 @@
+ 	return []string{"diff", "--from", from, "--to", to, "--color", "always", "--ignore-working-copy"}
  }
  
 -func Restore(revision string, files []string, interactive bool) CommandArgs {
@@ -259,7 +259,7 @@ index d5fc8896a1..9226ee958c 100644
  	if interactive {
  		args = append(args, "--interactive")
  	}
-@@ -216,10 +223,13 @@
+@@ -220,10 +227,13 @@
  	return args
  }
  
@@ -289,7 +289,7 @@ index 4d52be8d8b..212e62db8c 100644
  			}
  		}
 diff --git a/internal/ui/common/msgs.go b/internal/ui/common/msgs.go
-index e77c4a299e..0335ea2b78 100644
+index 357ad1657d..9f7a43a40d 100644
 --- a/internal/ui/common/msgs.go
 +++ b/internal/ui/common/msgs.go
 @@ -16,6 +16,7 @@
@@ -889,10 +889,10 @@ index 5eee55102c..ef8adfcc71 100644
  	defer commandRunner.Verify()
  
 diff --git a/internal/ui/revisions/revisions.go b/internal/ui/revisions/revisions.go
-index f48e7a4acd..3fa7e891a1 100644
+index 32d966e23c..18332e3d38 100644
 --- a/internal/ui/revisions/revisions.go
 +++ b/internal/ui/revisions/revisions.go
-@@ -1098,7 +1098,7 @@
+@@ -1101,7 +1101,7 @@
  	changeId := commit.GetChangeId()
  	return func() tea.Msg {
  		output, _ := m.context.RunCommandImmediate(jj.Diff(changeId, ""))
@@ -901,7 +901,7 @@ index f48e7a4acd..3fa7e891a1 100644
  	}
  }
  
-@@ -1110,7 +1110,7 @@
+@@ -1113,7 +1113,7 @@
  	if commit == nil {
  		return nil
  	}

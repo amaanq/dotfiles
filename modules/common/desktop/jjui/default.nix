@@ -8,8 +8,8 @@ let
     src = pkgs.fetchFromGitHub {
       owner = "idursun";
       repo = "jjui";
-      rev = "8afd3b9e26594e4f306613356e2c8aa5fa7a5de4"; # main branch
-      hash = "sha256-Hc5IBJqm1dPAD2tt1jEdQdj7otvefAT+/qVU1afITbI=";
+      rev = "b7ac39727c2eea1ecf31da9bd5694cf2713a01b2"; # main branch
+      hash = "sha256-s3s1cLMHJ0DU43i1xOrsjD39eGh4xMeT0gJNluC7c1o=";
     };
     patches = (old.patches or [ ]) ++ [ ./diff.patch ];
     vendorHash = "sha256-thGlfZ0SwHpynYydxu6Sg8OUe5kr7jiPKvl6BXS5BWA=";
