@@ -29,23 +29,7 @@
   boot.initrd.availableKernelModules = lib.mkForce [ ];
   boot.initrd.kernelModules = lib.mkForce [ ];
 
-  # systemd-initrd hardcodes the x86-only udev/dmi_memory_id; use scripted initrd.
-  boot.initrd.systemd.enable = lib.mkForce false;
-
-  # The stick sits behind the SoC's USB hub and enumerates ~30s into cold boot,
-  # past nixos-core's root wait (which ignores rootdelay=). Wait for the by-label
-  # link to appear before the root mount runs.
-  boot.initrd.postDeviceCommands = lib.mkForce ''
-    echo "varve: waiting for EDGE_ROOT to enumerate (cold-boot USB is slow)..."
-    for i in $(seq 1 90); do
-      if [ -e /dev/disk/by-label/EDGE_ROOT ]; then
-        echo "varve: EDGE_ROOT present after ''${i}s"
-        break
-      fi
-      sleep 1
-    done
-    udevadm settle || true
-  '';
+  boot.initrd.systemd.enable = true;
 
   # tftp-kernel.nix unpacks this initrd with gunzip before re-embedding it
   # uncompressed in the vmlinux, so it must be gzip, not the zstd default.
@@ -62,6 +46,7 @@
   fileSystems."/" = {
     device = "/dev/disk/by-label/EDGE_ROOT";
     fsType = "ext4";
+    options = [ "x-systemd.device-timeout=90s" ];
   };
   boot.supportedFilesystems = lib.mkForce [ "ext4" ];
 

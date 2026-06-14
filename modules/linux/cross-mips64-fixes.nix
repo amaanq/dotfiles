@@ -85,7 +85,7 @@ in
 
           # systemd-boot has no MIPS target and udevadm verify segfaults under
           # QEMU; drop every host-firmware feature this router has no use for.
-          systemd =
+          systemd = (
             (prev.systemd.override {
               withBootloader = false;
               withUkify = false;
@@ -93,7 +93,33 @@ in
               withFido2 = false;
               withLibBPF = false;
             }).overrideAttrs
-              { doInstallCheck = false; };
+              (old: {
+                doInstallCheck = false;
+                # nixos' initrd udev storePaths expects lib/udev/dmi_memory_id on
+                # mips (the v259 meson arch list), but the 260+ mips64 build no
+                # longer produces it; ship a no-op so the initrd copy succeeds.
+                postFixup = (old.postFixup or "") + /* sh */ ''
+                  if [ -d "$out/lib/udev" ] && [ ! -e "$out/lib/udev/dmi_memory_id" ]; then
+                    chmod +w "$out/lib/udev"
+                    printf '#!/bin/sh\nexit 0\n' > "$out/lib/udev/dmi_memory_id"
+                    chmod 555 "$out/lib/udev/dmi_memory_id"
+                    chmod -w "$out/lib/udev"
+                  fi
+                '';
+              })
+          );
+
+          # mips64 glibc's libc.so.6 has a PT_INTERP padded past the string
+          # (p_filesz 104 vs strlen+1 100); goblin keeps the padding, and the
+          # NUL bytes crash the dependency walk ("file name contained an
+          # unexpected NUL byte").
+          makeInitrdNGTool = prev.makeInitrdNGTool.overrideAttrs (old: {
+            postPatch = (old.postPatch or "") + ''
+              substituteInPlace src/main.rs --replace-fail \
+                'if let Some(interp) = elf.interpreter {' \
+                'if let Some(interp) = elf.interpreter.map(|i| i.trim_end_matches(char::from(0))) {'
+            '';
+          });
 
           # LibreSSL has no MIPS64 AES assembly.
           libressl = prev.libressl.overrideAttrs (old: {

@@ -154,9 +154,10 @@ in
   };
   boot.supportedFilesystems = lib.mkForce [ ];
 
-  boot.initrd.availableKernelModules = lib.mkForce [ ];
-  boot.initrd.kernelModules = lib.mkForce [ ];
-  boot.initrd.systemd.enable = lib.mkForce false;
+  # No NixOS stage-1 at all: the hand-built initramfs above IS the root and
+  # /init is the stage-2 launcher, so don't build the (deprecated scripted)
+  # initrd that nothing would ever load.
+  boot.initrd.enable = lib.mkForce false;
 
   boot.kernelParams = lib.mkForce [
     "console=pci0"
