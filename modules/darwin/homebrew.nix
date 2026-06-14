@@ -11,8 +11,10 @@ in
 {
   homebrew = enabled {
     global.autoUpdate = false;
-    global.analytics = false;
+    onActivation.extraEnv.HOMEBREW_NO_ANALYTICS = "1";
   };
+
+  environment.variables.HOMEBREW_NO_ANALYTICS = "1";
 
   nix-homebrew = enabled {
     user = config.system.primaryUser;
