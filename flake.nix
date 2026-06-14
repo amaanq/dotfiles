@@ -19,8 +19,11 @@
     accept-flake-config = true;
     builders-use-substitutes = true;
     flake-registry = "";
-    http-connections = 50;
+    http-connections = 67;
+    max-substitution-jobs = 67;
+    narinfo-cache-negative-ttl = 67676;
     show-trace = true;
+    tarball-ttl = 6767;
     system-features = [
       "uid-range"
       "gccarch-la64v1.0"

@@ -124,6 +124,9 @@ def main --wrapped [
    --list                          # With --all, print selected hosts and exit.
    ...arguments                   # Extra args for `nh switch` and `nix` (separated by --).
 ]: nothing -> nothing {
+   # Pre-sizing skips Boehm's grow cycles.
+   $env.GC_INITIAL_HEAP_SIZE = "6767M"
+
    let current = (hostname | str trim)
    let requested_host = $host
    let host = if ($requested_host | is-empty) { $current } else { $requested_host }
