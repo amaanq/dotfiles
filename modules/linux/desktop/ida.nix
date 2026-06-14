@@ -2,6 +2,7 @@
   self,
   config,
   ida-pro-overlay,
+  ida-tilegx,
   lib,
   nixpak,
   pkgs,
@@ -16,6 +17,8 @@ let
     ;
 
   user = head (attrNames config.users.users);
+
+  tilegxProc = ida-tilegx.packages.${pkgs.stdenv.hostPlatform.system}.default or null;
 
   ida-patcher = pkgs.writers.writePython3Bin "ida-patcher" {
     flakeIgnore = [
@@ -153,6 +156,12 @@ in
     ]
     ++ lib.optional (
       config.programs.bindiff.enable && config.programs.bindiff.enableIdaPlugin
-    ) "L+ ${patchedIdaPro}/opt/ida64 - - - - /run/current-system/sw/bin/ida64";
+    ) "L+ ${patchedIdaPro}/opt/ida64 - - - - /run/current-system/sw/bin/ida64"
+    ++ lib.optionals (tilegxProc != null) [
+      "d ${config.users.users.${user}.home}/.local/share/idapro/procs 0755 ${user} users -"
+      "L+ ${
+        config.users.users.${user}.home
+      }/.local/share/idapro/procs/tilegx.so - - - - ${tilegxProc}/procs/tilegx.so"
+    ];
   };
 }

@@ -194,3 +194,6 @@ url = "amaan:jj/bare-colocate-fix"
 
 [inputs.circus]
 url = "manic:circus"
+
+[inputs.ida-tilegx]
+url = "amaan:ida-tilegx"
