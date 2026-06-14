@@ -431,14 +431,6 @@
     "narHash": "sha256-APSMLPIvePNUDJ277WmiktcLjj2QkglYQ6Q/oxwA1cU=",
     "lastModified": 1784352214
   },
-  "watt": {
-    "type": "github",
-    "owner": "notashelf",
-    "repo": "watt",
-    "rev": "2f633bfd6e11b8b55c349e636d80e9e6bf175f2a",
-    "narHash": "sha256-t6BpLGxI1rVzHEDGZzoX87edyoEljYo/eNgaC9skcJ4=",
-    "lastModified": 1784211725
-  },
   "xdg-utils-nu": {
     "type": "github",
     "owner": "feel-co",

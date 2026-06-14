@@ -150,9 +150,6 @@ url = "gh:amaanq/voxtype/consumer-nixpkgs-overlay"
 [inputs.tuigreet]
 url = "gh:notashelf/tuigreet"
 
-[inputs.watt]
-url = "gh:notashelf/watt"
-
 # system services -------------------------------------------------------------
 
 [inputs.spotrak]
