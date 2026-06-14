@@ -99,7 +99,7 @@ url = "gh:NixOS/nix"
 # build / tooling -------------------------------------------------------------
 
 [inputs.tack]
-url = "manic:tack/next"
+url = "manic:tack"
 
 [inputs.cade]
 url = "manic:cade/next"
