@@ -50,30 +50,6 @@
         })
       ) { };
     })
-    # bcachefs-tools 1.38.6 lands a batch of allocator/journal performance
-    # work; nixpkgs is still on 1.38.3. Overriding the top-level package is
-    # what propagates the bump into the out-of-tree kernel module: the bunker
-    # kernel set imports nixpkgs with the consumer's overlays, then patches
-    # this same bcachefs-tools and builds the .ko from its dkms output. The
-    # 1.38.6 tree moved the kernel sources libbcachefs/ -> fs/, which is why
-    # bunker's folio-uaf diagnostic patch had to be rebased in lockstep.
-    (final: prev: {
-      bcachefs-tools = prev.bcachefs-tools.overrideAttrs (_old: rec {
-        version = "1.38.6";
-
-        src = final.fetchFromGitHub {
-          owner = "koverstreet";
-          repo = "bcachefs-tools";
-          tag = "v${version}";
-          hash = "sha256-VNY9kURuXky504utCZ0Ye76mDG2TFAdzrgYI2iup/PI=";
-        };
-
-        cargoDeps = final.rustPlatform.fetchCargoVendor {
-          inherit src;
-          hash = "sha256-rajYbfE98j/YqniUoV66LHh22PwEc6sWWJ/7bgGgGtA=";
-        };
-      });
-    })
     (
       final: prev:
       let
