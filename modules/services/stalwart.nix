@@ -4,9 +4,6 @@
   pkgs,
   ...
 }:
-# Replacement for nixpkgs services/mail/stalwart.nix targeting stalwart 0.16+.
-# Not auto-imported; hosts include it explicitly. Disables the upstream module
-# so `services.stalwart.*` can be reused with 0.16-aware semantics.
 let
   cfg = config.services.stalwart;
   jsonFormat = pkgs.formats.json { };

@@ -2,35 +2,12 @@
 {
   nixpkgs.overlays = [
     # stalwart 0.16 dropped TOML config in favour of a one-shot config.json
-    # describing only the data store; everything else lives in the database
-    # and is reconciled via the relocated stalwart-cli (now its own repo at
-    # github.com/stalwartlabs/cli, version 1.x). nixpkgs PR #512341 hasn't
-    # landed because the module migration is still being designed upstream
-    # (issue #511880, target nixos-26.05). These attrs are exposed under
-    # _0_16 / _1_0 names rather than overriding pkgs.stalwart globally so the
-    # blast radius stays scoped to the new module.
+    # describing only the data store; everything else lives in the database and
+    # is reconciled via the relocated stalwart-cli (now its own repo at
+    # github.com/stalwartlabs/cli, version 1.x), which nixpkgs doesn't package
+    # yet (PR #512341 / issue #511880, target nixos-26.05). The 0.16 server is
+    # now nixpkgs' native stalwart_0_16; only the CLI needs this overlay.
     (final: prev: {
-      stalwart_0_16 = prev.stalwart.overrideAttrs (_old: rec {
-        version = "0.16.1";
-
-        src = final.fetchFromGitHub {
-          owner = "stalwartlabs";
-          repo = "stalwart";
-          tag = "v${version}";
-          hash = "sha256-/sNRAh+lwLGadZqlkN6CqS1UjeeE7kgjWCc+06Sxz+0=";
-        };
-
-        cargoDeps = final.rustPlatform.fetchCargoVendor {
-          inherit src;
-          hash = "sha256-iqukdNoXxl3Tq9XPsS2vrpOfulP0557c15y4/vOOX0Y=";
-        };
-
-        # 0.16 reshuffled the test tree; the long --skip list pinned to 0.15
-        # no longer matches and would silently no-op. Disable until upstream
-        # rebases the suite.
-        doCheck = false;
-      });
-
       stalwart-cli_1_0 = final.callPackage (
         {
           lib,
@@ -293,12 +270,9 @@
 
         # plausible's BEAM stack pulls erlang → wxwidgets → webkitgtk for the
         # Observer GUI, which is useless on a headless server and parks 100MB+
-        # of GTK in the closure. Swap to the wx-less BEAM set; both args must
-        # be overridden because top-level elixir_1_18 sources from the full
-        # erlang independently of beam27Packages.
+        # of GTK in the closure. Swap to the wx-less BEAM set.
         plausible = prev.plausible.override {
           beam27Packages = prev.beamMinimal27Packages;
-          elixir_1_18 = prev.beamMinimal27Packages.elixir_1_18;
         };
 
         # radicle-node has flaky p2p integration tests that hit
