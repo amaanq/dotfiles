@@ -150,6 +150,9 @@ url = "gh:AvengeMedia/DankMaterialShell"
 [inputs.helium]
 url = "amaan:helium-flake"
 
+[inputs.voxtype]
+url = "gh:amaanq/voxtype/consumer-nixpkgs-overlay"
+
 [inputs.tuigreet]
 url = "gh:notashelf/tuigreet"
 

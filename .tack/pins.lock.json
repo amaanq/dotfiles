@@ -431,6 +431,14 @@
     "narHash": "sha256-aZttkaBzM0vjC/WDz5a/uVeq57hGur/CqfBD7P9V1es=",
     "lastModified": 1783493073
   },
+  "voxtype": {
+    "type": "github",
+    "owner": "amaanq",
+    "repo": "voxtype",
+    "rev": "1985295e2cfe7083feeb307550125a7a769571b8",
+    "narHash": "sha256-APSMLPIvePNUDJ277WmiktcLjj2QkglYQ6Q/oxwA1cU=",
+    "lastModified": 1784352214
+  },
   "watt": {
     "type": "github",
     "owner": "notashelf",
