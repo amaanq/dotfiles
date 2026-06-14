@@ -685,6 +685,11 @@
           "output_file": "hosts/scarp/secrets/acmeEnvironment.age",
           "output_sha256": "75102ba4cc200374131a78238d54c743dd3e156162ebce1bce037bdfebfad509"
         },
+        "ankiSyncPassword": {
+          "source_sha256": "c21db8e5f2c1cefe3c05d18b0a504df477d15a8e9313457aaeedd8a8992e742f",
+          "output_file": "hosts/scarp/secrets/ankiSyncPassword.age",
+          "output_sha256": "3524db3654792e7b58558454eba1c3838c78f933e3446571b0cc0f48246cb6d0"
+        },
         "atuin-key": {
           "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
           "output_file": "hosts/scarp/secrets/atuin-key.age",
