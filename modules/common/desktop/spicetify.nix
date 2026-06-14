@@ -41,10 +41,23 @@ let
       misc               = ${colors.overlay}
     '';
   };
+
+  spotifyNoPreload =
+    pkgs.runCommandLocal "spotify-no-preload"
+      {
+        nativeBuildInputs = [ pkgs.makeWrapper ];
+        meta.priority = -1;
+      }
+      ''
+        mkdir -p $out/bin
+        makeWrapper ${config.programs.spicetify.spicedSpotify}/bin/spotify \
+          $out/bin/spotify --unset LD_PRELOAD
+      '';
 in
 {
   programs.spicetify =
     enabled {
+      spicetifyPackage = spicetifyCli;
       experimentalFeatures = true;
       enabledExtensions = with spicetify.legacyPackages.${config.hostSystem}.extensions; [
         copyLyrics
@@ -59,4 +72,6 @@ in
     // optionalAttrs config.isLinux {
       wayland = true;
     };
+
+  environment.systemPackages = lib.mkIf config.isLinux [ spotifyNoPreload ];
 }
