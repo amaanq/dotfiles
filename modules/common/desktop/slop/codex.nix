@@ -6,13 +6,13 @@
 let
   inherit (lib.meta) getExe;
 
-  codexVersion = "0.144.0";
+  codexVersion = "0.144.6";
 
   src = pkgs.fetchFromGitHub {
     owner = "openai";
     repo = "codex";
     tag = "rust-v${codexVersion}";
-    hash = "sha256-GbLeECsju5jifeVah1xN4HFFHxOKtCj55gl/0ZULj+g=";
+    hash = "sha256-S25nhnF4lEJQdiyKDV38ORbjm+BNsswLoE5ivF0SE2U=";
   };
 
   # Verbatim copy of rtk-ai/rtk's hooks/codex/rtk-awareness.md --
