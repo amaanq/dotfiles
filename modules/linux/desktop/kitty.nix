@@ -38,6 +38,7 @@
     # Shell integration and updates
     shell_integration enabled no-cursor
     update_check_interval 0
+    auto_reload_config -1
 
     # Scrollback
     scrollback_lines 500000
