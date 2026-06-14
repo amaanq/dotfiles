@@ -14,6 +14,8 @@ let
   tomlFormat = pkgs.formats.toml { };
   graphStyle = if config.theme.cornerRadius > 0 then "curved" else "square";
 
+  jujutsu = pkgs.callPackage "${jj-src}/default.nix" { gitRev = jj-src.rev or null; };
+
   settings = {
     user = {
       name = "Amaan Qureshi";
@@ -255,7 +257,7 @@ in
 {
   environment.systemPackages = optionals config.isDesktop [
     pkgs.difftastic
-    jj-src.packages.${pkgs.system}.jujutsu
+    jujutsu
     pkgs.mergiraf
     pkgs.radicle-node
   ];

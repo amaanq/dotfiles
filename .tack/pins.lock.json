@@ -187,9 +187,9 @@
     "type": "github",
     "owner": "amaanq",
     "repo": "jj",
-    "rev": "a90503f29d308e4c1264e115b14f387e7b40cdc5",
-    "narHash": "sha256-eA/Ej5gWmEBULoScGBMsJVHVdyvxNuJ0gMUvgpy60Pc=",
-    "lastModified": 1783112836
+    "rev": "acf68371c5eedb089c6e768d5a90ffa0617bfb2d",
+    "narHash": "sha256-I96LPwH5oOrks90Ajfqclh0nL+zjnawVnUcohJv1k1U=",
+    "lastModified": 1783733068
   },
   "lanzaboote": {
     "type": "github",
