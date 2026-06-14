@@ -100,11 +100,21 @@ let
     }
   );
 
+  needsSelfRegistry = !(builtins.elem config.nixpkgs.hostPlatform.system lib.systems.flakeExposed);
+  registryNixpkgs = if needsSelfRegistry then self else inputs.nixpkgs;
+
   registryMap = inputs |> filterAttrs (const <| isType "flake");
   registryMapForHost =
     registryMap
     |> filterAttrs (name: _: !isServer || name == "nixpkgs")
-    |> (registries: registries // { default = inputs.nixpkgs; });
+    |> (
+      registries:
+      registries
+      // {
+        nixpkgs = registryNixpkgs;
+        default = registryNixpkgs;
+      }
+    );
 
   nixPathFormatters = optionals isDarwin [ (concatStringsSep ":") ];
   formatNixPath = paths: nixPathFormatters |> builtins.foldl' (value: format: format value) paths;
@@ -231,6 +241,11 @@ in
     |> formatNixPath
     |> mkIf (!isServer);
 
+  nixpkgs.flake = mkIf needsSelfRegistry {
+    setFlakeRegistry = false;
+    setNixPath = false;
+  };
+
   nix.registry = registryMapForHost |> mapAttrs (_: flake: { inherit flake; });
 
   nix.settings =
@@ -271,16 +286,17 @@ in
     executables.statix.environment.STATIX_CONFIG.value = "${statixConfig}";
   };
 
-  environment.systemPackages = optionals isDesktop [
-    pkgs.nix-index
-    (pkgs.callPackage (inputs.tack + "/nix/package.nix") { })
-  ]
-  ++ optionals (!isCross || isPower64) [
-    pkgs.nh
-  ]
-  ++ optionals (!isCross && !isPower64) [
-    nix-output-monitor
-  ];
+  environment.systemPackages =
+    optionals isDesktop [
+      pkgs.nix-index
+      (pkgs.callPackage (inputs.tack + "/nix/package.nix") { })
+    ]
+    ++ optionals (!isCross || isPower64) [
+      pkgs.nh
+    ]
+    ++ optionals (!isCross && !isPower64) [
+      nix-output-monitor
+    ];
 
   programs.ssh.extraConfig =
     builderHosts

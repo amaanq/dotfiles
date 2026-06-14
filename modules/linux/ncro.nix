@@ -45,6 +45,11 @@ in
           priority = 30;
           public_key = "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY=";
         }
+        {
+          url = "https://mirrors.nju.edu.cn/nix4loong/store";
+          priority = 40;
+          public_key = "cache.nix4loong.cn-1:zmkwLihdSUyy6OFSVgvK3br0EaUEczLiJgDfvOmm3pA=";
+        }
       ];
     };
   };

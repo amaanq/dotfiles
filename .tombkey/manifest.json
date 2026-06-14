@@ -1,6 +1,57 @@
 {
   "version": 1,
   "hosts": {
+    "barchan": {
+      "host_pubkey_sha256": "1c9e1419ea9d415ad3638335c2e0e7fb5bd388b93edfac94a5cbab6f7d86b06e",
+      "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",
+      "secrets": {
+        "atuin-key": {
+          "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
+          "output_file": "hosts/barchan/secrets/atuin-key.age",
+          "output_sha256": "e778e7a0cf1a7a4a3daeade468fa8233c33f3cfd5fbe4bd647a882edad88b8c6"
+        },
+        "builderKey": {
+          "source_sha256": "b3843bab297d1621662693e71ad7803cf34358c53f495d22934af57975c5b52a",
+          "output_file": "hosts/barchan/secrets/builderKey.age",
+          "output_sha256": "af7fea88b387b2cf89c98b309e922dc02f4f24b242327fbf89615943219d8d15"
+        },
+        "circusAgentToken": {
+          "source_sha256": "0d8c3e9f13a9098916cb6ba4db41bf5aa54c45182780ce6eee9b842ed0e5fc5a",
+          "output_file": "hosts/barchan/secrets/circusAgentToken.age",
+          "output_sha256": "77b961e4dec6e7715902a063eee37442a824af939d8d7bb879a113ca8deb9521"
+        },
+        "gitIdentity": {
+          "source_sha256": "8bd75b8d048d22277d9d2e5fbc86ddb77ea30324c14a5dde47637ebc83a4702a",
+          "output_file": "hosts/barchan/secrets/gitIdentity.age",
+          "output_sha256": "18632464ee7c11fb3b957f84d97640089b760c07ec92c929cb9f7c9098fbc2ca"
+        },
+        "gitPrivate": {
+          "source_sha256": "17859114a38ac1568e8b58dd27590879e548f35b040668c6c5dba438293242d3",
+          "output_file": "hosts/barchan/secrets/gitPrivate.age",
+          "output_sha256": "54addd9b56a768680904debe7e3ebd117d0abfa7415d42c05b42030217675df2"
+        },
+        "githubToken": {
+          "source_sha256": "29ac736cc583427484f8e864b31418e01fbb9a6c6b8f04eceb100b993cf16755",
+          "output_file": "hosts/barchan/secrets/githubToken.age",
+          "output_sha256": "194ae17af804c5571a7bd498f7b1e3eb851e54068e4fc016d7d12b51aff87922"
+        },
+        "resticPassword": {
+          "source_sha256": "eedbc252fa8873aa8f4bebef4026b24a1c9728ef3bd652d2a0c0b5265423c16f",
+          "output_file": "hosts/barchan/secrets/resticPassword.age",
+          "output_sha256": "b0c4814076bce0a2146151ba55aa89d9d3a3126e93fd666ff281cdaae8a19ba3"
+        },
+        "sshConfig": {
+          "source_sha256": "30e974a5871d7051662474a9ce32526ff0745c8c401825e3835153f2ff72945d",
+          "output_file": "hosts/barchan/secrets/sshConfig.age",
+          "output_sha256": "bfc2f600751866dc7410c16a381cd79316819152a285601fdc6dc15b38eb9f37"
+        },
+        "tailscaleAuthKey": {
+          "source_sha256": "478f83ebdc94213a4b58b21243ecf916afa81605b21f32e3dbaa798bac70f3ad",
+          "output_file": "hosts/barchan/secrets/tailscaleAuthKey.age",
+          "output_sha256": "5bcb84880b6d4469c0b06a337c56b3fe4a3347b648ccf9f5889eb4633e05dd0b"
+        }
+      }
+    },
     "derecho": {
       "host_pubkey_sha256": "420750ed95fd2dc8f751b5e17487eda2c835f1315565e70e71e7a16d14dfaa8d",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",

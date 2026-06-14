@@ -21,7 +21,10 @@
     flake-registry = "";
     http-connections = 50;
     show-trace = true;
-    system-features = [ "uid-range" ];
+    system-features = [
+      "uid-range"
+      "gccarch-la64v1.0"
+    ];
     trusted-users = [
       "root"
       "@build"
@@ -91,5 +94,13 @@
           packages = [ inputs.tombkey.packages.${system}.default ];
         };
       });
+
+      legacyPackages = genAttrs nixpkgs.lib.systems.doubles.linux (
+        system:
+        import nixpkgs {
+          inherit system;
+          config.allowUnsupportedSystem = true;
+        }
+      );
     };
 }
