@@ -105,6 +105,7 @@ let
       icon,
       description,
       categories,
+      pulseSink,
     }:
     let
       cleanName = replaceStrings [ " " "\n" "\t" ] [ "-" "-" "-" ] name |> toLower;
@@ -116,6 +117,7 @@ let
       ]
       ++ commonFlags;
       flagArgs = lib.concatStringsSep " " (map (f: "--add-flags ${lib.escapeShellArg f}") flags);
+      envArgs = lib.optionalString (pulseSink != null) "--set PULSE_SINK ${lib.escapeShellArg pulseSink}";
     in
     pkgs.stdenv.mkDerivation {
       inherit pname;
@@ -129,7 +131,7 @@ let
 
       installPhase = ''
         runHook preInstall
-        makeWrapper ${heliumBin} $out/bin/${pname} ${flagArgs}
+        makeWrapper ${heliumBin} $out/bin/${pname} ${envArgs} ${flagArgs}
         runHook postInstall
       '';
 
@@ -170,6 +172,10 @@ let
       };
       categories = mkOption {
         type = nullOr (listOf str);
+        default = null;
+      };
+      pulseSink = mkOption {
+        type = nullOr str;
         default = null;
       };
     };
@@ -225,6 +231,7 @@ in
         url = "https://discord.com/app";
         icon = icons.discord;
         description = "Discord Web";
+        pulseSink = "Discord-Bus";
       };
       element = {
         name = "Element";

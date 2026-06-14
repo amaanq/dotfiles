@@ -1,4 +1,7 @@
 { pkgs, ... }:
+let
+  fiioSink = "alsa_output.usb-GuangZhou_FiiO_Electronics_Co._Ltd_FIIO_K13_R2R-00.analog-stereo";
+in
 {
   services.pipewire.extraLadspaPackages = [ pkgs.rnnoise-plugin ];
 
@@ -26,7 +29,20 @@
             "media.class" = "Audio/Sink";
             "audio.position" = "FL,FR";
             "audio.rate" = 48000;
-            # Loopback to default sink so you still hear it
+            "monitor.channel-volumes" = true;
+            "monitor.passthrough" = true;
+            "priority.session" = 2000;
+          };
+        }
+        {
+          factory = "adapter";
+          args = {
+            "factory.name" = "support.null-audio-sink";
+            "node.name" = "Discord-Bus";
+            "node.description" = "Discord Bus";
+            "media.class" = "Audio/Sink";
+            "audio.position" = "FL,FR";
+            "audio.rate" = 48000;
             "monitor.channel-volumes" = true;
             "monitor.passthrough" = true;
           };
@@ -91,6 +107,33 @@
               "audio.position" = "FL,FR";
               "stream.dont-remix" = true;
               "node.passive" = true;
+              "node.target" = fiioSink;
+            };
+          };
+        }
+      ];
+    };
+
+    "94-discord-loopback" = {
+      "context.modules" = [
+        {
+          name = "libpipewire-module-loopback";
+          args = {
+            "node.description" = "Discord Loopback";
+            "capture.props" = {
+              "node.name" = "discord-loopback-capture";
+              "audio.position" = "FL,FR";
+              "stream.dont-remix" = true;
+              "node.passive" = true;
+              "node.target" = "Discord-Bus";
+              "stream.capture.sink" = true;
+            };
+            "playback.props" = {
+              "node.name" = "discord-loopback-playback";
+              "audio.position" = "FL,FR";
+              "stream.dont-remix" = true;
+              "node.passive" = true;
+              "node.target" = fiioSink;
             };
           };
         }
