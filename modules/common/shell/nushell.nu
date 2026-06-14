@@ -719,7 +719,7 @@ def --wrapped codex3 [...rest] {
 
 alias cl = claude
 alias clw = clod-work
-alias cl2 = claude2
+alias cl2 = clod2
 alias cx = codex
 alias cx2 = codex2
 alias cx3 = codex3

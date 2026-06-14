@@ -90,6 +90,44 @@ let
   themeName = "rose-pine";
   themeSrc = ../../bat/rose-pine.tmTheme;
 
+  codexConfig = (pkgs.formats.toml { }).generate "codex-config.toml" {
+    model = "gpt-5.6-sol";
+    personality = "pragmatic";
+    model_reasoning_effort = "xhigh";
+    approval_policy = "never";
+    sandbox_mode = "danger-full-access";
+    web_search = "live";
+
+    tui = {
+      theme = themeName;
+      status_line = [
+        "model-with-reasoning"
+        "project-name"
+        "git-branch"
+        "weekly-limit"
+        "five-hour-limit"
+        "context-remaining"
+        "fast-mode"
+        "permissions"
+        "approval-mode"
+        "used-tokens"
+        "task-progress"
+      ];
+      status_line_use_colors = true;
+    };
+
+    mcp_servers = {
+      chrome-devtools = {
+        command = "chrome-devtools-mcp";
+        args = [
+          "--browser-url"
+          "http://127.0.0.1:9222"
+        ];
+      };
+      ida-pro-mcp.url = "http://127.0.0.1:13337/mcp";
+    };
+  };
+
   # Thin launcher: manage $CODEX_HOME/{RTK.md,AGENTS.md,themes/} on every
   # invocation, then exec the built codex with our default flags. AGENTS.md
   # uses absolute @-refs because codex resolves them relative to CWD, not the
@@ -151,14 +189,8 @@ let
       }
 
       let codex_args = [
-        -c $"tui.theme=${themeName}"
-        -c 'mcp_servers.chrome-devtools.command="chrome-devtools-mcp"'
-        -c 'mcp_servers.chrome-devtools.args=["--browser-url","http://127.0.0.1:9222"]'
-        -c 'mcp_servers.ida-pro-mcp.url="http://127.0.0.1:13337/mcp"'
-        --dangerously-bypass-approvals-and-sandbox
         --enable code_mode
         --enable code_mode_only
-        --enable goals
       ]
       exec ${getExe codexRs} ...$codex_args ...$args
     }
@@ -175,6 +207,8 @@ in
 
   config = {
     environment.systemPackages = [ codex ];
+
+    environment.etc."codex/config.toml".source = codexConfig;
 
     environment.variables.CODEX_HOME = "$XDG_CONFIG_HOME/codex";
   };
