@@ -171,6 +171,14 @@
         thunderbird = final.wrapThunderbird thunderbirdUnwrapped { };
       }
     )
+    (_final: prev: {
+      bcachefs-tools = prev.bcachefs-tools.overrideAttrs (old: {
+        patches = (old.patches or [ ]) ++ [
+          ../linux/patches/bcachefs-tools-codegen-skip-fvisibility.patch
+          ../linux/patches/bcachefs-tools-codegen-host-linker.patch
+        ];
+      });
+    })
     (final: prev: {
       formats = prev.formats // {
         toml =

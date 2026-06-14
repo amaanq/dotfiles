@@ -288,16 +288,6 @@ in
         }
       )
 
-      # The bcachefs-tools Rust rewrite reads the on-disk __le superblock fields
-      # in native byte order, so the chacha nonce and key-magic check are wrong
-      # on big-endian and every passphrase is rejected. Mirror the C le<->cpu
-      # conversions in the Rust unlock path.
-      (_: prev: {
-        bcachefs-tools = prev.bcachefs-tools.overrideAttrs (old: {
-          patches = (old.patches or [ ]) ++ [ ./patches/bcachefs-tools-be-crypto.patch ];
-        });
-      })
-
       # Cross-endian patchelf corrupts DT_MIPS_RLD_MAP_REL (LE host, BE target),
       # SIGBUSing PID 1 at boot. Unguarded: the fixupPhase patchelf is build-host.
       (_: prev: {

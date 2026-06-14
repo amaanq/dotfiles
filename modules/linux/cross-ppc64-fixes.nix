@@ -405,27 +405,43 @@ in
           # downstream format!() uses a valid triple, add -mabi=elfv2 to the
           # libbcachefs call, and inject --target + -mabi=elfv2 into the
           # keyutils builder chain before .generate().
-          # BLKGETSIZE64 ioctl is hardcoded to the asm-generic encoding
-          # (0x80081272). PowerPC, MIPS, SPARC use the 3-bit dir / 13-bit size
-          # layout and want 0x40081272 instead — without this, mkfs sees ppc64
-          # block devices as 0 bytes and refuses to format. Still hardcoded
-          # upstream as of 1.38.3 (koverstreet/bcachefs-tools); PR pending.
-          # The postPatch fixes the elfv2 triple bindgen otherwise rejects.
+          # The postPatch fixes the elfv2 triple bindgen otherwise rejects:
+          # clang refuses rustc's powerpc64-unknown-linux-gnuelfv2, so map it
+          # through 1.38.8's clang_target_for_rust_target hook and pass the ABI
+          # explicitly (clang defaults BE ppc64 linux-gnu to ELFv1).
+          # (The BLKGETSIZE64 per-arch patch formerly here landed upstream in
+          # 1.38.8 — src/wrappers/bdev.rs now carries the cfg split itself.)
           bcachefs-tools = prev.bcachefs-tools.overrideAttrs (old: {
-            patches = (old.patches or [ ]) ++ [
-              ./patches/bcachefs-tools-blkgetsize64-per-arch.patch
-            ];
             postPatch = (old.postPatch or "") + /* sh */ ''
               substituteInPlace bch_bindgen/build.rs \
+                --replace-fail \
+                  '_ => target,' \
+                  '"powerpc64-unknown-linux-gnuelfv2" => "powerpc64-unknown-linux-gnu", _ => target,' \
+                --replace-fail \
+                  '.clang_arg(format!("--target={}", clang_target))' \
+                  '.clang_arg(format!("--target={}", clang_target)).clang_arg("-mabi=elfv2")'
+              substituteInPlace fs/build.rs \
+                --replace-fail \
+                  'let target = std::env::var("TARGET").expect("TARGET");' \
+                  'let target = std::env::var("TARGET").expect("TARGET").replace("gnuelfv2", "gnu");'
+              substituteInPlace fs/codegen.rs \
+                --replace-fail \
+                  'let mut a = vec![format!("--target={target}")];' \
+                  'let mut a = vec![format!("--target={target}"), "-mabi=elfv2".into()];'
+              substituteInPlace bcachefs-shim/build.rs \
                 --replace-fail \
                   'let target = std::env::var("TARGET").unwrap();' \
                   'let target = std::env::var("TARGET").unwrap().replace("gnuelfv2", "gnu");' \
                 --replace-fail \
                   '.clang_arg(format!("--target={}", target))' \
-                  '.clang_arg(format!("--target={}", target)).clang_arg("-mabi=elfv2")' \
+                  '.clang_arg(format!("--target={}", target)).clang_arg("-mabi=elfv2")'
+              # Big-endian bkey is packed without aligned(8) (see
+              # bcachefs_format.h), so referencing its fields is E0793 on BE;
+              # brace-copy the value instead.
+              substituteInPlace fs/debug/tests.rs \
                 --replace-fail \
-                  '.map(|p| format!("-I{}", p.display())),' \
-                  '.map(|p| format!("-I{}", p.display())).chain([format!("--target={}", target), "-mabi=elfv2".to_string()]),'
+                  'assert_eq!(k.k.size, 8);' \
+                  'assert_eq!({ k.k.size }, 8);'
             '';
           });
 

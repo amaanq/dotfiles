@@ -1,0 +1,19 @@
+rustc invokes plain cc to link by default, which need not exist when
+cross compiling - kbuild only guarantees HOSTCC. Use the same linker
+flags as the kernel's host Rust rules in scripts/Makefile.host.
+--- a/fs/Makefile
++++ b/fs/Makefile
+@@ -346,8 +346,12 @@
+ 
+ # The codegen tool: zero-dep, plain host rustc. codegen_main.rs include!s
+ # codegen.rs, so list the latter as a prereq to rebuild on either change.
++# Link with $(HOSTCC) like the kernel's own host Rust rules do
++# (scripts/Makefile.host): rustc's default `cc` need not exist when
++# cross compiling.
+ quiet_cmd_bch_codegen_host = HOSTRUSTC $@
+-      cmd_bch_codegen_host = $(HOSTRUSTC) --edition 2021 -O $< -o $@
++      cmd_bch_codegen_host = $(HOSTRUSTC) --edition 2021 -O \
++	-Clinker-flavor=gcc -Clinker=$(HOSTCC) $< -o $@
+ 
+ $(obj)/codegen: $(src)/codegen_main.rs $(src)/codegen.rs FORCE
+ 	$(call if_changed,bch_codegen_host)

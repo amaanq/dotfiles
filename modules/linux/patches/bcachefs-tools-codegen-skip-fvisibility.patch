@@ -1,0 +1,24 @@
+bindgen skips functions with hidden visibility, so a kernel with
+-fvisibility=hidden in KBUILD_CFLAGS (CONFIG_LTO_CLANG adds it via
+CC_FLAGS_LTO) loses every plain extern declaration from the generated
+bindings -- only the wrap-static-fns wrappers survive -- and mod.rs fails
+with an E0425 cascade. Filter out the exported $(CC_FLAGS_LTO) group for
+codegen, mirroring the kernel's own bindgen_c_flags_lto (rust/Makefile).
+--- a/fs/Makefile
++++ b/fs/Makefile
+@@ -326,6 +326,15 @@
+ 	-fdiagnostics-show-context -fdiagnostics-show-context=% \
+ 	--param=% --param asan-% -fno-isolate-erroneous-paths-dereference
+ 
++# Also drop $(CC_FLAGS_LTO) (exported by the top-level Makefile): it carries
++# -fvisibility=hidden, and bindgen skips functions with hidden visibility --
++# every plain extern declaration vanishes from the bindings, only the
++# wrap-static-fns wrappers survive, and mod.rs fails with an E0425 cascade.
++# The kernel's own bindgen pass filters the same group (rust/Makefile,
++# bindgen_c_flags_lto); visibility doesn't affect layout, and hidden symbols
++# still link fine within a single .ko.
++bcachefs-codegen-skip-cflags += $(CC_FLAGS_LTO)
++
+ # Also drop -funsigned-char: the kernel builds char unsigned, which makes bindgen
+ # bind `char *` as `*const u8`, but the fs/ Rust (shared with userspace, where
+ # char is signed) expects `c_char`. Char signedness doesn't affect layout, so
