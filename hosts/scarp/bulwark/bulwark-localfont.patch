@@ -1,17 +1,22 @@
-diff --git a/app/layout.tsx b/app/layout.tsx
-index f23d8a2..81a8104 100644
---- a/app/layout.tsx
-+++ b/app/layout.tsx
-@@ -1,19 +1,19 @@
- import type { Metadata } from "next";
+diff --git a/app/(main)/layout.tsx b/app/(main)/layout.tsx
+index 65d4bba..d16e5cc 100644
+--- a/app/(main)/layout.tsx
++++ b/app/(main)/layout.tsx
+@@ -1,7 +1,7 @@
+ import type { Metadata, Viewport } from "next";
 -import { Geist, Geist_Mono } from "next/font/google";
 +import localFont from "next/font/local";
  import { headers } from "next/headers";
- import { getLocale } from "next-intl/server";
- import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
+ import { getLocale, getTranslations } from "next-intl/server";
  import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
- import "./globals.css";
-
+ import { configManager } from "@/lib/admin/config-manager";
+ import { withBasePath } from "@/lib/browser-navigation";
+@@ -18,18 +18,18 @@ async function resolveRequestLocale(): Promise<string> {
+   const pathname = (await headers()).get("x-pathname") || "";
+   const seg = pathname.split("/").find((s) => (locales as readonly string[]).includes(s));
+   return seg ?? (await getLocale());
+ }
+ 
 -const geistSans = Geist({
 -  variable: "--font-geist-sans",
 -  subsets: ["latin"],
@@ -19,7 +24,7 @@ index f23d8a2..81a8104 100644
 +  src: './fonts/Geist.ttf',
 +  variable: "--font-geist-sans"
  });
-
+ 
 -const geistMono = Geist_Mono({
 -  variable: "--font-geist-mono",
 -  subsets: ["latin"],
@@ -27,5 +32,7 @@ index f23d8a2..81a8104 100644
 +  src: './fonts/GeistMono.ttf',
 +  variable: "--font-geist-mono"
  });
-
- export async function generateMetadata(): Promise<Metadata> {
+ 
+ export const viewport: Viewport = {
+   width: "device-width",
+   initialScale: 1,

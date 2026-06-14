@@ -15,29 +15,29 @@ let
 
   bulwark = pkgs.buildNpmPackage (finalAttrs: {
     pname = "bulwark";
-    version = "1.6.2";
+    version = "1.7.5";
 
     src = pkgs.fetchFromGitHub {
       owner = "bulwarkmail";
       repo = "webmail";
       tag = finalAttrs.version;
-      hash = "sha256-KpHpS1xCkfczcc3H6zhLgRLLmspTMls7TEgIUNT23e8=";
+      hash = "sha256-2N9Y4AMMXjXzXU+VWN6cQq0BGpIERfPGJmI0L9WbTtg=";
     };
 
-    npmDepsHash = "sha256-9RrxUySH4szRyqhOIzMGr/SOlHyoSiuhBolGgtpB2Ew=";
+    npmDepsHash = "sha256-ffXwwvyodHRLpQ0B4M8tJHnes8KtAfX9fLsyZL68+KQ=";
 
     patches = [ ./bulwark-localfont.patch ];
 
     configurePhase = ''
       runHook preConfigure
 
-      mkdir -p app/fonts
+      mkdir -p 'app/(main)/fonts'
       cp "${
         pkgs.google-fonts.override { fonts = [ "Geist" ]; }
-      }/share/fonts/truetype/Geist[wght].ttf" app/fonts/Geist.ttf
+      }/share/fonts/truetype/Geist[wght].ttf" 'app/(main)/fonts/Geist.ttf'
       cp "${
         pkgs.google-fonts.override { fonts = [ "GeistMono" ]; }
-      }/share/fonts/truetype/GeistMono[wght].ttf" app/fonts/GeistMono.ttf
+      }/share/fonts/truetype/GeistMono[wght].ttf" 'app/(main)/fonts/GeistMono.ttf'
 
       runHook postConfigure
     '';
