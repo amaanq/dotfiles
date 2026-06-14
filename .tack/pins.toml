@@ -207,3 +207,6 @@ type = "fetch"
 [inputs.herdr-src]
 url = "amaan:herdr/nested-agents"
 type = "fetch"
+
+[inputs.xdg-utils-nu]
+url = "github:feel-co/xdg-utils.nu"

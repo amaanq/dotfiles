@@ -447,6 +447,14 @@
     "narHash": "sha256-DYH/+WX2mIGpxtxHVmjyoj4qUdvlGxfYgrIBOu4SAqg=",
     "lastModified": 1783912592
   },
+  "xdg-utils-nu": {
+    "type": "github",
+    "owner": "feel-co",
+    "repo": "xdg-utils.nu",
+    "rev": "aacc5fcb50d11d9759b78776c22ff9e0752f8682",
+    "narHash": "sha256-PqqhHvmkaMJMZBJlfSa+pRPrJZ7AenlCtiC+cdhRoQ8=",
+    "lastModified": 1784343852
+  },
   "xitter-notify-server": {
     "type": "github",
     "owner": "amaanq",
