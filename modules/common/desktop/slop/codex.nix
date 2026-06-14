@@ -101,10 +101,10 @@ let
       let codex_home = $env | get --optional "CODEX_HOME" | default ($env.HOME | path join ".codex")
       mkdir $codex_home
 
-      # Codex hooks reject updatedInput so rtk-rewrite.sh can't work here;
-      # clean up any leftover from the aborted hook approach.
-      let stale_hooks = $codex_home | path join "hooks.json"
-      if ($stale_hooks | path exists) { rm --force $stale_hooks }
+      let herdr_integration = do { ^${getExe pkgs.herdr} integration install codex } | complete
+      if $herdr_integration.exit_code != 0 {
+        error make { msg: $"failed to install Herdr's Codex integration: ($herdr_integration.stderr | str trim)" }
+      }
 
       let claude_md = $env
         | get --optional "XDG_CONFIG_HOME"

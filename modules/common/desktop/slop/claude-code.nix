@@ -1108,6 +1108,14 @@ let
     };
   };
 
+  herdrClaudeIntegration = pkgs.runCommand "herdr-claude-integration" { } ''
+    export HOME="$TMPDIR/home"
+    export CLAUDE_CONFIG_DIR="$out"
+    mkdir -p "$HOME" "$out"
+    ${getExe pkgs.herdr} integration install claude
+    rm -f "$out/settings.json"
+  '';
+
   settings = {
     "$schema" = "https://json.schemastore.org/claude-code-settings.json";
 
@@ -1115,7 +1123,6 @@ let
       CLAUDE_BASH_NO_LOGIN = "1";
       CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING = "1";
       CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY = "1";
-      CLAUDE_CODE_DISABLE_TERMINAL_TITLE = "1";
       CLAUDE_CODE_EAGER_FLUSH = "1";
       CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1";
       CLAUDE_CODE_FORCE_GLOBAL_CACHE = "1";
@@ -1160,6 +1167,14 @@ let
       hooks = singleton {
         type = "command";
         command = getExe shutUpClanka;
+      };
+    };
+    hooks.SessionStart = singleton {
+      matcher = "*";
+      hooks = singleton {
+        type = "command";
+        command = /* bash */ ''${getExe pkgs.bash} "$CLAUDE_CONFIG_DIR/hooks/herdr-agent-state.sh" session'';
+        timeout = 10;
       };
     };
     hooks.WorktreeCreate = singleton {
@@ -1241,10 +1256,16 @@ let
           | default ($env.HOME | path join ".config")
           | path join "claude"
       )
-      mkdir $config_dir
+      let herdr_hook_dir = $config_dir | path join "hooks"
+      mkdir $config_dir $herdr_hook_dir
+      $env.CLAUDE_CONFIG_DIR = $config_dir
+      $env.HERDR_AGENT = "claude"
 
-      # Slop refuses a read-only settings.json, so copy it.
+      cp --force ${herdrClaudeIntegration}/hooks/herdr-agent-state.sh (
+        $herdr_hook_dir | path join "herdr-agent-state.sh"
+      )
       cp --force ${settingsJson} ($config_dir | path join "settings.json")
+      ^${getExe' pkgs.coreutils "chmod"} a-w ($config_dir | path join "settings.json")
 
       r#'${toJSON settings.env}'# | from json | load-env
     '';

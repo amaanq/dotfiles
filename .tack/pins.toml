@@ -200,3 +200,7 @@ url = "amaan:ida-tilegx"
 [inputs.tilera-docs]
 url = "gh:re-tile/docs"
 type = "fetch"
+
+[inputs.herdr-src]
+url = "amaan:herdr/nested-agents"
+type = "fetch"

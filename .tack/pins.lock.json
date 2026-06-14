@@ -127,6 +127,14 @@
     "narHash": "sha256-Su+QQt2x62o3gH0MXoWS+cJxhBj3m0/46brREjLxZmU=",
     "lastModified": 1783673789
   },
+  "herdr-src": {
+    "type": "github",
+    "owner": "amaanq",
+    "repo": "herdr",
+    "rev": "438b906009cc2b1626dd99496daa941d99dfaece",
+    "narHash": "sha256-LDTntgN5pZrMOJ2FOsgDrkoOfgK3s+u63UXj803sytE=",
+    "lastModified": 1783967495
+  },
   "hkpoolservices": {
     "type": "git",
     "url": "https://git.amaanq.com/amaanq/hkpoolservices.git",
@@ -307,9 +315,9 @@
     "type": "github",
     "owner": "amaanq",
     "repo": "nvim-config",
-    "rev": "b09c9d8fb4664a575f2afd59132123440766b3d3",
-    "narHash": "sha256-L321nIRd8bSLMBdgvOUe67syMuro4VY0E77YsECN+vc=",
-    "lastModified": 1783752377
+    "rev": "a6b7fe9a2f9c1eba75d0d9268f6143deed177a1d",
+    "narHash": "sha256-DBo6FVWXo9lndKbPF7uxcjBWRQfT4dcrK6I8WgBWiR8=",
+    "lastModified": 1783913563
   },
   "opencode-src": {
     "type": "github",
