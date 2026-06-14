@@ -134,8 +134,8 @@ merge
         sed -i "" 's/MAX_FUNCSIZE            = 64/MAX_FUNCSIZE            = 1024/' "$IDA_STANDALONE/cfg/hexrays.cfg"
       fi
 
-      # Configure Python 3.13 for IDAPython
-      IDAUSR="/Users/${user}/.local/share/idapro" "$IDA_STANDALONE/idapyswitch" --force-path ${pkgs.python313}/lib/libpython3.13.dylib
+      # Configure Python 3.14 for IDAPython
+      IDAUSR="/Users/${user}/.local/share/idapro" "$IDA_STANDALONE/idapyswitch" --force-path ${pkgs.python314}/lib/libpython3.14.dylib
 
       xattr -cr "$IDA_DIR"
 
