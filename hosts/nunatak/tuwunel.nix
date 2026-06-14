@@ -3,6 +3,17 @@ _: {
     (_: prev: {
       matrix-tuwunel =
         let
+          rocksdbSource =
+            if prev.lib.versionAtLeast prev.matrix-tuwunel.version "1.8.0" then
+              {
+                rev = "0bd7e6d6438d318d66e8374ec1fe24126204f3b3";
+                hash = "sha256-THAHov40punmqm3J9kNYwFXfdRZ2VwjR/+lmFhun/xk=";
+              }
+            else
+              {
+                rev = "9a3a213b55df0b11408102c899a940675c0d90e4";
+                hash = "sha256-aOV/jJjRjNJ3hrRqhCsXlIz05NvEhDF/j5Q5UOQuvp8=";
+              };
           rust-jemalloc-sys' = prev.rust-jemalloc-sys.override {
             unprefixed = !prev.stdenv.hostPlatform.isDarwin;
           };
@@ -17,8 +28,7 @@ _: {
                 src = prev.fetchFromGitHub {
                   owner = "matrix-construct";
                   repo = "rocksdb";
-                  rev = "9a3a213b55df0b11408102c899a940675c0d90e4";
-                  hash = "sha256-aOV/jJjRjNJ3hrRqhCsXlIz05NvEhDF/j5Q5UOQuvp8=";
+                  inherit (rocksdbSource) rev hash;
                 };
                 version = "tuwunel-changes";
                 patches = [
