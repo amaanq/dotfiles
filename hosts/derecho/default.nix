@@ -107,7 +107,7 @@ lib.nixosSystem' "desktop" (
 
     boot.tmp = {
       useTmpfs = true;
-      tmpfsSize = "32G";
+      tmpfsSize = "64G";
     };
 
     systemd.services.nix-build-dir = {
