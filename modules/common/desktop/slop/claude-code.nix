@@ -535,24 +535,34 @@ let
         log(f"{label} ({n})")
 
 
-    def flip_gates(gates: list[tuple[bytes, str]]) -> None:
-        """Flip all gate defaults from false to true in a single regex pass."""
+    def enable_gates(gates: list[tuple[bytes, str]]) -> None:
+        """Force our feature gates on via the Ikt() override map.
+
+        DISABLE_TELEMETRY=1 stops GrowthBook from resolving, so gates fall back
+        to a hardcoded value. The sync resolver ct(e,t) returns the call-site
+        default (so flipping a `,!1)` default would work for it), but the async
+        resolver eB(e) returns a flat false no matter the default — and
+        ccr_bridge / harbor / ccr_bundle_seed_enabled are read through eB. All
+        resolvers consult the override map Ikt() first, before any telemetry
+        check or exposure logging, and Ikt only ever returns null in normal
+        operation, so injecting our gates there enables the sync and async paths
+        uniformly with no telemetry side effects. The object is memoized on
+        globalThis since Ikt() is on the hot path of every gate lookup.
+        """
         global data
-        gate_keys: list[bytes] = [g for g, _ in gates]
-        labels: dict[bytes, str] = dict(gates)
-        alternation: bytes = b"|".join(re.escape(g) for g in gate_keys)
-        pat: bytes = W + rb'\("(' + alternation + rb')",!1\)'
-        flipped: set[bytes] = set()
-
-        def replacer(m: re.Match[bytes]) -> bytes:
-            flipped.add(m.group(1))
-            return m[0].replace(b",!1)", b",!0)")
-
-        data, n = re.subn(pat, replacer, data)
-        log(f"feature gates: {n} flipped across {len(flipped)} gates")
-        for key in gate_keys:
-            status = "ok" if key in flipped else "MISSED"
-            log(f"  {labels[key]} [{status}]")
+        for g, lbl in gates:
+            if b'"' + g + b'"' not in data:
+                log(f"  gate gone from bundle: {lbl} [{g.decode()}]")
+        override: bytes = b"{" + b",".join(b'"' + g + b'":!0' for g, _ in gates) + b"}"
+        data, n = re.subn(
+            rb"function (" + W + rb")\(\)\{if\(!(" + W + rb")\)\2=!0;return (" + W + rb")\}",
+            lambda m: (
+                b"function " + m[1] + b"(){if(!" + m[2] + b")" + m[2] + b"=!0;return "
+                + m[3] + b"||(globalThis.__ccg??=" + override + b")}"
+            ),
+            data,
+        )
+        log(f"gate override map: {len(gates)} gates injected at {n} site(s)")
 
 
     # --- AGENTS.md loader ---
@@ -587,8 +597,6 @@ let
 
     slash_commands: list[tuple[bytes, str]] = [
         (b'name:"btw",description:"Ask a quick side question', "/btw"),
-        (b'name:"bridge-kick",description:"Inject bridge failure states', "/bridge-kick"),
-        (b'name:"files",description:"List all files currently in context"', "/files"),
     ]
 
     for anchor, label in slash_commands:
@@ -604,35 +612,6 @@ let
         data = data[:pos] + patched + data[pos + SEARCH_WINDOW :]
         log(f"slash command {label}: enabled")
 
-    # --- Bypass telemetry gate in feature flag checker ---
-    # Drops the trailing `||telemetryDisabled()` so gates still resolve under
-    # DISABLE_TELEMETRY=1 while preserving the bedrock/vertex/foundry branch.
-
-    patch(
-        "telemetry gate (drop telemetry-disabled check)",
-        (
-            rb"function (" + W + rb")\(\)\{return (" + W + rb")\(process\.env\.CLAUDE_CODE_USE_BEDROCK\)"
-            rb"\|\|\2\(process\.env\.CLAUDE_CODE_USE_VERTEX\)"
-            rb"\|\|\2\(process\.env\.CLAUDE_CODE_USE_FOUNDRY\)"
-            rb"\|\|" + W + rb"\(\)\}"
-        ),
-        lambda m: re.sub(rb"\|\|" + W + rb"\(\)\}$", b"||!1}", m[0]),
-    )
-
-    # --- Force Av() async-gate to always resolve true ---
-    # Av() is the async feature-gate resolver; every call-site we hit
-    # (tengu_ccr_bridge, ccr_bundle_seed, harbor, …) is one we want enabled,
-    # and the default-false path bypasses the gate even after Cq6 is patched.
-    # Av() never writes telemetry, so a blanket !0 is safe.
-
-    patch(
-        "Av() force-true for telemetry-off builds",
-        # Negative lookahead bounds the body match — the inner resolver name
-        # (Irq → aeq → ...) rotates, so capture rather than pin.
-        rb"async function (" + W + rb")\(H\)\{(?:(?!async function ).){60,400}?return " + W + rb"\(H,!1,!0\)\}",
-        lambda m: b"async function " + m[1] + b"(H){return !0}",
-    )
-
     # --- Restore 1h prompt cache TTL when telemetry is off ---
     # https://github.com/anthropics/claude-code/issues/45381
     # Widen the GrowthBook allowlist default to ["*"] so batch agents and
@@ -642,17 +621,6 @@ let
         "1h prompt cache TTL fallback",
         rb'(' + W + rb')\("tengu_prompt_cache_1h_config",\{allowlist:\[[^\]]+\]\}\)\.allowlist\?\?\[\]',
         lambda m: m[1] + b'("tengu_prompt_cache_1h_config",{allowlist:["*"]}).allowlist??[]',
-    )
-
-    # --- Disable tengu_keybindings_dom (new chord dispatcher) ---
-    # The 2.1.118 DOM-style focus manager wedges the TUI during /rewind: the
-    # message selector remount drops the focus target, stdin pauses, fd 0
-    # leaves epoll, Ctrl-C has no reader. Flipping reverts to the 117 path.
-
-    patch(
-        "disable new keybindings dispatcher (causes /rewind hang in 2.1.118)",
-        rb'(' + W + rb')\("tengu_keybindings_dom",!0\)',
-        lambda m: m[1] + b'("tengu_keybindings_dom",!1)',
     )
 
     # --- stdin: readable → data (Deno TTY compat) ---
@@ -674,14 +642,25 @@ let
         ),
     )
 
+    # The agent-view early-input drainer loops process.stdin.read() inside its
+    # readable handler. Deno never fires "readable" on a TTY, so add a parallel
+    # "data" listener with the same Ctrl-C/push body; the original handler stays
+    # for the direct drain call elsewhere (a no-op read loop under Deno).
+
     patch(
         "stdin readable→data (agent-view attach)",
         (
-            rb'if\(q\.on\("readable",d\),"resume"in q&&"pause"in q\)'
-            rb'q\.resume\(\),q\.pause\(\)'
+            rb"function (" + W + rb")\(\)\{let (" + W + rb");while\(\(\2=process\.stdin\.read\(\)\)!==null\)"
+            rb'\{if\(\(typeof \2==="string"\?Buffer\.from\(\2,"utf8"\):\2\)\.includes\(3\)\)'
+            rb'\{process\.emit\("SIGINT"\);return\}(' + W + rb")\.push\(\2\)\}\}"
+            rb'process\.stdin\.on\("readable",\1\)'
         ),
-        # d() loops q.read() and calls g(chunk); g is in enclosing scope.
-        lambda m: b'q.on("data",g)',
+        lambda m: (
+            m[0]
+            + b';process.stdin.on("data",' + m[2] + b'=>{if((typeof ' + m[2]
+            + b'==="string"?Buffer.from(' + m[2] + b',"utf8"):' + m[2]
+            + b').includes(3)){process.emit("SIGINT");return}' + m[3] + b".push(" + m[2] + b")})"
+        ),
     )
 
     # --- Fix Deno-compile bridge spawn ---
@@ -710,23 +689,13 @@ let
 
     core_gates: list[Gate] = [
         (b"tengu_ccr_bridge", "remote control"),
+        (b"tengu_ccr_bundle_seed_enabled", "remote control bundle seed (async)"),
         (b"tengu_bridge_system_init", "bridge SDK init on connect"),
-        (b"tengu_bridge_client_presence_enabled", "bridge presence heartbeats"),
         (b"tengu_bridge_requires_action_details", "bridge rich tool-use payloads"),
         (b"tengu_remote_backend", "remote backend"),
         (b"tengu_immediate_model_command", "instant /model switching"),
         (b"tengu_fgts", "fine-grained tool streaming"),
-        (b"tengu_streaming_tool_execution2", "streaming tool execution v2"),
-        (b"tengu_auto_background_agents", "background agent timeout"),
-        (b"tengu_plan_mode_interview_phase", "plan mode interview"),
         (b"tengu_surreal_dali", "scheduled agents/cron"),
-    ]
-
-    # Agent view (`claude agents` TUI, `--bg`, /background) — slate_meadow is
-    # the fleet gate, fg_left_arrow_agents adds the left-arrow shortcut.
-    agent_view_gates: list[Gate] = [
-        (b"tengu_slate_meadow", "agent view fleet gate (--bg, claude agents TUI)"),
-        (b"tengu_fg_left_arrow_agents", "left-arrow shortcut into agents fleet"),
     ]
 
     # /loop dynamic/persistent/prompt sub-modes; without them /loop falls back
@@ -735,58 +704,47 @@ let
         (b"tengu_kairos_loop_dynamic", "/loop dynamic pacing"),
         (b"tengu_kairos_loop_persistent", "/loop persistent mode"),
         (b"tengu_kairos_loop_prompt", "/loop autonomous prompts"),
+        (b"tengu_kairos_loop_keepalive", "/loop keepalive"),
         (b"tengu_kairos_push_notifications", "push notifications"),
         (b"tengu_kairos_input_needed_push", "push when input needed"),
     ]
 
     memory_gates: list[Gate] = [
-        (b"tengu_pebble_leaf_prune", "message pruning"),
         (b"tengu_herring_clock", "team memory directory"),
         (b"tengu_passport_quail", "typed combined memory prompts"),
         (b"tengu_paper_halyard", "memory dedup in nested dirs"),
     ]
 
     ux_gates: list[Gate] = [
-        (b"tengu_coral_fern", "grep hints in prompt"),
         (b"tengu_kairos_brief", "brief output mode"),
         (b"tengu_destructive_command_warning", "destructive command warnings"),
         (b"tengu_amber_prism", "permission denial context"),
         (b"tengu_hawthorn_steeple", "context windowing"),
-        (b"tengu_loud_sugary_rock", "Opus 4.7 terse output guidance"),
-        (b"tengu_loud_sugary_rock2", "Opus 4.7 terse output guidance v2"),
         (b"tengu_verified_vs_assumed", "verified-vs-assumed reporting"),
         (b"tengu_sparrow_ledger", "verify_prompt_arm (pairs with verified-vs-assumed)"),
         (b"tengu_orchid_mantis_v2", "default-NO /schedule offer (less noisy than v1)"),
         (b"tengu_silk_hinge", "message timestamps setting"),
         (b"tengu_terminal_sidebar", "status in terminal tab setting"),
-        (b"tengu_birch_compass", "/usage 'What's contributing' breakdown block"),
+        # Counterintuitive: ON suppresses the plan-upsell UI (gated by !T7()).
+        (b"tengu_idle_amber_finch", "suppress plan-upsell prompts"),
     ]
 
     tool_gates: list[Gate] = [
         (b"tengu_chrome_auto_enable", "auto-enable chrome devtools"),
         (b"tengu_plum_vx3", "web search reranking"),
-        (b"tengu_cork_m4q", "batch command processing"),
         (b"tengu_harbor", "plugin marketplace"),
         (b"tengu_harbor_permissions", "plugin permissions"),
         (b"tengu_relay_chain_v1", "parallel command chaining guidance"),
         (b"tengu_edit_minimalanchor_jrn", "Edit tool minimal-anchor instructions"),
-        (b"tengu_slate_reef", "Read tool clearer offset/limit docs"),
-        (b"tengu_otk_slot_v1", "output-token escalation for complex tasks"),
-        (b"tengu_onyx_basin_m1k", "subagent tool-result truncation"),
-        (b"tengu_sub_nomdrep_q7k", "block subagent report .md writes"),
         (b"tengu_amber_sentinel", "Monitor tool for streaming bg scripts"),
-        (b"tengu_miraculo_the_bard", "skip penguin-mode startup prefetch"),
-        (b"tengu_noreread_q7m_velvet", "sharper 'wasted read' feedback"),
         (b"tengu_mcp_subagent_prompt", "modern MCP subagent prompt (vs legacy)"),
+        (b"tengu_mcp_skills", "MCP servers can advertise/serve Skills"),
+        (b"tengu_malformed_tool_use_clean_retry", "clean retry on malformed tool calls"),
+        (b"tengu_event_watchdog_default_on", "SSE stream-stall watchdog (recover hangs)"),
+        (b"tengu_review_workflow_routing", "workflow-backed reviewer on high-effort review"),
     ]
 
-    flip_gates(core_gates + agent_view_gates + loop_gates + memory_gates + ux_gates + tool_gates)
-
-    patch(
-        "background agent timeout",
-        rb'"tengu_auto_background_agents",![01]\)\)return 120000',
-        lambda m: m[0].replace(b"120000", b"240000"),
-    )
+    enable_gates(core_gates + loop_gates + memory_gates + ux_gates + tool_gates)
 
     # --- Disable the claude-api bundled skill ---
     # Its description is a ~200-token SDK/Bedrock matrix injected into every
@@ -794,62 +752,18 @@ let
 
     patch(
         "disable claude-api skill",
-        rb'(' + W + rb')\(\{name:"claude-api",description:',
-        lambda m: m[1] + b'({name:"claude-api",isEnabled:()=>!1,description:',
+        rb'(' + W + rb')\(\{name:"claude-api",',
+        lambda m: m[1] + b'({name:"claude-api",isEnabled:()=>!1,',
     )
 
-    # --- Replace usage fetch with self-contained OAuth implementation ---
-    # Stock falls back to x-api-key when telemetry is off, but /api/oauth/usage
-    # needs Bearer + oauth beta header. Read credentials directly.
-
-    usage_fn_pat: bytes = (
-        rb"async function (" + W + rb")\(\)\{"
-        rb"(?:if\(!" + W + rb"\(\)\|\|!" + W + rb"\(\)\)return\{\};)?"
-        rb"let " + W + rb"=" + W + rb"\(\);if\(" + W + rb"&&" + W + rb"\(" + W + rb"\." + W + rb"\)\)return null;"
-        rb"let " + W + rb"=" + W + rb"\(\);if\(" + W + rb"\.error\)throw Error\(\x60Auth error: \x24\{" + W + rb"\.error\}\x60\);"
-        rb"let " + W + rb"=\{[^}]+\}," + W + rb"=\x60\x24\{(" + W + rb")\(\)\.(" + W + rb")\}/api/oauth/usage\x60;"
-        rb"return\(await (" + W + rb")\.get\(" + W + rb",\{headers:" + W + rb",timeout:5000\}\)\)\.data\}"
-    )
-
-    usage_fn_match: re.Match[bytes] | None = re.search(usage_fn_pat, data)
-    if usage_fn_match:
-        fn_name: bytes = usage_fn_match.group(1)
-        config_fn: bytes = usage_fn_match.group(2)
-        base_url_key: bytes = usage_fn_match.group(3)
-        http_client: bytes = usage_fn_match.group(4)
-        replacement: bytes = (
-            b"async function " + fn_name + b"(){"
-            b"const _cd=(process.env.CLAUDE_CONFIG_DIR||"
-            b'(Deno.env.get("HOME")+"/.config/claude"));'
-            b"let _tk;"
-            b'try{const _cr=JSON.parse(new TextDecoder().decode('
-            b'Deno.readFileSync(_cd+"/.credentials.json")));'
-            b"_tk=_cr?.claudeAiOauth?.accessToken}catch{return{}}"
-            b"if(!_tk)return{};"
-            b'const _cp="/tmp/.claude-usage-"+_tk.slice(-8)+".json";'
-            b"try{const _s=Deno.statSync(_cp);"
-            b"if(Date.now()-_s.mtime.getTime()<60000)"
-            b'return JSON.parse(new TextDecoder().decode(Deno.readFileSync(_cp)))}catch{}'
-            b"const _h={" + b'"Content-Type":"application/json",'
-            b'"Authorization":"Bearer "+_tk,'
-            b'"anthropic-beta":"oauth-2025-04-20"};'
-            b"const _u=`''${" + config_fn + b"()." + base_url_key + b"}/api/oauth/usage`;"
-            b"const _r=(await " + http_client + b".get(_u,{headers:_h,timeout:5000})).data;"
-            b'try{Deno.writeTextFileSync(_cp,JSON.stringify(_r))}catch{}'
-            b"return _r}"
-        )
-        data = data.replace(usage_fn_match[0], replacement)
-        log("usage fetch: replaced")
-    else:
-        log("usage fetch: pattern NOT FOUND")
-
-    # --- grep/find/rg shim: delegate to absolute Nix store paths ---
-    # Stock re-execs argv[0]=ugrep/bfs/rg expecting Bun ant-native bundles;
-    # the Deno repack drops those, so point at real tools by store path.
-    # Anchor on (H,_,q=[]) (with optional 2.1.139 K=[] fourth param) plus the
-    # `\x60function ''${H} {` bash header it must emit; two other functions
-    # share the signature so the header disambiguates. Use brace-balanced
-    # parsing for the body end so internal restructures don't drift the regex.
+    # --- grep/find shim: delegate to absolute Nix store paths ---
+    # RYr(tool,bin,args) builds a bash function that re-execs the claude binary
+    # with argv0=ugrep/bfs to reach the Bun ant-native search bundles; the Deno
+    # repack drops those, so rewrite RYr to point at real tools by store path.
+    # rg is unaffected (USE_BUILTIN_RIPGREP=0 sends Bash to system ripgrep).
+    # Anchor on the 4-arg signature plus the `_cc_bin` marker unique to RYr, and
+    # use brace-balanced parsing for the body end so internal restructures don't
+    # drift the regex.
 
     def scan_js_block(blob: bytes, pos: int) -> int:
         """Return the offset just past the `}` closing the `{` at pos-1.
@@ -887,33 +801,35 @@ let
                     else:
                         pos += 1
             pos += 1
-        sys.exit("a38 shim: unbalanced braces")
+        sys.exit("grep/find shim: unbalanced braces")
 
 
-    a38_sig: bytes = rb"function (" + W + rb")\(H,_,q=\[\](?:,K=\[\])?\)\{"
-    a38_match: re.Match[bytes] | None = None
-    for cand in re.finditer(a38_sig, data):
-        if b"\x60function ''${H} {" in data[cand.end():cand.end() + 800]:
-            a38_match = cand
+    ryr_sig: bytes = (
+        rb"function (" + W + rb")\((" + W + rb"),(" + W + rb"),(" + W + rb")=\[\],(" + W + rb")=\[\]\)\{"
+    )
+    ryr_match: re.Match[bytes] | None = None
+    for cand in re.finditer(ryr_sig, data):
+        if b"_cc_bin" in data[cand.end():cand.end() + 700]:
+            ryr_match = cand
             break
 
-    if a38_match is None:
-        log("grep/find/rg shim: NOT FOUND")
+    if ryr_match is None:
+        log("grep/find shim: NOT FOUND")
     else:
-        fn_name: bytes = a38_match.group(1)
-        body_end: int = scan_js_block(data, a38_match.end())
-        a38_new: bytes = (
-            b"function " + fn_name + b"(H,_,q=[]){"
-            b'let L=q.length>0?\x60''${q.join(" ")} "$@"\x60:\'"$@"\';'
+        fn, tool, binv, args, cases = [ryr_match.group(i) for i in range(1, 6)]
+        body_end: int = scan_js_block(data, ryr_match.end())
+        ryr_new: bytes = (
+            b"function " + fn + b"(" + tool + b"," + binv + b"," + args + b"=[]," + cases + b"=[]){"
+            b"let L=" + args + b'.length>0?\x60''${' + args + b'.join(" ")} "$@"\x60:\'"$@"\';'
             b'let P=({ugrep:"${getExe' pkgs.ugrep "ugrep"}",'
             b'bfs:"${getExe pkgs.bfs}",'
-            b'rg:"${getExe pkgs.ripgrep}"})[_]||_;'
-            b"return\x60function ''${H} { "
-            b'if ! [ -x ''${P} ]; then command ''${H} "$@"; return; fi; '
+            b'rg:"${getExe pkgs.ripgrep}"})[' + binv + b"]||" + binv + b";"
+            b"return\x60function ''${" + tool + b"} { "
+            b'if ! [ -x ''${P} ]; then command ''${' + tool + b'} "$@"; return; fi; '
             b"''${P} ''${L}; }\x60}"
         )
-        data = data[:a38_match.start()] + a38_new + data[body_end:]
-        log(f"grep/find/rg shim: replaced {fn_name.decode()}")
+        data = data[:ryr_match.start()] + ryr_new + data[body_end:]
+        log(f"grep/find shim: replaced {fn.decode()}")
 
     # --- Prepend Bun → Node shim (see bunShim above) ---
 
