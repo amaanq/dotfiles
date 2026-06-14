@@ -7,7 +7,6 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   nixpkgs.hostPlatform = "loongarch64-linux";
-  nixpkgs.buildPlatform = "x86_64-linux";
 
   hasKvm = false;
 

@@ -66,9 +66,10 @@ let
       '';
     });
 
-  # nom fails on cross builds and ppc64 via GHC Template Haskell.
+  # nom fails on any real architecture.
   isCross = pkgs.stdenv.buildPlatform != pkgs.stdenv.hostPlatform;
   isPower64 = pkgs.stdenv.hostPlatform.isPower64 or false;
+  isLoong = pkgs.stdenv.hostPlatform.isLoongArch64 or false;
   inherit (config)
     isDarwin
     isDesktop
@@ -294,7 +295,7 @@ in
     ++ optionals (!isCross || isPower64) [
       pkgs.nh
     ]
-    ++ optionals (!isCross && !isPower64) [
+    ++ optionals (!isCross && !isPower64 && !isLoong) [
       nix-output-monitor
     ];
 

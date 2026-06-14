@@ -1,11 +1,6 @@
 lib:
 lib.nixosSystem' "server" (
-  {
-    config,
-    keys,
-    pkgs,
-    ...
-  }:
+  { keys, pkgs, ... }:
   let
     inherit (lib) collectNix remove;
   in

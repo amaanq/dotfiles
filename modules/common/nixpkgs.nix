@@ -99,7 +99,9 @@
         nh =
           let
             unwrapped = final.nh-unwrapped;
-            useNom = !(final.stdenv.hostPlatform.isPower64 or false);
+            useNom =
+              !(final.stdenv.hostPlatform.isPower64 or false)
+              && !(final.stdenv.hostPlatform.isLoongArch64 or false);
             runtimeDeps = lib.optionals useNom [ final.nix-output-monitor ];
           in
           final.symlinkJoin {
