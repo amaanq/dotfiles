@@ -2,6 +2,7 @@
   circus,
   config,
   lib,
+  pkgs,
   ...
 }:
 let
@@ -48,6 +49,8 @@ in
     };
 
     services.circus-agent = enabled {
+      package = (pkgs.callPackage "${circus}/nix/package.nix" { }).overrideAttrs { src = circus; };
+
       authTokenFile = config.secrets.circusAgentToken.path;
 
       settings.agent = {

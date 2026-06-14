@@ -5,6 +5,7 @@
 !.gitmodules
 !flake.lock
 !flake.nix
+!fleet.nix
 !keys.nix
 !nufmt.nuon
 !README.md

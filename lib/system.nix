@@ -39,6 +39,7 @@ let
     inherit inputs;
 
     keys = import ../keys.nix;
+    fleet = import ../fleet.nix;
     lib = self;
   };
 in

@@ -1,6 +1,7 @@
 {
   self,
   config,
+  fleet,
   inputs,
   lib,
   options,
@@ -26,8 +27,10 @@ let
     mkForce
     mkIf
     optionalAttrs
+    naturalSort
     optionals
     optionalString
+    unique
     zipListsWith
     ;
   inherit (lib.strings) toJSON;
@@ -138,14 +141,14 @@ let
   '';
 
   builderHosts =
-    (self.nixosConfigurations // (self.darwinConfigurations or { }))
+    fleet
     |> attrsToList
-    |> filter ({ name, value }: name != config.networking.hostName && value.config.users.users ? build)
+    |> filter ({ name, value }: name != config.networking.hostName && value.builder)
     |> map (
       { name, value }:
       {
         inherit name;
-        port = value.config.services.openssh.ports or [ 22 ] |> builtins.head;
+        inherit (value) port;
       }
     );
 in
@@ -187,21 +190,19 @@ in
   nix.buildMachines =
     let
       mkMachines =
-        configs: extraFeatures:
-        configs
+        class: extraFeatures:
+        fleet
         |> attrsToList
-        |> filter ({ name, value }: name != config.networking.hostName && value.config.users.users ? build)
+        |> filter (
+          { name, value }: name != config.networking.hostName && value.class == class && value.builder
+        )
         |> map (
           { name, value }:
-          let
-            hostSystem = value.config.nixpkgs.hostPlatform.system;
-            emulatedSystems = value.config.boot.binfmt.emulatedSystems or [ ];
-          in
           {
             hostName = name;
-            maxJobs = value.config.builderMaxJobs;
+            maxJobs = value.maxJobs;
             protocol = "ssh-ng";
-            speedFactor = value.config.builderSpeedFactor;
+            speedFactor = value.speedFactor;
             sshKey = builderKeyPath;
             sshUser = "build";
             supportedFeatures = [
@@ -209,16 +210,40 @@ in
               "big-parallel"
             ]
             ++ extraFeatures;
-            systems = [ hostSystem ] ++ emulatedSystems;
+            systems = [ value.system ] ++ value.emulatedSystems;
           }
         );
     in
-    mkMachines self.nixosConfigurations [
+    mkMachines "nixos" [
       "kvm"
       "nixos-test"
       "uid-range"
     ]
-    ++ mkMachines (self.darwinConfigurations or { }) [ ];
+    ++ mkMachines "darwin" [ ];
+
+  # Drift check
+  assertions =
+    let
+      entry = fleet.${config.networking.hostName};
+      actual = {
+        class = if config.nixpkgs.hostPlatform.isDarwin then "darwin" else "nixos";
+        builder = config.isBuilder;
+        maxJobs = config.builderMaxJobs;
+        speedFactor = config.builderSpeedFactor;
+        system = config.nixpkgs.hostPlatform.system;
+        emulatedSystems = config.boot.binfmt.emulatedSystems or [ ] |> unique |> naturalSort;
+      };
+      expected = entry // {
+        emulatedSystems = naturalSort entry.emulatedSystems;
+      };
+    in
+    actual
+    |> mapAttrsToList (
+      name: value: {
+        assertion = expected.${name} == value;
+        message = "fleet.nix: ${config.networking.hostName}.${name} = ${toJSON expected.${name}} but config has ${toJSON value}";
+      }
+    );
 
   nix.channel = disabled;
 

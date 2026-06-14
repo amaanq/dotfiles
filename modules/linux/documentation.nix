@@ -12,6 +12,7 @@ in
     doc = disabled;
     dev = enabled;
     info = disabled;
+    nixos = disabled; # configuration.nix(5) man page; its options doc walks all of nixpkgs at eval time
     man.enable = config.isDesktop; # This forces perl to be compiled on my powerpc machines
   };
 

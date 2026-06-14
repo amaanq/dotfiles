@@ -13,7 +13,7 @@ let
     theme
     ;
 
-  niriPackage = niri-src.packages.${config.hostSystem}.niri;
+  niriPackage = niri-src.packages.${config.hostSystem}.niri.overrideAttrs { src = niri-src; };
 
   ziplineUpload = pkgs.writeShellScript "zipline-upload" /* sh */ ''
     set -e

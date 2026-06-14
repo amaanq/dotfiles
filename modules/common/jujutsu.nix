@@ -14,7 +14,15 @@ let
   tomlFormat = pkgs.formats.toml { };
   graphStyle = if config.theme.cornerRadius > 0 then "curved" else "square";
 
-  jujutsu = pkgs.callPackage "${jj-src}/default.nix" { gitRev = jj-src.rev or null; };
+  jujutsu =
+    (pkgs.callPackage "${jj-src}/default.nix" { gitRev = jj-src.rev or null; }).overrideAttrs
+      {
+        src = jj-src;
+        cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
+          src = jj-src;
+          hash = "sha256-ukSoMwqIlrcNy2I9zhr6kWOQXbXSSfX/haENOM+LPJw=";
+        };
+      };
 
   settings = {
     user = {

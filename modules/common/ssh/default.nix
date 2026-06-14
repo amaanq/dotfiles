@@ -1,6 +1,6 @@
 {
-  self,
   config,
+  fleet,
   lib,
   ...
 }:
@@ -32,26 +32,14 @@ let
     '')
     |> concatStringsSep "\n";
 
-  # Generate host blocks from nixosConfigurations
+  # Host blocks from the fleet registry (fleet.nix)
   hosts =
-    self.nixosConfigurations
-    |> filterAttrs (_: value: value.config.services.openssh.enable)
+    fleet
+    |> filterAttrs (_: h: h.ssh)
     |> mapAttrsToList (
-      name: value:
-      let
-        user =
-          value.config.users.users
-          |> filterAttrs (_: u: u.isNormalUser)
-          |> attrNames
-          |> remove "backup"
-          |> remove "build"
-          |> remove "root"
-          |> head;
-        port = value.config.services.openssh.ports or [ 22 ] |> builtins.head;
-      in
-      ''
+      name: h: ''
         Host ${name}
-          User ${user}${optionalString (port != 22) "\n    Port ${toString port}"}
+          User ${h.user}${optionalString (h.port != 22) "\n    Port ${toString h.port}"}
           StrictHostKeyChecking accept-new
       ''
     );
@@ -96,6 +84,35 @@ in
     mode = "0400";
     owner = "amaanq";
   };
+
+  # Drift check
+  assertions =
+    let
+      entry = fleet.${config.networking.hostName};
+      user =
+        config.users.users
+        |> filterAttrs (_: u: u.isNormalUser or false)
+        |> attrNames
+        |> remove "backup"
+        |> remove "build"
+        |> remove "root"
+        |> head;
+      port = config.services.openssh.ports or [ 22 ] |> head;
+    in
+    [
+      {
+        assertion = entry.ssh -> (config.services.openssh.enable or false);
+        message = "fleet.nix: ${config.networking.hostName}.ssh = true but openssh is disabled";
+      }
+      {
+        assertion = entry.ssh -> entry.user == user;
+        message = "fleet.nix: ${config.networking.hostName}.user = ${entry.user} but config derives ${user}";
+      }
+      {
+        assertion = entry.ssh -> entry.port == port;
+        message = "fleet.nix: ${config.networking.hostName}.port = ${toString entry.port} but config has ${toString port}";
+      }
+    ];
 
   programs.ssh.extraConfig = sshConfig;
 }

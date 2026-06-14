@@ -33,11 +33,16 @@ let
   };
 in
 {
-  # Local fork with nested-agent support (tack pin herdr-src); the fork's
-  # package.nix builds from its own Cargo.lock, so no hash bumps on update.
+  # Local fork with nested-agent support.
   nixpkgs.overlays = [
     (final: _: {
-      herdr = final.callPackage "${herdr-src}/nix/package.nix" { };
+      herdr = (final.callPackage "${herdr-src}/nix/package.nix" { }).overrideAttrs {
+        src = herdr-src;
+        cargoDeps = final.rustPlatform.fetchCargoVendor {
+          src = herdr-src;
+          hash = "sha256-XHzZy2tKLbMQy4POmXowUcGf77ZPunG/oQ3P2wOoVls=";
+        };
+      };
     })
   ];
 

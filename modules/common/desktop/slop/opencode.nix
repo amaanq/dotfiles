@@ -65,6 +65,7 @@ let
             .${pkgs.stdenv.hostPlatform.system} or lib.fakeHash;
         }).overrideAttrs
           (o: {
+            src = inputs.opencode-src;
             buildPhase = builtins.replaceStrings [ "--frozen-lockfile" ] [ "" ] o.buildPhase;
           });
     }).overrideAttrs
