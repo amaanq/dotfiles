@@ -148,8 +148,7 @@ url = "gh:YaLTeR/niri"
 url = "gh:AvengeMedia/DankMaterialShell"
 
 [inputs.helium]
-# 0.11.3.2 last known-good before tab indicator color regression
-url = "amaan:helium-flake/a7c9452dbc7977c35409aeff4eb71c8730e1e466"
+url = "amaan:helium-flake"
 
 [inputs.tuigreet]
 url = "gh:notashelf/tuigreet"
