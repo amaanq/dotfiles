@@ -1,6 +1,12 @@
-{ lib, ... }:
+{ lib, run0-sudo-shim, ... }:
 {
   nixpkgs.overlays = [
+    # Consume the shim via its overlay (builds on the caller's pkgs) so cross
+    # hosts cross-compile it; `.packages.${system}` would be a native build.
+    (
+      final: prev:
+      lib.optionalAttrs prev.stdenv.hostPlatform.isLinux (run0-sudo-shim.overlays.default final prev)
+    )
     # stalwart 0.16 dropped TOML config in favour of a one-shot config.json
     # describing only the data store; everything else lives in the database and
     # is reconciled via the relocated stalwart-cli (now its own repo at
