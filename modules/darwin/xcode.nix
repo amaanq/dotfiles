@@ -1,19 +1,24 @@
-{ config, lib, pkgs, ... }:
+{ pkgs, ... }:
+let
+  xcode = pkgs.requireFile {
+    name = "Xcode.app";
+    hashMode = "recursive";
+    hash = "sha256-UBDey19uBljjRw84bY4rzxetFEkHiXLEj39Q578jYL8=";
+    message = ''
+      Extract the Xcode xip on the mac, then:
+        nix store add --name Xcode.app ./Xcode.app
+    '';
+  };
+in
 {
   unfree.allowedNames = [
     "Xcode.app"
   ];
 
-  # Xcode.app is already in the nix store at this path
-  environment.systemPackages = [
-    /nix/store/zkl1l5cfsv2k7x2s7szg2n8qnwhgyvfr-Xcode.app
-  ];
+  environment.systemPackages = [ xcode ];
 
-  # Point xcode-select to our nix store Xcode and accept license
   system.activationScripts.postActivation.text = ''
-    echo "Setting xcode-select to Nix store Xcode..."
-    /usr/bin/sudo /usr/bin/xcode-select -s /nix/store/zkl1l5cfsv2k7x2s7szg2n8qnwhgyvfr-Xcode.app/Contents/Developer 2>/dev/null || true
-    echo "Accepting Xcode license..."
+    /usr/bin/sudo /usr/bin/xcode-select -s ${xcode}/Contents/Developer 2>/dev/null || true
     /usr/bin/sudo /usr/bin/xcodebuild -license accept 2>/dev/null || true
   '';
 }
