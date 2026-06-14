@@ -12,8 +12,8 @@ let
   inherit (lib.strings) toJSON;
 
   # Bun → Node shim prepended to cli.cjs. node:timers fixes
-  # `setTimeout(...).unref()`. TTY readable→data swap is in the patcher
-  # (a global Deno.stdin pump races the bundle's own /dev/tty reader).
+  # `setTimeout(...).unref()`. The TTY readable→data swap is in the patcher —
+  # Deno stops firing stdin "readable" after the agents-view pause/resume cycle.
   bunShim = /* js */ ''
     (() => {
       if (typeof globalThis.Bun !== "undefined") return;
@@ -36,6 +36,7 @@ let
       const path = require("path");
       const crypto = require("crypto");
       const net = require("net");
+      const util = require("util");
 
       function bunHash(input) {
         const buf = Buffer.isBuffer(input)
@@ -47,7 +48,30 @@ let
       function bunMapStdio(s) {
         if (s === "ignore" || s === "inherit" || s === "pipe") return s;
         if (s == null) return "pipe";
+        // Bun.spawn accepts a BunFile as a stdio target (e.g. the bg-pty-host
+        // redirects stderr to a breadcrumb file). cp.spawn takes an fd instead;
+        // a failed open is non-fatal here, so fall back to ignore.
+        if (s instanceof BunFile) {
+          try { return fs.openSync(s.__bunFilePath, "a"); } catch { return "ignore"; }
+        }
         return s;
+      }
+
+      class BunFile {
+        constructor(p) { this.__bunFilePath = typeof p === "number" ? p : String(p); }
+        async text() { return fs.readFileSync(this.__bunFilePath, "utf8"); }
+        async json() { return JSON.parse(fs.readFileSync(this.__bunFilePath, "utf8")); }
+        async bytes() { return new Uint8Array(fs.readFileSync(this.__bunFilePath)); }
+        async arrayBuffer() {
+          const b = fs.readFileSync(this.__bunFilePath);
+          return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength);
+        }
+        async exists() {
+          try { fs.accessSync(this.__bunFilePath); return true; } catch { return false; }
+        }
+        get size() {
+          try { return fs.statSync(this.__bunFilePath).size; } catch { return 0; }
+        }
       }
 
       let _ptyMod = null;
@@ -184,6 +208,14 @@ let
       globalThis.Bun = {
         version: "1.3.13",
         embeddedFiles: [],
+        // A deno-compiled binary is a standalone executable with no external
+        // entrypoint script. The bundle keys the child-process spawn path off
+        // this: when false, dV() appends process.argv[1] (which deno sets to
+        // argv[0]) to the argv, so the bg-pty-host worker is launched with a
+        // duplicate execPath and never enters pty-host mode.
+        isStandaloneExecutable: true,
+        deepEquals: (a, b) => util.isDeepStrictEqual(a, b),
+        file: p => new BunFile(p),
         Terminal: BunTerminal,
         stringWidth: (s, o) => sw(String(s || ""), o),
         stripANSI: s => sa(String(s || "")),
@@ -522,7 +554,9 @@ let
     def patch(label: str, pattern: bytes, replacement: Replacement) -> None:
         global data
         data, n = re.subn(pattern, replacement, data)
-        log(f"{label} ({n})")
+        # A 0-match patch is a silent breakage — minified anchors drift on every
+        # upstream bump. Make it shout so it's caught at build time, not runtime.
+        log(f"{label} ({n})" if n else f"!! {label}: NOT APPLIED (0 matches)")
 
 
     def replace(label: str, old: bytes, new: bytes) -> None:
@@ -535,55 +569,63 @@ let
         log(f"{label} ({n})")
 
 
+    def sub(label: str, pattern: bytes, template: bytes, *groups: int) -> None:
+        """Rewrite `pattern` with a `%b`-style JS `template`, filling each `%b`
+        from the listed regex group numbers in order. Keeps the emitted JS
+        readable as a literal instead of a byte-concatenation chain."""
+        patch(label, pattern, lambda m: template % tuple(m[i] for i in groups))
+
+
     def enable_gates(gates: list[tuple[bytes, str]]) -> None:
-        """Force our feature gates on via the Ikt() override map.
+        """Force our feature gates on via the second override map.
 
         DISABLE_TELEMETRY=1 stops GrowthBook from resolving, so gates fall back
-        to a hardcoded value. The sync resolver ct(e,t) returns the call-site
-        default (so flipping a `,!1)` default would work for it), but the async
-        resolver eB(e) returns a flat false no matter the default — and
-        ccr_bridge / harbor / ccr_bundle_seed_enabled are read through eB. All
-        resolvers consult the override map Ikt() first, before any telemetry
-        check or exposure logging, and Ikt only ever returns null in normal
-        operation, so injecting our gates there enables the sync and async paths
-        uniformly with no telemetry side effects. The object is memoized on
-        globalThis since Ikt() is on the hot path of every gate lookup.
+        to a hardcoded value. The sync resolver Xhc(e,t) returns the call-site
+        default, but the async resolver q8(e) returns a flat false no matter the
+        default — and ccr_bridge / ccr_bundle_seed_enabled are read through q8.
+        Every resolver consults two override maps first, before any telemetry
+        check or exposure logging: TLr() (the CLAUDE_INTERNAL_FC_OVERRIDES env
+        map) and then HLr(). HLr is a bare `function HLr(){return}` stub that
+        only ever returns undefined in normal operation, so returning our gate
+        object from it enables the sync and async paths uniformly with no
+        telemetry side effects; gates absent from the object fall through to the
+        normal disabled path. The object is memoized on globalThis since HLr is
+        on the hot path of every gate lookup. HLr's minified name is recovered
+        from the resolver preamble (`let n=HLr();if(n&&e in n)return
+        Boolean(n[e])`) so the `function X(){return}` stub — which is not unique
+        on its own — is rewritten by exact name.
         """
         global data
         for g, lbl in gates:
             if b'"' + g + b'"' not in data:
                 log(f"  gate gone from bundle: {lbl} [{g.decode()}]")
         override: bytes = b"{" + b",".join(b'"' + g + b'":!0' for g, _ in gates) + b"}"
-        data, n = re.subn(
-            rb"function (" + W + rb")\(\)\{if\(!(" + W + rb")\)\2=!0;return (" + W + rb")\}",
-            lambda m: (
-                b"function " + m[1] + b"(){if(!" + m[2] + b")" + m[2] + b"=!0;return "
-                + m[3] + b"||(globalThis.__ccg??=" + override + b")}"
-            ),
+        preamble = re.search(
+            rb"let (" + W + rb")=(" + W + rb")\(\);if\(\1&&e in \1\)return Boolean\(\1\[e\]\);"
+            rb"let (" + W + rb")=(" + W + rb")\(\);if\(\3&&e in \3\)return Boolean\(\3\[e\]\)",
             data,
         )
-        log(f"gate override map: {len(gates)} gates injected at {n} site(s)")
+        if preamble is None:
+            log("gate override map: resolver preamble NOT FOUND")
+            return
+        hlr: bytes = preamble[4]
+        stub: bytes = b"function " + hlr + b"(){return}"
+        inject: bytes = b"function " + hlr + b"(){return globalThis.__ccg??=" + override + b"}"
+        n: int = data.count(stub)
+        data = data.replace(stub, inject)
+        log(f"gate override map ({hlr.decode()}): {len(gates)} gates injected at {n} site(s)")
 
 
     # --- AGENTS.md loader ---
     # Also load AGENTS.md from the same dirs as CLAUDE.md.
 
-    agents_pat: bytes = (
+    sub(
+        "agents.md loader",
         rb"let (" + W + rb")=(" + Q + rb")\((" + W + rb'),"CLAUDE\.md"\);'
-        rb"(" + W + rb")\.push\(\.\.\.await (" + W + rb")\(\1,\"Project\",(" + W + rb"),(" + W + rb")\)\)"
+        rb"(" + W + rb")\.push\(\.\.\.await (" + W + rb")\(\1,\"Project\",(" + W + rb"),(" + W + rb")\)\)",
+        b'for(let _f of["CLAUDE.md","AGENTS.md"]){let %b=%b(%b,_f);%b.push(...await %b(%b,"Project",%b,%b))}',
+        1, 2, 3, 4, 5, 1, 6, 7,
     )
-
-
-    def agents_repl(m: re.Match[bytes]) -> bytes:
-        var, join_fn, dir_, arr, load_fn, arg, flag = [m.group(i) for i in range(1, 8)]
-        return (
-            b'for(let _f of["CLAUDE.md","AGENTS.md"]){let '
-            + var + b"=" + join_fn + b"(" + dir_ + b",_f);"
-            + arr + b".push(...await " + load_fn + b"(" + var + b',"Project",' + arg + b"," + flag + b"))}"
-        )
-
-
-    patch("agents.md loader", agents_pat, agents_repl)
 
     # --- macOS config path ---
 
@@ -617,69 +659,99 @@ let
     # Widen the GrowthBook allowlist default to ["*"] so batch agents and
     # less-common query sources also get 1h cache_control.
 
-    patch(
+    sub(
         "1h prompt cache TTL fallback",
         rb'(' + W + rb')\("tengu_prompt_cache_1h_config",\{allowlist:\[[^\]]+\]\}\)\.allowlist\?\?\[\]',
-        lambda m: m[1] + b'("tengu_prompt_cache_1h_config",{allowlist:["*"]}).allowlist??[]',
+        b'%b("tengu_prompt_cache_1h_config",{allowlist:["*"]}).allowlist??[]',
+        1,
     )
 
     # --- stdin: readable → data (Deno TTY compat) ---
-    # Deno's process.stdin never fires "readable" for TTYs ("data" works).
-    # Two sites: startCapturingEarlyInput + agent-view attach.
+    # Deno fires stdin "readable" on a fresh TTY but never again after a
+    # pause/resume cycle (Ink mount/unmount does several), whereas "data" fires
+    # in both states — and Deno can double-deliver the same bytes to a readable
+    # and a data listener at once, so each site is swapped to data-only rather
+    # than given a parallel listener. Three sites: startCapturingEarlyInput, the
+    # fleet-view early-input drainer, and the job-attach client pump (without
+    # the last one you can't type after opening an instance from the fleet
+    # view — the stock readable+resume/pause-pulse idiom never reads fd 0).
 
-    patch(
+    sub(
         "stdin readable→data (startCapturingEarlyInput)",
-        (
-            rb"(" + W + rb")=\(\)=>\{let (" + W + rb")=process\.stdin\.read\(\);"
-            rb"while\(\2!==null\)\{if\(typeof \2===\"string\"\)(" + W + rb")\(\2\);"
-            rb"\2=process\.stdin\.read\(\)\}\},"
-            rb"process\.stdin\.on\(\"readable\",\1\)"
-        ),
-        lambda m: (
-            m[1] + b"=()=>{}," +
-            b'process.stdin.on("data",' + m[2] + b'=>{if(typeof ' + m[2]
-            + b'==="string")' + m[3] + b"(" + m[2] + b")})"
-        ),
+        rb"(" + W + rb")=\(\)=>\{let (" + W + rb")=process\.stdin\.read\(\);"
+        rb"while\(\2!==null\)\{if\(typeof \2===\"string\"\)(" + W + rb")\(\2\);"
+        rb"\2=process\.stdin\.read\(\)\}\},"
+        rb"process\.stdin\.on\(\"readable\",\1\)",
+        b'%b=()=>{},process.stdin.on("data",%b=>{if(typeof %b==="string")%b(%b)})',
+        1, 2, 2, 3, 2,
     )
 
-    # The agent-view early-input drainer loops process.stdin.read() inside its
-    # readable handler. Deno never fires "readable" on a TTY, so add a parallel
-    # "data" listener with the same Ctrl-C/push body; the original handler stays
-    # for the direct drain call elsewhere (a no-op read loop under Deno).
+    # The fleet-view early-input drainer loops process.stdin.read() inside its
+    # readable handler and later removes it with off("readable") + unshifts the
+    # captured bytes back. The data listener stands in for the dead readable
+    # event, is stashed on globalThis so the off-site (different regex match,
+    # same function scope) can remove it, and must NOT linger past the off —
+    # a leaked flowing-mode listener eats bytes into the dead capture buffer.
 
-    patch(
-        "stdin readable→data (agent-view attach)",
-        (
-            rb"function (" + W + rb")\(\)\{let (" + W + rb");while\(\(\2=process\.stdin\.read\(\)\)!==null\)"
-            rb'\{if\(\(typeof \2==="string"\?Buffer\.from\(\2,"utf8"\):\2\)\.includes\(3\)\)'
-            rb'\{process\.emit\("SIGINT"\);return\}(' + W + rb")\.push\(\2\)\}\}"
-            rb'process\.stdin\.on\("readable",\1\)'
-        ),
-        lambda m: (
-            m[0]
-            + b';process.stdin.on("data",' + m[2] + b'=>{if((typeof ' + m[2]
-            + b'==="string"?Buffer.from(' + m[2] + b',"utf8"):' + m[2]
-            + b').includes(3)){process.emit("SIGINT");return}' + m[3] + b".push(" + m[2] + b")})"
-        ),
+    sub(
+        "stdin readable→data (fleet-view early capture)",
+        rb"function (" + W + rb")\(\)\{let (" + W + rb");while\(\(\2=process\.stdin\.read\(\)\)!==null\)"
+        rb'\{if\(\(typeof \2==="string"\?Buffer\.from\(\2,"utf8"\):\2\)\.includes\(3\)\)'
+        rb'\{process\.emit\("SIGINT"\);return\}(' + W + rb")\.push\(\2\)\}\}"
+        rb'process\.stdin\.on\("readable",\1\)',
+        b'function %b(){}process.stdin.on("data",globalThis.__ccFvD=%b=>{'
+        b'if((typeof %b==="string"?Buffer.from(%b,"utf8"):%b).includes(3))'
+        b'{process.emit("SIGINT");return}%b.push(%b)})',
+        1, 2, 2, 2, 2, 3, 2,
+    )
+
+    sub(
+        "stdin readable→data (fleet-view early capture off)",
+        rb'process\.stdin\.off\("readable",(' + W + rb')\);while\((' + W + rb')\.length\)process\.stdin\.unshift\(\2\.pop\(\)\)',
+        b'process.stdin.off("data",globalThis.__ccFvD);while(%b.length)process.stdin.unshift(%b.pop())',
+        2, 2,
+    )
+
+    # The job-attach client (N8e via dwp) pumps keystrokes to the daemon socket
+    # with the same readable+read() idiom, kickstarted by a resume(),pause()
+    # pulse that only works on Bun. The filter fn (re) takes the chunk directly,
+    # so it becomes the data listener; the teardown's removeListener("readable")
+    # becomes removeListener("data"). resume() is kept, the pause() dropped —
+    # an explicitly paused stream never delivers data events.
+
+    sub(
+        "stdin readable→data (job-attach pump register)",
+        rb"if\((" + W + rb")\.on\(\"readable\",(" + W + rb")\),"
+        rb"\"resume\"in \1&&\"pause\"in \1\)\1\.resume\(\),\1\.pause\(\);"
+        rb"if\(\1\.once\(\"end\",(" + W + rb")\),\2\(\),",
+        b'if(%b.on("data",globalThis.__ccAtD),"resume"in %b)%b.resume();if(%b.once("end",%b),%b(),',
+        1, 1, 1, 1, 3, 2,
+    )
+
+    sub(
+        "stdin readable→data (job-attach pump filter+teardown)",
+        rb"function (" + W + rb")\((" + W + rb")\)\{if\((" + W + rb")\)return;"
+        rb"let (" + W + rb")=typeof \2===\"string\"\?Buffer\.from\(\2,\"utf8\"\):\2,",
+        b'globalThis.__ccAtD=%b=>%b(%b);function %b(%b){if(%b)return;'
+        b'let %b=typeof %b==="string"?Buffer.from(%b,"utf8"):%b,',
+        2, 1, 2, 1, 2, 3, 4, 2, 2, 2,
+    )
+
+    sub(
+        "stdin readable→data (job-attach pump unregister)",
+        rb'(' + W + rb')\.removeListener\("readable",(' + W + rb')\),\1\.removeListener\("end",',
+        b'%b.removeListener("data",globalThis.__ccAtD),%b.removeListener("end",',
+        1, 1,
     )
 
     # --- Fix Deno-compile bridge spawn ---
     # Deno binaries eat --flags as V8 args; route through env(1) instead.
 
-    patch(
+    sub(
         "deno bridge spawn fix",
         rb"let (" + W + rb")=(" + Q + rb")\((" + W + rb")\.execPath,(" + W + rb"),",
-        lambda m: (
-            b"let "
-            + m[1]
-            + b"="
-            + m[2]
-            + b'("env",["--",'
-            + m[3]
-            + b".execPath,..."
-            + m[4]
-            + b"],"
-        ),
+        b'let %b=%b("env",["--",%b.execPath,...%b],',
+        1, 2, 3, 4,
     )
 
     # --- Flip feature gates ---
@@ -721,8 +793,6 @@ let
         (b"tengu_amber_prism", "permission denial context"),
         (b"tengu_hawthorn_steeple", "context windowing"),
         (b"tengu_verified_vs_assumed", "verified-vs-assumed reporting"),
-        (b"tengu_sparrow_ledger", "verify_prompt_arm (pairs with verified-vs-assumed)"),
-        (b"tengu_orchid_mantis_v2", "default-NO /schedule offer (less noisy than v1)"),
         (b"tengu_silk_hinge", "message timestamps setting"),
         (b"tengu_terminal_sidebar", "status in terminal tab setting"),
         # Counterintuitive: ON suppresses the plan-upsell UI (gated by !T7()).
@@ -734,34 +804,41 @@ let
         (b"tengu_plum_vx3", "web search reranking"),
         (b"tengu_harbor", "plugin marketplace"),
         (b"tengu_harbor_permissions", "plugin permissions"),
-        (b"tengu_relay_chain_v1", "parallel command chaining guidance"),
         (b"tengu_edit_minimalanchor_jrn", "Edit tool minimal-anchor instructions"),
         (b"tengu_amber_sentinel", "Monitor tool for streaming bg scripts"),
         (b"tengu_mcp_subagent_prompt", "modern MCP subagent prompt (vs legacy)"),
         (b"tengu_mcp_skills", "MCP servers can advertise/serve Skills"),
         (b"tengu_malformed_tool_use_clean_retry", "clean retry on malformed tool calls"),
-        (b"tengu_event_watchdog_default_on", "SSE stream-stall watchdog (recover hangs)"),
         (b"tengu_review_workflow_routing", "workflow-backed reviewer on high-effort review"),
     ]
 
     enable_gates(core_gates + loop_gates + memory_gates + ux_gates + tool_gates)
 
     # --- Remote Control: neuter the feature-flag-availability guard ---
+    # RC eligibility short-circuits with an error string under DISABLE_TELEMETRY
+    # before reaching the ccr_bridge gate check. kZ() is the telemetry-enabled
+    # predicate; qAn() names the disabling env var. Only this one branch is
+    # neutered — kZ() gates every other feature-flag resolver (13 call sites),
+    # and forcing it true would route them onto live GrowthBook fetches. The
+    # `let X=qAn()` right after `!kZ()` is unique to this branch (1 occurrence).
+    # (Both were renamed from hZ/aEn in 2.1.207 — expect churn on version bumps.)
 
-    patch(
+    sub(
         "remote control feature-flag guard (telemetry off)",
-        rb"if\(!E4\(\)\)\{let (" + W + rb")=Wen\(\);",
-        lambda m: b"if(!1){let " + m[1] + b"=Wen();",
+        rb"if\(!kZ\(\)\)\{let (" + W + rb")=qAn\(\);",
+        b"if(!1){let %b=qAn();",
+        1,
     )
 
     # --- Disable the claude-api bundled skill ---
     # Its description is a ~200-token SDK/Bedrock matrix injected into every
     # system prompt — not relevant here.
 
-    patch(
+    sub(
         "disable claude-api skill",
         rb'(' + W + rb')\(\{name:"claude-api",',
-        lambda m: m[1] + b'({name:"claude-api",isEnabled:()=>!1,',
+        b'%b({name:"claude-api",isEnabled:()=>!1,',
+        1,
     )
 
     # --- grep/find shim: delegate to absolute Nix store paths ---
