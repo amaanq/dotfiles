@@ -15,14 +15,6 @@
     "narHash": "sha256-9VnK6Oqai65puVJ4WYtCTvlJeXxMzAp/69HhQuTdl/I=",
     "lastModified": 1770165109
   },
-  "bindiff": {
-    "type": "github",
-    "owner": "amaanq",
-    "repo": "bindiff",
-    "rev": "32adefc973767405c4e96becd4c9e23619deb6a1",
-    "narHash": "sha256-Zft3cOzrhCGSTwbJ5Ft0vnzWOdijZ6KngxNGCPMUC5U=",
-    "lastModified": 1768185643
-  },
   "bunker": {
     "type": "github",
     "owner": "amaanq",
@@ -159,13 +151,13 @@
     "narHash": "sha256-tAZng3KymvfR7bKfjGCEXIj/XUT6rgbzr58aWDX0uWw=",
     "lastModified": 1784163823
   },
-  "ida-pro-overlay": {
+  "ida-nix": {
     "type": "github",
-    "owner": "msanft",
-    "repo": "ida-pro-overlay",
-    "rev": "fae2e9edae8728e6b7b31e2542b774caa6c21e5f",
-    "narHash": "sha256-4xJ9MNvMILGdYu0oNQMaumJ9N0+vMxkCS3Eu1s8t9io=",
-    "lastModified": 1774555880
+    "owner": "amaanq",
+    "repo": "ida-nix",
+    "rev": "5cec9e2246cdae9341bbad2e1df130369c06c7c9",
+    "narHash": "sha256-vizMIM9FJ+R+5EsMDfID5HxwI3hpm7S8QaRIwLxECAI=",
+    "lastModified": 1784357203
   },
   "ida-tilegx": {
     "type": "github",

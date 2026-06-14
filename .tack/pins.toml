@@ -114,9 +114,6 @@ url = "amaan:nvim-config"
 [inputs.nirinit]
 url = "amaan:nirinit"
 
-[inputs.bindiff]
-url = "amaan:bindiff"
-
 [inputs.hkpoolservices]
 url = "git+https://git.amaanq.com/amaanq/hkpoolservices.git"
 
@@ -129,9 +126,6 @@ url = "gh:RGBCube/GitHub2Forgejo"
 [inputs.opencode-src]
 url = "gh:sst/opencode/v1.15.11"
 flake = false
-
-[inputs.ida-pro-overlay]
-url = "gh:msanft/ida-pro-overlay"
 
 [inputs.spicetify]
 url = "gh:Gerg-L/spicetify-nix"
@@ -210,3 +204,6 @@ type = "fetch"
 
 [inputs.xdg-utils-nu]
 url = "github:feel-co/xdg-utils.nu"
+
+[inputs.ida-nix]
+url = "gh:amaanq/ida-nix"

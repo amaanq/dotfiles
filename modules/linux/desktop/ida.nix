@@ -1,7 +1,7 @@
 {
   self,
   config,
-  ida-pro-overlay,
+  ida-nix,
   ida-tilegx,
   lib,
   nixpak,
@@ -16,9 +16,10 @@ let
     mkIf
     ;
 
+  system = pkgs.stdenv.hostPlatform.system;
   user = head (attrNames config.users.users);
 
-  tilegxProc = ida-tilegx.packages.${pkgs.stdenv.hostPlatform.system}.default or null;
+  tilegxProc = ida-tilegx.packages.${system}.default or null;
 
   ida-patcher = pkgs.writers.writePython3Bin "ida-patcher" {
     flakeIgnore = [
@@ -27,34 +28,58 @@ let
     ];
   } (builtins.readFile (self + /modules/common/desktop/ida/patcher.py));
 
-  patchedIdaPro = (ida-pro-overlay.overlays.default pkgs pkgs).ida-pro.overrideAttrs (old: {
+  idaSource = builtins.fetchurl {
+    url = "https://cloud.amaanq.com/public.php/webdav/ida-pro_93_x64linux.run";
+    sha256 = "sha256-LtQ65LuE103K5vAJkhDfqNYb/qSVL1+aB6mq4Wy3D4I=";
+    name = "ida-pro_93_x64linux.run";
+  };
+
+  idaRelease = {
     version = "9.3.0.260613";
-    src =
-      let
-        base = "https://cloud.amaanq.com/public.php/webdav";
-        sources = {
-          x86_64-linux = {
-            url = "${base}/ida-pro_93_x64linux.run";
-            sha256 = "2ed43ae4bb84d74dcae6f0099210dfa8d61bfea4952f5f9a07a9aae16cb70f82";
-            name = "ida-pro_93_x64linux.run";
-          };
-          aarch64-linux = {
-            url = "${base}/ida-pro_93_armlinux.run";
-            sha256 = "7fc0f07c2bfb36d809b4838fade74b50310e9dc6d966ff5ce6ded7da898b1d0b";
-            name = "ida-pro_93_armlinux.run";
-          };
-        };
-      in
-      builtins.fetchurl sources.${pkgs.stdenv.hostPlatform.system};
+    installerName = "ida-pro_93_x64linux.run";
+    installerHash = null;
+    pythonPackage = "python314";
+    pythonAbi = "3.14";
+    systems = [ "x86_64-linux" ];
+  };
+
+  unpatchedIdaPro =
+    (pkgs.mkIda {
+      inherit (idaRelease) version;
+      installer = idaSource;
+      python = pkgs.python314;
+      plugins = [ ];
+      release = idaRelease;
+    }).unwrapped;
+
+  patchedIdaBase = unpatchedIdaPro.overrideAttrs (old: {
     buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.libinput ];
     nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ ida-patcher ];
     postInstall = (old.postInstall or "") + /* sh */ ''
-      cd $out/opt
+      cd $out/opt/ida
       ${ida-patcher}/bin/ida-patcher --oneshot
       substituteInPlace cfg/hexrays.cfg \
-        --replace "MAX_FUNCSIZE            = 64" "MAX_FUNCSIZE            = 1024"
+        --replace-fail "MAX_FUNCSIZE            = 64" "MAX_FUNCSIZE            = 1024"
     '';
+    passthru = old.passthru // {
+      ida = old.passthru.ida // {
+        root = "${patchedIdaBase}/opt/ida";
+        qtPluginPath = "${patchedIdaBase}/opt/ida/plugins:${pkgs.qt6.qtbase}/${pkgs.qt6.qtbase.qtPluginPrefix}";
+        runtimeLibraryPath = lib.concatStringsSep ":" [
+          old.passthru.ida.runtimeLibraryPath
+          (lib.makeLibraryPath [ pkgs.libinput ])
+        ];
+      };
+    };
   });
+
+  idaProfile = pkgs.ida-nix.lib.compose {
+    ida = patchedIdaBase;
+    plugins = [
+      pkgs.idaPlugins.bindiff
+      pkgs.idaPlugins.ida-pro-mcp
+    ];
+  };
 
   mkNixPak = nixpak.lib.nixpak {
     inherit (pkgs) lib;
@@ -65,8 +90,8 @@ let
     config =
       { sloth, ... }:
       {
-        app.package = patchedIdaPro;
-        app.binPath = "opt/ida";
+        app.package = idaProfile;
+        app.binPath = "bin/ida";
 
         dbus = enabled {
           policies = {
@@ -101,8 +126,6 @@ let
           bind.ro = [
             # Nix store for accessing plugins and dependencies
             "/nix/store"
-            # System binaries (for BinDiff spawning IDA)
-            "/run/current-system/sw/bin"
             # Fonts
             "/run/current-system/sw/share/fonts"
             "${pkgs.freetype}/lib"
@@ -111,8 +134,6 @@ let
             # CA certificates
             "/etc/ssl/certs"
             "${pkgs.cacert}/etc/ssl/certs"
-            # BinDiff/BinExport plugins (for spawned IDA instances)
-            "/run/current-system/sw/share/bindiff"
           ];
 
           bind.dev = [
@@ -134,29 +155,19 @@ let
 in
 {
   config = mkIf (!config.isVirtual) {
+    nixpkgs.overlays = [ ida-nix.overlays.default ];
+
     unfree.allowedNames = [
       "ida-pro"
+      "ida-pro-unwrapped"
     ];
 
-    environment.systemPackages = [
-      sandboxedIdaPro.config.env
-      (pkgs.runCommand "ida64-compat" { } ''
-        mkdir -p $out/bin
-        ln -s ${sandboxedIdaPro.config.env}/bin/ida $out/bin/ida64
-      '')
-    ];
-
-    programs.bindiff = enabled {
-      enableIdaPlugin = true;
-    };
+    environment.systemPackages = [ sandboxedIdaPro.config.env ];
 
     systemd.tmpfiles.rules = [
       "d ${config.users.users.${user}.home}/ida-work 0700 ${user} users -"
       "d ${config.users.users.${user}.home}/.local/state/ida 0700 ${user} users -"
     ]
-    ++ lib.optional (
-      config.programs.bindiff.enable && config.programs.bindiff.enableIdaPlugin
-    ) "L+ ${patchedIdaPro}/opt/ida64 - - - - /run/current-system/sw/bin/ida64"
     ++ lib.optionals (tilegxProc != null) [
       "d ${config.users.users.${user}.home}/.local/share/idapro/procs 0755 ${user} users -"
       "L+ ${
