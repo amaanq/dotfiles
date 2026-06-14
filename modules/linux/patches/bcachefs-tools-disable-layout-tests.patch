@@ -12,12 +12,9 @@ debug-only static assertions are dropped.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/bch_bindgen/build.rs b/bch_bindgen/build.rs
-index 33989e3..1b700ba 100644
 --- a/bch_bindgen/build.rs
 +++ b/bch_bindgen/build.rs
-@@ -360,11 +360,11 @@ fn main() {
-         .clang_arg("-D_GNU_SOURCE")
-         .clang_arg("-DRUST_BINDGEN")
+@@ -376,7 +376,7 @@
          .clang_arg("-fkeep-inline-functions")
          .derive_debug(true)
          .derive_default(true)
@@ -26,5 +23,3 @@ index 33989e3..1b700ba 100644
          .default_enum_style(bindgen::EnumVariation::Rust {
              non_exhaustive: true,
          })
-         .bitfield_enum("btree_iter_update_trigger_flags")
-         .allowlist_function("raid_init")

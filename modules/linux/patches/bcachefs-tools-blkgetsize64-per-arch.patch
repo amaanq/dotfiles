@@ -35,14 +35,11 @@ Signed-off-by: Amaan Qureshi <git@amaanq.com>
  1 file changed, 38 insertions(+), 1 deletion(-)
 
 diff --git a/src/wrappers/bdev.rs b/src/wrappers/bdev.rs
-index 2fd0b9c..3823549 100644
 --- a/src/wrappers/bdev.rs
 +++ b/src/wrappers/bdev.rs
-@@ -10,11 +10,48 @@ use std::os::unix::io::RawFd;
- use libc::{
-     BLKPBSZGET,
-     BLKSSZGET,
- };
+@@ -9,7 +9,44 @@
+ 
+ use libc::BLKPBSZGET;
  
 -// linux/fs.h ioctl constants not exposed by libc crate
 +// linux/fs.h ioctl constants not exposed by libc crate.
@@ -86,8 +83,5 @@ index 2fd0b9c..3823549 100644
  const BLKGETSIZE64: libc::Ioctl = 0x80081272u32 as libc::Ioctl;
  
  /// Returns the size of a file or block device in bytes.
- ///
- /// For block devices, uses BLKGETSIZE64 ioctl.
 -- 
 2.53.0
-
