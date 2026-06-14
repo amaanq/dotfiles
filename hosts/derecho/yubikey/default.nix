@@ -39,7 +39,9 @@ in
     };
   };
 
-  services.yubikey-agent = enabled { };
+  services.pcscd = enabled;
+
+  environment.etc."gnupg/scdaemon.conf".text = "disable-ccid";
 
   services.udev = {
     packages = [
