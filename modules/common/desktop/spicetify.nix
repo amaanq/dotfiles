@@ -15,6 +15,23 @@ let
 
   colors = theme;
 
+  # nixpkgs PR #540416
+  spicetifyCli = pkgs.spicetify-cli.overrideAttrs (old: {
+    nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [
+      pkgs.nodejs
+      pkgs.esbuild
+    ];
+    postBuild = (old.postBuild or "") + ''
+      esbuild $src/src/jsHelper/spicetifyWrapper/index.js \
+        --bundle --minify --target=chrome108 --format=iife \
+        --outfile=spicetifyWrapper.js
+    '';
+    postInstall = (old.postInstall or "") + ''
+      chmod -R u+w $out/share/spicetify/jsHelper
+      cp spicetifyWrapper.js $out/share/spicetify/jsHelper/spicetifyWrapper.js
+    '';
+  });
+
   spicetifyTheme = pkgs.writeTextFile {
     name = "color.ini";
     destination = "/color.ini";
