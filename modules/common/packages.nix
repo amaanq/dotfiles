@@ -18,25 +18,11 @@ in
   environment.systemPackages = [
     pkgs.curl
     pkgs.dig
-    pkgs.doggo
     pkgs.dust
     pkgs.fd
     pkgs.file
     pkgs.hyperfine
     pkgs.jq
-    # perl-free moreutils, which drops chronic, combine, ts, vidir, vipe, zrun (all perl)
-    (pkgs.moreutils.overrideAttrs (old: {
-      postFixup = (old.postFixup or "") + /* sh */ ''
-        rm -f $out/bin/{chronic,combine,ts,vidir,vipe,zrun}
-        rm -f $out/share/man/man1/{chronic,combine,ts,vidir,vipe,zrun}.1*
-      '';
-      buildInputs = builtins.filter (p: !(builtins.match "perl.*" (p.pname or "") != null)) (
-        old.buildInputs or [ ]
-      );
-      propagatedBuildInputs = builtins.filter (p: !(builtins.match "perl.*" (p.pname or "") != null)) (
-        old.propagatedBuildInputs or [ ]
-      );
-    }))
     pkgs.openssl
     pkgs.p7zip
     pkgs.pstree
@@ -57,10 +43,8 @@ in
     pkgs.jc
     nixtopsy.packages.${pkgs.stdenv.hostPlatform.system}.default
     pkgs.rbw
-    pkgs.timg
     pkgs.tokei
     pkgs.watchman
-    pkgs.yt-dlp
   ]
   ++ optionals config.isLinux [
     pkgs.strace

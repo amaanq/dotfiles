@@ -285,13 +285,6 @@ in
             doCheck = false;
           });
 
-          # Alien-Build's devdoc output fails under cross perl; stub moreutils
-          # (its withPackages chain pulls Alien-Build).
-          moreutils = prev.moreutils.overrideAttrs (_: {
-            buildInputs = [ prev.perl ];
-            postInstall = "";
-          });
-
           # Python test/build fixes
           python313 = prev.python313.override {
             packageOverrides = _: pyprev: {
