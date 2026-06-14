@@ -60,15 +60,6 @@ let
   shellAliases = config.environment.shellAliases |> filterAttrs (_: value: value != null);
 
   desktopSecretEnv = optionalString config.isDesktop /* nu */ ''
-    if ("${config.secrets.openai_api_key.path}" | path exists) {
-      $env.OPENAI_API_KEY = (open ${config.secrets.openai_api_key.path} | str trim)
-    }
-    if ("${config.secrets.anthropic_api_key.path}" | path exists) {
-      $env.ANTHROPIC_API_KEY = (open ${config.secrets.anthropic_api_key.path} | str trim)
-    }
-    if ("${config.secrets.glm_api_key.path}" | path exists) {
-      $env.GLM_API_KEY = (open ${config.secrets.glm_api_key.path} | str trim)
-    }
     if ("${config.secrets.kagi_session_token.path}" | path exists) {
       $env.KAGI_SESSION_TOKEN = (open ${config.secrets.kagi_session_token.path} | str trim)
     }
@@ -215,21 +206,6 @@ let
 in
 {
   secrets = mkIf config.isDesktop {
-    openai_api_key = {
-      rekeyFile = ./openai-key.age;
-      owner = "amaanq";
-    };
-
-    anthropic_api_key = {
-      rekeyFile = ./anthropic-key.age;
-      owner = "amaanq";
-    };
-
-    glm_api_key = {
-      rekeyFile = ./glm-key.age;
-      owner = "amaanq";
-    };
-
     kagi_session_token = {
       rekeyFile = ./kagi-session-token.age;
       owner = "amaanq";

@@ -56,11 +56,6 @@
       "host_pubkey_sha256": "420750ed95fd2dc8f751b5e17487eda2c835f1315565e70e71e7a16d14dfaa8d",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",
       "secrets": {
-        "anthropic_api_key": {
-          "source_sha256": "735a4ee7fabd70b2a045b2bea504ebd8cc7269358639eda6e7ab69113b792230",
-          "output_file": "hosts/derecho/secrets/anthropic_api_key.age",
-          "output_sha256": "50cda88ff725ceb57d520b7a6440bf5f382df364040a17a724a275a965d083ce"
-        },
         "atuin-key": {
           "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
           "output_file": "hosts/derecho/secrets/atuin-key.age",
@@ -96,11 +91,6 @@
           "output_file": "hosts/derecho/secrets/githubToken.age",
           "output_sha256": "f4b22aea93b422906abd06f8d58d2a323a52e974d6eec7ecccd461dbc15ecb30"
         },
-        "glm_api_key": {
-          "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
-          "output_file": "hosts/derecho/secrets/glm_api_key.age",
-          "output_sha256": "8288a04f20bc90482f87533a17db26fe358de327f023ef12d96b032238698d3e"
-        },
         "kagi_session_token": {
           "source_sha256": "f732bc083e19d117b094f07471ed253aa6fd1c7b381869c702a955eaddda6a57",
           "output_file": "hosts/derecho/secrets/kagi_session_token.age",
@@ -115,11 +105,6 @@
           "source_sha256": "7c115a505c1f4566e5ce94ad3ec4600ee7d5afee374647fb3554757ef9a477ff",
           "output_file": "hosts/derecho/secrets/nixServeKey.age",
           "output_sha256": "dd389896cbdf30315da1aacb276173e36531d015b47fa3c91a1ead8f0fba87dc"
-        },
-        "openai_api_key": {
-          "source_sha256": "7adf13e7b9840c32efceb33ee2478cc77c38459b348ed5b1f49ee489f9b6a422",
-          "output_file": "hosts/derecho/secrets/openai_api_key.age",
-          "output_sha256": "5aa51fcf7ef74b73c56b403f2d267880aa7fa28fd839123d0894a6f5a789b498"
         },
         "openstack_aarch64_password": {
           "source_sha256": "f4a3d44dd5adefa4595a6eee6c9b2bde0dd693f3a76627bc3c785c7cbf2ff393",
@@ -162,11 +147,6 @@
       "host_pubkey_sha256": "420750ed95fd2dc8f751b5e17487eda2c835f1315565e70e71e7a16d14dfaa8d",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",
       "secrets": {
-        "anthropic_api_key": {
-          "source_sha256": "735a4ee7fabd70b2a045b2bea504ebd8cc7269358639eda6e7ab69113b792230",
-          "output_file": "hosts/esker/secrets/anthropic_api_key.age",
-          "output_sha256": "dc36b6321c52e881035a7b5b55625a0bc721034c26bf5bbd4422ea3fc939dec0"
-        },
         "atuin-key": {
           "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
           "output_file": "hosts/esker/secrets/atuin-key.age",
@@ -202,11 +182,6 @@
           "output_file": "hosts/esker/secrets/githubToken.age",
           "output_sha256": "b3db2ae4d6542ae99a7dca090052bdc03e783b414602920338630767413f2ce2"
         },
-        "glm_api_key": {
-          "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
-          "output_file": "hosts/esker/secrets/glm_api_key.age",
-          "output_sha256": "cce04d564d611ff83e8f8a7fc8bb87e7da3073b4d09a7c831c54a77e0ce78973"
-        },
         "kagi_session_token": {
           "source_sha256": "f732bc083e19d117b094f07471ed253aa6fd1c7b381869c702a955eaddda6a57",
           "output_file": "hosts/esker/secrets/kagi_session_token.age",
@@ -216,11 +191,6 @@
           "source_sha256": "911dfec0bc027baa1dd002107b581b8b168d6730a6583e76fa63f0273b0997fb",
           "output_file": "hosts/esker/secrets/nixNetrc.age",
           "output_sha256": "4a8527bd21442f92a8bceca992bb6e0ee829749b3b10366fbbbf1d00550e7908"
-        },
-        "openai_api_key": {
-          "source_sha256": "7adf13e7b9840c32efceb33ee2478cc77c38459b348ed5b1f49ee489f9b6a422",
-          "output_file": "hosts/esker/secrets/openai_api_key.age",
-          "output_sha256": "3e2bc41b514bae3572b385b480a699e8429b8e387c669111e80bee63f4d1e0c0"
         },
         "openstack_aarch64_password": {
           "source_sha256": "f4a3d44dd5adefa4595a6eee6c9b2bde0dd693f3a76627bc3c785c7cbf2ff393",
@@ -411,11 +381,6 @@
       "host_pubkey_sha256": "420750ed95fd2dc8f751b5e17487eda2c835f1315565e70e71e7a16d14dfaa8d",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",
       "secrets": {
-        "anthropic_api_key": {
-          "source_sha256": "735a4ee7fabd70b2a045b2bea504ebd8cc7269358639eda6e7ab69113b792230",
-          "output_file": "hosts/lahar/secrets/anthropic_api_key.age",
-          "output_sha256": "04c72113600cd7e8489e50a647c9b1c76916c3868c984a2816022e33a5d22bb3"
-        },
         "atuin-key": {
           "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
           "output_file": "hosts/lahar/secrets/atuin-key.age",
@@ -446,11 +411,6 @@
           "output_file": "hosts/lahar/secrets/githubToken.age",
           "output_sha256": "7ebfb4ce40a3a33d45a5b97977fb457257dff9fa610aba8e12b45edb29025472"
         },
-        "glm_api_key": {
-          "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
-          "output_file": "hosts/lahar/secrets/glm_api_key.age",
-          "output_sha256": "1621e5bfd824ed7b2c2a160158ecd9b736e3aecb77f8f7af1c8fada8246f252c"
-        },
         "kagi_session_token": {
           "source_sha256": "f732bc083e19d117b094f07471ed253aa6fd1c7b381869c702a955eaddda6a57",
           "output_file": "hosts/lahar/secrets/kagi_session_token.age",
@@ -460,11 +420,6 @@
           "source_sha256": "911dfec0bc027baa1dd002107b581b8b168d6730a6583e76fa63f0273b0997fb",
           "output_file": "hosts/lahar/secrets/nixNetrc.age",
           "output_sha256": "3f862fee78ed6ed85c10fd605cdff0048900e789dc97d9a0b9eed04361c05241"
-        },
-        "openai_api_key": {
-          "source_sha256": "7adf13e7b9840c32efceb33ee2478cc77c38459b348ed5b1f49ee489f9b6a422",
-          "output_file": "hosts/lahar/secrets/openai_api_key.age",
-          "output_sha256": "2ae0d9eb0ad38b8d9dce5e6454c0bc8bc0b58c24b997f0ff633a88c2e07e8592"
         },
         "openstack_aarch64_password": {
           "source_sha256": "f4a3d44dd5adefa4595a6eee6c9b2bde0dd693f3a76627bc3c785c7cbf2ff393",
@@ -876,11 +831,6 @@
       "host_pubkey_sha256": "d65920ff70aa722ff595493200b93c51e685bd0b7fe9885c5113295b3a19fa3f",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",
       "secrets": {
-        "anthropic_api_key": {
-          "source_sha256": "735a4ee7fabd70b2a045b2bea504ebd8cc7269358639eda6e7ab69113b792230",
-          "output_file": "hosts/simoom/secrets/anthropic_api_key.age",
-          "output_sha256": "c25a10a817f408994cf5ee7ef1a8a7a841de9255a6e18a18f488846323933574"
-        },
         "atuin-key": {
           "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
           "output_file": "hosts/simoom/secrets/atuin-key.age",
@@ -906,11 +856,6 @@
           "output_file": "hosts/simoom/secrets/githubToken.age",
           "output_sha256": "ef803cf0af2db14fef3c5632eb5de4ea98e18a0a44d89c209f376b40b616c738"
         },
-        "glm_api_key": {
-          "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
-          "output_file": "hosts/simoom/secrets/glm_api_key.age",
-          "output_sha256": "52687cf2b7b0893ec0716aebd33b4df1fdfbf9191c36f5323e02392337cc7a37"
-        },
         "kagi_session_token": {
           "source_sha256": "f732bc083e19d117b094f07471ed253aa6fd1c7b381869c702a955eaddda6a57",
           "output_file": "hosts/simoom/secrets/kagi_session_token.age",
@@ -920,11 +865,6 @@
           "source_sha256": "911dfec0bc027baa1dd002107b581b8b168d6730a6583e76fa63f0273b0997fb",
           "output_file": "hosts/simoom/secrets/nixNetrc.age",
           "output_sha256": "6c0f576a8846ecec8529407d092c6e3575411628b801423f27eaab084ce822db"
-        },
-        "openai_api_key": {
-          "source_sha256": "7adf13e7b9840c32efceb33ee2478cc77c38459b348ed5b1f49ee489f9b6a422",
-          "output_file": "hosts/simoom/secrets/openai_api_key.age",
-          "output_sha256": "085e0077cceee0332a9f5af2c74d764225f8ecfefc4c5349eacec60ad72ac6b0"
         },
         "openstack_aarch64_password": {
           "source_sha256": "f4a3d44dd5adefa4595a6eee6c9b2bde0dd693f3a76627bc3c785c7cbf2ff393",
@@ -947,11 +887,6 @@
       "host_pubkey_sha256": "420750ed95fd2dc8f751b5e17487eda2c835f1315565e70e71e7a16d14dfaa8d",
       "master_set_sha256": "d1fe9c0cab710e44e8b0ed4ef23ae4439c57a1fb6cf9ce412600c99592de5d66",
       "secrets": {
-        "anthropic_api_key": {
-          "source_sha256": "735a4ee7fabd70b2a045b2bea504ebd8cc7269358639eda6e7ab69113b792230",
-          "output_file": "hosts/squall/secrets/anthropic_api_key.age",
-          "output_sha256": "39b40b217fc58c4455d2dd27b76530952bf6579630335ed58693c1b3f255a957"
-        },
         "atuin-key": {
           "source_sha256": "9ba022a60955d4e5d86b3d4d362d0806df9ce1cf1a65a6c1e42a88066d4033c1",
           "output_file": "hosts/squall/secrets/atuin-key.age",
@@ -977,11 +912,6 @@
           "output_file": "hosts/squall/secrets/githubToken.age",
           "output_sha256": "31d641bde854f78dcf71ebe1c1830b59a09fa4eec48c9a9ced93d0fe2a41e962"
         },
-        "glm_api_key": {
-          "source_sha256": "c32f13b28dcb6833fea2fc83eb85ebd0959813c09102af366bebac25293f0548",
-          "output_file": "hosts/squall/secrets/glm_api_key.age",
-          "output_sha256": "151d75b2ed7f8f0f7ade961bf5253e5b6d6efb62a4a212a8cee56b8838f95ec9"
-        },
         "kagi_session_token": {
           "source_sha256": "f732bc083e19d117b094f07471ed253aa6fd1c7b381869c702a955eaddda6a57",
           "output_file": "hosts/squall/secrets/kagi_session_token.age",
@@ -991,11 +921,6 @@
           "source_sha256": "911dfec0bc027baa1dd002107b581b8b168d6730a6583e76fa63f0273b0997fb",
           "output_file": "hosts/squall/secrets/nixNetrc.age",
           "output_sha256": "939f819b326b042a6efe829163a99fdf28610a7339d9745b9c6ff70059518b8d"
-        },
-        "openai_api_key": {
-          "source_sha256": "7adf13e7b9840c32efceb33ee2478cc77c38459b348ed5b1f49ee489f9b6a422",
-          "output_file": "hosts/squall/secrets/openai_api_key.age",
-          "output_sha256": "64af0c7f3d1eba19b4227a94f5184f9fa2755c857bb3f65d017188c9731f956b"
         },
         "openstack_aarch64_password": {
           "source_sha256": "f4a3d44dd5adefa4595a6eee6c9b2bde0dd693f3a76627bc3c785c7cbf2ff393",
