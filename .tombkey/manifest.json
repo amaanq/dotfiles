@@ -800,6 +800,11 @@
           "output_file": "hosts/scarp/secrets/resticPassword.age",
           "output_sha256": "92b3156085fc4b1607091dae0280609ff7f52321514c519a6468198f3db57087"
         },
+        "signalWebEnv": {
+          "source_sha256": "ba75bea5b01ae8f6a252584c250717564b6a7e1818944c0f7e702dfac29f6da1",
+          "output_file": "hosts/scarp/secrets/signalWebEnv.age",
+          "output_sha256": "1f9ddfbf633fb193a79e9aae5f8dff1ac5457c743cc1a3c1b7864baffc3fc1e3"
+        },
         "spotrakEnv": {
           "source_sha256": "8c1d043c5c694ab287814262dc7b1a7451725c79fb37a4cc3cc64869d3a7d25a",
           "output_file": "hosts/scarp/secrets/spotrakEnv.age",

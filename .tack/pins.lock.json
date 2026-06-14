@@ -367,6 +367,14 @@
     "narHash": "sha256-OstzLWL5t7Xe14xEC6GIMJCp0PrYNTSA0El7GG2av88=",
     "lastModified": 1784350408
   },
+  "signal-web": {
+    "type": "github",
+    "owner": "amaanq",
+    "repo": "signal-web",
+    "rev": "834cc52aab304b27162075562d84ce51f2507d3b",
+    "narHash": "sha256-x6gK22u5+n1Ts4sIlfEhH7BePRST8R/PZV/VrIOubFk=",
+    "lastModified": 1784375017
+  },
   "spicetify": {
     "type": "github",
     "owner": "Gerg-L",

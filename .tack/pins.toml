@@ -207,3 +207,7 @@ url = "gh:amaanq/ida-nix"
 
 [inputs.jmapper]
 url = "amaan:jmapper"
+
+[inputs.signal-web]
+url = "github:amaanq/signal-web"
+type = "fetch"
