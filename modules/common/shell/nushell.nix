@@ -116,7 +116,7 @@ let
       |> concatStringsSep "\n"
     }
 
-    ${lib.optionalString (config.environment.sessionVariables ? LD_PRELOAD) /* nu */ ''
+    ${lib.optionalString (config.environment ? sessionVariables && config.environment.sessionVariables ? LD_PRELOAD) /* nu */ ''
       # nu's wrapper preloads mimalloc; hand the system allocator back to
       # everything nu spawns. Nested nu re-enters the wrapper → mimalloc.
       $env.LD_PRELOAD = "${config.environment.sessionVariables.LD_PRELOAD}"

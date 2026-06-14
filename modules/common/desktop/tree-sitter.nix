@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 let
   tree-sitter-custom = pkgs.tree-sitter.overrideAttrs (old: rec {
     version = "0.26.6";
@@ -14,10 +14,14 @@ let
       hash = "sha256-u6RmwNR4QVwyuij5RlHTLC5lNNQpWMVrlQwfwF78pYc=";
     };
     nativeBuildInputs = old.nativeBuildInputs ++ [ pkgs.libclang ];
-    env = (old.env or { }) // {
-      LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
-      BINDGEN_EXTRA_CLANG_ARGS = "-isystem ${pkgs.stdenv.cc.libc.dev}/include";
-    };
+    env =
+      (old.env or { })
+      // {
+        LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
+      }
+      // lib.optionalAttrs pkgs.stdenv.isLinux {
+        BINDGEN_EXTRA_CLANG_ARGS = "-isystem ${pkgs.stdenv.cc.libc.dev}/include";
+      };
     patches = [ ];
   });
 in
