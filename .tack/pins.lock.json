@@ -183,6 +183,14 @@
     "narHash": "sha256-Jkips3GUSqa4uj93VAAsas74m7g4x0m+LdJQxZn93LY=",
     "lastModified": 1783983505
   },
+  "jmapper": {
+    "type": "github",
+    "owner": "amaanq",
+    "repo": "jmapper",
+    "rev": "0824adbdf3d48bc978a22db7e2c1efd911f6b067",
+    "narHash": "sha256-MZkqpNdzDENaaix8Q4um6iwOGIh4E8EfTca/qlQO15s=",
+    "lastModified": 1784528118
+  },
   "lanzaboote": {
     "type": "github",
     "owner": "nix-community",

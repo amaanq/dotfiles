@@ -204,3 +204,6 @@ url = "github:feel-co/xdg-utils.nu"
 
 [inputs.ida-nix]
 url = "gh:amaanq/ida-nix"
+
+[inputs.jmapper]
+url = "amaan:jmapper"

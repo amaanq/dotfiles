@@ -740,6 +740,11 @@
           "output_file": "hosts/scarp/secrets/id.age",
           "output_sha256": "b83f747d97606757215acfd18f95f260c729a3e7922283f46b4ba5893de0a736"
         },
+        "jmapperAccounts": {
+          "source_sha256": "4981df48dc48d99d4af314e1368172e373406139fb54214edc0e8a598cab023d",
+          "output_file": "hosts/scarp/secrets/jmapperAccounts.age",
+          "output_sha256": "73c252ac42516cc7238ebf31ee4f6c768728310fc39425ecaf103c428f815487"
+        },
         "matrixKey": {
           "source_sha256": "3fde5c131637f50229dd991cdcfa6b9e8621d0d29481092b1e9707468ea4d7f5",
           "output_file": "hosts/scarp/secrets/matrixKey.age",
