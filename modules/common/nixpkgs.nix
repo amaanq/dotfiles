@@ -1,4 +1,9 @@
-{ lib, run0-sudo-shim, ... }:
+{
+  lib,
+  run0-sudo-shim,
+  xdg-utils-nu,
+  ...
+}:
 {
   nixpkgs.overlays = [
     # Consume the shim via its overlay (builds on the caller's pkgs) so cross
@@ -7,94 +12,25 @@
       final: prev:
       lib.optionalAttrs prev.stdenv.hostPlatform.isLinux (run0-sudo-shim.overlays.default final prev)
     )
-    # stalwart 0.16 dropped TOML config in favour of a one-shot config.json
-    # describing only the data store; everything else lives in the database and
-    # is reconciled via the relocated stalwart-cli (now its own repo at
-    # github.com/stalwartlabs/cli, version 1.x), which nixpkgs doesn't package
-    # yet (PR #512341 / issue #511880, target nixos-26.05). The 0.16 server is
-    # now nixpkgs' native stalwart_0_16; only the CLI needs this overlay.
-    (final: prev: {
-      stalwart-cli_1_0 = final.callPackage (
-        {
-          lib,
-          rustPlatform,
-          fetchFromGitHub,
-        }:
-        rustPlatform.buildRustPackage (finalAttrs: {
-          pname = "stalwart-cli";
-          version = "1.0.2";
-
-          src = fetchFromGitHub {
-            owner = "stalwartlabs";
-            repo = "cli";
-            tag = "v${finalAttrs.version}";
-            hash = "sha256-klbRM1bHbQq7s+2iDxqTZ7M8+XRv351J5orBqGJ5sRY=";
-          };
-
-          cargoDeps = rustPlatform.fetchCargoVendor {
-            inherit (finalAttrs) src;
-            hash = "sha256-sTt4lRMggJbKTVuJK/QfgniyYn+116zIoWaVCkFIoTo=";
-          };
-
-          # cli v1.0.2 uses reqwest with default-features=false and
-          # features=["blocking","rustls","json"]; the lockfile resolves to
-          # rustls + ring + rustls-platform-verifier and only pulls in
-          # openssl-probe (not openssl-sys), so neither pkg-config nor an
-          # openssl buildInput is needed.
-
-          # Tests reach out to a live Stalwart server.
-          doCheck = false;
-
-          meta = {
-            description = "Stalwart Mail Server CLI (1.x, JMAP-based)";
-            homepage = "https://github.com/stalwartlabs/cli";
-            changelog = "https://github.com/stalwartlabs/cli/releases/tag/v${finalAttrs.version}";
-            license = lib.licenses.agpl3Only;
-            mainProgram = "stalwart-cli";
-            platforms = lib.platforms.unix;
-          };
-        })
-      ) { };
-    })
+    (
+      final: prev:
+      lib.optionalAttrs prev.stdenv.hostPlatform.isLinux (xdg-utils-nu.overlays.default final prev)
+    )
     (
       final: prev:
       let
-        nhSrc = final.fetchFromGitHub {
-          owner = "nix-community";
-          repo = "nh";
-          rev = "da26cc24d1f68ec47bdcb76d61c8ccc218a6f758";
-          hash = "sha256-9RJDznEtODgaKESpGIQwos1OPmJbRbnDp4RU4c3Kp5s=";
-        };
         isCross = final.stdenv.buildPlatform != final.stdenv.hostPlatform;
       in
       {
         nh-unwrapped =
-          let
-            withFork = prev.nh-unwrapped.overrideAttrs (old: {
-              version = "4.4.0-beta1-unstable-2026-06-23";
-              src = nhSrc;
-              # Upstream reads finalAttrs.src.tag, null when using `rev`.
-              env = (old.env or { }) // {
-                NH_REV = nhSrc.rev;
-              };
-              # finalAttrs overrideAttrs swallows cargoHash; swap cargoDeps.
-              cargoDeps = final.rustPlatform.fetchCargoVendor {
-                src = nhSrc;
-                hash = "sha256-6OZgCjBaFKjXvESQDJGChKPy4I8E0wzi5IjiYWdXNdA=";
-              };
-            });
-            # Upstream postInstall runs `xtask dist` via an emulator to make
-            # shell completions + manpage; on cross that drags qemu-user +
-            # glib + gobject-introspection + systemtap into the build closure.
-            dropDistOnCross =
-              drv:
-              drv.overrideAttrs (_: {
-                postInstall = "";
-                nativeInstallCheckInputs = [ ];
-                doInstallCheck = false;
-              });
-          in
-          if isCross then dropDistOnCross withFork else withFork;
+          if isCross then
+            prev.nh-unwrapped.overrideAttrs (_: {
+              postInstall = "";
+              nativeInstallCheckInputs = [ ];
+              doInstallCheck = false;
+            })
+          else
+            prev.nh-unwrapped;
 
         nh =
           let
@@ -131,6 +67,12 @@
               priority = (unwrapped.meta.priority or lib.meta.defaultPriority) - 1;
             };
           };
+      }
+    )
+    (
+      _final: prev:
+      lib.optionalAttrs (prev.stdenv.buildPlatform != prev.stdenv.hostPlatform) {
+        systemd = prev.systemd.override { withLibBPF = false; };
       }
     )
     # Stub shellcheck cuz Haskell is slop and I don't want to compile it for ppc64.
@@ -228,26 +170,7 @@
         );
       }
       // lib.optionalAttrs prev.stdenv.hostPlatform.isLinux {
-        xdg-utils = final.symlinkJoin {
-          name = "xdg-utils-handlr-shim-${prev.handlr-regex.version or "0"}";
-          paths = [
-            final.xdg-user-dirs
-            (final.writeShellScriptBin "xdg-open" /* sh */ ''exec ${final.handlr-regex}/bin/handlr open "$@"'')
-            (final.writeShellScriptBin "xdg-mime" /* sh */ ''exec ${final.handlr-regex}/bin/handlr mime "$@"'')
-            (final.writeShellScriptBin "xdg-settings" /* sh */ ''exec ${final.handlr-regex}/bin/handlr get "$@"'')
-            (final.writeShellScriptBin "xdg-email" /* sh */ ''exec ${final.handlr-regex}/bin/handlr open "mailto:$*"'')
-
-            # These are install-time helpers that are not used on NixOS.
-            (final.writeShellScriptBin "xdg-desktop-menu" "exit 0")
-            (final.writeShellScriptBin "xdg-desktop-icon" "exit 0")
-            (final.writeShellScriptBin "xdg-icon-resource" "exit 0")
-            (final.writeShellScriptBin "xdg-screensaver" "exit 0")
-          ];
-          meta = {
-            description = "xdg-utils shim backed by handlr-regex (perl-free)";
-            mainProgram = "xdg-open";
-          };
-        };
+        xdg-utils = final.xdg-utils-nu;
 
         # winetricks's wrapper embeds perl in PATH for a handful of niche
         # verbs (mostly font/registry helpers). Scrub the store ref so perl
@@ -281,17 +204,15 @@
           beam27Packages = prev.beamMinimal27Packages;
         };
 
-        # radicle-node has flaky p2p integration tests that hit
-        # connection-reset broken-pipe races under nix builder load.
         radicle-node = prev.radicle-node.overrideAttrs (old: {
-          checkFlags = (old.checkFlags or [ ]) ++ [
-            "--skip=commands::clone::rad_clone_connect"
-            "--skip=commands::id::rad_id_threshold"
-            "--skip=commands::inbox::rad_inbox"
-            "--skip=commands::init::rad_init_private_clone"
-            "--skip=commands::init::rad_init_private_clone_seed"
-            "--skip=commands::patch::rad_patch_checkout_force"
-          ];
+          postPatch = (old.postPatch or "") + ''
+            substituteInPlace \
+              crates/radicle-node/src/test/node.rs \
+              crates/radicle-cli/tests/commands/id.rs \
+              crates/radicle-cli/tests/commands/cob.rs \
+              --replace-fail 'Duration::from_secs(6)' 'Duration::from_secs(60)'
+          '';
+          checkFlags = (old.checkFlags or [ ]) ++ [ "--test-threads=1" ];
         });
 
       }

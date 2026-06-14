@@ -36,8 +36,8 @@ in
 
     cliPackage = lib.mkOption {
       type = lib.types.package;
-      default = pkgs.stalwart-cli_1_0;
-      defaultText = lib.literalExpression "pkgs.stalwart-cli_1_0";
+      default = pkgs.stalwart-cli;
+      defaultText = lib.literalExpression "pkgs.stalwart-cli";
       description = "The stalwart-cli package used by the apply unit. Must be 1.x (separate repo).";
     };
 

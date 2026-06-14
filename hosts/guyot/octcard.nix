@@ -7,7 +7,6 @@
   systemd.services.octcard-boot = {
     description = "Boot RAM-root NixOS on the CN7890 LiquidIO card over PCIe";
     wantedBy = [ "multi-user.target" ];
-    after = [ "multi-user.target" ];
     path = [
       pkgs.bash
       pkgs.coreutils

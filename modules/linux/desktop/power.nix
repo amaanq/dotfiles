@@ -148,7 +148,7 @@ in
     # Use the most aggressive PCIe ASPM policy for idle power savings.
     boot.kernelParams = [ "pcie_aspm.policy=powersupersave" ];
 
-    services.udev.extraRules = ''
+    services.udev.extraRules = /* udev */ ''
       # Enable PCI runtime power management on all devices.
       ACTION=="add", SUBSYSTEM=="pci", ATTR{power/control}="auto"
 

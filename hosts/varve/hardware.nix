@@ -4,6 +4,9 @@
   pkgs,
   ...
 }:
+let
+  inherit (lib) disabled enabled mkForce;
+in
 {
   # 26.11 removed the platform.linux-kernel attr (lib.systems.elaborate throws on
   # it). The kernel target auto-derives to "vmlinux" for mips (build.nix keys off
@@ -87,6 +90,6 @@
 
   # ttyS0 is the only console; autologin root for a network-less serial shell.
   services.getty.autologinUser = "root";
-  systemd.services."serial-getty@ttyS0".enable = true;
-  systemd.services."getty@tty1".enable = lib.mkForce false;
+  systemd.services."serial-getty@ttyS0" = enabled;
+  systemd.services."getty@tty1" = mkForce disabled;
 }

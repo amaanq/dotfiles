@@ -704,7 +704,6 @@ def --wrapped clod-work [...rest] {
   _claude_alt_account $'($env.XDG_CONFIG_HOME)/claude-work' 'clod-work' ...$rest
 }
 
-
 def --wrapped clod2 [...rest] {
   _claude_alt_account $'($env.XDG_CONFIG_HOME)/claude2' 'clod2' ...$rest
 }

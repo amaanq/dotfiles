@@ -103,7 +103,6 @@ in
       pkgs.wf-recorder
       pkgs.wl-clipboard
       pkgs.wtype
-      pkgs.handlr-regex
       pkgs.xdg-utils
       pkgs.xwayland-satellite
     ];

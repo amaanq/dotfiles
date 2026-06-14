@@ -1,30 +1,4 @@
-{ lib, pkgs, ... }:
-let
-  tree-sitter-custom = pkgs.tree-sitter.overrideAttrs (old: rec {
-    version = "0.26.6";
-    src = pkgs.fetchFromGitHub {
-      owner = "tree-sitter";
-      repo = "tree-sitter";
-      tag = "v${version}";
-      hash = "sha256-ZtzwhEmNZg5brghKNiTRZSmY8FwQeWcemY2blq9j2GM=";
-      fetchSubmodules = true;
-    };
-    cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
-      inherit src;
-      hash = "sha256-u6RmwNR4QVwyuij5RlHTLC5lNNQpWMVrlQwfwF78pYc=";
-    };
-    nativeBuildInputs = old.nativeBuildInputs ++ [ pkgs.libclang ];
-    env =
-      (old.env or { })
-      // {
-        LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
-      }
-      // lib.optionalAttrs pkgs.stdenv.isLinux {
-        BINDGEN_EXTRA_CLANG_ARGS = "-isystem ${pkgs.stdenv.cc.libc.dev}/include";
-      };
-    patches = [ ];
-  });
-in
+{ pkgs, ... }:
 {
   environment.shellAliases = {
     ts = "tree-sitter";
@@ -32,7 +6,7 @@ in
     tss = "tree-sitter-stable";
   };
   environment.systemPackages = [
-    tree-sitter-custom
+    pkgs.tree-sitter
     pkgs.python313Packages.pytest
   ];
 }

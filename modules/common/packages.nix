@@ -27,7 +27,6 @@ in
     pkgs.p7zip
     pkgs.pstree
     pkgs.rsync
-    pkgs.sd
     pkgs.tree
     pkgs.unzip
     pkgs.uutils-coreutils-noprefix

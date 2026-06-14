@@ -1082,21 +1082,18 @@ let
       exec "$BIN" --no-usage-statistics "$@"
     '';
 
-  # Pinned to mlamp's fork @ rtk-ai/rtk#1339 (CLAUDE_CONFIG_DIR support); the
-  # PR is develop-based and doesn't cleanly fetchpatch onto v0.37.2. Drop the
-  # fork once it lands upstream.
   rtk = pkgs.rustPlatform.buildRustPackage {
     pname = "rtk";
-    version = "0.37.2";
+    version = "0.43.0";
 
     src = pkgs.fetchFromGitHub {
-      owner = "mlamp";
+      owner = "rtk-ai";
       repo = "rtk";
-      rev = "985f22e37519153f86582a08e6f6dd36152f8f79";
-      hash = "sha256-4jRKsWSY30cjNQHmP7iVOBuNLe1ZWEuJO8FvCIBlv20=";
+      rev = "5a7880d404db8364d602f2ecdc41dd790f64013f";
+      hash = "sha256-n5bkPPsrdM4fE5ltocTjlq+JwRgp39yib6S79fci4m4=";
     };
 
-    cargoHash = "sha256-MXWqVIRV+nhlbyDTigGdvY3QJ30XnxV6/Q4Y/7CbHaQ=";
+    cargoHash = "sha256-XKUKdhxfnwUCOx9slqx4oUFa09HcosPLVh5Xkh87oSk=";
 
     doCheck = false;
 
@@ -1270,13 +1267,13 @@ let
       r#'${toJSON settings.env}'# | from json | load-env
     '';
     fetch = /* nu */ ''
-      let arch = match ($nu.os-info.arch | str downcase) {
+      let arch = match ($nu.os-info.arch | str lowercase) {
         "x86_64" | "x64" | "amd64" => "x64"
         "aarch64" | "arm64" => "arm64"
         $arch => { error make { msg: $"unsupported arch: ($arch)" } }
       }
 
-      let platform = match ($nu.os-info.name | str downcase) {
+      let platform = match ($nu.os-info.name | str lowercase) {
         "linux" => $"linux-($arch)"
         "macos" | "darwin" => $"darwin-($arch)"
         $os => { error make { msg: $"unsupported os: ($os)" } }

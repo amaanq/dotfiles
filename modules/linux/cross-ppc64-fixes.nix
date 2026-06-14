@@ -113,6 +113,12 @@ in
             export PKG_CONFIG=${pkgConfigRouter}/bin/pkg-config
           '';
           targetIsPpc64 = prev.stdenv.targetPlatform.isPower64 or false;
+          stableRustAttrs = builtins.filter (name: builtins.match "rust_1_[0-9]+" name != null) (
+            builtins.attrNames prev
+          );
+          stableRustAttr =
+            assert lib.length stableRustAttrs == 1;
+            lib.head stableRustAttrs;
         in
         {
           # ppc64 BE uses the ELFv2 ABI, but stock rustc only ships the ELFv1
@@ -123,9 +129,9 @@ in
           # Without the patch on pkgsBuildBuild.rust, --print=file-names fails
           # with "could not find specification for target". Costs one native
           # rust rebuild; cheaper than a duplicate LLVM.
-          rust_1_95 = prev.rust_1_95 // {
-            packages = prev.rust_1_95.packages // {
-              stable = prev.rust_1_95.packages.stable.overrideScope (
+          "${stableRustAttr}" = prev.${stableRustAttr} // {
+            packages = prev.${stableRustAttr}.packages // {
+              stable = prev.${stableRustAttr}.packages.stable.overrideScope (
                 _: rprev: {
                   rustc-unwrapped = rprev.rustc-unwrapped.overrideAttrs (old: {
                     patches = (old.patches or [ ]) ++ [
@@ -143,6 +149,17 @@ in
               );
             };
           };
+
+          pythonPackagesExtensions = (prev.pythonPackagesExtensions or [ ]) ++ [
+            (_: pyprev: {
+              mypy = pyprev.mypy.overridePythonAttrs (old: {
+                pytestFlags = (old.pytestFlags or [ ]) ++ [
+                  "-p"
+                  "no:unraisableexception"
+                ];
+              });
+            })
+          ];
         }
         // lib.optionalAttrs (prev.stdenv.hostPlatform.isPower64 or false) {
           # GCC 15.2 ICEs at -O2 in ipa-cp.cc / ipa-icf-gimple.cc when building

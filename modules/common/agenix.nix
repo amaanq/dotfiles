@@ -13,6 +13,9 @@ let
     mkIf
     ;
 
+  agenixPackage = agenix.packages.${pkgs.stdenv.hostPlatform.system}.default.override {
+    inherit (pkgs) shellcheck;
+  };
   userName = head <| attrNames <| config.users.users;
   identityPathKey = if config.isServer then "server" else config.os;
   identityPaths = {
@@ -27,8 +30,6 @@ in
   age.identityPaths = identityPaths.${identityPathKey};
 
   environment = mkIf config.isDesktop {
-    systemPackages = [
-      agenix.packages.${pkgs.stdenv.hostPlatform.system}.default
-    ];
+    systemPackages = [ agenixPackage ];
   };
 }

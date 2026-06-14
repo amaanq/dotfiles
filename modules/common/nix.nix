@@ -129,7 +129,7 @@ let
         | from json
         | get Peer
         | values
-        | where { $in.HostName | str downcase | str starts-with ($host | str downcase) }
+        | where { $in.HostName | str lowercase | str starts-with ($host | str lowercase) }
         | first
         | get TailscaleIPs.0
       } catch { $host }

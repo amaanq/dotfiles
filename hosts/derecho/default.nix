@@ -58,7 +58,15 @@ lib.nixosSystem' "desktop" (
       amaanq = {
         description = "Amaan Qureshi";
         extraGroups = [
+          "audio"
+          "dialout"
           "gamemode"
+          "input"
+          "lp"
+          "plugdev"
+          "render"
+          "uucp"
+          "video"
           "wheel"
         ];
         isNormalUser = true;
@@ -133,7 +141,7 @@ lib.nixosSystem' "desktop" (
       ];
     };
 
-    nix.package = lib.mkForce nix-src.packages.${pkgs.stdenv.hostPlatform.system}.nix;
+    nix.package = lib.mkForce nix-src.packages.${pkgs.stdenv.hostPlatform.system}."nix-cli";
 
     system.stateVersion = "25.11";
 

@@ -3,6 +3,25 @@ Subject: Add powerpc64-unknown-linux-gnuelfv2 target
 
 Cherry-picked from https://github.com/rust-lang/rust/pull/144220
 
+diff --git a/compiler/rustc_codegen_llvm/src/context.rs b/compiler/rustc_codegen_llvm/src/context.rs
+index 85a7f9cab73..2b4d82f61d0 100644
+--- a/compiler/rustc_codegen_llvm/src/context.rs
++++ b/compiler/rustc_codegen_llvm/src/context.rs
+@@ -202,6 +202,14 @@ pub(crate) unsafe fn create_module<'ll>(
+         if sess.target.arch == Arch::PowerPC64 {
+             // LLVM 22 updated the ABI alignment for double on AIX: https://github.com/llvm/llvm-project/pull/144673
+             target_data_layout = target_data_layout.replace("-f64:32:64", "");
++
++            // LLVM 22 fixed the data layout calculation for targets that default to ELFv1
++            // when the ABI is set to ELFv2. With LLVM 21, the ELFv1 datalayout must be used,
++            // which will overalign function entries.
++            // https://github.com/llvm/llvm-project/pull/149725
++            if sess.target.llvm_target == "powerpc64-unknown-linux-gnu" {
++                target_data_layout = target_data_layout.replace("-Fn32", "-Fi64");
++            }
+         }
+         if sess.target.arch == Arch::AmdGpu {
+             // LLVM 22 specified ELF mangling in the amdgpu data layout:
 diff --git a/compiler/rustc_target/src/spec/mod.rs b/compiler/rustc_target/src/spec/mod.rs
 index 4bc0d88a910..ee603a274912 100644
 --- a/compiler/rustc_target/src/spec/mod.rs
@@ -20,11 +39,12 @@ new file mode 100644
 index 0000000000000..daaa8eb87bd96
 --- /dev/null
 +++ b/compiler/rustc_target/src/spec/targets/powerpc64_unknown_linux_gnuelfv2.rs
-@@ -0,0 +1,29 @@
+@@ -0,0 +1,30 @@
 +use rustc_abi::Endian;
 +
 +use crate::spec::{
-+    Abi, Arch, Cc, LinkerFlavor, Lld, StackProbeType, Target, TargetMetadata, TargetOptions, base,
++    Arch, Cc, CfgAbi, LinkerFlavor, Lld, LlvmAbi, StackProbeType, Target, TargetMetadata,
++    TargetOptions, base,
 +};
 +
 +pub(crate) fn target() -> Target {
@@ -33,11 +53,11 @@ index 0000000000000..daaa8eb87bd96
 +    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["-m64"]);
 +    base.max_atomic_width = Some(64);
 +    base.stack_probes = StackProbeType::Inline;
-+    base.abi = Abi::ElfV2;
-+    base.llvm_abiname = "elfv2".into();
++    base.cfg_abi = CfgAbi::ElfV2;
++    base.llvm_abiname = LlvmAbi::ElfV2;
 +
 +    Target {
-+        llvm_target: "powerpc64-unknown-linux-musl".into(),
++        llvm_target: "powerpc64-unknown-linux-gnu".into(),
 +        metadata: TargetMetadata {
 +            description: Some("PPC64 Linux (ELFv2 ABI, kernel 3.2, glibc 2.17)".into()),
 +            tier: Some(3),
@@ -57,10 +77,9 @@ index b39d464493e..2359dbd51493 100644
 @@ -38,6 +38,7 @@
  const STAGE0_MISSING_TARGETS: &[&str] = &[
      // just a dummy comment so the list doesn't get onelined
-     "x86_64-unknown-linux-gnuasan",
 +    "powerpc64-unknown-linux-gnuelfv2",
-     "thumbv7a-none-eabi",
-     "thumbv7a-none-eabihf",
-     "thumbv7r-none-eabi",
+     "x86_64-unknown-linux-gnumsan",
+     "x86_64-unknown-linux-gnutsan",
+ ];
 
  /// Minimum version threshold for libstdc++ required when using prebuilt LLVM
