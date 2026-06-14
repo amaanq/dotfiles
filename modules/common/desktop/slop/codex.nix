@@ -6,13 +6,13 @@
 let
   inherit (lib.meta) getExe;
 
-  codexVersion = "0.142.0";
+  codexVersion = "0.144.0";
 
   src = pkgs.fetchFromGitHub {
     owner = "openai";
     repo = "codex";
     tag = "rust-v${codexVersion}";
-    hash = "sha256-F8wlv0vSuljNFDgIzoeuVxvD0dk90z2FBtpBTMih7AA=";
+    hash = "sha256-GbLeECsju5jifeVah1xN4HFFHxOKtCj55gl/0ZULj+g=";
   };
 
   # Verbatim copy of rtk-ai/rtk's hooks/codex/rtk-awareness.md --
@@ -55,15 +55,22 @@ let
   # Inherit nixpkgs's codex packaging (v8/rusty_v8 archive, webrtc shim,
   # libclang env, postPatch). We just bump version/src/cargoDeps and apply
   # a few quality-of-life patches on top.
-  codexRs = pkgs.codex.overrideAttrs (_: {
+  codexRs = pkgs.codex.overrideAttrs (old: {
     inherit src;
     version = codexVersion;
     cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
       inherit src;
       name = "codex-${codexVersion}-vendor";
       sourceRoot = "source/codex-rs";
-      hash = "sha256-fvEFNE12J6zaLZrN6oQB8X+jXoKPSCWrL17Sl28+7/c=";
+      hash = "sha256-S4dsZXfmKvJItL2XYKyxfhqdCMATEG6oPjrtVRwkuYc=";
     };
+
+    # code_mode (0.144+) spawns codex-code-mode-host, resolved as a sibling of
+    # the running binary; nixpkgs only builds codex-cli, so build it too.
+    cargoBuildFlags = old.cargoBuildFlags ++ [
+      "--package"
+      "codex-code-mode-host"
+    ];
 
     # Upstream's postPatch strips release profile settings that are too costly
     # for nix builds. Reapply the same intent against 0.141.0's values.
