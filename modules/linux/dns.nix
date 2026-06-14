@@ -104,9 +104,12 @@ in
     wants = [ "nss-lookup.target" ];
   };
 
-  # Prevent DHCP from overriding DNS settings, because Verizon's DNS is garbage and hangs my matrix homeserver.
-  # dhcpcd
-  networking.dhcpcd.extraConfig = "nohook resolv.conf";
+  # Prevent DHCP from overriding DNS settings, because Verizon's DNS
+  # is garbage and hangs my matrix homeserver.
+  networking.dhcpcd = {
+    persistent = true;
+    extraConfig = "nohook resolv.conf";
+  };
   # systemd-networkd
   systemd.network.networks."99-ethernet-default-dhcp".dhcpV4Config.UseDNS = false;
   systemd.network.networks."99-ethernet-default-dhcp".dhcpV6Config.UseDNS = false;
