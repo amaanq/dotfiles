@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  inherit (lib) enabled theme;
+  inherit (lib) enabled;
 
   cfg = config.chromiumExtensions;
   extensions = import ../../../lib/chromium-extensions.nix;
@@ -29,9 +29,6 @@ in
       extensions = extensionStrings;
 
       extraOpts = {
-        # Rose Pine theme color
-        BrowserThemeColor = theme.withHashtag.base00;
-
         # Disable promotions and sync
         PromotionsEnabled = false;
         SyncDisabled = true;
