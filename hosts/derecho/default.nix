@@ -107,7 +107,30 @@ lib.nixosSystem' "desktop" (
 
     boot.tmp = {
       useTmpfs = true;
-      tmpfsSize = "16G";
+      tmpfsSize = "32G";
+    };
+
+    systemd.services.nix-build-dir = {
+      after = [ "tmp.mount" ];
+      requires = [ "tmp.mount" ];
+      before = [ "nix-var-nix-builds.mount" ];
+      requiredBy = [ "nix-var-nix-builds.mount" ];
+      unitConfig.DefaultDependencies = false;
+      path = [ pkgs.coreutils ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+      };
+      script = "mkdir -p /tmp/.nix-builds && chmod 0755 /tmp/.nix-builds";
+    };
+
+    fileSystems."/nix/var/nix/builds" = {
+      device = "/tmp/.nix-builds";
+      fsType = "none";
+      options = [
+        "bind"
+        "nofail"
+      ];
     };
 
     nix.package = lib.mkForce nix-src.packages.${pkgs.stdenv.hostPlatform.system}.nix;
