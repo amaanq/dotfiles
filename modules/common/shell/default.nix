@@ -38,9 +38,18 @@ in
 merge {
   environment.shells = [ pkgs.nushell ];
   environment.variables.HISTFILE = "$XDG_STATE_HOME/bash/history";
+
+  wrappers.nushell = {
+    basePackage = pkgs.nushell;
+    systemWide = true;
+    passthru.shellPath = "/bin/nu";
+    executables.nu.args.prefix = [
+      "--config"
+      "/etc/nushell/config.nu"
+    ];
+  };
 }
 <| mkIf config.isDarwin {
-  environment.systemPackages = [ pkgs.nushell ];
   # Create .zshrc for each configured user on Darwin
   system.activationScripts.postActivation.text =
     users |> concatMapStringsSep "\n" (u: "cp ${zshrc} ${u.home}/.zshrc");
