@@ -50,6 +50,13 @@ let
       window:close()
     end
 
+    local toggleFullscreen = function()
+      local window = hs.window.focusedWindow()
+      if not window then return end
+
+      window:toggleFullScreen()
+    end
+
     local currentSpaceIndex = function()
       local current_space = hs.spaces.activeSpaceOnScreen()
       local spaces = hs.spaces.allSpaces()[hs.screen.mainScreen():getUUID()]
@@ -66,23 +73,8 @@ let
     end
 
     local changeSpaceBy = function(offset)
-      local current_index = currentSpaceIndex()
-      local spaces = hs.spaces.allSpaces()[hs.screen.mainScreen():getUUID()]
-
-      local next_index = current_index + offset
-      if next_index > #spaces then
-        next_index = 1
-      elseif next_index <= 0 then
-        next_index = #spaces
-      end
-
-      if next_index == current_index then
-        return
-      end
-
-      local next_space = spaces[next_index]
-
-      hs.spaces.gotoSpace(next_space)
+      -- Use native fast workspace switching
+      hs.spaces.gotoSpaceFast(offset)
     end
 
     local gotoSpace = function(index)
@@ -92,72 +84,78 @@ let
       changeSpaceBy(change_by)
     end
 
-    do -- HOTKEYS
-      local super = { "alt" }
-      local super_alt = { "alt", "cmd" }
-      local super_shift = { "alt", "shift" }
+    do -- HOTKEYS (niri-style keybinds)
+      local mod = { "alt" }
+      local mod_shift = { "alt", "shift" }
+      local mod_alt = { "alt", "cmd" }
+      local mod_ctrl = { "alt", "ctrl" }
 
-      -- FOCUS -- SUPER + DIRECTION
-      hs.hotkey.bind(super, "left", PaperWM.actions.focus_left)
-      hs.hotkey.bind(super, "down", PaperWM.actions.focus_down)
-      hs.hotkey.bind(super, "up", PaperWM.actions.focus_up)
-      hs.hotkey.bind(super, "right", PaperWM.actions.focus_right)
+      -- FOCUS -- MOD + H/J/K/L (matching niri)
+      hs.hotkey.bind(mod, "h", PaperWM.actions.focus_left)
+      hs.hotkey.bind(mod, "j", PaperWM.actions.focus_down)
+      hs.hotkey.bind(mod, "k", PaperWM.actions.focus_up)
+      hs.hotkey.bind(mod, "l", PaperWM.actions.focus_right)
 
-      hs.hotkey.bind(super, "h", PaperWM.actions.focus_left)
-      hs.hotkey.bind(super, "j", PaperWM.actions.focus_down)
-      hs.hotkey.bind(super, "k", PaperWM.actions.focus_up)
-      hs.hotkey.bind(super, "l", PaperWM.actions.focus_right)
+      -- SWAP/MOVE WINDOW -- MOD + SHIFT + H/J/K/L (matching niri)
+      hs.hotkey.bind(mod_shift, "h", PaperWM.actions.swap_left)
+      hs.hotkey.bind(mod_shift, "j", PaperWM.actions.swap_down)
+      hs.hotkey.bind(mod_shift, "k", PaperWM.actions.swap_up)
+      hs.hotkey.bind(mod_shift, "l", PaperWM.actions.swap_right)
 
-      -- RESIZE WINDOW -- SUPER + ALT + DIRECTION
-      hs.hotkey.bind(super_alt, "left", function() windowResize(-100, 0) end)
-      hs.hotkey.bind(super_alt, "down", function() windowResize(0, 100) end)
-      hs.hotkey.bind(super_alt, "up", function() windowResize(0, -100) end)
-      hs.hotkey.bind(super_alt, "right", function() windowResize(100, 0) end)
+      -- RESIZE WINDOW -- MOD + ALT + H/J/K/L
+      hs.hotkey.bind(mod_alt, "h", function() windowResize(-40, 0) end, nil, function() windowResize(-40, 0) end)
+      hs.hotkey.bind(mod_alt, "j", function() windowResize(0, 40) end, nil, function() windowResize(0, 40) end)
+      hs.hotkey.bind(mod_alt, "k", function() windowResize(0, -40) end, nil, function() windowResize(0, -40) end)
+      hs.hotkey.bind(mod_alt, "l", function() windowResize(40, 0) end, nil, function() windowResize(40, 0) end)
 
-      hs.hotkey.bind(super_alt, "h", function() windowResize(-100, 0) end)
-      hs.hotkey.bind(super_alt, "j", function() windowResize(0, 100) end)
-      hs.hotkey.bind(super_alt, "k", function() windowResize(0, -100) end)
-      hs.hotkey.bind(super_alt, "l", function() windowResize(100, 0) end)
+      -- WORKSPACE NAVIGATION -- MOD + U/I (matching niri, using fast gesture-based switching)
+      hs.hotkey.bind(mod, "u", function() hs.spaces.gotoSpaceFast(-1) end) -- previous space
+      hs.hotkey.bind(mod, "i", function() hs.spaces.gotoSpaceFast(1) end)  -- next space
 
-      -- RESIZE WINDOW TO FULL WIDTH -- SUPER + ALT + F
-      hs.hotkey.bind(super_alt, "f", PaperWM.actions.full_width)
+      -- MOVE WINDOW TO WORKSPACE -- MOD + CTRL + U/I (matching niri)
+      local moveWindowToSpace = function(offset)
+        local window = hs.window.focusedWindow()
+        if not window then return end
 
-      -- CYCLE SPACES -- SUPER[ + SHIFT FOR REVERSE] + TAB
-      hs.hotkey.bind(super, "tab", function() changeSpaceBy(1) end)
-      hs.hotkey.bind(super_shift, "tab", function() changeSpaceBy(-1) end)
+        local current_index = currentSpaceIndex()
+        local spaces = hs.spaces.allSpaces()[hs.screen.mainScreen():getUUID()]
+        local next_index = current_index + offset
 
-      for index = 1, 9 do
-        -- GO TO SPACE -- SUPER + NUMBER
-        hs.hotkey.bind(super, tostring(index), function() gotoSpace(index) end)
+        if next_index > #spaces then
+          next_index = 1
+        elseif next_index <= 0 then
+          next_index = #spaces
+        end
 
-        -- MOVE WINDOW TO SPACE -- SUPER + SHIFT + NUMBER
-        hs.hotkey.bind(super_shift, tostring(index), PaperWM.actions["move_window_" .. index])
+        local next_space = spaces[next_index]
+        hs.spaces.moveWindowToSpace(window, next_space)
+        hs.spaces.gotoSpace(next_space)
       end
 
-      -- SWAP WINDOW -- SUPER + SHIFT + DIRECTION
-      hs.hotkey.bind(super_shift, "left", PaperWM.actions.swap_left)
-      hs.hotkey.bind(super_shift, "down", PaperWM.actions.swap_down)
-      hs.hotkey.bind(super_shift, "up", PaperWM.actions.swap_up)
-      hs.hotkey.bind(super_shift, "right", PaperWM.actions.swap_right)
+      hs.hotkey.bind(mod_ctrl, "u", function() moveWindowToSpace(-1) end)
+      hs.hotkey.bind(mod_ctrl, "i", function() moveWindowToSpace(1) end)
 
-      hs.hotkey.bind(super_shift, "h", PaperWM.actions.swap_left)
-      hs.hotkey.bind(super_shift, "j", PaperWM.actions.swap_down)
-      hs.hotkey.bind(super_shift, "k", PaperWM.actions.swap_up)
-      hs.hotkey.bind(super_shift, "l", PaperWM.actions.swap_right)
+      -- WORKSPACE NUMBERS -- MOD + 1-9 (matching niri)
+      for index = 1, 9 do
+        hs.hotkey.bind(mod, tostring(index), function() gotoSpace(index) end)
+        hs.hotkey.bind(mod_shift, tostring(index), PaperWM.actions["move_window_" .. index])
+      end
 
-      -- SLURP & BARF WINDOW -- SUPER + SHIFT + T/G
-      hs.hotkey.bind(super_shift, "t", PaperWM.actions.slurp_in)
-      hs.hotkey.bind(super_shift, "g", PaperWM.actions.barf_out)
+      -- WINDOW MANAGEMENT (matching niri)
+      hs.hotkey.bind(mod, "c", windowClose)                      -- Mod+C: close window
+      hs.hotkey.bind(mod, "v", PaperWM.actions.toggle_floating)  -- Mod+V: toggle floating
+      hs.hotkey.bind(mod, "f", toggleFullscreen)                 -- Mod+F: fullscreen window
+      hs.hotkey.bind(mod, "d", PaperWM.actions.full_width)       -- Mod+D: maximize width (doesn't toggle back, but won't break PaperWM)
+      hs.hotkey.bind(mod_ctrl, "c", PaperWM.actions.center_window) -- Mod+Ctrl+C: center window
 
-      -- MISC CONTROL
-      hs.hotkey.bind(super, "q", windowClose)
-      hs.hotkey.bind(super, "c", PaperWM.actions.center_window)
-      hs.hotkey.bind(super, "f", PaperWM.actions.toggle_floating)
+      -- SLURP & BARF WINDOW -- MOD + COMMA/PERIOD (matching niri's comma/period)
+      hs.hotkey.bind(mod, ",", PaperWM.actions.slurp_in)
+      hs.hotkey.bind(mod, ".", PaperWM.actions.barf_out)
 
       -- APPLICATIONS
-      hs.hotkey.bind(super, "w", function() hs.application.launchOrFocus("Zen") end)
-      hs.hotkey.bind(super, "return", function() hs.application.launchOrFocus("Ghostty") end)
-      hs.hotkey.bind(super, "t", function() hs.application.launchOrFocus("Finder") end)
+      hs.hotkey.bind(mod, "return", function() hs.application.launchOrFocus("Ghostty") end) -- Mod+Return: terminal
+      hs.hotkey.bind(mod, "e", function() hs.application.launchOrFocus("Finder") end)       -- Mod+E: file manager
+      hs.hotkey.bind(mod, "w", function() hs.application.launchOrFocus("Zen") end)
 
       PaperWM.swipe_fingers = 3
       PaperWM.swipe_gain = 1.7
@@ -280,6 +278,8 @@ in
     FirstClickThreshold = 0;
     SecondClickThreshold = 0;
   };
+
+  system.defaults.NSGlobalDomain."com.apple.swipescrolldirection" = true;
 
   system.defaults.CustomSystemPreferences."com.apple.Accessibility".ReduceMotionEnabled = 1;
   system.defaults.universalaccess.reduceMotion = true;

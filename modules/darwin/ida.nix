@@ -21,7 +21,7 @@ let
       "E1" # all indentation rules
       "E501" # line too long
     ];
-  } (builtins.readFile (self + /modules/common/ida/patcher.py));
+  } (builtins.readFile (self + /modules/common/desktop/ida/patcher.py));
 
   idaZip = builtins.fetchurl {
     url = "https://cloud.amaanq.com/public.php/webdav/ida-pro_93_armmac.app.zip";

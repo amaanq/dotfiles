@@ -9,7 +9,7 @@ lib.darwinSystem' (
 
     type = "desktop";
     isBuilder = true;
-    builderMaxJobs = 32;
+    builderMaxJobs = 16;
 
     networking.hostName = "simoom";
     nixpkgs.config.allowUnfree = true;
@@ -26,5 +26,7 @@ lib.darwinSystem' (
     };
 
     time.timeZone = "America/New_York";
+
+    chromiumExtensions.darwinBundleId = "net.imput.helium";
   }
 )
