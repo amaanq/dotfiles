@@ -5,10 +5,36 @@
   ...
 }:
 let
+  inherit (lib) const flip genAttrs;
+
   colors = lib.theme.withHashtag;
 in
 {
   environment.systemPackages = [ pkgs.mpv ];
+
+  xdg.mime.defaultApplications =
+    [
+      "audio/aac"
+      "audio/ac3"
+      "audio/flac"
+      "audio/mp4"
+      "audio/mpeg"
+      "audio/ogg"
+      "audio/vnd.wave"
+      "audio/webm"
+      "audio/x-matroska"
+      "audio/x-mpegurl"
+      "video/mp2t"
+      "video/mp4"
+      "video/mpeg"
+      "video/ogg"
+      "video/quicktime"
+      "video/vnd.avi"
+      "video/webm"
+      "video/x-matroska"
+      "video/x-ms-wmv"
+    ]
+    |> flip genAttrs (const "mpv.desktop");
 
   environment.variables.MPV_HOME = "/etc/mpv";
 
