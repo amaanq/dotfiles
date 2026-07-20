@@ -1,21 +1,7 @@
-{ lib, xdg-utils-nu, ... }:
+{ xdg-utils-nu, ... }:
 {
   nixpkgs.overlays = [
     (_: prev: { xdg-utils = xdg-utils-nu.packages.${prev.stdenv.hostPlatform.system}.xdg-utils-nu; })
-    (
-      final: prev:
-      let
-        thunderbirdUnwrapped = prev.thunderbird-unwrapped.overrideAttrs (old: {
-          configureFlags = map (
-            flag: if lib.hasPrefix "--with-onnx-runtime=" flag then "--without-onnx-runtime" else flag
-          ) old.configureFlags;
-        });
-      in
-      {
-        thunderbird-unwrapped = thunderbirdUnwrapped;
-        thunderbird = final.wrapThunderbird thunderbirdUnwrapped { };
-      }
-    )
     (_final: prev: {
       bcachefs-tools = prev.bcachefs-tools.overrideAttrs (old: {
         patches = (old.patches or [ ]) ++ [

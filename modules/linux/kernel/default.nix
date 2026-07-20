@@ -58,10 +58,6 @@ in
     provider = mkIf isDesktop "graphene-hardened";
     fallbackProvider = mkIf isDesktop "mimalloc";
 
-    mozillaPackages = [
-      pkgs.thunderbird
-    ];
-
     excludedPackages = [
       config.nix.package
       config.programs.claude-code.package

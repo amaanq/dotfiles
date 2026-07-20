@@ -21,7 +21,6 @@ in
   ++ optionals config.isLinux [
     pkgs.obs-studio
     pkgs.megasync
-    pkgs.thunderbird
   ];
 
   environment.variables = {
