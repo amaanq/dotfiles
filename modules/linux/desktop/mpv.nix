@@ -10,7 +10,7 @@ let
   colors = lib.theme.withHashtag;
 in
 {
-  environment.systemPackages = [ pkgs.mpv ];
+  environment.systemPackages = [ (pkgs.mpv.override { scripts = [ pkgs.mpvScripts.autoload ]; }) ];
 
   xdg.mime.defaultApplications =
     [
