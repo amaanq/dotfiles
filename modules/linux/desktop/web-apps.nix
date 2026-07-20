@@ -272,6 +272,7 @@ in
     environment.systemPackages = mapAttrsToList (_: v: v.package) config.programs.pwas;
 
     xdg.mime.defaultApplications = {
+      "x-scheme-handler/mailto" = "bulwark-web-app.desktop";
       "x-scheme-handler/matrix" = "element-web-app.desktop";
       "x-scheme-handler/tg" = "telegram-web-app.desktop";
       "x-scheme-handler/tonsite" = "telegram-web-app.desktop";

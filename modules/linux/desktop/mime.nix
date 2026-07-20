@@ -28,19 +28,5 @@ in
     // {
       "x-scheme-handler/ror2mm" = "r2modman.desktop";
       "x-scheme-handler/discord" = "vesktop.desktop";
-
-      "x-scheme-handler/mailto" = "userapp-Thunderbird-3NCNA3.desktop";
-      "message/rfc822" = "userapp-Thunderbird-3NCNA3.desktop";
-      "x-scheme-handler/mid" = "userapp-Thunderbird-3NCNA3.desktop";
-      "x-scheme-handler/news" = "userapp-Thunderbird-95BLA3.desktop";
-      "x-scheme-handler/snews" = "userapp-Thunderbird-95BLA3.desktop";
-      "x-scheme-handler/nntp" = "userapp-Thunderbird-95BLA3.desktop";
-      "x-scheme-handler/feed" = "userapp-Thunderbird-YEKOA3.desktop";
-      "application/rss+xml" = "userapp-Thunderbird-YEKOA3.desktop";
-      "application/x-extension-rss" = "userapp-Thunderbird-YEKOA3.desktop";
-      "x-scheme-handler/webcal" = "userapp-Thunderbird-YMTHA3.desktop";
-      "text/calendar" = "userapp-Thunderbird-YMTHA3.desktop";
-      "application/x-extension-ics" = "userapp-Thunderbird-YMTHA3.desktop";
-      "x-scheme-handler/webcals" = "userapp-Thunderbird-YMTHA3.desktop";
     };
 }

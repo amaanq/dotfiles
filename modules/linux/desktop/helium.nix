@@ -21,6 +21,7 @@ in
       "text/xml"
       "application/pdf"
       "application/rdf+xml"
+      "application/rss+xml"
       "application/xml"
       "application/xhtml+xml"
       "application/xhtml_xml"
