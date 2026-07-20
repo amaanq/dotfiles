@@ -87,7 +87,7 @@ in
       ehlo_identity = "metrics@${domain}";
       from_address = "metrics@${domain}";
       from_name = "Metrics";
-      host = "mail.amaanq.com:587";
+      host = "${config.mail.hostName}:587";
     };
   };
 

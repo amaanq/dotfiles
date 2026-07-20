@@ -98,7 +98,7 @@ let
     transfer.fsckobjects = true;
 
     sendemail = {
-      smtpServer = "mail.amaanq.com";
+      smtpServer = config.mail.hostName;
       smtpServerPort = 587;
       smtpEncryption = "tls";
       smtpUser = "contact@amaanq.com";

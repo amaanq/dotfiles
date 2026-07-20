@@ -42,7 +42,7 @@ in
     mail = {
       email = "noreply@libg.so";
       smtp = {
-        hostAddr = "mail.amaanq.com";
+        hostAddr = config.mail.hostName;
         hostPort = 25;
       };
     };

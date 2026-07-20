@@ -45,7 +45,7 @@ in
       PASSWORD_ITERATIONS = 500000;
 
       # SMTP
-      SMTP_HOST = "mail.${domain}";
+      SMTP_HOST = config.mail.hostName;
       SMTP_PORT = 465;
       SMTP_SECURITY = "force_tls";
       SMTP_FROM = "vault@${domain}";

@@ -35,11 +35,11 @@ in
         '';
 
       locations."/.well-known/jmap" = {
-        proxyPass = "https://mail.${domain}/.well-known/jmap";
+        proxyPass = "https://${config.mail.hostName}/.well-known/jmap";
       };
 
       locations."/jmap" = {
-        proxyPass = "https://mail.${domain}/jmap";
+        proxyPass = "https://${config.mail.hostName}/jmap";
         extraConfig = ''
           client_max_body_size 50M;
         '';

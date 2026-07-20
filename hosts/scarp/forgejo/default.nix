@@ -248,7 +248,7 @@ in
           ENABLED = true;
 
           PROTOCOL = "smtps";
-          SMTP_ADDR = "mail.amaanq.com";
+          SMTP_ADDR = config.mail.hostName;
           USER = "git@${domain}";
         };
 

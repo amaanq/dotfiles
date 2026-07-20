@@ -1,7 +1,7 @@
 { config, lib, ... }:
 let
   inherit (config.networking) domain;
-  inherit (lib) mkValue;
+  inherit (lib) concatMap mkValue remove;
 in
 {
   options.security.acme.users = mkValue [ ];
@@ -23,13 +23,11 @@ in
     certs.${domain} = {
       extraDomainNames = [
         "*.${domain}"
-        "ameerq.com"
-        "*.ameerq.com"
-        "libg.so"
-        "*.libg.so"
-        "hkpoolservices.com"
-        "*.hkpoolservices.com"
-      ];
+      ]
+      ++ concatMap (d: [
+        d
+        "*.${d}"
+      ]) (remove domain config.mail.domains);
       group = "acme";
     };
 

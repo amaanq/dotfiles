@@ -11,7 +11,7 @@ let
 
   fqdn = "inbox.${domain}";
   port = 3000;
-  stalwartUrl = "https://mail.${domain}";
+  stalwartUrl = "https://${config.mail.hostName}";
 
   bulwark = pkgs.buildNpmPackage (finalAttrs: {
     pname = "bulwark";
@@ -90,7 +90,7 @@ in
         stalwartProxy = {
           recommendedProxySettings = false;
           extraConfig = ''
-            proxy_set_header Host mail.${domain};
+            proxy_set_header Host ${config.mail.hostName};
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;

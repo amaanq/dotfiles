@@ -9,14 +9,10 @@ let
   inherit (config.networking) domain;
   inherit (lib) enabled;
 
-  domains = [
-    "amaanq.com"
-    "ameerq.com"
-    "libg.so"
-    "hkpoolservices.com"
-  ];
+  inherit (config.mail) domains;
 
   inherit (config.mail.rampart) zone;
+  mailHost = config.mail.hostName;
   rampartHost = config.mail.rampart.mx;
   rampartAcmeRoot = "/var/lib/acme/${zone}";
 
@@ -66,7 +62,7 @@ let
   mkProxy = path: extra: {
     proxyPass = "http://[::1]:8080${path}";
     extraConfig = ''
-      proxy_set_header Host mail.${domain};
+      proxy_set_header Host ${mailHost};
       proxy_set_header X-Real-IP $remote_addr;
       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_set_header X-Forwarded-Proto $scheme;
@@ -117,7 +113,7 @@ in
       _: config.services.nginx.sslTemplate // { locations = autodiscoveryLocations; }
     )
     // {
-      "mail.${domain}" = config.services.nginx.sslTemplate // {
+      ${mailHost} = config.services.nginx.sslTemplate // {
         locations = fullMailLocations;
       };
     };
@@ -211,7 +207,7 @@ in
                 "then" = "'${rampartHost}'";
               };
             };
-            "else" = "'mail.${domain}'";
+            "else" = "'${mailHost}'";
           };
           smtpGreeting = {
             match = {
@@ -220,7 +216,7 @@ in
                 "then" = "'${rampartHost} ESMTP service ready'";
               };
             };
-            "else" = "'mail.${domain} ESMTP service ready'";
+            "else" = "'${mailHost} ESMTP service ready'";
           };
         };
       }
@@ -232,15 +228,15 @@ in
         object = "MtaConnectionStrategy";
         value.conn-amaanq = {
           name = "conn-amaanq";
-          ehloHostname = "mail.${domain}";
+          ehloHostname = mailHost;
           sourceIps = {
             "0" = {
               sourceIp = config.mail.amaanq.ipv4;
-              ehloHostname = "mail.${domain}";
+              ehloHostname = mailHost;
             };
             "1" = {
               sourceIp = config.mail.amaanq.ipv6;
-              ehloHostname = "mail.${domain}";
+              ehloHostname = mailHost;
             };
           };
         };
