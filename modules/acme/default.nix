@@ -35,9 +35,9 @@ in
 
     # rampart.email is intentionally a separate cert with its own ACME
     # account contact.
-    certs."rampart.email" = {
-      extraDomainNames = [ "*.rampart.email" ];
-      email = "security@rampart.email";
+    certs.${config.mail.rampart.zone} = {
+      extraDomainNames = [ "*.${config.mail.rampart.zone}" ];
+      email = "security@${config.mail.rampart.zone}";
       group = "acme";
     };
   };

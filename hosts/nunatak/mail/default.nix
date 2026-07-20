@@ -16,9 +16,9 @@ let
     "hkpoolservices.com"
   ];
 
-  rampartZone = "rampart.email";
-  rampartHost = "mx.${rampartZone}";
-  rampartAcmeRoot = "/var/lib/acme/${rampartZone}";
+  inherit (config.mail.rampart) zone;
+  rampartHost = config.mail.rampart.mx;
+  rampartAcmeRoot = "/var/lib/acme/${zone}";
 
   # Create a NetworkListener
   mkCreateListener =
@@ -110,7 +110,7 @@ in
   # On cert renewal stalwart's parse_certificates() keeps the cached DB
   # notValidAfter until `stalwart-cli update Certificate <id>` is run.
   security.acme.certs.${domain}.reloadServices = [ "stalwart.service" ];
-  security.acme.certs.${rampartZone}.reloadServices = [ "stalwart.service" ];
+  security.acme.certs.${zone}.reloadServices = [ "stalwart.service" ];
 
   services.nginx.virtualHosts =
     lib.genAttrs domains (

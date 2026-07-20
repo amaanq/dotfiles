@@ -10,14 +10,9 @@ let
   inherit (config.networking) domain;
   inherit (lib) disabled enabled;
 
-  rampartHost = "bunker.rampart.email";
+  inherit (config.mail.rampart) zone;
 
-  # authserv-id stalwart stamps on AR headers — matches the per-IP
-  # hostname Expression in MtaStageConnect for the rampart listener.
-  # Worker's reply-policy compares against this string verbatim; mismatch
-  # = silent 5xx "no Authentication-Results from our stalwart" on every
-  # reply.
-  stalwartAuthservId = "mx.rampart.email";
+  rampartHost = "bunker.${zone}";
 in
 {
   imports = [
@@ -44,7 +39,7 @@ in
       # AUTH stays on amaanq (internal credential, never visible);
       # From: header is rampart-side so transactional mail recipients
       # never see amaanq.com.
-      notifierFrom = "\"rampart\" <noreply@rampart.email>";
+      notifierFrom = "\"rampart\" <noreply@${zone}>";
     };
 
     stalwart = {
@@ -55,7 +50,7 @@ in
       # local file generated once via tmpfiles below; same shape as
       # rampart-notifier-password. TODO: agenix-rekey both in a single sweep.
       verpKeyFile = "/var/lib/rampart/verp-key";
-      authservId = stalwartAuthservId;
+      authservId = config.mail.rampart.mx;
     };
 
     sieve = {
@@ -97,7 +92,7 @@ in
   # Referrer-Policy override lives at server scope so the location can stay
   # add_header-free, as any add_header in a child drops parent inheritance.
   services.nginx.virtualHosts.${rampartHost} = config.services.nginx.sslTemplate // {
-    useACMEHost = "rampart.email";
+    useACMEHost = zone;
     extraConfig = config.services.nginx.mkHeaders {
       referrerPolicy = "strict-origin-when-cross-origin";
     };
@@ -116,13 +111,13 @@ in
     };
   };
 
-  # Placeholder landing for rampart.email apex.
-  services.nginx.virtualHosts."rampart.email" = config.services.nginx.sslTemplate // {
-    useACMEHost = "rampart.email";
+  # Placeholder landing for the rampart apex.
+  services.nginx.virtualHosts.${zone} = config.services.nginx.sslTemplate // {
+    useACMEHost = zone;
     extraConfig = config.services.nginx.mkHeaders {
       referrerPolicy = "strict-origin-when-cross-origin";
     };
-    locations."/".return = ''200 "rampart.email - coming soon\n"'';
+    locations."/".return = ''200 "${zone} - coming soon\n"'';
     locations."/".extraConfig = ''
       default_type "text/plain; charset=utf-8";
     '';
