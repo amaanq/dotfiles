@@ -39,7 +39,7 @@ in
       proxyPass = "http://[::1]:${toString port}";
       proxyWebsockets = true;
       extraConfig = ''
-        proxy_cookie_path / /;
+        proxy_cookie_path off;
       '';
     };
 
