@@ -211,3 +211,6 @@ url = "amaan:jmapper"
 [inputs.signal-web]
 url = "github:amaanq/signal-web"
 type = "fetch"
+
+[inputs.oust]
+url = "amaan:oust"

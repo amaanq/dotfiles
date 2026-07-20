@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  run0-sudo-shim,
   ...
 }:
 let
@@ -27,7 +28,7 @@ let
     exec ${pkgs.systemd}/bin/run0 --background= "$@"
   '';
 
-  run0-sudo-shim' = pkgs.run0-sudo-shim.overrideAttrs (old: {
+  run0-sudo-shim' = run0-sudo-shim.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
     env = (old.env or { }) // {
       RUN0 = "${run0-no-bg}/bin/run0";
     };

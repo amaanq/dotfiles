@@ -327,6 +327,14 @@
     "narHash": "sha256-SIRE+x1YCSAX1L89237RN9owJkC4hgCIy1Q93Iy9GzM=",
     "lastModified": 1779854459
   },
+  "oust": {
+    "type": "github",
+    "owner": "amaanq",
+    "repo": "oust",
+    "rev": "03056e1a04515295833836227ace483dedf54d26",
+    "narHash": "sha256-xytRngq8Fhd6lRSWR67xmJO8MhljIvy98l/69RD/31U=",
+    "lastModified": 1784514865
+  },
   "qtengine": {
     "type": "github",
     "owner": "kossLAN",

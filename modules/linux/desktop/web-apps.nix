@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  oust,
   ...
 }:
 let
@@ -106,14 +107,24 @@ let
       description,
       categories,
       pulseSink,
+      keep,
     }:
     let
       cleanName = replaceStrings [ " " "\n" "\t" ] [ "-" "-" "-" ] name |> toLower;
       pname = "${cleanName}-web-app";
       heliumBin = "${config.wrappers.helium.finalPackage}/bin/helium";
+      urlHost = builtins.head (builtins.match "[hH][tT][tT][pP][sS]?://([^/:]+).*" url);
+      bounceExtension = oust.lib.mkExtension pkgs {
+        keep = [
+          urlHost
+          "accounts.google.com"
+        ]
+        ++ keep;
+      };
       flags = [
         "--app=${url}"
         "--user-data-dir=$HOME/.local/share/web-apps/${pname}"
+        "--load-extension=${bounceExtension}"
       ]
       ++ commonFlags;
       flagArgs = lib.concatStringsSep " " (map (f: "--add-flags ${lib.escapeShellArg f}") flags);
@@ -177,6 +188,10 @@ let
       pulseSink = mkOption {
         type = nullOr str;
         default = null;
+      };
+      keep = mkOption {
+        type = listOf str;
+        default = [ ];
       };
     };
   };
@@ -250,6 +265,7 @@ in
         url = "https://twitter.com";
         icon = icons.twitter;
         description = "Twitter Web";
+        keep = [ "x.com" ];
         categories = [
           "Network"
           "News"
@@ -270,6 +286,8 @@ in
     };
 
     environment.systemPackages = mapAttrsToList (_: v: v.package) config.programs.pwas;
+
+    programs.oust.enable = true;
 
     xdg.mime.defaultApplications = {
       "x-scheme-handler/mailto" = "bulwark-web-app.desktop";

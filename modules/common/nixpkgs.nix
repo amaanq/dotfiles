@@ -1,21 +1,9 @@
 {
   lib,
-  run0-sudo-shim,
-  xdg-utils-nu,
   ...
 }:
 {
   nixpkgs.overlays = [
-    # Consume the shim via its overlay (builds on the caller's pkgs) so cross
-    # hosts cross-compile it; `.packages.${system}` would be a native build.
-    (
-      final: prev:
-      lib.optionalAttrs prev.stdenv.hostPlatform.isLinux (run0-sudo-shim.overlays.default final prev)
-    )
-    (
-      final: prev:
-      lib.optionalAttrs prev.stdenv.hostPlatform.isLinux (xdg-utils-nu.overlays.default final prev)
-    )
     (
       final: prev:
       let
@@ -170,8 +158,6 @@
         );
       }
       // lib.optionalAttrs prev.stdenv.hostPlatform.isLinux {
-        xdg-utils = final.xdg-utils-nu;
-
         # winetricks's wrapper embeds perl in PATH for a handful of niche
         # verbs (mostly font/registry helpers). Scrub the store ref so perl
         # drops out of the closure; if a verb that needs perl is invoked,
