@@ -41,10 +41,10 @@ in
 
       dns = {
         magic_dns = true;
-        base_domain = "cirque.${domain}";
+        base_domain = config.dns.tailnetDomain;
         override_local_dns = true;
         nameservers.global = [
-          "https://dns.nextdns.io/9b2c13"
+          "https://dns.nextdns.io/${config.dns.nextdns.profile}"
         ];
       };
 

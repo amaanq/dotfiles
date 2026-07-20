@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (lib) enabled singleton;
+  inherit (lib) enabled;
   inherit (lib.attrsets)
     filterAttrs
     isAttrs
@@ -29,7 +29,6 @@ let
 
   cfg = config.services.hickory-dns;
   toml = pkgs.formats.toml { };
-  hostname = config.networking.hostName;
   cleanToml =
     value:
     if isList value then
@@ -127,91 +126,5 @@ in
     };
   };
 
-  # Mirror the linux config: nextdns over DoH/DoQ for everything, MagicDNS UDP
-  # for the headscale zone. Listen only on loopback; system resolver via ::1.
-  config.services.hickory-dns = enabled {
-    settings = {
-      listen_port = 53;
-      listen_addrs_ipv4 = singleton "127.0.0.53";
-      listen_addrs_ipv6 = singleton "::1";
-
-      zones = [
-        {
-          zone = "cirque.amaanq.com";
-          zone_type = "External";
-          stores = {
-            type = "forward";
-            name_servers = singleton {
-              ip = "100.100.100.100";
-              trust_negative_responses = true;
-              connections = singleton {
-                protocol.type = "udp";
-              };
-            };
-            options = {
-              cache_size = 1024;
-              positive_max_ttl = 300;
-              negative_max_ttl = 300;
-            };
-          };
-        }
-        {
-          zone = ".";
-          zone_type = "External";
-          stores = {
-            type = "forward";
-            name_servers =
-              let
-                mkNextDnsServer = ip: {
-                  inherit ip;
-                  trust_negative_responses = true;
-                  connections = [
-                    {
-                      protocol = {
-                        server_name = "dns.nextdns.io";
-                        path = "/9b2c13/${hostname}";
-                        type = "h3";
-                      };
-                    }
-                    {
-                      protocol = {
-                        server_name = "dns.nextdns.io";
-                        path = "/9b2c13/${hostname}";
-                        type = "https";
-                      };
-                    }
-                    {
-                      protocol = {
-                        server_name = "${hostname}-9b2c13.dns.nextdns.io";
-                        type = "quic";
-                      };
-                    }
-                    {
-                      protocol = {
-                        server_name = "${hostname}-9b2c13.dns.nextdns.io";
-                        type = "tls";
-                      };
-                    }
-                  ];
-                };
-              in
-              [
-                (mkNextDnsServer "2a07:a8c0::")
-                (mkNextDnsServer "2a07:a8c1::")
-                (mkNextDnsServer "45.90.28.0")
-                (mkNextDnsServer "45.90.30.0")
-              ];
-            options = {
-              cache_size = 32768;
-              num_concurrent_reqs = 4;
-              positive_min_ttl = 60;
-              positive_max_ttl = 86400;
-              negative_min_ttl = 900;
-              negative_max_ttl = 86400;
-            };
-          };
-        }
-      ];
-    };
-  };
+  config.services.hickory-dns = enabled { settings = config.dns.hickorySettings; };
 }
