@@ -780,6 +780,11 @@
           "output_file": "hosts/scarp/secrets/nixServeKey.age",
           "output_sha256": "757eb42f304122d6c47e65ebd60901e8462b3c21b2ce2e9ffc1094a91e7e4951"
         },
+        "oxicloudJwt": {
+          "source_sha256": "1cbb771d0b79f23df362a15b6caf480893118cf75ffa0077f5dd7635a6493bc3",
+          "output_file": "hosts/scarp/secrets/oxicloudJwt.age",
+          "output_sha256": "a1c9ddda121f028ecda05761eaf805467a154df39c825ef8d1579134a2babba5"
+        },
         "password": {
           "source_sha256": "1fd22543631b9999e32e793d57e8a9bf990483bc1002efd113446748d4beaffa",
           "output_file": "hosts/scarp/secrets/password.age",
