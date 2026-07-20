@@ -15,20 +15,12 @@ let
     "libg.so"
     "hkpoolservices.com"
   ];
-  # Rampart identity — separated from amaanq's mail at the IP/PTR/EHLO/cert
-  # level so DNS tracing of pool domains never leads back to amaanq.com.
+
   rampartZone = "rampart.email";
   rampartHost = "mx.${rampartZone}";
   rampartAcmeRoot = "/var/lib/acme/${rampartZone}";
 
-  # amaanq IPs the existing identity binds inbound to. Pulled here to keep
-  # the listener-smtp bind list and the per-IP hostname expression in sync.
-  amaanqInboundV4 = "152.53.83.122";
-  amaanqInboundV6 = "2a0a:4cc0:2000:3f59::1";
-  rampartInboundV4 = "152.53.31.156";
-
-  # Create a NetworkListener (full body, server assigns id). `cid` is a
-  # temp-create-id usable as `#<cid>` from later ops in the same plan.
+  # Create a NetworkListener
   mkCreateListener =
     {
       cid,
@@ -57,7 +49,7 @@ let
       };
     };
 
-  # Patch an existing NetworkListener by JMAP id (cli expects partial patch).
+  # Patch an existing NetworkListener by JMAP id
   mkUpdateListener =
     {
       id,
@@ -175,8 +167,8 @@ in
               value = true;
             })
             [
-              "${amaanqInboundV4}:25"
-              "[${amaanqInboundV6}]:25"
+              "${config.mail.amaanq.ipv4}:25"
+              "[${config.mail.amaanq.ipv6}]:25"
             ]
         );
       })
@@ -185,7 +177,7 @@ in
       (mkCreateListener {
         cid = "listener-smtp-rampart";
         name = "smtp-rampart";
-        bind = [ "${rampartInboundV4}:25" ];
+        bind = [ "${config.mail.rampart.ipv4}:25" ];
         protocol = "smtp";
         useTls = true;
         tlsImplicit = false;
@@ -215,7 +207,7 @@ in
           hostname = {
             match = {
               "0" = {
-                "if" = "local_ip == '${rampartInboundV4}'";
+                "if" = "local_ip == '${config.mail.rampart.ipv4}'";
                 "then" = "'${rampartHost}'";
               };
             };
@@ -224,7 +216,7 @@ in
           smtpGreeting = {
             match = {
               "0" = {
-                "if" = "local_ip == '${rampartInboundV4}'";
+                "if" = "local_ip == '${config.mail.rampart.ipv4}'";
                 "then" = "'${rampartHost} ESMTP service ready'";
               };
             };
@@ -243,11 +235,11 @@ in
           ehloHostname = "mail.${domain}";
           sourceIps = {
             "0" = {
-              sourceIp = amaanqInboundV4;
+              sourceIp = config.mail.amaanq.ipv4;
               ehloHostname = "mail.${domain}";
             };
             "1" = {
-              sourceIp = amaanqInboundV6;
+              sourceIp = config.mail.amaanq.ipv6;
               ehloHostname = "mail.${domain}";
             };
           };
@@ -263,7 +255,7 @@ in
           ehloHostname = rampartHost;
           sourceIps = {
             "0" = {
-              sourceIp = rampartInboundV4;
+              sourceIp = config.mail.rampart.ipv4;
               ehloHostname = rampartHost;
             };
           };

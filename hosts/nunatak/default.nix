@@ -72,13 +72,13 @@ lib.nixosSystem' "server" (
 
         hostName = "nunatak";
 
-        ipv4.address = "152.53.83.122";
-        ipv6.address = "2a0a:4cc0:2000:3f59::1";
+        ipv4.address = config.mail.amaanq.ipv4;
+        ipv6.address = config.mail.amaanq.ipv6;
 
         interfaces.${interface} = {
           ipv4.addresses = [
             {
-              address = "152.53.31.156";
+              address = config.mail.rampart.ipv4;
               prefixLength = 32;
             }
           ];

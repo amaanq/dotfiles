@@ -25,8 +25,8 @@ lib.nixosSystem' "server" (
       domain = "amaanq.com";
       hostName = "scarp";
       hosts = {
-        "152.53.83.122" = [ "mail.${config.networking.domain}" ];
-        "2a0a:4cc0:2000:3f59::1" = [ "mail.${config.networking.domain}" ];
+        ${config.mail.amaanq.ipv4} = [ "mail.${config.networking.domain}" ];
+        ${config.mail.amaanq.ipv6} = [ "mail.${config.networking.domain}" ];
       };
     };
     nixpkgs.config.allowUnfree = true;
