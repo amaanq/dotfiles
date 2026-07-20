@@ -795,6 +795,11 @@
           "output_file": "hosts/scarp/secrets/plausibleKey.age",
           "output_sha256": "14e0d80f3631d9358db5f5f4a2135797f9f3d0b90aadb4ae2f13443aecb20c57"
         },
+        "pocketIdEncryptionKey": {
+          "source_sha256": "1ed0cd30c688b2da8eff105c39c20fc6a552a6437b62aa8aecbdc866425a2b52",
+          "output_file": "hosts/scarp/secrets/pocketIdEncryptionKey.age",
+          "output_sha256": "03636c10f2ba0b7fb4fa34702323927658f491d5e0c4a1a4bf311c7854556f10"
+        },
         "repoPingWebhook": {
           "source_sha256": "650ce9c2534a8e42afe245f4dd39319d41cff10e638b3737e87e681a9972bff8",
           "output_file": "hosts/scarp/secrets/repoPingWebhook.age",
