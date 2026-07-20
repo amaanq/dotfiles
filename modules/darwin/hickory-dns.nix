@@ -11,7 +11,7 @@ let
     isAttrs
     mapAttrs
     ;
-  inherit (lib.meta) getExe';
+  inherit (lib.meta) getExe getExe';
   inherit (lib.modules) mkIf;
   inherit (lib.options) mkEnableOption mkOption mkPackageOption;
   inherit (lib.strings) escapeShellArgs;
@@ -44,6 +44,19 @@ let
       platforms = old.meta.platforms ++ lib.platforms.darwin;
     };
   });
+
+  watchdog = pkgs.writeShellScript "hickory-dns-watchdog" ''
+    probe=$(${getExe pkgs.dig} +time=2 +tries=1 @${config.dns.listenAddress} . SOA 2>/dev/null) || {
+      echo "hickory-dns-watchdog: resolver query failed; restarting hickory-dns" >&2
+      /bin/launchctl kickstart -k system/org.nixos.hickory-dns
+      exit
+    }
+
+    if ! ${getExe' pkgs.gnugrep "grep"} --quiet 'status: NOERROR' <<< "$probe"; then
+      echo "hickory-dns-watchdog: resolver returned an unhealthy response; restarting hickory-dns" >&2
+      /bin/launchctl kickstart -k system/org.nixos.hickory-dns
+    fi
+  '';
 in
 {
   options.services.hickory-dns = {
@@ -123,6 +136,16 @@ in
       ];
       KeepAlive = true;
       RunAtLoad = true;
+    };
+  };
+
+  config.launchd.daemons.hickory-dns-watchdog = mkIf cfg.enable {
+    command = watchdog;
+    serviceConfig = {
+      LaunchEvents."com.apple.notifyd.matching".network-change.Notification =
+        "com.apple.system.config.network_change";
+      ProcessType = "Background";
+      StartInterval = 300;
     };
   };
 
