@@ -30,6 +30,16 @@ let
       "nvim"
       ''+lua require("persistence").load()''
     ];
+    ui.sidebar.agents = {
+      row_gap = 0;
+      rows = [
+        [
+          "state_icon"
+          "workspace"
+          "tab"
+        ]
+      ];
+    };
   };
 in
 {
