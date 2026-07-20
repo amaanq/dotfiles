@@ -1,8 +1,26 @@
 { lib, pkgs, ... }:
 let
-  inherit (lib) const enabled flip genAttrs;
+  inherit (lib)
+    const
+    enabled
+    flip
+    genAttrs
+    ;
 in
 {
+  environment.etc."xdg/menus/applications.menu".text = ''
+    <!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN" "http://www.freedesktop.org/standards/menu-spec/menu-1.0.dtd">
+    <Menu>
+      <Name>Applications</Name>
+      <DefaultAppDirs/>
+      <DefaultDirectoryDirs/>
+      <DefaultMergeDirs/>
+      <Include>
+        <All/>
+      </Include>
+    </Menu>
+  '';
+
   xdg.mime.defaultApplications =
     flip genAttrs (const "org.kde.dolphin.desktop") [
       "inode/directory"
